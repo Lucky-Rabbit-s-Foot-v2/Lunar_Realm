@@ -32,3 +32,6 @@
 
 //로그 시스템
 #include "System/LoggingSystem.h"
+
+// 공통 구조체 헤더
+#include "Data/LRDataStructs.h"
