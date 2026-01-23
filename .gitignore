@@ -72,3 +72,7 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# Rider/IntelliJ 설정 파일 (프로젝트 이름에 상관없이 적용)
+.idea/
+*.sln.iml
