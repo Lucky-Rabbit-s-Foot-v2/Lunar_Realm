@@ -8,7 +8,16 @@ public class Lunar_Realm : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
+		PublicDependencyModuleNames.AddRange(new string[] { 
+			"Core", "CoreUObject", "Engine",
+            "InputCore", "EnhancedInput",
+            "AIModule",
+            "NavigationSystem",
+            "GameplayTasks", "GameplayTags", "GameplayAbilities",
+            "Slate", "SlateCore", "UMG",
+            "Niagara", "NiagaraCore",
+            "VectorVM",
+		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
