@@ -29,6 +29,13 @@ public:
 	bool HasCharacter(int32 CharacterID) const;
 	bool HasEquipment(int32 EquipmentID) const;
 	
+	// 캐릭터 슬롯 관리
+	void SetCharacterSlot(int32 SlotIndex, int32 CharacterID);
+	int32 GetCharacterSlot(int32 SlotIndex) const;
+	
+	//모든 캐릭터 슬롯 가져오기
+	TArray<int32> GetAllCharacterSlots() const;
+	
 	// 장비 슬롯 관리
 	void SetEquipmentSlot(int32 SlotIndex, int32 EquipmentID);
 	int32 GetEquipmentSlot(int32 SlotIndex) const;
@@ -38,7 +45,7 @@ public:
 	
 	
 	// ========================================
-	// 소유 데이터(캐릭터/장비 인스턴스)
+	// 소유 도감 데이터(캐릭터/장비 인스턴스)
 	// ========================================
 	UPROPERTY(SaveGame, BlueprintReadWrite)
 	TMap<int32, FPlayerCharacterInstance> OwnedCharacters;
@@ -49,10 +56,11 @@ public:
 	// ========================================
 	// 선택된 로드아웃 정보
 	// ========================================
+	// 선택된 캐릭터 파티 정보
 	UPROPERTY(SaveGame, BlueprintReadWrite)
-	int32 SelectedCharacterID = -1;
+	TArray<int32> SelectedCharacterIDs;
     
-	// 장비 슬롯을 배열로 변경 (3개 슬롯)
+	// 선택된 리더 캐릭터 장비 정보
 	UPROPERTY(SaveGame, BlueprintReadWrite)
 	TArray<int32> SelectedEquipmentIDs;
     
