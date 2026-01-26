@@ -9,6 +9,76 @@
 
 // =============================================================================
 /** 
+ * FCharacterIDInfo, FEquipmentIDInfo 구성 요소
+ * - 캐릭터/장비 ID 파싱 처리 결과 구조체
+* 
+// 캐릭터 ID (5자리)
+// Format: T CC VV
+// 10101 = 1 / 01 / 01
+//         │   │    └─ Variant (등급/버전)
+//         │   └────── Class (직업)
+//         └────────── Type (캐릭터=1)
+
+// 장비 ID (8자리)  
+// Format: T CC III SS
+// 20100102 = 2 / 01 / 001 / 02
+//            │   │    │     └─ Set (세트효과)
+//            │   │    └─────── Item (아이템 번호)
+//            │   └──────────── Category (무기/방어구 등)
+//            └──────────────── Type (장비=2)
+ */
+//=============================================================================
+// (260126) KHS ID 도메인에 따라 ID파싱결과 처리 구조체 추가
+// =============================================================================
+
+//캐릭터 ID 파싱 결과를 처리하기 위한 구조체
+USTRUCT(BlueprintType)
+struct FCharacterIDInfo
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(BlueprintReadOnly)
+	uint8 Type; //1 = 캐릭터(고정)
+	
+	UPROPERTY(BlueprintReadOnly)
+	uint8 Class; //01 = 마법사 / 03 = 궁수
+	
+	UPROPERTY(BlueprintReadOnly)
+	uint8 Variant; //01 = 기본
+	
+	FCharacterIDInfo() 
+		: Type(0), Class(0), Variant(0)
+	{}
+};
+
+
+//장비 ID 파싱 결과를 처리하기 위한 구조체
+USTRUCT(BlueprintType)
+struct FEquipmentIDInfo
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(BlueprintReadOnly)
+	uint8 Type; //2 = 장비(고정)
+	
+	UPROPERTY(BlueprintReadOnly)
+	uint8 Category; //01 = 근거리무기, 15 = 머리방어구
+	
+	UPROPERTY(BlueprintReadOnly)
+	uint8 ItemNumber; //001 = 단검, 002 = 장검
+	
+	UPROPERTY(BlueprintReadOnly)
+	uint8 SetID; //02 = 화염세트, 03 = 얼음세트
+	
+	FEquipmentIDInfo()
+		: Type(0), Category(0), ItemNumber(0), SetID(0)
+	{}
+	
+};
+
+
+// =============================================================================
+/** 
  * FCharacterStaticData 구성 요소
  * - 캐릭터 정적 데이터(도감 데이터 사용)
  * - ID, 이름, 캐릭터 설명, 이미지 텍스쳐
@@ -36,6 +106,8 @@ struct FCharacterStaticData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
 	TSoftObjectPtr<UTexture2D> CharacterTexture;
     
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Skills")
+	TArray<int32> SkillIDs;
 };
 
 
@@ -185,6 +257,40 @@ struct FEquipmentBonus : public FTableRowBase
 };
 
 
+// =============================================================================
+/** 
+ * FSetEffectData 구성 요소
+ * - 장비세트효과 데이터
+ * - 세트ID, 세트 이름, 필요 장착갯수, 스탯 퍼센트 보너스
+ */
+//=============================================================================
+// (260126) KHS 제작. 제반 사항 구현.
+// =============================================================================
+USTRUCT(BlueprintType)
+struct FSetEffectData : public FTableRowBase
+{
+	GENERATED_BODY()
+    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Set")
+	int32 SetID;  // 02 = 화염, 03 = 얼음
+    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Set")
+	FString SetName;  // "Fire Set", "Ice Set"
+    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Set")
+	int32 RequiredPieces = 3;  // 3개 풀세트
+    
+	// 스탯 퍼센트 보너스
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	float BonusHPPercent = 0.f;  // 10.0 = 10% 증가
+    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	float BonusAttackPercent = 0.f;
+    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	float BonusDefensePercent = 0.f;
+};
+
 
 // =============================================================================
 /** 
@@ -221,6 +327,35 @@ struct FPlayerEquipmentInstance
 	
 };
 
-
-
+// =============================================================================
+/** 
+ * FSkillStaticData 구성 요소
+ * - 스킬 정적 데이터
+ * - ID, 이름, 스킬 설명, 이미지 텍스쳐, 실제 사용 GA클래스
+ * - 이미지의 경우 SoftObjectPtr로 비동기 로딩
+ */
+//=============================================================================
+// (260126) KHS 제작. 제반 사항 구현.
+// =============================================================================
+USTRUCT(BlueprintType)
+struct FSkillStaticData : public FTableRowBase
+{
+	GENERATED_BODY()
+    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 SkillID;
+    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString SkillName;
+    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Description;
+    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UTexture2D> SkillIcon;
+    
+	// 실제 GA 클래스
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UGameplayAbility> AbilityClass;
+};
 
