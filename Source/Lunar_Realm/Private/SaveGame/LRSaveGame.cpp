@@ -13,30 +13,35 @@ bool ULRSaveGame::HasEquipment(int32 EquipmentID) const
 	return OwnedEquipments.Contains(EquipmentID);
 }
 
-void ULRSaveGame::SetCharacterSlot(int32 SlotIndex, int32 CharacterID)
+void ULRSaveGame::SetCharacterPartySlot(int32 SlotIndex, int32 CharacterID)
 {
 	//슬롯 수 보장
-	while (SelectedCharacterIDs.Num() <= SlotIndex)
+	while (SelectedCharactersIDs.Num() <= SlotIndex)
 	{
-		SelectedCharacterIDs.Add(-1);
+		SelectedCharactersIDs.Add(-1);
 	}
 	
-	SelectedCharacterIDs[SlotIndex] = CharacterID;
+	SelectedCharactersIDs[SlotIndex] = CharacterID;
 }
 
-int32 ULRSaveGame::GetCharacterSlot(int32 SlotIndex) const
+int32 ULRSaveGame::GetCharacterID(int32 SlotIndex) const
 {
-	if (SelectedCharacterIDs.IsValidIndex(SlotIndex))
+	if (SelectedCharactersIDs.IsValidIndex(SlotIndex))
 	{
-		return SelectedCharacterIDs[SlotIndex];
+		return SelectedCharactersIDs[SlotIndex];
 	}
 	
 	return -1;
 }
 
+int32 ULRSaveGame::GetLeaderCharacterID() const
+{
+	return GetCharacterID(0);
+}
+
 TArray<int32> ULRSaveGame::GetAllCharacterSlots() const
 {
-	return SelectedCharacterIDs;
+	return SelectedCharactersIDs;
 }
 
 void ULRSaveGame::SetEquipmentSlot(int32 SlotIndex, int32 EquipmentID)
@@ -50,7 +55,7 @@ void ULRSaveGame::SetEquipmentSlot(int32 SlotIndex, int32 EquipmentID)
 	SelectedEquipmentIDs[SlotIndex] = EquipmentID;
 }
 
-int32 ULRSaveGame::GetEquipmentSlot(int32 SlotIndex) const
+int32 ULRSaveGame::GetEquipmentID(int32 SlotIndex) const
 {
 	if (SelectedEquipmentIDs.IsValidIndex(SlotIndex))
 	{

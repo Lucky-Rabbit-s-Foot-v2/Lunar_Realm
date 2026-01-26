@@ -30,17 +30,20 @@ public:
 	bool HasEquipment(int32 EquipmentID) const;
 	
 	// 캐릭터 슬롯 관리
-	void SetCharacterSlot(int32 SlotIndex, int32 CharacterID);
-	int32 GetCharacterSlot(int32 SlotIndex) const;
+	void SetCharacterPartySlot(int32 SlotIndex, int32 CharacterID);
+	int32 GetCharacterID(int32 SlotIndex) const;
 	
 	//모든 캐릭터 슬롯 가져오기
 	TArray<int32> GetAllCharacterSlots() const;
 	
-	// 장비 슬롯 관리
-	void SetEquipmentSlot(int32 SlotIndex, int32 EquipmentID);
-	int32 GetEquipmentSlot(int32 SlotIndex) const;
+	//리더캐릭터 ID 반환.
+	int32 GetLeaderCharacterID() const;
 	
-	// 모든 장비 슬롯 가져오기
+	// 리더캐릭터 장비 슬롯 관리
+	void SetEquipmentSlot(int32 SlotIndex, int32 EquipmentID);
+	int32 GetEquipmentID(int32 SlotIndex) const;
+	
+	// 리더캐릭터 모든 장비 슬롯 가져오기
 	TArray<int32> GetAllEquippedIDs() const;
 	
 	
@@ -58,10 +61,10 @@ public:
 	// ========================================
 	// 선택된 캐릭터 파티 정보
 	UPROPERTY(SaveGame, BlueprintReadWrite)
-	TArray<int32> SelectedCharacterIDs;
+	TArray<int32> SelectedCharactersIDs; // 4명[리더, 파티원1, 파티원2, 파티원3]
     
 	// 선택된 리더 캐릭터 장비 정보
 	UPROPERTY(SaveGame, BlueprintReadWrite)
-	TArray<int32> SelectedEquipmentIDs;
+	TArray<int32> SelectedEquipmentIDs; // 리더 장비 3개 [무기, 헬멧, 갑옷]
     
 };
