@@ -7,6 +7,8 @@
 
 // ============================================
 // 공통 헤더(PCH) - 프로젝트 전역에서 사용(Pre-Compile Header)
+// 전체 리컴파일 방지를 위해 수정사항이 없는 core헤더 등만 포함 권장.
+// (260126) KHS 내용 제작. Build.cs 수정완료.
 // ============================================
 // GAS 
 #include "AbilitySystemComponent.h"
@@ -29,9 +31,5 @@
 // 유틸리티
 #include "AbilitySystemBlueprintLibrary.h"
 
-
 //로그 시스템
 #include "System/LoggingSystem.h"
-
-// 공통 구조체 헤더
-#include "Data/LRDataStructs.h"

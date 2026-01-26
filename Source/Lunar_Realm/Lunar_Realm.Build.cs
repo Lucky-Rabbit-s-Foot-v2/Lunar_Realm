@@ -7,7 +7,9 @@ public class Lunar_Realm : ModuleRules
 	public Lunar_Realm(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
+
+		PrivatePCHHeaderFile = "Public/Lunar_Realm.h";
+		
 		PublicDependencyModuleNames.AddRange(new string[] { 
 			"Core", "CoreUObject", "Engine",
             "InputCore", "EnhancedInput",
