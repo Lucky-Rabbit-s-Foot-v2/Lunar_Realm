@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/LRPoolableInterface.h"
 #include "LRCharacter.generated.h"
 
 /**
@@ -17,7 +18,7 @@
 //============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ALRCharacter : public ACharacter
+class LUNAR_REALM_API ALRCharacter : public ACharacter, public ILRPoolableInterface
 {
 	GENERATED_BODY()
 
@@ -30,6 +31,9 @@ protected:
 	virtual void InitializeByData() {};
 	virtual void SaveData() {};
 	virtual void LoadData() {};
+
+	virtual void OnPoolActivate_Implementation();
+	virtual void OnPoolDeactivate_Implementation();
 
 public:	
 	virtual void Tick(float DeltaTime) override;
