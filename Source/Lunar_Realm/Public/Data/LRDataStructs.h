@@ -206,9 +206,8 @@ struct FEquipmentStaticData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
 	TSoftObjectPtr<UTexture2D> EquipmentTexture;
     
-	// GA는 그대로 유지
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Abilities")
-	TArray<TSubclassOf<UGameplayAbility>> GrantedAbilities;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Skills")
+	TArray<int32> SkillIDs;
 };
 
 
@@ -356,6 +355,6 @@ struct FSkillStaticData : public FTableRowBase
     
 	// 실제 GA 클래스
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<UGameplayAbility> AbilityClass;
+	TArray<TSubclassOf<UGameplayAbility>> GrantedAbilities;
 };
 
