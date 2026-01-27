@@ -27,6 +27,9 @@ class LUNAR_REALM_API ILRPoolableInterface
 	GENERATED_BODY()
 
 public:
-	virtual void OnPoolActivate() = 0;
-	virtual void OnPoolDeactivate() = 0;
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void OnPoolActivate();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void OnPoolDeactivate();
 };
