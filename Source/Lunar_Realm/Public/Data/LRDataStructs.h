@@ -9,6 +9,38 @@
 
 // =============================================================================
 /** 
+ * ELRStatusType, EEquipmentType
+ * - 커브 테이블 조회 및 시스템 내부 조회 목적 ENUM
+ * - 기획 확장에 유연하게 대처하기 위함.
+ * - 스테이터스 타입, 장비 슬롯 타입
+ */
+//=============================================================================
+// (260128) KHS 제작. 제반 사항 구현.
+// =============================================================================
+//스탯 타입
+UENUM(BlueprintType)
+enum class ELRStatusType : uint8
+{
+	HP,
+	ATK,
+	DEF,
+	MAX UMETA(Hidden)
+};
+
+//장비 슬롯 타입
+UENUM(BlueprintType)
+enum class EEquipmentType : uint8
+{
+	WEAPON = 0,
+	HELMET = 1,
+	ARMOR = 2, 
+	MAX UMETA(Hidden)
+};
+
+
+
+// =============================================================================
+/** 
  * FCharacterIDInfo, FEquipmentIDInfo 구성 요소
  * - 캐릭터/장비 ID 파싱 처리 결과 구조체
 * 
@@ -126,6 +158,8 @@ struct FCharacterMultipliers : public FTableRowBase
 {
 	GENERATED_BODY()
     
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
+	int32 CharacterID;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Multiplier")
 	float HPMultiplier;
@@ -256,40 +290,6 @@ struct FEquipmentBonus : public FTableRowBase
 };
 
 
-// =============================================================================
-/** 
- * FSetEffectData 구성 요소
- * - 장비세트효과 데이터
- * - 세트ID, 세트 이름, 필요 장착갯수, 스탯 퍼센트 보너스
- */
-//=============================================================================
-// (260126) KHS 제작. 제반 사항 구현.
-// =============================================================================
-USTRUCT(BlueprintType)
-struct FSetEffectData : public FTableRowBase
-{
-	GENERATED_BODY()
-    
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Set")
-	int32 SetID;  // 02 = 화염, 03 = 얼음
-    
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Set")
-	FString SetName;  // "Fire Set", "Ice Set"
-    
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Set")
-	int32 RequiredPieces = 3;  // 3개 풀세트
-    
-	// 스탯 퍼센트 보너스
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	float BonusHPPercent = 0.f;  // 10.0 = 10% 증가
-    
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	float BonusAttackPercent = 0.f;
-    
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	float BonusDefensePercent = 0.f;
-};
-
 
 // =============================================================================
 /** 
@@ -328,6 +328,43 @@ struct FPlayerEquipmentInstance
 	
 	
 };
+
+// =============================================================================
+/** 
+ * FSetEffectData 구성 요소
+ * - 장비세트효과 데이터
+ * - 세트ID, 세트 이름, 필요 장착갯수, 스탯 퍼센트 보너스
+ */
+//=============================================================================
+// (260126) KHS 제작. 제반 사항 구현.
+// =============================================================================
+USTRUCT(BlueprintType)
+struct FSetEffectData : public FTableRowBase
+{
+	GENERATED_BODY()
+    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Set")
+	int32 SetID;  // 02 = 화염, 03 = 얼음
+    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Set")
+	FString SetName;  // "Fire Set", "Ice Set"
+    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Set")
+	int32 RequiredPieces = 3;  // 3개 풀세트
+    
+	// 스탯 퍼센트 보너스
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	float BonusHPPercent = 0.f;  // 10.0 = 10% 증가
+    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	float BonusAttackPercent = 0.f;
+    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	float BonusDefensePercent = 0.f;
+};
+
+
+
 
 // =============================================================================
 /** 
