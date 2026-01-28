@@ -24,7 +24,7 @@ class LUNAR_REALM_API ULRSaveGame : public USaveGame
 	
 public:
 	// ========================================
-	// 헬퍼 함수들
+	// 로드아웃 헬퍼 함수들
 	// ========================================
 	bool HasCharacter(int32 CharacterID) const;
 	bool HasEquipment(int32 EquipmentID) const;
@@ -45,7 +45,6 @@ public:
 	
 	// 리더캐릭터 모든 장비 슬롯 가져오기
 	TArray<int32> GetAllEquippedIDs() const;
-	
 	
 	// ========================================
 	// 소유 도감 데이터(캐릭터/장비 인스턴스)
