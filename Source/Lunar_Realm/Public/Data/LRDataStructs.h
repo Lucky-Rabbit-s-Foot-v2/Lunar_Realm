@@ -315,12 +315,15 @@ struct FPlayerEquipmentInstance
 	int32 CurrentLevel = 1;
     
 	UPROPERTY(SaveGame, BlueprintReadWrite)
+	int32 CurrentExp = 0;
+	
+	UPROPERTY(SaveGame, BlueprintReadWrite)
 	bool bIsUnlocked = false;
     
 	FPlayerEquipmentInstance() {}
     
 	FPlayerEquipmentInstance(int32 InID, int32 InLevel = 1)
-		: EquipmentID(InID), CurrentLevel(InLevel), bIsUnlocked(true)
+		: EquipmentID(InID), CurrentLevel(InLevel), CurrentExp(0), bIsUnlocked(true)
 	{}
 	
 	
