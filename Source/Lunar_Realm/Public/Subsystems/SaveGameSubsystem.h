@@ -34,10 +34,10 @@ public:
 	
 	//델리게이트
 	UPROPERTY(BlueprintAssignable, Category = "LR|SaveGame")
-	FOnSaveGameLoaded OnSaveGameLoaded;
+	FOnSaveGameLoaded OnSaveGameLoadedDel;
 	
 	UPROPERTY(BlueprintAssignable, Category = "LR|SaveGame")
-	FOnSaveGameSaved OnSaveGameSaved;
+	FOnSaveGameSaved OnSaveGameSavedDel;
 	
 private:
 	void CreateNewSaveGame();

@@ -48,7 +48,7 @@ void USaveGameSubsystem::CreateNewSaveGame()
 	
 #endif
 	
-	OnSaveGameLoaded.Broadcast(CurrentSaveGame);
+	OnSaveGameLoadedDel.Broadcast(CurrentSaveGame);
 }
 
 void USaveGameSubsystem::LoadGame()
@@ -62,7 +62,7 @@ void USaveGameSubsystem::LoadGame()
 		}
 		
 		//브로드캐스트
-		OnSaveGameLoaded.Broadcast(CurrentSaveGame);
+		OnSaveGameLoadedDel.Broadcast(CurrentSaveGame);
 	}
 	else
 	{
@@ -81,7 +81,7 @@ void USaveGameSubsystem::SaveGame()
 	if (UGameplayStatics::SaveGameToSlot(CurrentSaveGame, SaveSlotName, UserIndex))
 	{
 		LR_INFO(TEXT("Save Game Successfully"));
-		OnSaveGameSaved.Broadcast();
+		OnSaveGameSavedDel.Broadcast();
 	}
 }
 
