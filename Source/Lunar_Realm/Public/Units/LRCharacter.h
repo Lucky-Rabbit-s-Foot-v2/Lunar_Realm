@@ -40,4 +40,10 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	/**
+	* 오브젝트 풀링 헬퍼 함수
+	* - 자손 클래스의 베이스 클래스 타입 반환
+	*/
+	UFUNCTION(BlueprintPure)
+	TSubclassOf<ALRCharacter> GetBaseClass() const { return TSubclassOf<ALRCharacter>(GetClass()); }
 };

@@ -27,6 +27,18 @@ class LUNAR_REALM_API UPoolingSubsystem : public UWorldSubsystem
 	
 public:
 	/**
+	* 헬퍼 함수: C++ 에서 Cast 없이 바로 사용
+	* 사용 방법: Spawn<타입 이름>(클래스, 트랜스폼)
+	* @param 타입 이름 : 생성할 액터 타입 (구체적인 클래스)
+	* @param 클래스 : 캐릭터 베이스 클래스
+	*/
+	template<typename T>
+	T* Spawn(TSubclassOf<AActor> ClassToSpawn, const FTransform& SpawnTransform)
+	{
+		return Cast<T>(SpawnPooledActor(ClassToSpawn, SpawnTransform));
+	}
+
+	/**
 	* @param ClassToSpawn : 생성할 액터 클래스 (ILRPoolableInterface 가 구현되어 있어야 함)
 	*/
 	UFUNCTION(BlueprintCallable)

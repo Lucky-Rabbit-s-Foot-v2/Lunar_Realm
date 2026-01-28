@@ -32,10 +32,6 @@ AActor* UPoolingSubsystem::SpawnPooledActor(TSubclassOf<AActor> ClassToSpawn, co
 
 		PooledActor = GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTransform, SpawnParams);
 	}
-	else
-	{
-		// TODO: 할당된 액터 위치/회전 등 재설정 및 활성화 진행
-	}
 
 	if (PooledActor && PooledActor->Implements<ULRPoolableInterface>())
 	{
@@ -51,8 +47,6 @@ void UPoolingSubsystem::ReturnToPool(AActor* ActorToReturn)
 	{
 		return;
 	}
-
-	// TODO: 비활성화 로직 진행
 
 	if (ActorToReturn->Implements<ULRPoolableInterface>())
 	{
