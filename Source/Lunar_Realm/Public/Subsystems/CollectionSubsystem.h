@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "Data/LRDataStructs.h"
 #include "CollectionSubsystem.generated.h"
 
 /**
