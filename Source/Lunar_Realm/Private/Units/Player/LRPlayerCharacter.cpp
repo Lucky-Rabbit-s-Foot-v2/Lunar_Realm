@@ -7,8 +7,12 @@
 #include "Camera/CameraComponent.h"
 #include "Engine/LocalPlayer.h"
 
+#include "Units/Player/LRPlayerState.h"
+#include "AbilitySystemComponent.h"
+
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+
 
 
 
@@ -51,6 +55,25 @@ void ALRPlayerCharacter::BeginPlay()
 
 }
 
+void ALRPlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	// PlayerState 가져오기
+	ALRPlayerState* PS = GetPlayerState<ALRPlayerState>();
+	if (PS)
+	{
+		AbilitySystemComponent = PS->GetAbilitySystemComponent();	
+		AttributeSet = PS->GetAttributeSet();
+
+		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+
+		PS->InitializePlayerData();
+
+		UE_LOG(LogTemp, Log, TEXT("GAS Initialized completely in %s"), *GetName());
+	}
+}
+
 void ALRPlayerCharacter::Tick(float DeltaTime)
 {
 }
@@ -63,6 +86,11 @@ void ALRPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ALRPlayerCharacter::Move);
 	}
+}
+
+UAbilitySystemComponent* ALRPlayerCharacter::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
 }
 
 void ALRPlayerCharacter::Move(const FInputActionValue& Value)

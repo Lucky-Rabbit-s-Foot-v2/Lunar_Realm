@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Units/LRCharacter.h"
+#include "AbilitySystemInterface.h"
 #include "InputActionValue.h"
 #include "LRPlayerCharacter.generated.h"
 
@@ -11,7 +12,7 @@
  * 
  */
 UCLASS()
-class LUNAR_REALM_API ALRPlayerCharacter : public ALRCharacter
+class LUNAR_REALM_API ALRPlayerCharacter : public ALRCharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 	
@@ -21,9 +22,13 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void PossessedBy(AController* NewController) override;
+
 public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
@@ -40,5 +45,12 @@ protected:
 	class UInputAction* MoveAction;
 
 	void Move(const FInputActionValue& Value);
+
+public:
+	UPROPERTY()
+	class UAbilitySystemComponent* AbilitySystemComponent;
+
+	UPROPERTY()
+	class UAttributeSet* AttributeSet;
 
 };
