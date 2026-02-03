@@ -13,6 +13,7 @@
  * 주요 기능:
  * - 오브젝트 풀링 기반 액터 생성
  * - 풀 반환
+ * - 레벨 액터 등록
  */
 
 //============================================================================
@@ -56,7 +57,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void InitializePool(TSubclassOf<AActor> ClassToInit, int32 Count);
 
+	/**
+	* 다음 스테이지 이동 시 맵을 옮기지 않고 맵 정보만 초기화하여 사용.
+	* - 풀링 초기화 진행
+	*/
+	UFUNCTION(BlueprintCallable)
+	void ReturnAllActiveActors();
+
 private:
 	TMap<UClass*, TArray<AActor*>> ActorPool;
-
+	
+	UPROPERTY()
+	TSet<AActor*> ActiveActors;
 };

@@ -33,9 +33,13 @@ AActor* UPoolingSubsystem::SpawnPooledActor(TSubclassOf<AActor> ClassToSpawn, co
 		PooledActor = GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTransform, SpawnParams);
 	}
 
-	if (PooledActor && PooledActor->Implements<ULRPoolableInterface>())
+	if (PooledActor)
 	{
-		ILRPoolableInterface::Execute_OnPoolActivate(PooledActor);
+		ActiveActors.Add(PooledActor);
+		if (PooledActor->Implements<ULRPoolableInterface>())
+		{
+			ILRPoolableInterface::Execute_OnPoolActivate(PooledActor);
+		}
 	}
 
 	return PooledActor;
@@ -47,6 +51,8 @@ void UPoolingSubsystem::ReturnToPool(AActor* ActorToReturn)
 	{
 		return;
 	}
+
+	ActiveActors.Remove(ActorToReturn);
 
 	if (ActorToReturn->Implements<ULRPoolableInterface>())
 	{
@@ -64,5 +70,25 @@ void UPoolingSubsystem::InitializePool(TSubclassOf<AActor> ClassToInit, int32 Co
 	{
 		AActor* NewActor = SpawnPooledActor(ClassToInit, FTransform::Identity);
 		ReturnToPool(NewActor);
+	}
+}
+
+void UPoolingSubsystem::ReturnAllActiveActors()
+{
+	TArray<AActor*> ActorsToReturn = ActiveActors.Array();
+
+	ActiveActors.Empty();
+
+	for (AActor* Actor : ActorsToReturn)
+	{
+		if (IsValid(Actor))
+		{
+			if (Actor->Implements<ULRPoolableInterface>())
+			{
+				ILRPoolableInterface::Execute_OnPoolDeactivate(Actor);
+			}
+			UClass* ActorClass = Actor->GetClass();
+			ActorPool.FindOrAdd(ActorClass).Push(Actor);
+		}
 	}
 }
