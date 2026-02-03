@@ -69,10 +69,17 @@ void UPoolingSubsystem::ReturnToPool(AActor* ActorToReturn)
 
 void UPoolingSubsystem::InitializePool(TSubclassOf<AActor> ClassToInit, int32 Count)
 {
+	TArray<AActor*> CachedActors;
+
 	for (int32 i = 0; i < Count; ++i)
 	{
 		AActor* NewActor = SpawnPooledActor(ClassToInit, FTransform::Identity);
-		ReturnToPool(NewActor);
+		CachedActors.Add(NewActor);
+	}
+
+	for (AActor* CachedActor : CachedActors)
+	{
+		ReturnToPool(CachedActor);
 	}
 }
 
