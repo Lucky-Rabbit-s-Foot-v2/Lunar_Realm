@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/LocalPlayer.h"
+#include "UI/HUD/LRStageHUD.h"
 
 #include "Units/Player/LRPlayerState.h"
 #include "AbilitySystemComponent.h"
@@ -72,6 +73,24 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 
 		UE_LOG(LogTemp, Log, TEXT("GAS Initialized completely in %s"), *GetName());
 	}
+	//if (APlayerController* PC = Cast<APlayerController>(NewController))
+	//{
+	//	AHUD* RawHUD = PC->GetHUD();
+	//	if (RawHUD)
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("HUD Found: %s"), *RawHUD->GetName());
+	//	}
+
+	//	if (ALRStageHUD* LRHUD = Cast<ALRStageHUD>(RawHUD))
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("HUD Cast SUCCESS! Initializing Overlay..."));
+	//		LRHUD->InitOverlay(PC, PS, AbilitySystemComponent, AttributeSet);
+	//	}
+	//	else
+	//	{
+	//		UE_LOG(LogTemp, Error, TEXT("HUD Cast FAILED! Is BP_StageHUD parent class 'ALRHUD'?"));
+	//	}
+	//}
 }
 
 void ALRPlayerCharacter::Tick(float DeltaTime)
