@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Units/LRCharacter.h"
+#include "InputActionValue.h"
 #include "LRPlayerCharacter.generated.h"
 
 /**
@@ -30,5 +31,14 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	class UCameraComponent* CameraComponent;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	class UInputMappingContext* DefaultMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	class UInputAction* MoveAction;
+
+	void Move(const FInputActionValue& Value);
 
 };

@@ -2,8 +2,13 @@
 
 #include "Units/Player/LRPlayerCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "Camera/CameraComponent.h"
+#include "Engine/LocalPlayer.h"
+
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 
 
 
@@ -18,6 +23,11 @@ ALRPlayerCharacter::ALRPlayerCharacter()
 	SpringArmComponent->SetRelativeRotation(FRotator(-45.0f, 0.0f, 0.0f));
 	SpringArmComponent->bDoCollisionTest = false;
 
+	SpringArmComponent->bInheritPitch = false;
+	SpringArmComponent->bInheritYaw = false;
+	SpringArmComponent->bInheritRoll = false;
+
+
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 
@@ -29,6 +39,16 @@ ALRPlayerCharacter::ALRPlayerCharacter()
 
 void ALRPlayerCharacter::BeginPlay()
 {
+	Super::BeginPlay();
+
+	if (APlayerController* PC = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
+
 }
 
 void ALRPlayerCharacter::Tick(float DeltaTime)
@@ -37,4 +57,24 @@ void ALRPlayerCharacter::Tick(float DeltaTime)
 
 void ALRPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ALRPlayerCharacter::Move);
+	}
+}
+
+void ALRPlayerCharacter::Move(const FInputActionValue& Value)
+{
+	FVector2D MovementVector = Value.Get<FVector2D>();
+
+	if (Controller != nullptr)
+	{
+		const FVector ForwardDirection = FVector::ForwardVector;
+		AddMovementInput(ForwardDirection, MovementVector.X);
+
+		const FVector RightDirection = FVector::RightVector;
+		AddMovementInput(RightDirection, MovementVector.Y);
+	}
 }
