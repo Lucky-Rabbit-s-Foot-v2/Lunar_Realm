@@ -9,7 +9,9 @@
 
  void UCollectionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
  {
-	 Super::Initialize(Collection);
+ 	Collection.InitializeDependency<USaveGameSubsystem>();
+ 	
+	Super::Initialize(Collection);
  	
  	//SaveGameSubsystem의 로드완료 이벤트 구독
  	USaveGameSubsystem* saveGameSys = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
