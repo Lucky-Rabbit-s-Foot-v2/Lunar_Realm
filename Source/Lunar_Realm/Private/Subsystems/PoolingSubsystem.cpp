@@ -4,6 +4,8 @@
 #include "Subsystems/PoolingSubsystem.h"
 #include "GameFramework/Actor.h"
 
+#include "System/LoggingSystem.h"
+
 AActor* UPoolingSubsystem::SpawnPooledActor(TSubclassOf<AActor> ClassToSpawn, const FTransform& SpawnTransform)
 {
 	if (!ClassToSpawn)
@@ -27,6 +29,7 @@ AActor* UPoolingSubsystem::SpawnPooledActor(TSubclassOf<AActor> ClassToSpawn, co
 
 	if (!IsValid(PooledActor))
 	{
+		LR_INFO(TEXT("Spawn New Actor"));
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
