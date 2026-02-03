@@ -1,4 +1,4 @@
- // Fill out your copyright notice in the Description page of Project Settings.
+﻿ // Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Subsystems/CollectionSubsystem.h"
@@ -10,7 +10,7 @@
  void UCollectionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
  {
 	 Super::Initialize(Collection);
- 	
+
  	//SaveGameSubsystem의 로드완료 이벤트 구독
  	USaveGameSubsystem* saveGameSys = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
  	check(saveGameSys);
