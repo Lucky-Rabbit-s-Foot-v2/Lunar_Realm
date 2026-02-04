@@ -33,6 +33,7 @@ class LUNAR_REALM_API UGraphicSubsystem : public UGameInstanceSubsystem
 	
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
 
 	UFUNCTION(BlueprintCallable)
 	void SetTextureQuality(EGraphicOptionLevel Level);

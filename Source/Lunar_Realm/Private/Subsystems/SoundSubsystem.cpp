@@ -17,6 +17,12 @@ void USoundSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	LoadVolumesFromSaveData();
 }
 
+void USoundSubsystem::Deinitialize()
+{
+	SaveVolumesToSaveData();
+	Super::Deinitialize();
+}
+
 void USoundSubsystem::PlayBGM(USoundBase* NewBGM, float FadeTime)
 {
 	if (!NewBGM)

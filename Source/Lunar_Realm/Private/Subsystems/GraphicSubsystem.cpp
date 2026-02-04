@@ -16,6 +16,12 @@ void UGraphicSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	}
 }
 
+void UGraphicSubsystem::Deinitialize()
+{
+	ApplyAndSave();
+	Super::Deinitialize();
+}
+
 void UGraphicSubsystem::SetTextureQuality(EGraphicOptionLevel Level)
 {
 	if(UGameUserSettings* UserSettings = UGameUserSettings::GetGameUserSettings())
