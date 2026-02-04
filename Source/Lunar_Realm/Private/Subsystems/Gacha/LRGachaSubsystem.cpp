@@ -9,6 +9,7 @@
 #include "Subsystems/GameDataSubsystem.h"
 #include "System/LoggingSystem.h"
 #include "Engine/GameInstance.h"
+#include "Engine/Engine.h"
 
 void ULRGachaSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -615,6 +616,9 @@ bool ULRGachaSubsystem::BeginDrawTransaction(FName BannerID, int32 DrawCount, FG
 
 	OutTxnId = Pending.TxnId;
 
+	// 디버그용 결과 호출
+	DebugPrintResults(BannerID, DrawCount, OutTxnId, OutResults);
+
 	LR_INFO(TEXT("BeginDrawTransaction OK: %s Txn=%s Cost=%d PrevPity=%d NewPity=%d"),
 		*BannerID.ToString(), *OutTxnId.ToString(), NeedCost, PrevPity, WorkingPity);
 
@@ -841,27 +845,42 @@ bool ULRGachaSubsystem::BeginDrawBySelection(ELRGachaItemType ItemType, ELRGacha
 
 	const bool bOk = BeginDrawTransaction(BannerID, DrawCount, OutTxnId, OutResults);
 
-	// 테스트용 로그: 뽑힌게 영웅인지/장비인지, 등급이 뭔지 바로 확인
-	if (bOk)
-	{
-		LR_INFO(TEXT("[Gacha] BeginDrawBySelection OK  Banner=%s Count=%d Txn=%s"),
-			*BannerID.ToString(), DrawCount, *OutTxnId.ToString());
-
-		for (const FLRGachaResult& R : OutResults)
-		{
-			LR_INFO(TEXT("[GachaResult] %s"), *DebugResultToString(R));
-		}
-	}
-	else
+	// 테스트용 로그: 성공/실패
+	if (!bOk)
 	{
 		LR_WARN(TEXT("[Gacha] BeginDrawBySelection FAILED Banner=%s Count=%d"), *BannerID.ToString(), DrawCount);
 	}
-
 	return bOk;
+
 }
 
-// 테스트용 문자열 함수
-FString ULRGachaSubsystem::DebugResultToString(const FLRGachaResult& Result) const
+// 천장 표시용 함수
+int32 ULRGachaSubsystem::GetDisplayPityCount(ELRGachaItemType ItemType) const
+{
+	const FName FullMoonBannerID =
+		(ItemType == ELRGachaItemType::Hero)
+		? FName(TEXT("Hero_FullMoon"))
+		: FName(TEXT("Equip_FullMoon"));
+
+	return GetPityCount(FullMoonBannerID);
+}
+
+
+// ===================== Debug 옵션 ========================================================
+FLinearColor ULRGachaSubsystem::DebugRarityToColor(ELRGachaRarity Rarity) const
+{
+	switch (Rarity)
+	{
+	case ELRGachaRarity::Common:    return FLinearColor(0.6f, 0.6f, 0.6f, 1.0f); // Gray
+	case ELRGachaRarity::Uncommon:  return FLinearColor(0.2f, 0.8f, 0.2f, 1.0f); // Green
+	case ELRGachaRarity::Rare:      return FLinearColor(0.2f, 0.4f, 1.0f, 1.0f); // Blue
+	case ELRGachaRarity::Epic:      return FLinearColor(0.6f, 0.2f, 0.8f, 1.0f); // Purple
+	case ELRGachaRarity::Legendary: return FLinearColor(1.0f, 0.8f, 0.2f, 1.0f); // Gold
+	default:                        return FLinearColor::White;
+	}
+}
+
+FString ULRGachaSubsystem::DebugResultToColoredString(const FLRGachaResult& Result) const
 {
 	const UEnum* ItemTypeEnum = StaticEnum<ELRGachaItemType>();
 	const UEnum* RarityEnum = StaticEnum<ELRGachaRarity>();
@@ -869,11 +888,60 @@ FString ULRGachaSubsystem::DebugResultToString(const FLRGachaResult& Result) con
 	const FString ItemTypeStr = ItemTypeEnum ? ItemTypeEnum->GetNameStringByValue((int64)Result.ItemType) : TEXT("UnknownType");
 	const FString RarityStr = RarityEnum ? RarityEnum->GetNameStringByValue((int64)Result.Rarity) : TEXT("UnknownRarity");
 
-	return FString::Printf(TEXT("Type=%s  Rarity=%s  ItemID=%d  New=%d  GoldConv=%d(+%d)"),
+	// "색 이름"을 문자열에도 같이 붙여서 로그에서 빠르게 보기
+	FString ColorName = TEXT("White");
+	switch (Result.Rarity)
+	{
+	case ELRGachaRarity::Common:    ColorName = TEXT("Gray"); break;
+	case ELRGachaRarity::Uncommon:  ColorName = TEXT("Green"); break;
+	case ELRGachaRarity::Rare:      ColorName = TEXT("Blue"); break;
+	case ELRGachaRarity::Epic:      ColorName = TEXT("Purple"); break;
+	case ELRGachaRarity::Legendary: ColorName = TEXT("Gold"); break;
+	}
+
+	return FString::Printf(
+		TEXT("%s | %s(%s) | ItemID=%d | New=%d | GoldConv=%d(+%d)"),
 		*ItemTypeStr,
-		*RarityStr,
+		*RarityStr, *ColorName,
 		Result.ItemID,
 		Result.bIsNew ? 1 : 0,
 		Result.bConvertedToGold ? 1 : 0,
-		Result.ConvertedGoldAmount);
+		Result.ConvertedGoldAmount
+	);
+}
+
+void ULRGachaSubsystem::DebugPrintResults(FName BannerID, int32 DrawCount, const FGuid& TxnId, const TArray<FLRGachaResult>& Results) const
+{
+	// 로그
+	if (bDebugPrintToLog)
+	{
+		LR_INFO(TEXT("[GachaDebug] Banner=%s Count=%d Txn=%s Results=%d"),
+			*BannerID.ToString(), DrawCount, *TxnId.ToString(), Results.Num());
+
+		for (int32 i = 0; i < Results.Num(); ++i)
+		{
+			LR_INFO(TEXT("[GachaDebug] #%02d %s"), i + 1, *DebugResultToColoredString(Results[i]));
+		}
+	}
+
+	// 화면 (색 표시)
+	if (bDebugPrintToScreen && GEngine)
+	{
+		// 헤더 한 줄
+		GEngine->AddOnScreenDebugMessage(
+			-1, DebugScreenDuration, FColor::White,
+			FString::Printf(TEXT("[GachaDebug] %s  x%d  (%d results)"), *BannerID.ToString(), DrawCount, Results.Num())
+		);
+
+		for (int32 i = 0; i < Results.Num(); ++i)
+		{
+			const FLinearColor LC = DebugRarityToColor(Results[i].Rarity);
+			const FColor C = LC.ToFColor(true);
+
+			GEngine->AddOnScreenDebugMessage(
+				-1, DebugScreenDuration, C,
+				FString::Printf(TEXT("#%02d %s"), i + 1, *DebugResultToColoredString(Results[i]))
+			);
+		}
+	}
 }

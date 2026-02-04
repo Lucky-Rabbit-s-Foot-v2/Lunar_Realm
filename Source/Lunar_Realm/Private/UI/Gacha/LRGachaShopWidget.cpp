@@ -82,8 +82,6 @@ void ULRGachaShopWidget::TryBeginDrawAndOpenReveal(FName BannerID, int32 Count)
 {
 	if (!GachaSys) return;
 
-	// UI 동기화(이게 없으면 pity 갱신 조건이 꼬일 수 있음)
-	CurrentBannerID = BannerID;
 	RefreshPityText();
 
 	int32 NeedCost = 0;
@@ -158,7 +156,10 @@ void ULRGachaShopWidget::HandleCurrencyChanged(FGameplayTag Tag, int32 NewValue)
 
 void ULRGachaShopWidget::HandlePityChanged(FName BannerID, int32 NewValue)
 {
-	if (BannerID == CurrentBannerID)
+	// 표시 천장은 FullMoon만 본다
+	const FName DisplayBannerID = IsHeroTabSelected() ? FName(TEXT("Hero_FullMoon")) : FName(TEXT("Equip_FullMoon"));
+
+	if (BannerID == DisplayBannerID)
 	{
 		RefreshPityText();
 	}
@@ -181,8 +182,9 @@ void ULRGachaShopWidget::RefreshPityText()
 {
 	if (!GachaSys || !TextPity) return;
 
-	// 보름달 배너만 천장 표시할거면, 여기서 BannerRow를 조회해서 bUsePity일 때만 표시하도록 블루프린트에서 처리 가능
-	const int32 Pity = GachaSys->GetPityCount(CurrentBannerID);
+	const ELRGachaItemType ItemType = IsHeroTabSelected() ? ELRGachaItemType::Hero : ELRGachaItemType::Equipment;
+	const int32 Pity = GachaSys->GetDisplayPityCount(ItemType);
+
 	TextPity->SetText(FText::FromString(FString::Printf(TEXT("천장 카운트 : %d"), Pity)));
 }
 

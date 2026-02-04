@@ -23,7 +23,7 @@ public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
-	// 현재 배너(영웅/장비 탭 전환 시 변경)
+	// 현재 탭 상태 판단용 배너ID(항상 FullMoon 기본값 유지: Hero_FullMoon / Equip_FullMoon)
 	UPROPERTY(BlueprintReadOnly, Category = "LR|Gacha")
 	FName CurrentBannerID;
 

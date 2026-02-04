@@ -89,10 +89,9 @@ public:
 	bool BeginDrawBySelection(ELRGachaItemType ItemType, ELRGachaTicketType TicketType, int32 DrawCount,
 		FGuid& OutTxnId, TArray<FLRGachaResult>& OutResults);
 
-	// 테스트용 문자열 함수
-	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Debug")
-	FString DebugResultToString(const FLRGachaResult& Result) const;
-
+	// 천장 표시용 함수
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Pity")
+	int32 GetDisplayPityCount(ELRGachaItemType ItemType) const;
 
 protected:
 	// 에디터에서 지정할 DataTable
@@ -173,5 +172,29 @@ private:
 
 	// 태그 헬퍼(골드)
 	FGameplayTag GetGoldTag() const;
+
+
+public:
+	// ===================== Debug 옵션 =====================
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Gacha|Debug")
+	bool bDebugPrintToLog = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Gacha|Debug")
+	bool bDebugPrintToScreen = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Gacha|Debug")
+	float DebugScreenDuration = 6.0f;
+
+	// 결과 1개를 "색 텍스트"로 (로그/화면 공용)
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Debug")
+	FString DebugResultToColoredString(const FLRGachaResult& Result) const;
+
+	// 등급 -> 화면 색
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Debug")
+	FLinearColor DebugRarityToColor(ELRGachaRarity Rarity) const;
+
+	// 결과 배열을 한번에 출력(로그/화면)
+	void DebugPrintResults(FName BannerID, int32 DrawCount, const FGuid& TxnId, const TArray<FLRGachaResult>& Results) const;
+
 
 };
