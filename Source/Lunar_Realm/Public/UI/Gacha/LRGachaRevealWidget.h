@@ -29,6 +29,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Reveal")
 	void CancelAndRefund();	// 취소/환불(테스트용 혹은 뒤로가기)
 
+	UFUNCTION(BlueprintCallable)
+	void ForceUIInputNextTick();
+
 protected:
 	// 블루프린트에서 구현할 연출 진입점
 	// 등급별 카드색/이팩트/사운드/실루엣->리빌 시퀸스를 여기서 처리

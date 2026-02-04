@@ -22,7 +22,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGachaTxnStateChanged, ELRGachaTxn
 /**
  * 이 Subsystem 하나가 재화/천장/뽑기/중복처리/저장을 모두 담당하므로 여기만 호출하면됨
  */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class LUNAR_REALM_API ULRGachaSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
@@ -80,9 +80,20 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "LR|Gacha|Event")
 	FOnGachaTxnStateChanged OnGachaTxnStateChanged;
-
-
 	 
+	// 배너ID 계산 + 트랜잭션 시작
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Draw")
+	FName GetBannerIdBySelection(ELRGachaItemType ItemType, ELRGachaTicketType TicketType) const;
+
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Draw")
+	bool BeginDrawBySelection(ELRGachaItemType ItemType, ELRGachaTicketType TicketType, int32 DrawCount,
+		FGuid& OutTxnId, TArray<FLRGachaResult>& OutResults);
+
+	// 테스트용 문자열 함수
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Debug")
+	FString DebugResultToString(const FLRGachaResult& Result) const;
+
+
 protected:
 	// 에디터에서 지정할 DataTable
 	// DT만 꽂으면 되게 단순화
@@ -95,6 +106,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Data")
 	TSoftObjectPtr<UDataTable> DuplicateRewardDataTable;
 
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Data")
+	TSoftObjectPtr<UDataTable> RarityRateDataTable;
+
 private:
 	// 로드된 DT 캐시
 	UPROPERTY()
@@ -105,6 +119,9 @@ private:
 
 	UPROPERTY()
 	UDataTable* LoadedDupRewardDT = nullptr;
+		
+	UPROPERTY()
+	UDataTable* LoadedRarityRateDT = nullptr;
 
 	// 저장 데이터
 	UPROPERTY()
@@ -132,8 +149,14 @@ private:
 	// 배너 풀 목록 가져오기
 	void GetPoolRowsForBanner(FName BannerID, TArray<FLRGachaPoolRow>& OutRows) const;
 
-	// 가중치 랜덤으로 1개 선택
-	bool PickOneFromPool(const TArray<FLRGachaPoolRow>& Pool, FLRGachaPoolRow& OutPicked) const;
+	// 배너/타입에 맞는 등급 확률 Row들 가져오기
+	void GetRarityRateRowsForBanner(FName BannerID, ELRGachaItemType ItemType, TArray<FLRGachaRarityRateRow>& OutRows) const;
+
+	// 등급 확률로 등급 1개 뽑기
+	bool PickRarityByRates(FName BannerID, ELRGachaItemType ItemType, ELRGachaRarity& OutRarity) const;
+
+	// Pool에서 균등 랜덤으로 1개 선택(등급 내부는 균등)
+	bool PickOneFromPoolUniform(const TArray<FLRGachaPoolRow>& Pool, FLRGachaPoolRow& OutPicked) const;
 
 	// 특정 등급만 강제해서 뽑기(천장용)
 	bool PickOneFromPoolByRarity(const TArray<FLRGachaPoolRow>& Pool, ELRGachaRarity TargetRarity, FLRGachaPoolRow& OutPicked) const;

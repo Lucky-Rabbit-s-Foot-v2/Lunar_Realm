@@ -24,6 +24,15 @@ enum class ELRGachaRarity : uint8
 	Legendary	UMETA(DisplayName = "5성(전설)"),
 };
 
+// 티켓 종류
+UENUM(BlueprintType)
+enum class ELRGachaTicketType : uint8
+{
+	Crescent UMETA(DisplayName = "Crescent"),
+	FullMoon UMETA(DisplayName = "FullMoon"),
+};
+
+
 //배너(뽑기) 설정 DT
 USTRUCT(BlueprintType)
 struct FLRGachaBannerRow : public FTableRowBase
@@ -80,10 +89,6 @@ struct FLRGachaPoolRow : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ELRGachaRarity Rarity = ELRGachaRarity::Common;
-
-	// 가중치
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Weight = 1;
 };
 
 // 중복 보상(등급별 골드 전환량) DT
@@ -124,5 +129,29 @@ struct FLRGachaResult
 
 	UPROPERTY(SaveGame, BlueprintReadOnly)
 	int32 ConvertedGoldAmount = 0;
+
+};
+
+// 등급별 확률(배너/타입별) DT
+USTRUCT(BlueprintType)
+struct FLRGachaRarityRateRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	// 어떤 배너에 적용할지 (예: "Hero_Cresent")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName BannerID;
+
+	// Hero / Equipment 구분
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ELRGachaItemType ItemType = ELRGachaItemType::Hero;
+
+	// 등급
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ELRGachaRarity Rarity = ELRGachaRarity::Common;
+
+	// 확률 가중치(60, 20, 15, 4, 1 처럼 합 100 권장 / 아니어도 됨)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Rate = 0.0f;
 
 };

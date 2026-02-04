@@ -34,12 +34,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Gacha")
 	FName DefaultEquipBannerID = TEXT("Equip_FullMoon");
 
+	// 리빌 위젯 띄우기
+	void ShowRevealWidget(FName InBannerID, const FGuid& InTxnId, const TArray<FLRGachaResult>& InResults);
+
 protected:
-	// 위젯 바인딩(UMG에서 변수명 정확히 맞추기)
-	UPROPERTY(meta=(BindWidget)) UButton* ButtonHeroTab;
-	UPROPERTY(meta=(BindWidget)) UButton* ButtonEquipTab;
-	UPROPERTY(meta=(BindWidget)) UButton* ButtonDraw1;
-	UPROPERTY(meta=(BindWidget)) UButton* ButtonDraw10;
+	// 위젯 바인딩
+	UPROPERTY(meta = (BindWidget)) UButton* ButtonHeroTab;
+	UPROPERTY(meta = (BindWidget)) UButton* ButtonEquipTab;
+
+	UPROPERTY(meta = (BindWidget)) UButton* ButtonCrescentDraw1;
+	UPROPERTY(meta = (BindWidget)) UButton* ButtonCrescentDraw10;
+	UPROPERTY(meta = (BindWidget)) UButton* ButtonFullMoonDraw1;
+	UPROPERTY(meta = (BindWidget)) UButton* ButtonFullMoonDraw10;
 
 	// 천장 표시용(보름달 배너)
 	UPROPERTY(meta = (BindWidgetOptional)) UTextBlock* TextPity;
@@ -57,6 +63,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "LR|Gacha|UI")
 	TSubclassOf<ULRGachaRevealWidget> RevealWidgetClass;
 
+	// Draw 버튼 클릭에서 트랜잭션 시작 + 리빌 띄우기
+	void TryBeginDrawAndOpenReveal(FName BannerID, int32 Count);
+
 private:
 	UFUNCTION()
 	void OnClickHeroTab();
@@ -64,11 +73,11 @@ private:
 	UFUNCTION()
 	void OnClickEquipTab();
 
-	UFUNCTION()
-	void OnClickDraw1();
+	UFUNCTION() void OnClickCrescentDraw1();
+	UFUNCTION() void OnClickCrescentDraw10();
+	UFUNCTION() void OnClickFullMoonDraw1();
+	UFUNCTION() void OnClickFullMoonDraw10();
 
-	UFUNCTION()
-	void OnClickDraw10();
 
 	UFUNCTION()
 	void HandleCurrencyChanged(FGameplayTag Tag, int32 NewValue);
@@ -78,4 +87,8 @@ private:
 	
 	void RefreshCurrencyTexts();
 	void RefreshPityText();
+
+	FName MakeBannerIDForTicket(bool bFullMoon) const;
+	bool IsHeroTabSelected() const;
+
 };

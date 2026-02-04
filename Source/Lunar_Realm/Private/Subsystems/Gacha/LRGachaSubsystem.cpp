@@ -14,6 +14,36 @@ void ULRGachaSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
+	// DT경로 하드코딩 기본값 주입
+	if (BannerDataTable.IsNull())
+	{
+		BannerDataTable = TSoftObjectPtr<UDataTable>(
+			FSoftObjectPath(TEXT("DataTable'/Game/DataTables/Gacha/DT_GachaBanners.DT_GachaBanners'"))
+		);
+	}
+
+	if (PoolDataTable.IsNull())
+	{
+		PoolDataTable = TSoftObjectPtr<UDataTable>(
+			FSoftObjectPath(TEXT("DataTable'/Game/DataTables/Gacha/DT_GachaPool.DT_GachaPool'"))
+		);
+	}
+
+	if (DuplicateRewardDataTable.IsNull())
+	{
+		DuplicateRewardDataTable = TSoftObjectPtr<UDataTable>(
+			FSoftObjectPath(TEXT("DataTable'/Game/DataTables/Gacha/DT_GachaDuplicateRewards.DT_GachaDuplicateRewards'"))
+		);
+	}
+
+	if (RarityRateDataTable.IsNull())
+	{
+		RarityRateDataTable = TSoftObjectPtr<UDataTable>(
+			FSoftObjectPath(TEXT("DataTable'/Game/DataTables/Gacha/DT_GachaRarityRates.DT_GachaRarityRates'"))
+		);
+	}
+
+
 	LoadOrCreateSave();
 	LoadDataTables();
 
@@ -32,8 +62,8 @@ void ULRGachaSubsystem::LoadOrCreateSave()
 
 		// 테스트용 초기 재화
 		GachaSave->CurrencyMap.Add(FGameplayTag::RequestGameplayTag(TEXT("Currency.Gold")), 1000);
-		GachaSave->CurrencyMap.Add(FGameplayTag::RequestGameplayTag(TEXT("Currency.Ticket.Crescent")), 10);
-		GachaSave->CurrencyMap.Add(FGameplayTag::RequestGameplayTag(TEXT("Currency.Ticket.FullMoon")), 10);
+		GachaSave->CurrencyMap.Add(FGameplayTag::RequestGameplayTag(TEXT("Currency.Ticket.Crescent")), 1000);
+		GachaSave->CurrencyMap.Add(FGameplayTag::RequestGameplayTag(TEXT("Currency.Ticket.FullMoon")), 1000);
 
 		Save();
 	}
@@ -57,11 +87,13 @@ void ULRGachaSubsystem::LoadDataTables()
 	LoadedBannerDT = BannerDataTable.IsNull() ? nullptr : Cast<UDataTable>(BannerDataTable.LoadSynchronous());
 	LoadedPoolDT = PoolDataTable.IsNull() ? nullptr : Cast<UDataTable>(PoolDataTable.LoadSynchronous());
 	LoadedDupRewardDT = DuplicateRewardDataTable.IsNull() ? nullptr : Cast<UDataTable>(DuplicateRewardDataTable.LoadSynchronous());
+	LoadedRarityRateDT = RarityRateDataTable.IsNull() ? nullptr : Cast<UDataTable>(RarityRateDataTable.LoadSynchronous());
 
-	LR_INFO(TEXT("Gacha DT Loaded: Banner=%s Pool=%s Dup=%s"),
+	LR_INFO(TEXT("Gacha DT Loaded: Banner=%s Pool=%s Dup=%s Rate=%s"),
 		LoadedBannerDT ? TEXT("OK") : TEXT("NULL"),
 		LoadedPoolDT ? TEXT("OK") : TEXT("NULL"),
-		LoadedDupRewardDT ? TEXT("OK") : TEXT("NULL"));
+		LoadedDupRewardDT ? TEXT("OK") : TEXT("NULL"),
+		LoadedRarityRateDT ? TEXT("OK") : TEXT("NULL"));
 }
 
 int32 ULRGachaSubsystem::GetCurrency(FGameplayTag CurrencyTag) const
@@ -159,31 +191,66 @@ void ULRGachaSubsystem::GetPoolRowsForBanner(FName BannerID, TArray<FLRGachaPool
 	}
 }
 
-bool ULRGachaSubsystem::PickOneFromPool(const TArray<FLRGachaPoolRow>& Pool, FLRGachaPoolRow& OutPicked) const
+void ULRGachaSubsystem::GetRarityRateRowsForBanner(FName BannerID, ELRGachaItemType ItemType, TArray<FLRGachaRarityRateRow>& OutRows) const
 {
-	if (Pool.Num() <= 0) return false;
+	OutRows.Empty();
+	if (!LoadedRarityRateDT) return;
 
-	int32 TotalWeight = 0;
-	for (const auto& Row : Pool)
+	const TArray<FName> RowNames = LoadedRarityRateDT->GetRowNames();
+	for (const FName& RowName : RowNames)
 	{
-		TotalWeight += FMath::Max(0, Row.Weight);
+		FLRGachaRarityRateRow* Row = LoadedRarityRateDT->FindRow<FLRGachaRarityRateRow>(RowName, TEXT("RarityRateLookup"));
+		if (!Row) continue;
+
+		if (Row->BannerID == BannerID && Row->ItemType == ItemType)
+		{
+			OutRows.Add(*Row);
+		}
 	}
-	if (TotalWeight <= 0) return false;
+}
 
-	int32 Rand = FMath::RandRange(1, TotalWeight);
-	int32 Acc = 0;
+bool ULRGachaSubsystem::PickRarityByRates(FName BannerID, ELRGachaItemType ItemType, ELRGachaRarity& OutRarity) const
+{
+	OutRarity = ELRGachaRarity::Common;
 
-	for (const auto& Row : Pool)
+	TArray<FLRGachaRarityRateRow> Rates;
+	GetRarityRateRowsForBanner(BannerID, ItemType, Rates);
+
+	// Rate DT에 해당 배너/타입 데이터가 없으면 false -> 기존 Weight 방식 fallback용
+	if (Rates.Num() <= 0) return false;
+
+	float Total = 0.0f;
+	for (const auto& R : Rates)
 	{
-		Acc += FMath::Max(0, Row.Weight);
+		Total += FMath::Max(0.0f, R.Rate);
+	}
+	if (Total <= 0.0f) return false;
+
+	const float Rand = FMath::FRandRange(0.0f, Total);
+	float Acc = 0.0f;
+
+	for (const auto& R : Rates)
+	{
+		Acc += FMath::Max(0.0f, R.Rate);
 		if (Rand <= Acc)
 		{
-			OutPicked = Row;
+			OutRarity = R.Rarity;
 			return true;
 		}
 	}
+
 	return false;
 }
+
+bool ULRGachaSubsystem::PickOneFromPoolUniform(const TArray<FLRGachaPoolRow>& Pool, FLRGachaPoolRow& OutPicked) const
+{
+	if (Pool.Num() <= 0) return false;
+
+	const int32 Index = FMath::RandRange(0, Pool.Num() - 1);
+	OutPicked = Pool[Index];
+	return true;
+}
+
 
 // 특정 등급만 강제해서 뽑기(천장용)
 bool ULRGachaSubsystem::PickOneFromPoolByRarity(const TArray<FLRGachaPoolRow>& Pool, ELRGachaRarity TargetRarity, FLRGachaPoolRow& OutPicked) const
@@ -196,7 +263,7 @@ bool ULRGachaSubsystem::PickOneFromPoolByRarity(const TArray<FLRGachaPoolRow>& P
 			Filtered.Add(Row);
 		}
 	}
-	return PickOneFromPool(Filtered, OutPicked);
+	return PickOneFromPoolUniform(Filtered, OutPicked);
 }
 
 // 중복보상 골드량 조회
@@ -326,6 +393,28 @@ bool ULRGachaSubsystem::Draw(FName BannerID, int32 DrawCount, TArray<FLRGachaRes
 		return false;
 	}
 
+	// 확률 테이블 검증: 없거나 잘못되면 뽑기 불가 -> 비용 환불 후 종료
+	{
+		TArray<FLRGachaRarityRateRow> Rates;
+		GetRarityRateRowsForBanner(BannerID, Banner.ItemType, Rates);
+
+		float Total = 0.f;
+		for (const auto& R : Rates)
+		{
+			Total += FMath::Max(0.f, R.Rate);
+		}
+
+		if (Rates.Num() <= 0 || Total <= 0.f)
+		{
+			// 비용 환불
+			AddCurrency(Banner.CostCurrencyTag, NeedCost);
+
+			LR_WARN(TEXT("Draw failed: RarityRate missing/invalid for banner: %s -> Refunded"),
+				*BannerID.ToString());
+			return false;
+		}
+	}
+
 	for (int32 i = 0; i < DrawCount; i++)
 	{
 		FLRGachaResult Result;
@@ -345,8 +434,29 @@ bool ULRGachaSubsystem::Draw(FName BannerID, int32 DrawCount, TArray<FLRGachaRes
 		}
 		else
 		{
-			bPickedOk = PickOneFromPool(Pool, Picked);
+			// 등급 확률로만 뽑기
+			ELRGachaRarity RolledRarity = ELRGachaRarity::Common;
+			const bool bHasRate = PickRarityByRates(BannerID, Banner.ItemType, RolledRarity);
+
+			// 위에서 확률 테이블 검증을 했으니 여기서 false면 비정상
+			if (!bHasRate)
+			{
+				LR_WARN(TEXT("PickRarityByRates failed unexpectedly (banner=%s)"), *BannerID.ToString());
+				continue;
+			}
+
+			TArray<FLRGachaPoolRow> Filtered;
+			for (const auto& Row : Pool)
+			{
+				if (Row.Rarity == RolledRarity)
+				{
+					Filtered.Add(Row);
+				}
+			}
+
+			bPickedOk = PickOneFromPoolUniform(Filtered, Picked);
 		}
+
 
 		if (!bPickedOk)
 		{
@@ -440,6 +550,26 @@ bool ULRGachaSubsystem::BeginDrawTransaction(FName BannerID, int32 DrawCount, FG
 		LR_WARN(TEXT("BeginDrawTransaction failed: Pool empty. Refunded"));
 		return false;
 	}
+
+	// 확률 테이블 검증: 없거나 잘못되면 트랜잭션 시작 불가 -> 비용 환불 후 종료
+	{
+		TArray<FLRGachaRarityRateRow> Rates;
+		GetRarityRateRowsForBanner(BannerID, Banner.ItemType, Rates);
+
+		float Total = 0.f;
+		for (const auto& R : Rates)
+		{
+			Total += FMath::Max(0.f, R.Rate);
+		}
+
+		if (Rates.Num() <= 0 || Total <= 0.f)
+		{
+			AddCurrency(Banner.CostCurrencyTag, NeedCost); // 환불
+			LR_WARN(TEXT("BeginDrawTransaction failed: RarityRate missing/invalid. Refunded"));
+			return false;
+		}
+	}
+
 
 	// 천장 처리(트랜잭션 내부에서 계산해서 NewPity 저장)
 	const int32 PrevPity = GetPityCount(BannerID);
@@ -583,9 +713,38 @@ bool ULRGachaSubsystem::RollResults_NoApply(const FLRGachaBannerRow& Banner, con
 		const bool bShouldPity = (Banner.bUsePity && (InOutPityCounter + 1) >= Banner.PityThreshold);
 
 		FLRGachaPoolRow Picked;
-		const bool bPickedOk = bShouldPity
-			? PickOneFromPoolByRarity(Pool, Banner.PityGuaranteedRarity, Picked)
-			: PickOneFromPool(Pool, Picked);
+		bool bPickedOk = false;
+
+		if (bShouldPity)
+		{
+			bPickedOk = PickOneFromPoolByRarity(Pool, Banner.PityGuaranteedRarity, Picked);
+		}
+		else
+		{
+			// 등급 확률로만 뽑기
+			ELRGachaRarity RolledRarity = ELRGachaRarity::Common;
+			const bool bHasRate = PickRarityByRates(Banner.BannerID, Banner.ItemType, RolledRarity);
+
+			if (!bHasRate)
+			{
+				LR_WARN(TEXT("RollResults_NoApply: PickRarityByRates failed (banner=%s)"), *Banner.BannerID.ToString());
+				return false;
+			}
+
+
+			TArray<FLRGachaPoolRow> Filtered;
+			for (const auto& Row : Pool)
+			{
+				if (Row.Rarity == RolledRarity)
+				{
+					Filtered.Add(Row);
+				}
+			}
+
+			bPickedOk = PickOneFromPoolUniform(Filtered, Picked);
+		}
+
+
 
 		if (!bPickedOk)
 		{
@@ -658,4 +817,63 @@ bool ULRGachaSubsystem::GetAnyPendingTransaction(FLRGachaPendingTransaction& Out
 		return true;
 	}
 	return false;
+}
+
+// 배너ID 계산 + 트랜잭션 시작
+FName ULRGachaSubsystem::GetBannerIdBySelection(ELRGachaItemType ItemType, ELRGachaTicketType TicketType) const
+{
+	const bool bFullMoon = (TicketType == ELRGachaTicketType::FullMoon);
+
+	if (ItemType == ELRGachaItemType::Hero)
+	{
+		return bFullMoon ? FName(TEXT("Hero_FullMoon")) : FName(TEXT("Hero_Crescent"));
+	}
+	else //	Equipment
+	{
+		return bFullMoon ? FName(TEXT("Equip_FullMoon")) : FName(TEXT("Equip_Crescent"));
+	}
+}
+
+bool ULRGachaSubsystem::BeginDrawBySelection(ELRGachaItemType ItemType, ELRGachaTicketType TicketType, int32 DrawCount,
+	FGuid& OutTxnId, TArray<FLRGachaResult>& OutResults)
+{
+	const FName BannerID = GetBannerIdBySelection(ItemType, TicketType);
+
+	const bool bOk = BeginDrawTransaction(BannerID, DrawCount, OutTxnId, OutResults);
+
+	// 테스트용 로그: 뽑힌게 영웅인지/장비인지, 등급이 뭔지 바로 확인
+	if (bOk)
+	{
+		LR_INFO(TEXT("[Gacha] BeginDrawBySelection OK  Banner=%s Count=%d Txn=%s"),
+			*BannerID.ToString(), DrawCount, *OutTxnId.ToString());
+
+		for (const FLRGachaResult& R : OutResults)
+		{
+			LR_INFO(TEXT("[GachaResult] %s"), *DebugResultToString(R));
+		}
+	}
+	else
+	{
+		LR_WARN(TEXT("[Gacha] BeginDrawBySelection FAILED Banner=%s Count=%d"), *BannerID.ToString(), DrawCount);
+	}
+
+	return bOk;
+}
+
+// 테스트용 문자열 함수
+FString ULRGachaSubsystem::DebugResultToString(const FLRGachaResult& Result) const
+{
+	const UEnum* ItemTypeEnum = StaticEnum<ELRGachaItemType>();
+	const UEnum* RarityEnum = StaticEnum<ELRGachaRarity>();
+
+	const FString ItemTypeStr = ItemTypeEnum ? ItemTypeEnum->GetNameStringByValue((int64)Result.ItemType) : TEXT("UnknownType");
+	const FString RarityStr = RarityEnum ? RarityEnum->GetNameStringByValue((int64)Result.Rarity) : TEXT("UnknownRarity");
+
+	return FString::Printf(TEXT("Type=%s  Rarity=%s  ItemID=%d  New=%d  GoldConv=%d(+%d)"),
+		*ItemTypeStr,
+		*RarityStr,
+		Result.ItemID,
+		Result.bIsNew ? 1 : 0,
+		Result.bConvertedToGold ? 1 : 0,
+		Result.ConvertedGoldAmount);
 }

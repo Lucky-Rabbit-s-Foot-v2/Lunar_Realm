@@ -5,6 +5,8 @@
 #include "Subsystems/Gacha/LRGachaSubsystem.h"
 #include "Subsystems/UIManagerSubsystem.h"
 #include "Engine/GameInstance.h"
+#include "TimerManager.h"
+#include "GameFramework/PlayerController.h"
 
 void ULRGachaRevealWidget::NativeConstruct()
 {
@@ -42,6 +44,27 @@ void ULRGachaRevealWidget::CancelAndRefund()
 		GachaSys->CancelTransaction(CachedTxnId);
 	}
 	CloseSelfPopup();
+}
+
+void ULRGachaRevealWidget::ForceUIInputNextTick()
+{
+	if (!GetWorld()) return;
+
+	// 다음 틱에 실행 (UIManager가 만진 뒤 다시 덮어쓰기)
+	GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
+		{
+			APlayerController* PC = GetOwningPlayer();
+			if (!PC) return;
+
+			// 커서 켜기
+			PC->SetShowMouseCursor(true);
+
+			// UI 조작 가능하게 입력 모드
+			FInputModeGameAndUI Mode;
+			Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+			Mode.SetHideCursorDuringCapture(false);
+			PC->SetInputMode(Mode);
+		});
 }
 
 // UIManager로 닫기

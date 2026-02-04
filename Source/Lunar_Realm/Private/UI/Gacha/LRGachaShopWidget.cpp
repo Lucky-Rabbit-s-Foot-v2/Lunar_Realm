@@ -9,6 +9,8 @@
 #include "Engine/GameInstance.h"
 #include "Subsystems/UIManagerSubsystem.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogLRGachaShop, Log, All);
+
 void ULRGachaShopWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -20,8 +22,12 @@ void ULRGachaShopWidget::NativeConstruct()
 
 	if (ButtonHeroTab) ButtonHeroTab->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickHeroTab);
 	if (ButtonEquipTab) ButtonEquipTab->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickEquipTab);
-	if (ButtonDraw1) ButtonDraw1->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickDraw1);
-	if (ButtonDraw10) ButtonDraw10->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickDraw10);
+
+	if (ButtonCrescentDraw1)  ButtonCrescentDraw1->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickCrescentDraw1);
+	if (ButtonCrescentDraw10) ButtonCrescentDraw10->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickCrescentDraw10);
+	if (ButtonFullMoonDraw1)  ButtonFullMoonDraw1->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickFullMoonDraw1);
+	if (ButtonFullMoonDraw10) ButtonFullMoonDraw10->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickFullMoonDraw10);
+
 
 	if (GachaSys)
 	{
@@ -32,6 +38,17 @@ void ULRGachaShopWidget::NativeConstruct()
 
 	RefreshCurrencyTexts();
 	RefreshPityText();
+
+	if (GachaSys)
+	{
+		FLRGachaPendingTransaction Pending;
+		if (GachaSys->GetAnyPendingTransaction(Pending))
+		{
+			// Pending 안에 BannerID, TxnId, Results가 있다고 가정
+			ShowRevealWidget(Pending.BannerID, Pending.TxnId, Pending.Results);
+			return;
+		}
+	}
 }
 
 void ULRGachaShopWidget::NativeDestruct()
@@ -45,74 +62,93 @@ void ULRGachaShopWidget::NativeDestruct()
 	Super::NativeDestruct();
 }
 
+// 리빌 위젯 띄우기
+void ULRGachaShopWidget::ShowRevealWidget(FName InBannerID, const FGuid& InTxnId, const TArray<FLRGachaResult>& InResults)
+{
+	if (!RevealWidgetClass) return;
+
+	UUIManagerSubsystem* UISys = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	if (!UISys) return;
+
+	// UIManager로 열어서 Popup 스택/입력모드까지 정상 처리
+	ULRGachaRevealWidget* Reveal = UISys->OpenUI<ULRGachaRevealWidget>(RevealWidgetClass);
+	if (!Reveal) return;
+
+	Reveal->StartRevealWithTransaction(InBannerID, InTxnId, InResults);
+}
+
+// Draw 버튼 클릭에서 트랜잭션 시작 + 리빌 띄우기
+void ULRGachaShopWidget::TryBeginDrawAndOpenReveal(FName BannerID, int32 Count)
+{
+	if (!GachaSys) return;
+
+	// UI 동기화(이게 없으면 pity 갱신 조건이 꼬일 수 있음)
+	CurrentBannerID = BannerID;
+	RefreshPityText();
+
+	int32 NeedCost = 0;
+	if (!GachaSys->CanDraw(BannerID, Count, NeedCost))
+	{
+		// TODO: 토스트/팝업으로 “재화 부족” 표시하면 UX 좋아짐
+		UE_LOG(LogLRGachaShop, Warning, TEXT("[GachaShop] CanDraw Failed. Banner=%s Count=%d NeedCost=%d"),
+			*BannerID.ToString(), Count, NeedCost);
+		return;
+	}
+
+	FGuid TxnId;
+	TArray<FLRGachaResult> Results;
+
+	const bool bOk = GachaSys->BeginDrawTransaction(BannerID, Count, TxnId, Results);
+	if (!bOk || !TxnId.IsValid() || Results.Num() == 0)
+	{
+		UE_LOG(LogLRGachaShop, Error, TEXT("[GachaShop] BeginDrawTransaction Failed. Banner=%s Count=%d"),
+			*BannerID.ToString(), Count);
+		return;
+	}
+
+	// 디버그 로그
+	UE_LOG(LogLRGachaShop, Log, TEXT("[GachaShop] Txn Started. Banner=%s Count=%d Txn=%s Results=%d"),
+		*BannerID.ToString(), Count, *TxnId.ToString(), Results.Num());
+
+	ShowRevealWidget(BannerID, TxnId, Results);
+}
+
 void ULRGachaShopWidget::OnClickHeroTab()
 {
-	CurrentBannerID = DefaultHeroBannerID;
+	CurrentBannerID = DefaultHeroBannerID; // Hero_FullMoon 기본
 	RefreshPityText();
 }
 
 void ULRGachaShopWidget::OnClickEquipTab()
 {
-	CurrentBannerID = DefaultEquipBannerID;
+	CurrentBannerID = DefaultEquipBannerID; // Equip_FullMoon 기본
 	RefreshPityText();
 }
 
-void ULRGachaShopWidget::OnClickDraw1()
+void ULRGachaShopWidget::OnClickCrescentDraw1()
 {
-	if (!GachaSys) return;
-
-	FGuid TxnId;
-	TArray<FLRGachaResult> Results;
-
-	const bool bOk = GachaSys->BeginDrawTransaction(CurrentBannerID, 1, TxnId, Results);
-	if (!bOk)
-	{
-		LR_WARN(TEXT("BeginDrawTransaction(1) failed"));
-		return;
-	}
-
-	// Reveal 팝업 열기
-	if (RevealWidgetClass)
-	{
-		UUIManagerSubsystem* UISys = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-		if (UISys)
-		{
-			ULRGachaRevealWidget* Reveal = UISys->OpenUI<ULRGachaRevealWidget>(RevealWidgetClass);
-			if (Reveal)
-			{
-				Reveal->StartRevealWithTransaction(CurrentBannerID, TxnId, Results);
-			}
-		}
-	}
+	const FName BannerID = MakeBannerIDForTicket(false);
+	TryBeginDrawAndOpenReveal(BannerID, 1);
 }
 
-void ULRGachaShopWidget::OnClickDraw10()
+void ULRGachaShopWidget::OnClickCrescentDraw10()
 {
-	if (!GachaSys) return;
-
-	FGuid TxnId;
-	TArray<FLRGachaResult> Results;
-
-	const bool bOk = GachaSys->BeginDrawTransaction(CurrentBannerID, 10, TxnId, Results);
-	if (!bOk)
-	{
-		LR_WARN(TEXT("BeginDrawTransaction(10) failed"));
-		return;
-	}
-
-	if (RevealWidgetClass)
-	{
-		UUIManagerSubsystem* UISys = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-		if (UISys)
-		{
-			ULRGachaRevealWidget* Reveal = UISys->OpenUI<ULRGachaRevealWidget>(RevealWidgetClass);
-			if (Reveal)
-			{
-				Reveal->StartRevealWithTransaction(CurrentBannerID, TxnId, Results);
-			}
-		}
-	}
+	const FName BannerID = MakeBannerIDForTicket(false);
+	TryBeginDrawAndOpenReveal(BannerID, 10);
 }
+
+void ULRGachaShopWidget::OnClickFullMoonDraw1()
+{
+	const FName BannerID = MakeBannerIDForTicket(true);
+	TryBeginDrawAndOpenReveal(BannerID, 1);
+}
+
+void ULRGachaShopWidget::OnClickFullMoonDraw10()
+{
+	const FName BannerID = MakeBannerIDForTicket(true);
+	TryBeginDrawAndOpenReveal(BannerID, 10);
+}
+
 
 void ULRGachaShopWidget::HandleCurrencyChanged(FGameplayTag Tag, int32 NewValue)
 {
@@ -148,4 +184,26 @@ void ULRGachaShopWidget::RefreshPityText()
 	// 보름달 배너만 천장 표시할거면, 여기서 BannerRow를 조회해서 bUsePity일 때만 표시하도록 블루프린트에서 처리 가능
 	const int32 Pity = GachaSys->GetPityCount(CurrentBannerID);
 	TextPity->SetText(FText::FromString(FString::Printf(TEXT("천장 카운트 : %d"), Pity)));
+}
+
+bool ULRGachaShopWidget::IsHeroTabSelected() const
+{
+	// 현재 배너가 Hero로 시작하면 영웅 탭으로 판단(네 네이밍 규칙 기반)
+	const FString S = CurrentBannerID.ToString();
+	return S.StartsWith(TEXT("Hero_"));
+}
+
+FName ULRGachaShopWidget::MakeBannerIDForTicket(bool bFullMoon) const
+{
+	// 네 배너 네이밍 규칙이 Hero_FullMoon / Hero_Crescent 이런 형태라는 전제
+	const bool bHero = IsHeroTabSelected();
+
+	if (bHero)
+	{
+		return bFullMoon ? FName(TEXT("Hero_FullMoon")) : FName(TEXT("Hero_Crescent"));
+	}
+	else
+	{
+		return bFullMoon ? FName(TEXT("Equip_FullMoon")) : FName(TEXT("Equip_Crescent"));
+	}
 }
