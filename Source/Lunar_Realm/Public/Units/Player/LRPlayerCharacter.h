@@ -44,8 +44,21 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	class UInputAction* MoveAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	class UInputAction* SummonAction_1;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	class UInputAction* SummonAction_2;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	class UInputAction* SummonAction_3;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	class UInputAction* SummonAction_4;
+
 
 	void Move(const FInputActionValue& Value);
+	void SummonSlot1();
+	void SummonSlot2();
+	void SummonSlot3();
+	void SummonSlot4();
 
 public:
 	UPROPERTY()

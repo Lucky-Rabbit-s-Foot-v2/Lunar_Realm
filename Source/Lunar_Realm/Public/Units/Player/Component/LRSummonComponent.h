@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Units/Member/LRMemberCharacter.h"
+#include "Structures/Core/LRPlayerCore.h"
 #include "LRSummonComponent.generated.h"
 
 
@@ -34,5 +35,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Summon")
 	float SpawnDistance = 200.0f;
+
+	UPROPERTY()
+	class ALRPlayerCore* TargetCore;
 
 };

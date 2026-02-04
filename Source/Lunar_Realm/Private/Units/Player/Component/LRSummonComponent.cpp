@@ -2,7 +2,10 @@
 
 
 #include "Units/Player/Component/LRSummonComponent.h"
+#include "Units/Member/LRMemberCharacter.h"
+#include "Structures/Core/LRPlayerCore.h"
 #include "GameFramework/Character.h"
+#include "Kismet/GameplayStatics.h"
 
 ULRSummonComponent::ULRSummonComponent()
 {
@@ -15,7 +18,16 @@ void ULRSummonComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
+	AActor* FoundActor = UGameplayStatics::GetActorOfClass(GetWorld(), ALRPlayerCore::StaticClass());
+	if (FoundActor)
+	{
+		TargetCore = Cast<ALRPlayerCore>(FoundActor);
+		UE_LOG(LogTemp, Log, TEXT("플레이어 코어 찾음: %s"), *TargetCore->GetName());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("플레이어코어가 없어 소환할 수 없음"));
+	}
 }
 
 void ULRSummonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -53,14 +65,15 @@ void ULRSummonComponent::TrySummonUnit(int32 SlotIndex)
 		UE_LOG(LogTemp, Warning, TEXT("슬롯 %d에 유닛 클래스가 없음"), SlotIndex);
 		return;
 	}
-	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
-	if (!OwnerCharacter)
+	if (TargetCore == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("소유자가 캐릭터가 아님"));
+		UE_LOG(LogTemp, Error, TEXT("Summon Failed: No TargetCore Linked! (Did BeginPlay find the Core?)"));
 		return;
 	}
-	FVector SpawnLocation = OwnerCharacter->GetActorLocation() + OwnerCharacter->GetActorForwardVector() * SpawnDistance;
-	FRotator SpawnRotation = OwnerCharacter->GetActorRotation();
+
+	FVector SpawnLocation = TargetCore->GetRandomSpawnLocation();
+	SpawnLocation.Z = TargetCore->GetActorLocation().Z;
+	FRotator SpawnRotation = FRotator::ZeroRotator;
 
 	if(UWorld* World = GetWorld())
 	{

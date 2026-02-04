@@ -106,6 +106,22 @@ void ALRPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ALRPlayerCharacter::Move);
+		if (SummonAction_1)
+			{
+				EnhancedInputComponent->BindAction(SummonAction_1, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot1);
+			}
+		if (SummonAction_2)
+			{
+				EnhancedInputComponent->BindAction(SummonAction_2, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot2);
+			}
+		if (SummonAction_3)
+			{
+				EnhancedInputComponent->BindAction(SummonAction_3, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot3);
+			}
+		if (SummonAction_4)
+			{
+				EnhancedInputComponent->BindAction(SummonAction_4, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot4);
+			}
 	}
 }
 
@@ -126,4 +142,24 @@ void ALRPlayerCharacter::Move(const FInputActionValue& Value)
 		const FVector RightDirection = FVector::RightVector;
 		AddMovementInput(RightDirection, MovementVector.Y);
 	}
+}
+
+void ALRPlayerCharacter::SummonSlot1()
+{
+	if (SummonComponent)
+	{
+		SummonComponent->TrySummonUnit(0);
+	}
+}
+
+void ALRPlayerCharacter::SummonSlot2()
+{
+}
+
+void ALRPlayerCharacter::SummonSlot3()
+{
+}
+
+void ALRPlayerCharacter::SummonSlot4()
+{
 }

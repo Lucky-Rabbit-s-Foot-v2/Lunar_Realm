@@ -23,6 +23,9 @@ UAbilitySystemComponent* ALRMemberCharacter::GetAbilitySystemComponent() const
 
 void ALRMemberCharacter::BeginPlay()
 {
+
+	Super::BeginPlay();
+
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
