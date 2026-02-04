@@ -74,4 +74,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	USoundMix* GlobalSoundMix;
 
+private:
+	float CurrentMasterVolume = 1.f;
+	float CurrentBGMVolume = 1.f;
+	float CurrentSFXVolume = 1.f;
+
+	void LoadVolumesFromSaveData();
+	void SaveVolumesToSaveData();
+	void ApplySoundMix();
 };

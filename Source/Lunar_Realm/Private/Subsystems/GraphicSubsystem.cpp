@@ -11,6 +11,7 @@ void UGraphicSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 	if(UGameUserSettings* UserSettings = UGameUserSettings::GetGameUserSettings())
 	{
+		UserSettings->LoadSettings();
 		UserSettings->ApplySettings(false);
 	}
 }
