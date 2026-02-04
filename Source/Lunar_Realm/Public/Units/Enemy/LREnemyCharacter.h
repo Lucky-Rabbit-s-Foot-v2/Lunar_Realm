@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Units/Enemy/LREnemyBaseCharacter.h"
+#include "Units/LRCharacter.h"
 #include "LREnemyCharacter.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LUNAR_REALM_API ALREnemyCharacter : public ALREnemyBaseCharacter
+class LUNAR_REALM_API ALREnemyCharacter : public ALRCharacter
 {
 	GENERATED_BODY()
 	
