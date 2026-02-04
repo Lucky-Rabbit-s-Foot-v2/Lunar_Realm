@@ -6,6 +6,7 @@
 #include "Units/LRCharacter.h"
 #include "AbilitySystemInterface.h"
 #include "InputActionValue.h"
+#include "Component/LRSummonComponent.h"
 #include "LRPlayerCharacter.generated.h"
 
 /**
@@ -52,5 +53,9 @@ public:
 
 	UPROPERTY()
 	class UAttributeSet* AttributeSet;
+
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Summon")
+	TObjectPtr<ULRSummonComponent> SummonComponent;
 
 };
