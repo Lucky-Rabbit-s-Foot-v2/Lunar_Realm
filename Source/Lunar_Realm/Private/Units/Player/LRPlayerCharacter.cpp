@@ -14,6 +14,10 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 
+#include "Input/LRInputComponent.h"
+#include "Input/LRInputConfig.h"   
+#include "GameplayTagsManager.h"
+
 
 
 
@@ -103,26 +107,45 @@ void ALRPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	ULRInputComponent* LRInputComp = Cast<ULRInputComponent>(PlayerInputComponent);
+
+	if (!LRInputComp)
 	{
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ALRPlayerCharacter::Move);
-		if (SummonAction_1)
-			{
-				EnhancedInputComponent->BindAction(SummonAction_1, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot1);
-			}
-		if (SummonAction_2)
-			{
-				EnhancedInputComponent->BindAction(SummonAction_2, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot2);
-			}
-		if (SummonAction_3)
-			{
-				EnhancedInputComponent->BindAction(SummonAction_3, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot3);
-			}
-		if (SummonAction_4)
-			{
-				EnhancedInputComponent->BindAction(SummonAction_4, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot4);
-			}
+		UE_LOG(LogTemp, Error, TEXT("SetupInput Failed: PlayerInputComponent is NOT ULRInputComponent!"));
+		return;
 	}
+
+	if (MoveAction)
+	{
+		LRInputComp->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ALRPlayerCharacter::Move);
+	}
+
+	if (InputConfig)
+	{
+		LRInputComp->BindAbilityActions(InputConfig, this, &ALRPlayerCharacter::Input_Summon, /*ReleasedFunc=*/ nullptr);
+	}
+
+
+	//if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	//{
+	//	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ALRPlayerCharacter::Move);
+	//	if (SummonAction_1)
+	//		{
+	//			EnhancedInputComponent->BindAction(SummonAction_1, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot1);
+	//		}
+	//	if (SummonAction_2)
+	//		{
+	//			EnhancedInputComponent->BindAction(SummonAction_2, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot2);
+	//		}
+	//	if (SummonAction_3)
+	//		{
+	//			EnhancedInputComponent->BindAction(SummonAction_3, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot3);
+	//		}
+	//	if (SummonAction_4)
+	//		{
+	//			EnhancedInputComponent->BindAction(SummonAction_4, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot4);
+	//		}
+	//}
 }
 
 UAbilitySystemComponent* ALRPlayerCharacter::GetAbilitySystemComponent() const
@@ -144,22 +167,53 @@ void ALRPlayerCharacter::Move(const FInputActionValue& Value)
 	}
 }
 
-void ALRPlayerCharacter::SummonSlot1()
+void ALRPlayerCharacter::Input_Summon(FGameplayTag InputTag)
 {
-	if (SummonComponent)
+	if (!SummonComponent) return;
+
+	int32 SlotIndex = -1;
+
+	if (InputTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Input.Summon.1"))))
 	{
-		SummonComponent->TrySummonUnit(0);
+		SlotIndex = 0;
+	}
+	else if (InputTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Input.Summon.2"))))
+	{
+		SlotIndex = 1;
+	}
+	else if (InputTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Input.Summon.3"))))
+	{
+		SlotIndex = 2;
+	}
+	else if (InputTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Input.Summon.4"))))
+	{
+		SlotIndex = 3;
+	}
+
+	if (SlotIndex >= 0)
+	{
+		SummonComponent->TrySummonUnit(SlotIndex);
+
+		UE_LOG(LogTemp, Log, TEXT("Input Tag [%s] -> Try Summon Slot [%d]"), *InputTag.ToString(), SlotIndex);
 	}
 }
 
-void ALRPlayerCharacter::SummonSlot2()
-{
-}
-
-void ALRPlayerCharacter::SummonSlot3()
-{
-}
-
-void ALRPlayerCharacter::SummonSlot4()
-{
-}
+//void ALRPlayerCharacter::SummonSlot1()
+//{
+//	if (SummonComponent)
+//	{
+//		SummonComponent->TrySummonUnit(0);
+//	}
+//}
+//
+//void ALRPlayerCharacter::SummonSlot2()
+//{
+//}
+//
+//void ALRPlayerCharacter::SummonSlot3()
+//{
+//}
+//
+//void ALRPlayerCharacter::SummonSlot4()
+//{
+//}

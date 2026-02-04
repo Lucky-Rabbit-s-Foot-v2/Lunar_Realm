@@ -7,8 +7,11 @@
 #include "AbilitySystemInterface.h"
 #include "InputActionValue.h"
 #include "Component/LRSummonComponent.h"
+#include "GameplayTagContainer.h"
 #include "LRPlayerCharacter.generated.h"
 
+
+class ULRInputConfig;
 /**
  * 
  */
@@ -44,21 +47,25 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	class UInputAction* MoveAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	class UInputAction* SummonAction_1;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	class UInputAction* SummonAction_2;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	class UInputAction* SummonAction_3;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	class UInputAction* SummonAction_4;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<ULRInputConfig> InputConfig;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	//class UInputAction* SummonAction_1;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	//class UInputAction* SummonAction_2;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	//class UInputAction* SummonAction_3;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	//class UInputAction* SummonAction_4;
 
 
 	void Move(const FInputActionValue& Value);
-	void SummonSlot1();
-	void SummonSlot2();
-	void SummonSlot3();
-	void SummonSlot4();
+	void Input_Summon(FGameplayTag InputTag);
+	//void SummonSlot1();
+	//void SummonSlot2();
+	//void SummonSlot3();
+	//void SummonSlot4();
 
 public:
 	UPROPERTY()
