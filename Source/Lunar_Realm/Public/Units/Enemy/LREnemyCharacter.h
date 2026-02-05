@@ -6,6 +6,7 @@
 #include "Units/LRCharacter.h"
 #include "LREnemyCharacter.generated.h"
 
+//class ALREnemyAttributeSet;
 /**
  * 
  */
@@ -16,5 +17,6 @@ class LUNAR_REALM_API ALREnemyCharacter : public ALRCharacter
 	
 
 private:
-	
+	//UPROPERTY(EditDefaultsOnly, Category = "LR|Attribute")
+	//TObjectPtr<ALREnemyAttributeSet> AttributeSet;
 };

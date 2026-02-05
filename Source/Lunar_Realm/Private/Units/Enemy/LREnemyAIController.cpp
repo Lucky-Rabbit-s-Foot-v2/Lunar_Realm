@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Structures/Core/LRCore.h"
 #include "GameplayTagAssetInterface.h"
+#include "Navigation/PathFollowingComponent.h"
 
 
 ALREnemyAIController::ALREnemyAIController()
@@ -63,4 +64,6 @@ void ALREnemyAIController::MoveToBase()
 	MoveRequest.SetUsePathfinding(true);
 
 	MoveTo(MoveRequest);
+
+	const FPathFollowingRequestResult Result = MoveTo(MoveRequest);
 }
