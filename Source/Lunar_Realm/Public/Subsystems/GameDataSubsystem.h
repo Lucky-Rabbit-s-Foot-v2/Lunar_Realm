@@ -90,9 +90,11 @@ public:
 	// 에너미 데이터 조회
 	// ========================================
 	// 에너미 정적 데이터 가져오기 (이름, 설명, 텍스처 등)
-	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Character")
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Enemy")
 	const FEnemyStaticData& GetEnemyStaticData(int32 EnemyID) const;
 	
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Enemy")
+	TArray<int32> GetAllEnemyIDs();
 	
 private:
 	// ========================================
