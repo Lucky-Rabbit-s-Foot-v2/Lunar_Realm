@@ -37,6 +37,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	AActor* GetCurrentTarget() const { return CurrentTarget; }
 
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	bool IsAutoMode() const { return CombatState == EAutoCombatState::Auto; }
+
 protected:
 
 	void FindBestTarget();
@@ -46,7 +49,7 @@ protected:
 	void MoveToTarget(float DeltaTime);
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	EAutoCombatState CombatState = EAutoCombatState::Manual;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")

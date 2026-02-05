@@ -17,6 +17,7 @@
 #include "Input/LRInputComponent.h"
 #include "Input/LRInputConfig.h"   
 #include "GameplayTagsManager.h"
+#include "GAS/Tags/LRGameplayTags.h"
 
 
 
@@ -46,6 +47,7 @@ ALRPlayerCharacter::ALRPlayerCharacter()
 	AutoPossessPlayer = EAutoReceiveInput::Player0; // 플레이어 자동 빙의 (싱글 플레이 테스트용)
 
 	SummonComponent = CreateDefaultSubobject<ULRSummonComponent>(TEXT("SummonComponent"));
+	CombatComponent = CreateDefaultSubobject<ULRCombatComponent>(TEXT("CombatComponent"));
 }
 
 void ALRPlayerCharacter::BeginPlay()
@@ -155,6 +157,11 @@ UAbilitySystemComponent* ALRPlayerCharacter::GetAbilitySystemComponent() const
 
 void ALRPlayerCharacter::Move(const FInputActionValue& Value)
 {
+	if (CombatComponent && CombatComponent->IsAutoMode())
+	{
+		return;
+	}
+
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
@@ -173,19 +180,19 @@ void ALRPlayerCharacter::Input_Summon(FGameplayTag InputTag)
 
 	int32 SlotIndex = -1;
 
-	if (InputTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Input.Summon.1"))))
+	if (InputTag.MatchesTag(LRTags::Input_Summon_1))
 	{
 		SlotIndex = 0;
 	}
-	else if (InputTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Input.Summon.2"))))
+	else if (InputTag.MatchesTag(LRTags::Input_Summon_2))
 	{
 		SlotIndex = 1;
 	}
-	else if (InputTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Input.Summon.3"))))
+	else if (InputTag.MatchesTag(LRTags::Input_Summon_3))
 	{
 		SlotIndex = 2;
 	}
-	else if (InputTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Input.Summon.4"))))
+	else if (InputTag.MatchesTag(LRTags::Input_Summon_4))
 	{
 		SlotIndex = 3;
 	}
@@ -193,8 +200,6 @@ void ALRPlayerCharacter::Input_Summon(FGameplayTag InputTag)
 	if (SlotIndex >= 0)
 	{
 		SummonComponent->TrySummonUnit(SlotIndex);
-
-		UE_LOG(LogTemp, Log, TEXT("Input Tag [%s] -> Try Summon Slot [%d]"), *InputTag.ToString(), SlotIndex);
 	}
 }
 
