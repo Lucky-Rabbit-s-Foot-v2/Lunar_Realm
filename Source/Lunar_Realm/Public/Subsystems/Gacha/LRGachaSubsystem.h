@@ -3,20 +3,29 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Subsystems/GameInstanceSubsystem.h"
+
 #include "Engine/DataTable.h"
 #include "GameplayTagContainer.h"
-#include "Data/Gacha/LRGachaTypes.h"
+#include "Subsystems/GameInstanceSubsystem.h"
+
 #include "Data/Gacha/LRGachaTransactionTypes.h"
+#include "Data/Gacha/LRGachaTypes.h"
+
 #include "LRGachaSubsystem.generated.h"
 
 class ULRGachaSaveGame;
 
-// UI가 구독해서 갱신할 델리게이트(재화/뽑기완료)
+/*
+* 이 Subsystem 하나가 가챠의 로직을 모두 담당.
+* UI는 여기 API만 호출하고, 결과를 받아서 연출/표시만 한다.
+*/
+
+// UI갱신 델리게이트(재화/뽑기완료)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCurrencyChanged, FGameplayTag, CurrencyTag, int32, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPityChanged, FName, BannerID, int32, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGachaFinished, FName, BannerID, const TArray<FLRGachaResult>&, Results);
-// UI가 구독해서 갱신할 델리게이트(트랜잭션 상태)
+
+// 트랜잭션 상태 델리게이트
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGachaTxnStateChanged, ELRGachaTxnState, NewState);
 
 /**
@@ -30,7 +39,7 @@ class LUNAR_REALM_API ULRGachaSubsystem : public UGameInstanceSubsystem
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
-	// 외부(UI)에서 쓰는 API
+	// Currency(재화) API ==========================================
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Currency")
 	int32 GetCurrency(FGameplayTag CurrencyTag) const;
 
@@ -40,9 +49,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Currency")
 	bool SpendCurrency(FGameplayTag CurrencyTag, int32 Cost);
 
+	// Pity(천장) API ================================================
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Pity")
 	int32 GetPityCount(FName BannerID) const;
 
+	// Draw API(뽑기) ========================================================================================
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Draw")
 	bool CanDraw(FName BannerID, int32 DrawCount, int32& OutNeedCost) const;
 
@@ -81,6 +92,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "LR|Gacha|Event")
 	FOnGachaTxnStateChanged OnGachaTxnStateChanged;
 	 
+	// UI 편의 함수 =======================================================================================
 	// 배너ID 계산 + 트랜잭션 시작
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Draw")
 	FName GetBannerIdBySelection(ELRGachaItemType ItemType, ELRGachaTicketType TicketType) const;
@@ -94,7 +106,7 @@ public:
 	int32 GetDisplayPityCount(ELRGachaItemType ItemType) const;
 
 protected:
-	// 에디터에서 지정할 DataTable
+	// DataTable Soft Reference ==============================
 	// DT만 꽂으면 되게 단순화
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Data")
 	TSoftObjectPtr<UDataTable> BannerDataTable;
@@ -109,7 +121,7 @@ protected:
 	TSoftObjectPtr<UDataTable> RarityRateDataTable;
 
 private:
-	// 로드된 DT 캐시
+	// 로드된 DT 캐시 ========================================
 	UPROPERTY()
 	UDataTable* LoadedBannerDT = nullptr;
 
@@ -122,7 +134,7 @@ private:
 	UPROPERTY()
 	UDataTable* LoadedRarityRateDT = nullptr;
 
-	// 저장 데이터
+	// 저장 데이터 ===========================================
 	UPROPERTY()
 	TObjectPtr<ULRGachaSaveGame> GachaSave;
 
@@ -137,7 +149,7 @@ private:
 	bool RollResults_NoApply(const FLRGachaBannerRow& Banner, const TArray<FLRGachaPoolRow>& Pool, int32 DrawCount,
 		int32& InOutPityCounter, TArray<FLRGachaResult>& OutResults);
 private:
-	// 내부 로직
+	// 내부 로직 ==================================
 	void LoadOrCreateSave();
 	void Save();
 

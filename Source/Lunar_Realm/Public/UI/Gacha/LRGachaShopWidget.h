@@ -3,17 +3,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/BaseWidget.h"
+
 #include "Data/Gacha/LRGachaTypes.h"
+#include "UI/BaseWidget.h"
 #include "UI/Gacha/LRGachaRevealWidget.h"
+
 #include "LRGachaShopWidget.generated.h"
 
 class UButton;
 class UTextBlock;
 class ULRGachaSubsystem;
+
 /**
- * 
+ * 가챠 상점 UI
+ * 버튼 클릭 -> GachaSubsystem 트랜잭션 시작/커밋
+ * 결과를 받아서 리빌(팝업) 위젯을 띄움
  */
+
 UCLASS()
 class LUNAR_REALM_API ULRGachaShopWidget : public UBaseWidget
 {
@@ -38,10 +44,11 @@ public:
 	void ShowRevealWidget(FName InBannerID, const TArray<FLRGachaResult>& InResults);
 
 protected:
-	// 위젯 바인딩
+	// 탭 버튼
 	UPROPERTY(meta = (BindWidget)) UButton* ButtonHeroTab;
 	UPROPERTY(meta = (BindWidget)) UButton* ButtonEquipTab;
 
+	// 초승달/보름달 1회/10회
 	UPROPERTY(meta = (BindWidget)) UButton* ButtonCrescentDraw1;
 	UPROPERTY(meta = (BindWidget)) UButton* ButtonCrescentDraw10;
 	UPROPERTY(meta = (BindWidget)) UButton* ButtonFullMoonDraw1;
@@ -50,7 +57,7 @@ protected:
 	// 천장 표시용(보름달 배너)
 	UPROPERTY(meta = (BindWidgetOptional)) UTextBlock* TextPity;
 
-	// 재화 표시(상단 3칸)
+	// 재화 표시
 	UPROPERTY(meta = (BindWidgetOptional)) UTextBlock* TextGold;
 	UPROPERTY(meta = (BindWidgetOptional)) UTextBlock* TextCrescent;
 	UPROPERTY(meta = (BindWidgetOptional)) UTextBlock* TextFullMoon;

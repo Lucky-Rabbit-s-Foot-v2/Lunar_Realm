@@ -2,11 +2,15 @@
 
 
 #include "UI/Gacha/LRGachaShopWidget.h"
+
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+
 #include "Subsystems/Gacha/LRGachaSubsystem.h"
-#include "Engine/GameInstance.h"
 #include "Subsystems/UIManagerSubsystem.h"
+
+#include "Engine/GameInstance.h"
+
 
 DEFINE_LOG_CATEGORY_STATIC(LogLRGachaShop, Log, All);
 
@@ -14,11 +18,13 @@ void ULRGachaShopWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	// Subsystem 참조
 	GachaSys = GetGameInstance()->GetSubsystem<ULRGachaSubsystem>();
 
 	// 기본 배너는 영웅으로 시작
 	CurrentBannerID = DefaultHeroBannerID;
 
+	// 버튼 바인딩
 	if (ButtonHeroTab) ButtonHeroTab->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickHeroTab);
 	if (ButtonEquipTab) ButtonEquipTab->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickEquipTab);
 
@@ -27,10 +33,9 @@ void ULRGachaShopWidget::NativeConstruct()
 	if (ButtonFullMoonDraw1)  ButtonFullMoonDraw1->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickFullMoonDraw1);
 	if (ButtonFullMoonDraw10) ButtonFullMoonDraw10->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickFullMoonDraw10);
 
-
+	// 델리게이트 구독(재화/천장 UI 자동 갱신)
 	if (GachaSys)
 	{
-		// 재화/천장 변경 이벤트 구독
 		GachaSys->OnCurrencyChanged.AddDynamic(this, &ULRGachaShopWidget::HandleCurrencyChanged);
 		GachaSys->OnPityChanged.AddDynamic(this, &ULRGachaShopWidget::HandlePityChanged);
 	}
@@ -38,6 +43,8 @@ void ULRGachaShopWidget::NativeConstruct()
 	RefreshCurrencyTexts();
 	RefreshPityText();
 
+	// 튕김 복구
+	// Pending 트랜잭션이 남아있으면 "자동 커밋" 후 리빌을 다시 보여줌.
 	if (GachaSys)
 	{
 		FLRGachaPendingTransaction Pending;
@@ -80,10 +87,11 @@ void ULRGachaShopWidget::ShowRevealWidget(FName InBannerID, const TArray<FLRGach
 	UUIManagerSubsystem* UISys = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	if (!UISys) return;
 
-	// UIManager로 열어서 Popup 스택/입력모드까지 정상 처리
+	// UIManager로 Popup을 열어야 스택/입력모드 관리가 일관됨.
 	ULRGachaRevealWidget* Reveal = UISys->OpenUI<ULRGachaRevealWidget>(RevealWidgetClass);
 	if (!Reveal) return;
 
+	// 리빌 시작(결과 전달)
 	Reveal->StartRevealWithTransaction(InBannerID, FGuid(), InResults);
 }
 
@@ -106,6 +114,7 @@ void ULRGachaShopWidget::TryBeginDrawAndOpenReveal(FName BannerID, int32 Count)
 	FGuid TxnId;
 	TArray<FLRGachaResult> Results;
 
+	// 트랜잭션 시작(비용차감 + 결과확정 저장)
 	const bool bOk = GachaSys->BeginDrawTransaction(BannerID, Count, TxnId, Results);
 	if (!bOk || !TxnId.IsValid() || Results.Num() == 0)
 	{
@@ -118,7 +127,8 @@ void ULRGachaShopWidget::TryBeginDrawAndOpenReveal(FName BannerID, int32 Count)
 	UE_LOG(LogLRGachaShop, Log, TEXT("[GachaShop] Txn Started. Banner=%s Count=%d Txn=%s Results=%d"),
 		*BannerID.ToString(), Count, *TxnId.ToString(), Results.Num());
 
-	// 결과를 “보기 시작하기 전/직후”에 유저가 취소로 이득 못 보게 무조건 지급 확정
+	// 바로 커밋(지급 확정)
+	// 연출 보는 도중 취소로 이득을 보는걸 막는 설계
 	const bool bCommitted = GachaSys->CommitTransaction(TxnId);
 	if (!bCommitted)
 	{
@@ -127,6 +137,7 @@ void ULRGachaShopWidget::TryBeginDrawAndOpenReveal(FName BannerID, int32 Count)
 		return;
 	}
 
+	// 리빌 오픈
 	ShowRevealWidget(BannerID, Results);
 
 }
@@ -176,7 +187,7 @@ void ULRGachaShopWidget::HandleCurrencyChanged(FGameplayTag Tag, int32 NewValue)
 
 void ULRGachaShopWidget::HandlePityChanged(FName BannerID, int32 NewValue)
 {
-	// 표시 천장은 FullMoon만 본다
+	// 표시 천장은 FullMoon만(탭에 따라 Hero/Equip)
 	const FName DisplayBannerID = IsHeroTabSelected() ? DefaultHeroBannerID : DefaultEquipBannerID;
 
 	if (BannerID == DisplayBannerID)

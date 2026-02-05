@@ -1,9 +1,18 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+
 #include "GameplayTagContainer.h"
+
 #include "Data/Gacha/LRGachaTypes.h"
+
 #include "LRGachaTransactionTypes.generated.h"
+
+/*
+* 트랜잭션은 "뽑기 결과를 확정해두고(저장), UI연출 뒤에 지급/취소 같은
+* 안정장치 구조를 위한 데이터
+* 모바일에서 튕김/강제종료 대비에 유용
+*/
 
 // 트랜잭션 상태
 UENUM(BlueprintType)

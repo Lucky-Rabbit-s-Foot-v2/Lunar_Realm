@@ -1,9 +1,17 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+
 #include "Engine/DataTable.h"
 #include "GameplayTagContainer.h"
+
 #include "LRGachaTypes.generated.h"
+
+/*
+* 이 파일은 "가챠 시스템에서 공통으로 쓰는 타입을 정의한다.
+* 배너/풀/확률/중복보상 DataTable Row 구조체
+* 가챠 결과(연출/UI에 넘길 데이터) 구조체
+*/
 
 // 가챠 대상 타입(영웅/장비)
 UENUM(BlueprintType)
@@ -33,16 +41,17 @@ enum class ELRGachaTicketType : uint8
 };
 
 
-//배너(뽑기) 설정 DT
+//배너(뽑기) 설정 DataTable
 USTRUCT(BlueprintType)
 struct FLRGachaBannerRow : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	// 배너 식별자(예 : "Hero_Cresent")
+	// 배너 식별자(예 : "Hero_Cresent", "Hero_FullMoon")
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName BannerID;
 
+	// 배너가 뽑는 대상 타입(영웅/장비)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ELRGachaItemType ItemType = ELRGachaItemType::Hero;
 

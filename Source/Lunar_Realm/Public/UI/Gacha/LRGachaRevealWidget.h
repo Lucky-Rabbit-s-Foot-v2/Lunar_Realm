@@ -3,13 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/BaseWidget.h"
+
 #include "Data/Gacha/LRGachaTypes.h"
+#include "UI/BaseWidget.h"
+
 #include "LRGachaRevealWidget.generated.h"
 
 /**
- * 
+ * 리빌 위젯
+ * 결과를 받아서 BP_PlayRevealSequence로 연출 시작
+ * 클릭으로 스킵(가속/완전스킵) 처리
+ * UIManager가 커서를 끄는 문제를 "다음 틱에 입력모드/커서 강제"로 덮어쓰기
  */
+
 UCLASS()
 class LUNAR_REALM_API ULRGachaRevealWidget : public UBaseWidget
 {
@@ -18,10 +24,11 @@ class LUNAR_REALM_API ULRGachaRevealWidget : public UBaseWidget
 public:
 	virtual void NativeConstruct() override;
 
-	// 트랜잭션 포함 시작
+	// 트랜잭션 포함 시작 (UI 연출용으로 결과 받기)
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Reveal")
 	void StartRevealWithTransaction(FName InBannerID, FGuid InTxnId, const TArray<FLRGachaResult>& InResults);
 
+	// 다음 틱에 UI 입력/커서를 강제하는 유틸 함수
 	UFUNCTION(BlueprintCallable)
 	void ForceUIInputNextTick();
 
@@ -35,7 +42,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "LR|Gacha|Reveal")
 	void BP_PlayRevealSequence(const TArray<FLRGachaResult>& InResults);
 
-	// 블루프린트에 "가속/스킵 상태 변경" 알려주기(애니메이션 속도 조절용)
+	// BP에 스킵 상태 변경 알려주기(애니메이션 속도 조절 등)
 	UFUNCTION(BlueprintImplementableEvent, Category = "LR|Gacha|Reveal")
 	void BP_OnSkipStateChanged(int32 NewSkipState);
 
