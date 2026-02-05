@@ -378,3 +378,14 @@ const FEnemyStaticData& UGameDataSubsystem::GetEnemyStaticData(int32 EnemyID) co
 {
 	return GetCachedData(CachedEnemyStaticData, EnemyID, EmptyEnemyStaticData, TEXT("EnemyStaticData"));
 }
+
+TArray<int32> UGameDataSubsystem::GetAllEnemyIDs()
+{
+	TArray<int32> EnemyIDs;
+	CachedEnemyStaticData.GetKeys(EnemyIDs);
+	EnemyIDs.Sort();
+	
+	LR_INFO(TEXT("Found %d Enemy"), EnemyIDs.Num());
+	
+	return EnemyIDs;
+}
