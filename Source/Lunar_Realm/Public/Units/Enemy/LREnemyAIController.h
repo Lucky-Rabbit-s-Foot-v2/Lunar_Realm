@@ -7,6 +7,7 @@
 #include "GameplayTagContainer.h"
 #include "LREnemyAIController.generated.h"
 
+
 /**
  * LRAIController 구성 요소
  * Enemy 기본 컨트롤러 (보스는 따로 구현 예정)
@@ -20,7 +21,7 @@
 UCLASS()
 class LUNAR_REALM_API ALREnemyAIController : public ALRAIController
 {
-	GENERATED_BODY()
+		GENERATED_BODY()
 	
 public:
 	ALREnemyAIController();
