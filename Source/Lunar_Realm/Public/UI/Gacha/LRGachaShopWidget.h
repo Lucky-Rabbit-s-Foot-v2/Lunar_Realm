@@ -35,7 +35,7 @@ public:
 	FName DefaultEquipBannerID = TEXT("Equip_FullMoon");
 
 	// 리빌 위젯 띄우기
-	void ShowRevealWidget(FName InBannerID, const FGuid& InTxnId, const TArray<FLRGachaResult>& InResults);
+	void ShowRevealWidget(FName InBannerID, const TArray<FLRGachaResult>& InResults);
 
 protected:
 	// 위젯 바인딩

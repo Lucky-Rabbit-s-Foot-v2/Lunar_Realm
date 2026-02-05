@@ -2,13 +2,10 @@
 
 
 #include "UI/Gacha/LRGachaRevealWidget.h"
-#include "Subsystems/Gacha/LRGachaSubsystem.h"
 #include "Subsystems/UIManagerSubsystem.h"
 #include "Engine/GameInstance.h"
 #include "TimerManager.h"
 #include "GameFramework/PlayerController.h"
-#include "Blueprint/WidgetBlueprintLibrary.h"
-#include "UI/Gacha/LRGachaShopWidget.h"
 
 void ULRGachaRevealWidget::NativeConstruct()
 {
@@ -34,39 +31,15 @@ void ULRGachaRevealWidget::ForceUIInputNextTick()
 {
 	if (!GetWorld()) return;
 
-	// 다음 틱에 실행 (UIManager가 만진 뒤 다시 덮어쓰기)
-	GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
-		{
-			APlayerController* PC = GetOwningPlayer();
-			if (!PC) return;
-
-			// 커서 켜기
-			PC->SetShowMouseCursor(true);
-
-			// UI 조작 가능하게 입력 모드
-			FInputModeGameAndUI Mode;
-			Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-			Mode.SetHideCursorDuringCapture(false);
-			PC->SetInputMode(Mode);
-		});
-}
-
-void ULRGachaRevealWidget::RestoreGachaInputAfterCloseNextTick()
-{
-	if (!GetWorld()) return;
-
 	APlayerController* PC = GetOwningPlayer();
 	if (!PC) return;
 
-	// 다음 틱에 실행 (UIManager가 Close하면서 InputMode/커서 만진 뒤 다시 덮어쓰기)
 	GetWorld()->GetTimerManager().SetTimerForNextTick([PC]()
 		{
-			// 커서 켜기
 			PC->SetShowMouseCursor(true);
 			PC->bEnableClickEvents = true;
 			PC->bEnableMouseOverEvents = true;
 
-			// UI 조작 가능하게 입력 모드
 			FInputModeGameAndUI Mode;
 			Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 			Mode.SetHideCursorDuringCapture(false);
@@ -75,12 +48,11 @@ void ULRGachaRevealWidget::RestoreGachaInputAfterCloseNextTick()
 		});
 }
 
-
 // 리빌 종료(결과 확인까지 끝났을 때 호출)
 void ULRGachaRevealWidget::FinishRevealAndClose()
 {
-	// 닫기 전에, 다음 틱에 커서/입력 복구 예약
-	RestoreGachaInputAfterCloseNextTick();
+	// 닫기 전에 다음 틱에 UI 입력/커서 덮어쓰기 예약
+	ForceUIInputNextTick();
 
 	// 여기서 추가로 결과창이 따로 있다면 결과창을 닫는 흐름으로 바꿔도 됨
 	CloseSelfPopup();

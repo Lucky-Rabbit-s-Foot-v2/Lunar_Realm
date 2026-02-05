@@ -5,7 +5,6 @@
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Subsystems/Gacha/LRGachaSubsystem.h"
-#include "System/LoggingSystem.h"
 #include "Engine/GameInstance.h"
 #include "Subsystems/UIManagerSubsystem.h"
 
@@ -56,7 +55,7 @@ void ULRGachaShopWidget::NativeConstruct()
 				return;
 			}
 			
-			ShowRevealWidget(Pending.BannerID, FGuid(), Pending.Results);
+			ShowRevealWidget(Pending.BannerID, Pending.Results);
 			return;
 		}
 	}
@@ -74,7 +73,7 @@ void ULRGachaShopWidget::NativeDestruct()
 }
 
 // 리빌 위젯 띄우기
-void ULRGachaShopWidget::ShowRevealWidget(FName InBannerID, const FGuid& InTxnId, const TArray<FLRGachaResult>& InResults)
+void ULRGachaShopWidget::ShowRevealWidget(FName InBannerID, const TArray<FLRGachaResult>& InResults)
 {
 	if (!RevealWidgetClass) return;
 
@@ -85,7 +84,7 @@ void ULRGachaShopWidget::ShowRevealWidget(FName InBannerID, const FGuid& InTxnId
 	ULRGachaRevealWidget* Reveal = UISys->OpenUI<ULRGachaRevealWidget>(RevealWidgetClass);
 	if (!Reveal) return;
 
-	Reveal->StartRevealWithTransaction(InBannerID, InTxnId, InResults);
+	Reveal->StartRevealWithTransaction(InBannerID, FGuid(), InResults);
 }
 
 // Draw 버튼 클릭에서 트랜잭션 시작 + 리빌 띄우기
@@ -128,7 +127,7 @@ void ULRGachaShopWidget::TryBeginDrawAndOpenReveal(FName BannerID, int32 Count)
 		return;
 	}
 
-	ShowRevealWidget(BannerID, FGuid(), Results);
+	ShowRevealWidget(BannerID, Results);
 
 }
 
@@ -178,7 +177,7 @@ void ULRGachaShopWidget::HandleCurrencyChanged(FGameplayTag Tag, int32 NewValue)
 void ULRGachaShopWidget::HandlePityChanged(FName BannerID, int32 NewValue)
 {
 	// 표시 천장은 FullMoon만 본다
-	const FName DisplayBannerID = IsHeroTabSelected() ? FName(TEXT("Hero_FullMoon")) : FName(TEXT("Equip_FullMoon"));
+	const FName DisplayBannerID = IsHeroTabSelected() ? DefaultHeroBannerID : DefaultEquipBannerID;
 
 	if (BannerID == DisplayBannerID)
 	{

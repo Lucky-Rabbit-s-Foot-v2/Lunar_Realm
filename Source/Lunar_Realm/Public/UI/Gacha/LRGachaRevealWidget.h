@@ -57,7 +57,4 @@ private:
 
 	// SkipState=2(스킵)으로 결과를 보여준 뒤, 다음 클릭에 닫기용
 	bool bSkipResultsShown = false;
-
-	// 닫은 후 커서/입력 복구
-	void RestoreGachaInputAfterCloseNextTick();
 };
