@@ -10,6 +10,11 @@
 /**
  * 
  */
+
+//=============================================================================
+// (260203) BJM 제작. 플레이어 캐릭터 어트리뷰트셋.
+// (260205) 멀티플레이 코드 제거 및 방어력(Defense) 추가 완료_BJM
+//=============================================================================
 UCLASS()
 class LUNAR_REALM_API ULRPlayerAttributeSet : public UAttributeSet
 {
@@ -18,33 +23,31 @@ class LUNAR_REALM_API ULRPlayerAttributeSet : public UAttributeSet
 public:
 	ULRPlayerAttributeSet();
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	// virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Stats", ReplicatedUsing = OnRep_Health)
+	UPROPERTY(BlueprintReadOnly, Category = "Stats")
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(ULRPlayerAttributeSet, Health);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Stats", ReplicatedUsing = OnRep_MaxHealth)
+	UPROPERTY(BlueprintReadOnly, Category = "Stats")
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(ULRPlayerAttributeSet, MaxHealth);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Stats", ReplicatedUsing = OnRep_Aether)
+	UPROPERTY(BlueprintReadOnly, Category = "Stats")
 	FGameplayAttributeData Aether;
 	ATTRIBUTE_ACCESSORS(ULRPlayerAttributeSet, Aether);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Stats", ReplicatedUsing = OnRep_AttackPower)
+	UPROPERTY(BlueprintReadOnly, Category = "Stats")
 	FGameplayAttributeData AttackPower;
 	ATTRIBUTE_ACCESSORS(ULRPlayerAttributeSet, AttackPower);
 
-	UFUNCTION() 
-	void OnRep_Health(const FGameplayAttributeData& OldHealth);
-	UFUNCTION() 
-	void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth);
-	UFUNCTION() 
-	void OnRep_Aether(const FGameplayAttributeData& OldAether);
-	UFUNCTION() 
-	void OnRep_AttackPower(const FGameplayAttributeData& OldAttackPower);
+	UPROPERTY(BlueprintReadOnly, Category = "Stats")
+	FGameplayAttributeData Defense;
+	ATTRIBUTE_ACCESSORS(ULRPlayerAttributeSet, Defense);
+
+
+
 };
