@@ -4,6 +4,8 @@
 #include "Subsystems/PoolingSubsystem.h"
 #include "GameFramework/Actor.h"
 
+#include "System/LoggingSystem.h"
+
 AActor* UPoolingSubsystem::SpawnPooledActor(TSubclassOf<AActor> ClassToSpawn, const FTransform& SpawnTransform)
 {
 	if (!ClassToSpawn)
@@ -27,15 +29,20 @@ AActor* UPoolingSubsystem::SpawnPooledActor(TSubclassOf<AActor> ClassToSpawn, co
 
 	if (!IsValid(PooledActor))
 	{
+		LR_INFO(TEXT("Spawn New Actor"));
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 		PooledActor = GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTransform, SpawnParams);
 	}
 
-	if (PooledActor && PooledActor->Implements<ULRPoolableInterface>())
+	if (PooledActor)
 	{
-		ILRPoolableInterface::Execute_OnPoolActivate(PooledActor);
+		ActiveActors.Add(PooledActor);
+		if (PooledActor->Implements<ULRPoolableInterface>())
+		{
+			ILRPoolableInterface::Execute_OnPoolActivate(PooledActor);
+		}
 	}
 
 	return PooledActor;
@@ -47,6 +54,8 @@ void UPoolingSubsystem::ReturnToPool(AActor* ActorToReturn)
 	{
 		return;
 	}
+
+	ActiveActors.Remove(ActorToReturn);
 
 	if (ActorToReturn->Implements<ULRPoolableInterface>())
 	{
@@ -60,9 +69,36 @@ void UPoolingSubsystem::ReturnToPool(AActor* ActorToReturn)
 
 void UPoolingSubsystem::InitializePool(TSubclassOf<AActor> ClassToInit, int32 Count)
 {
+	TArray<AActor*> CachedActors;
+
 	for (int32 i = 0; i < Count; ++i)
 	{
 		AActor* NewActor = SpawnPooledActor(ClassToInit, FTransform::Identity);
-		ReturnToPool(NewActor);
+		CachedActors.Add(NewActor);
+	}
+
+	for (AActor* CachedActor : CachedActors)
+	{
+		ReturnToPool(CachedActor);
+	}
+}
+
+void UPoolingSubsystem::ReturnAllActiveActors()
+{
+	TArray<AActor*> ActorsToReturn = ActiveActors.Array();
+
+	ActiveActors.Empty();
+
+	for (AActor* Actor : ActorsToReturn)
+	{
+		if (IsValid(Actor))
+		{
+			if (Actor->Implements<ULRPoolableInterface>())
+			{
+				ILRPoolableInterface::Execute_OnPoolDeactivate(Actor);
+			}
+			UClass* ActorClass = Actor->GetClass();
+			ActorPool.FindOrAdd(ActorClass).Push(Actor);
+		}
 	}
 }
