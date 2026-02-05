@@ -30,11 +30,13 @@ public:
 		return AbilitySystemComponent;
 	}
 
+	void OnDie();
+
 protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
-	void InitializeAttributes();
+	void InitializeAttributes(int32 EnemyID);
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|ASC")
