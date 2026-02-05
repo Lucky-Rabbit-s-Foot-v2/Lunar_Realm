@@ -22,15 +22,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Reveal")
 	void StartRevealWithTransaction(FName InBannerID, FGuid InTxnId, const TArray<FLRGachaResult>& InResults);
 
-	// BP 버튼에서 호출할 커밋/취소
-	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Reveal")
-	void ConfirmCommit();	// 지급 확정
-
-	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Reveal")
-	void CancelAndRefund();	// 취소/환불(테스트용 혹은 뒤로가기)
-
 	UFUNCTION(BlueprintCallable)
 	void ForceUIInputNextTick();
+
+	// 리빌 종료(결과 확인까지 끝났을 때 호출)
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Reveal")
+	void FinishRevealAndClose();
 
 protected:
 	// 블루프린트에서 구현할 연출 진입점
@@ -57,4 +54,10 @@ private:
 	int32 SkipState = 0;
 
 	void CloseSelfPopup();	//	UIManager로 닫기
+
+	// SkipState=2(스킵)으로 결과를 보여준 뒤, 다음 클릭에 닫기용
+	bool bSkipResultsShown = false;
+
+	// 닫은 후 커서/입력 복구
+	void RestoreGachaInputAfterCloseNextTick();
 };

@@ -44,8 +44,19 @@ void ULRGachaShopWidget::NativeConstruct()
 		FLRGachaPendingTransaction Pending;
 		if (GachaSys->GetAnyPendingTransaction(Pending))
 		{
-			// Pending 안에 BannerID, TxnId, Results가 있다고 가정
-			ShowRevealWidget(Pending.BannerID, Pending.TxnId, Pending.Results);
+			UE_LOG(LogLRGachaShop, Warning, TEXT("[GachaShop] Pending Txn found on enter. Auto-committing. Banner=%s Txn=%s Results=%d"),
+				*Pending.BannerID.ToString(), *Pending.TxnId.ToString(), Pending.Results.Num());
+
+			// 튕김/재접속 보호: 남아있는 Pending은 무조건 지급 확정(자동 커밋)
+			const bool bCommitted = GachaSys->CommitTransaction(Pending.TxnId);
+			if (!bCommitted)
+			{
+				UE_LOG(LogLRGachaShop, Error, TEXT("[GachaShop] Auto-commit failed. Banner=%s Txn=%s"),
+					*Pending.BannerID.ToString(), *Pending.TxnId.ToString());
+				return;
+			}
+			
+			ShowRevealWidget(Pending.BannerID, FGuid(), Pending.Results);
 			return;
 		}
 	}
@@ -108,7 +119,17 @@ void ULRGachaShopWidget::TryBeginDrawAndOpenReveal(FName BannerID, int32 Count)
 	UE_LOG(LogLRGachaShop, Log, TEXT("[GachaShop] Txn Started. Banner=%s Count=%d Txn=%s Results=%d"),
 		*BannerID.ToString(), Count, *TxnId.ToString(), Results.Num());
 
-	ShowRevealWidget(BannerID, TxnId, Results);
+	// 결과를 “보기 시작하기 전/직후”에 유저가 취소로 이득 못 보게 무조건 지급 확정
+	const bool bCommitted = GachaSys->CommitTransaction(TxnId);
+	if (!bCommitted)
+	{
+		UE_LOG(LogLRGachaShop, Error, TEXT("[GachaShop] Auto-commit failed. Banner=%s Txn=%s"),
+			*BannerID.ToString(), *TxnId.ToString());
+		return;
+	}
+
+	ShowRevealWidget(BannerID, FGuid(), Results);
+
 }
 
 void ULRGachaShopWidget::OnClickHeroTab()
