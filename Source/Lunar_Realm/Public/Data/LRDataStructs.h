@@ -90,6 +90,14 @@ struct FCharacterIDInfo
 	FCharacterIDInfo() 
 		: Type(0), Class(0), Variant(0)
 	{}
+	
+	FCharacterIDInfo(int32 CharacterID)
+	{
+		//10101 -> 1 / 01 / 01
+		Type = CharacterID / 10000; //1
+		Class = (CharacterID / 100) % 100; //01
+		Variant = CharacterID % 100; //01
+	}
 };
 
 
@@ -115,12 +123,22 @@ struct FEquipmentIDInfo
 		: Type(0), Category(0), ItemNumber(0), SetID(0)
 	{}
 	
+	FEquipmentIDInfo(int32 EquipmentID)
+	{
+		//20100102 -> 2 / 01 / 001 / 02
+		Type = EquipmentID / 10000000; //2
+		Category = (EquipmentID / 100000) % 100; //01
+		ItemNumber = (EquipmentID / 100) % 1000; //001
+		SetID = EquipmentID % 100; //02
+	}
+	
+	bool IsSetItem() const {return SetID > 0;}
 };
 
 
 //적 ID 파싱 결과를 처리하기 위한 구조체
 USTRUCT(BlueprintType)
-struct FEnmeyIDInfo
+struct FEnemyIDInfo
 {
 	GENERATED_BODY()
 
@@ -136,9 +154,18 @@ struct FEnmeyIDInfo
 	UPROPERTY(BlueprintReadOnly)
 	uint8 Variant; //01 ~ 99 = 종류
 
-	FEnmeyIDInfo()
+	FEnemyIDInfo()
 		: Type(0), Class(0), Role(0), Variant(0)
 	{}
+	
+	FEnemyIDInfo(int32 EnemyID)
+	{
+		//3 / 01 / 01 / 01  타입, 클래스, role, variant
+		Type = EnemyID / 1000000; //3
+		Class = (EnemyID / 10000) % 100; //01
+		Role = (EnemyID / 100) % 100; //01
+		Variant = EnemyID % 100; //01
+	}
 };
 
 // =============================================================================
