@@ -35,5 +35,9 @@ public:
 	FGameplayAttributeData Attack;
 	ATTRIBUTE_ACCESSORS(ULREnemyAttributeSet, Attack)
 
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+	FGameplayAttributeData Speed;
+	ATTRIBUTE_ACCESSORS(ULREnemyAttributeSet, Speed)
+
 		virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 };
