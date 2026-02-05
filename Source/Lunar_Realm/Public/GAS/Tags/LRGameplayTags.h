@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -110,6 +110,34 @@ namespace LRTags
 	
 	//데미지 입을 시
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Combat_TakeDamage);
+
+	// ===============================================
+	// 팀/유닛 태그_BJM
+	// (양식) Team*
+	// ===============================================
+
+	// 1. 루트 태그 (피아식별용)
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Team_Player); // "Player"
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Team_Enemy);  // "Enemy"
+
+	// 2. 플레이어 진영 (Player.*)
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Team_Player_Character_Member);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Team_Player_Character_Player);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Team_Player_Structure_Core); 
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Team_Player_Structure_Obstacle);
+
+	// 3. 적 진영 (Enemy.*)
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Team_Enemy_Character_Normal); 
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Team_Enemy_Character_Boss); 
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Team_Enemy_Structure_Core);  
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Team_Enemy_Structure_Obstacle); 
+
+	// (입력 태그 Input.* 은 기존에 추가한 것 유지)
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Summon_1);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Summon_2);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Summon_3);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Summon_4);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Command_Toggle);
 	
 	
 	
