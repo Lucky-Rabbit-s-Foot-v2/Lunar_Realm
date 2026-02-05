@@ -1,0 +1,5 @@
+Name,BannerID,ItemType,CostCurrencyTag,CostSingle,CostTen,bUsePity,PityThreshold,PityGuaranteedRarity
+Hero_Crescent,Hero_Crescent,Hero,Currency.Ticket.Crescent,1,10,FALSE,0,Legendary
+Hero_FullMoon,Hero_FullMoon,Hero,Currency.Ticket.FullMoon,1,10,TRUE,100,Legendary
+Equip_Crescent,Equip_Crescent,Equipment,Currency.Ticket.Crescent,1,10,FALSE,0,Legendary
+Equip_FullMoon,Equip_FullMoon,Equipment,Currency.Ticket.FullMoon,1,10,TRUE,100,Legendary

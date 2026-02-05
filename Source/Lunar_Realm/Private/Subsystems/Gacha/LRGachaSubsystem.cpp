@@ -218,7 +218,7 @@ void ULRGachaSubsystem::GetRarityRateRowsForBanner(FName BannerID, ELRGachaItemT
 		}
 	}
 }
-
+	
 // 희귀도 목록 =======================================================================================================
 bool ULRGachaSubsystem::PickRarityByRates(FName BannerID, ELRGachaItemType ItemType, ELRGachaRarity& OutRarity) const
 {
