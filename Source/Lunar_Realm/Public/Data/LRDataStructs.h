@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -58,9 +58,18 @@ enum class EEquipmentType : uint8
 //            │   │    └─────── Item (아이템 번호)
 //            │   └──────────── Category (무기/방어구 등)
 //            └──────────────── Type (장비=2)
+
+// 적 캐릭터 ID (7자리)
+// Format: T CC RR VV
+// 31001 = 3 / 01 / 01 / 01
+//         │   │    │    └─ Variant (넘버링)
+//         │   │    └────── Role (근거리/원거리)
+//         │   └─────────── Class (노말/엘리트/보스)
+//         └─────────────── Type (Enemy = 3)
  */
 //=============================================================================
 // (260126) KHS ID 도메인에 따라 ID파싱결과 처리 구조체 추가
+// (260204) KWB 적 캐릭터용 ID 도메인 정보, ID파싱결과 처리 구조체 추가
 // =============================================================================
 
 //캐릭터 ID 파싱 결과를 처리하기 위한 구조체
@@ -81,6 +90,14 @@ struct FCharacterIDInfo
 	FCharacterIDInfo() 
 		: Type(0), Class(0), Variant(0)
 	{}
+	
+	FCharacterIDInfo(int32 CharacterID)
+	{
+		//10101 -> 1 / 01 / 01
+		Type = CharacterID / 10000; //1
+		Class = (CharacterID / 100) % 100; //01
+		Variant = CharacterID % 100; //01
+	}
 };
 
 
@@ -106,8 +123,50 @@ struct FEquipmentIDInfo
 		: Type(0), Category(0), ItemNumber(0), SetID(0)
 	{}
 	
+	FEquipmentIDInfo(int32 EquipmentID)
+	{
+		//20100102 -> 2 / 01 / 001 / 02
+		Type = EquipmentID / 10000000; //2
+		Category = (EquipmentID / 100000) % 100; //01
+		ItemNumber = (EquipmentID / 100) % 1000; //001
+		SetID = EquipmentID % 100; //02
+	}
+	
+	bool IsSetItem() const {return SetID > 0;}
 };
 
+
+//적 ID 파싱 결과를 처리하기 위한 구조체
+USTRUCT(BlueprintType)
+struct FEnemyIDInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly)
+	uint8 Type; //3 = 적(고정)
+
+	UPROPERTY(BlueprintReadOnly)
+	uint8 Class; //01 = 노말, 02 = 엘리트, 03 = 보스 
+
+	UPROPERTY(BlueprintReadOnly)
+	uint8 Role; //01 = 근거리, 02 = 원거리
+
+	UPROPERTY(BlueprintReadOnly)
+	uint8 Variant; //01 ~ 99 = 종류
+
+	FEnemyIDInfo()
+		: Type(0), Class(0), Role(0), Variant(0)
+	{}
+	
+	FEnemyIDInfo(int32 EnemyID)
+	{
+		//3 / 01 / 01 / 01  타입, 클래스, role, variant
+		Type = EnemyID / 1000000; //3
+		Class = (EnemyID / 10000) % 100; //01
+		Role = (EnemyID / 100) % 100; //01
+		Variant = EnemyID % 100; //01
+	}
+};
 
 // =============================================================================
 /** 
@@ -398,3 +457,44 @@ struct FSkillStaticData : public FTableRowBase
 	TArray<TSubclassOf<UGameplayAbility>> GrantedAbilities;
 };
 
+
+// =============================================================================
+/**
+ * FEnemyStaticData 구성 요소
+ * - 캐릭터 정적 데이터(인게임 스폰 데이터)
+ * - ID, 이름, 적 설명(TBD), 이동 속도, 공격력, 체력, 이미지 텍스쳐(TBD - 보스), 실제 사용 GA클래스(TBD - 노말, 엘리트 - 1개 /보스 - 3개)
+ * - 이미지의 경우 SoftObjectPtr로 비동기 로딩
+ */
+ //=============================================================================
+ // (260204) KWB 제작. 제반 사항 구현.
+ // =============================================================================
+USTRUCT(BlueprintType)
+struct FEnemyStaticData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
+	int32 CharacterID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
+	FString CharacterName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
+	FText Description;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
+	int32 Speed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
+	int32 Attack;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
+	int32 Health;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	TSoftObjectPtr<UTexture2D> CharacterTexture;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Skills")
+	TArray<TSubclassOf<UGameplayAbility>> GrantedAbilities;
+};
