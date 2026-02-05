@@ -10,7 +10,7 @@ FEquipmentStaticData UGameDataSubsystem::EmptyEquipmentStaticData;
 FEquipmentBonus UGameDataSubsystem::EmptyEquipmentBonus;
 FSetEffectData UGameDataSubsystem::EmptySetEffectData;
 FSkillStaticData UGameDataSubsystem::EmptySkillStaticData;
-
+FEnemyStaticData UGameDataSubsystem::EmptyEnemyStaticData;
 
 
 void UGameDataSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -33,6 +33,7 @@ void UGameDataSubsystem::Deinitialize()
 	CachedEquipmentBonus.Empty();
 	CachedSetEffectData.Empty();
 	CachedSkillStaticData.Empty();
+	CachedEnemyStaticData.Empty();
 	
 	LR_INFO(TEXT("GameDataSubsystem Deinitialize - Cleaned up caches"));
 	
@@ -101,6 +102,9 @@ void UGameDataSubsystem::LoadDataTables()
 	
 	//SkillStaticData DT 로드
 	LoadDataTable(SkillStaticDataTable, LoadedSkillStaticData, TEXT("SkillStaticData"));
+	
+	//EnemyStaticData DT 로드
+	LoadDataTable(EnemyStaticDataTable, LoadedEnemyStaticData, TEXT("EnemyStaticData"));
 }
 
 void UGameDataSubsystem::CacheAllData()
@@ -127,6 +131,10 @@ void UGameDataSubsystem::CacheAllData()
 	//스킬 데이터 캐싱
 	CacheDataTable<FSkillStaticData, int32>(
 		LoadedSkillStaticData, CachedSkillStaticData, &FSkillStaticData::SkillID, TEXT("SkillStaticData"));
+	
+	//에너미 데이터 캐싱
+	CacheDataTable<FEnemyStaticData, int32>(
+		LoadedEnemyStaticData, CachedEnemyStaticData, &FEnemyStaticData::CharacterID, TEXT("EnemyStaticData"));
 }
 
 FName UGameDataSubsystem::StatTypeToName(ELRStatusType StatusType)
@@ -143,35 +151,6 @@ FName UGameDataSubsystem::StatTypeToName(ELRStatusType StatusType)
 			return FName(TEXT("HP"));
 		}
 	}
-}
-
-// ========================================
-// ID Parsing 헬퍼
-// ========================================
-
-FCharacterIDInfo UGameDataSubsystem::ParseCharacterID(int32 CharacterID) const
-{
-	FCharacterIDInfo Info;
-	
-	//10101 -> 1 / 01 / 01
-	Info.Type = CharacterID / 10000; //1
-	Info.Class = (CharacterID / 100) % 100; //01
-	Info.Variant = CharacterID % 100; //01
-	
-	return Info;
-}
-
-FEquipmentIDInfo UGameDataSubsystem::ParseEquipmentID(int32 EquipmentID) const
-{
-	FEquipmentIDInfo Info;
-	
-	//20100102 -> 2 / 01 / 001 / 02
-	Info.Type = EquipmentID / 10000000; //2
-	Info.Category = (EquipmentID / 100000) % 100; //01
-	Info.ItemNumber = (EquipmentID / 100) % 1000; //001
-	Info.SetID = EquipmentID % 100; //02
-	
-	return Info;
 }
 
 // ========================================
@@ -315,8 +294,9 @@ TArray<int32> UGameDataSubsystem::CheckActiveSetIDs(const TArray<int32>& Equipme
 			continue;
 		}
 		
-		FEquipmentIDInfo info = ParseEquipmentID(id);
-		if (info.SetID > 0) //기본 제외
+		FEquipmentIDInfo info(id);
+		
+		if (info.IsSetItem()) //기본 제외
 		{
 			setCounts.FindOrAdd(info.SetID)++;
 		}
@@ -325,13 +305,11 @@ TArray<int32> UGameDataSubsystem::CheckActiveSetIDs(const TArray<int32>& Equipme
 	//활성화 조건 체크
 	TArray<int32> activeSets;
 	
-	for (auto& pair : setCounts)
+	for (auto& [setId, count] : setCounts)
 	{
-		int32 setId = pair.Key;
-		int32 count = pair.Value;;
-		
 		//세트 달성여부 확인
 		const FSetEffectData& setData = GetSetEffectData(setId);
+		
 		if (count >= setData.RequiredPieces)
 		{
 			activeSets.Add(setId);
@@ -394,4 +372,20 @@ TArray<int32> UGameDataSubsystem::GetEquipmentSkillIDs(int32 EquipmentID)
 	FEquipmentStaticData data = GetEquipmentStaticData(EquipmentID);
 	
 	return data.SkillIDs;
+}
+
+const FEnemyStaticData& UGameDataSubsystem::GetEnemyStaticData(int32 EnemyID) const
+{
+	return GetCachedData(CachedEnemyStaticData, EnemyID, EmptyEnemyStaticData, TEXT("EnemyStaticData"));
+}
+
+TArray<int32> UGameDataSubsystem::GetAllEnemyIDs()
+{
+	TArray<int32> EnemyIDs;
+	CachedEnemyStaticData.GetKeys(EnemyIDs);
+	EnemyIDs.Sort();
+	
+	LR_INFO(TEXT("Found %d Enemy"), EnemyIDs.Num());
+	
+	return EnemyIDs;
 }

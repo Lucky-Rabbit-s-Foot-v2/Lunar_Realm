@@ -22,6 +22,7 @@
 //=============================================================================
 // (260128) KHS 제작. 제반 사항 구현. 
 // (260128) KHS 내부 헬퍼가 많아 인터페이스 순서를 public->protected->private순으로 변경
+// (260205) KHS 에너미 데이터 처리 핸들러 추가. ID파싱-> 구조체 생성자로 이전.
 // =============================================================================
 
 UCLASS()
@@ -32,15 +33,6 @@ class LUNAR_REALM_API UGameDataSubsystem : public UGameInstanceSubsystem
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
-	
-	// ========================================
-	// ID 파싱함수
-	// ========================================
-	UFUNCTION(BlueprintCallable, Category = "LR|GameData|IDParsing")
-	FCharacterIDInfo ParseCharacterID(int32 CharacterID) const;
-	
-	UFUNCTION(BlueprintCallable, Category = "LR|GameData|IDParsing")
-	FEquipmentIDInfo ParseEquipmentID(int32 EquipmentID) const;
 	
 	// ========================================
 	// 캐릭터 데이터 조회
@@ -94,6 +86,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Skills")
 	TArray<int32> GetEquipmentSkillIDs(int32 EquipmentID);
 	
+	// ========================================
+	// 에너미 데이터 조회
+	// ========================================
+	// 에너미 정적 데이터 가져오기 (이름, 설명, 텍스처 등)
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Enemy")
+	const FEnemyStaticData& GetEnemyStaticData(int32 EnemyID) const;
+	
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Enemy")
+	TArray<int32> GetAllEnemyIDs();
 	
 private:
 	// ========================================
@@ -167,6 +168,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|GameData|Tables")
 	TSoftObjectPtr<UDataTable> SkillStaticDataTable;
 
+	// 에너미 정적 데이터 DataTable
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|GameData|Tables")
+	TSoftObjectPtr<UDataTable> EnemyStaticDataTable;
+	
+	
 private:
 	// ========================================
 	// 캐싱 (성능 최적화. Initialize 시점에 모두 로드)
@@ -188,6 +194,8 @@ private:
 	TMap<int32, FSetEffectData> CachedSetEffectData;
 	//캐릭터/장비 스킬데이터 캐시
 	TMap<int32, FSkillStaticData> CachedSkillStaticData;
+	//에너미 정적 데이터 캐시
+	TMap<int32, FEnemyStaticData> CachedEnemyStaticData;
 	
 	//캐싱 실패시 사용할 기본값
 	static FCharacterStaticData EmptyCharacterStaticData;
@@ -196,6 +204,7 @@ private:
 	static FEquipmentBonus EmptyEquipmentBonus;
 	static FSetEffectData EmptySetEffectData;
 	static FSkillStaticData EmptySkillStaticData;
+	static FEnemyStaticData EmptyEnemyStaticData;
 	
 	// ========================================
 	// 커브/데이터 테이블 참조 캐시
@@ -216,6 +225,8 @@ private:
 	UDataTable* LoadedSetEffectBonus;
 	UPROPERTY()
 	UDataTable* LoadedSkillStaticData;
+	UPROPERTY()
+	UDataTable* LoadedEnemyStaticData;
 	
 };
 
