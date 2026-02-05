@@ -977,3 +977,185 @@ void ULRGachaSubsystem::DebugPrintResults(FName BannerID, int32 DrawCount, const
 		}
 	}
 }
+
+// 시뮬레이션 전용 =========================================================================================================
+static int32 RarityToIndex(ELRGachaRarity R)
+{
+	switch (R)
+	{
+	case ELRGachaRarity::Common:    return 1;
+	case ELRGachaRarity::Uncommon:  return 2;
+	case ELRGachaRarity::Rare:      return 3;
+	case ELRGachaRarity::Epic:      return 4;
+	case ELRGachaRarity::Legendary: return 5;
+	default: return 0;
+	}
+}
+
+FString FLRGachaSimSummary::ToString() const
+{
+	auto Rate = [this](int32 C)
+		{
+			return (TotalPulls > 0) ? (100.0 * (double)C / (double)TotalPulls) : 0.0;
+		};
+
+	return FString::Printf(
+		TEXT("Pulls=%d | 1★ %d(%.3f%%) 2★ %d(%.3f%%) 3★ %d(%.3f%%) 4★ %d(%.3f%%) 5★ %d(%.3f%%) | PityTriggered=%d | MaxNo5Streak=%d"),
+		TotalPulls,
+		Count1, Rate(Count1),
+		Count2, Rate(Count2),
+		Count3, Rate(Count3),
+		Count4, Rate(Count4),
+		Count5, Rate(Count5),
+		PityTriggered,
+		MaxNoLegendaryStreak
+	);
+}
+
+bool ULRGachaSubsystem::Debug_SimulateBanner(
+	FName BannerID,
+	int32 TotalPulls,
+	int32 Seed,
+	FLRGachaSimSummary& OutSummary,
+	bool bOverrideUsePity,
+	bool bUsePityOverrideValue
+)
+{
+	OutSummary = FLRGachaSimSummary{};
+	OutSummary.TotalPulls = FMath::Max(0, TotalPulls);
+
+	// 배너/풀 로드
+	FLRGachaBannerRow Banner;
+	if (!GetBannerRow(BannerID, Banner))
+	{
+		LR_WARN(TEXT("Debug_SimulateBanner: Banner not found: %s"), *BannerID.ToString());
+		return false;
+	}
+
+	const bool bUsePitySim = bOverrideUsePity ? bUsePityOverrideValue : Banner.bUsePity;
+
+	TArray<FLRGachaPoolRow> Pool;
+	GetPoolRowsForBanner(BannerID, Pool);
+	if (Pool.Num() <= 0)
+	{
+		LR_WARN(TEXT("Debug_SimulateBanner: Pool empty: %s"), *BannerID.ToString());
+		return false;
+	}
+
+	FRandomStream Stream(Seed);
+
+	// 주의: 실제 저장된 천장 카운트 건드리면 안되니까 로컬 변수로만 시뮬
+	int32 SimPity = 0;
+
+	int32 NoLegendaryStreak = 0;
+
+	// 등급 확률 Row 캐시(매번 GetRarityRateRowsForBanner 호출하면 느려질 수 있어서)
+	TArray<FLRGachaRarityRateRow> Rates;
+	GetRarityRateRowsForBanner(BannerID, Banner.ItemType, Rates);
+
+	// Rates 합계
+	auto PickRarity_Stream = [&Stream, &Rates](ELRGachaRarity& OutRarity) -> bool
+		{
+			float Total = 0.f;
+			for (const auto& R : Rates) Total += FMath::Max(0.f, R.Rate);
+			if (Total <= 0.f) return false;
+
+			const float Rand = Stream.FRandRange(0.f, Total);
+			float Acc = 0.f;
+			for (const auto& R : Rates)
+			{
+				Acc += FMath::Max(0.f, R.Rate);
+				if (Rand <= Acc)
+				{
+					OutRarity = R.Rarity;
+					return true;
+				}
+			}
+			return false;
+		};
+
+	// 풀에서 랜덤 1개 선택(Stream 기반)
+	auto PickUniform_Stream = [&Stream](const TArray<FLRGachaPoolRow>& In, FLRGachaPoolRow& Out) -> bool
+		{
+			if (In.Num() <= 0) return false;
+			const int32 Idx = Stream.RandRange(0, In.Num() - 1);
+			Out = In[Idx];
+			return true;
+		};
+
+	for (int32 i = 0; i < OutSummary.TotalPulls; i++)
+	{
+		const bool bShouldPity = (bUsePitySim && (SimPity + 1) >= Banner.PityThreshold);
+
+		FLRGachaPoolRow Picked;
+		bool bOk = false;
+
+		if (bShouldPity)
+		{
+			OutSummary.PityTriggered++;
+
+			// 특정 등급만 필터해서 그 안에서 uniform
+			TArray<FLRGachaPoolRow> Filtered;
+			for (const auto& Row : Pool)
+			{
+				if (Row.Rarity == Banner.PityGuaranteedRarity)
+				{
+					Filtered.Add(Row);
+				}
+			}
+			bOk = PickUniform_Stream(Filtered, Picked);
+		}
+		else
+		{
+			ELRGachaRarity RolledRarity = ELRGachaRarity::Common;
+			if (!PickRarity_Stream(RolledRarity))
+			{
+				LR_WARN(TEXT("Debug_SimulateBanner: rate pick failed"));
+				return false;
+			}
+
+			TArray<FLRGachaPoolRow> Filtered;
+			for (const auto& Row : Pool)
+			{
+				if (Row.Rarity == RolledRarity)
+				{
+					Filtered.Add(Row);
+				}
+			}
+			bOk = PickUniform_Stream(Filtered, Picked);
+		}
+
+		if (!bOk)
+		{
+			LR_WARN(TEXT("Debug_SimulateBanner: pick failed (banner=%s)"), *BannerID.ToString());
+			return false;
+		}
+
+		// 통계 집계
+		const int32 Star = RarityToIndex(Picked.Rarity);
+		if (Star == 1) OutSummary.Count1++;
+		else if (Star == 2) OutSummary.Count2++;
+		else if (Star == 3) OutSummary.Count3++;
+		else if (Star == 4) OutSummary.Count4++;
+		else if (Star == 5) OutSummary.Count5++;
+
+		// 천장 카운터 갱신(네 RollResults_NoApply 기준: Legendary면 0, 아니면++)
+		if (bUsePitySim)
+		{
+			if (Picked.Rarity == ELRGachaRarity::Legendary)
+			{
+				SimPity = 0;
+				NoLegendaryStreak = 0;
+			}
+			else
+			{
+				SimPity++;
+				NoLegendaryStreak++;
+				OutSummary.MaxNoLegendaryStreak = FMath::Max(OutSummary.MaxNoLegendaryStreak, NoLegendaryStreak);
+			}
+		}
+	}
+
+	return true;
+}
+// ============================================================================================================================

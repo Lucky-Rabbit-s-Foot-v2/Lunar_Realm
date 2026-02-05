@@ -28,6 +28,30 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGachaFinished, FName, BannerID, 
 // 트랜잭션 상태 델리게이트
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGachaTxnStateChanged, ELRGachaTxnState, NewState);
 
+// 시뮬레이션 전용===================================================================================================
+USTRUCT(BlueprintType)
+struct FLRGachaSimSummary
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly) int32 TotalPulls = 0;
+
+	// 등급별 카운트
+	UPROPERTY(BlueprintReadOnly) int32 Count1 = 0;
+	UPROPERTY(BlueprintReadOnly) int32 Count2 = 0;
+	UPROPERTY(BlueprintReadOnly) int32 Count3 = 0;
+	UPROPERTY(BlueprintReadOnly) int32 Count4 = 0;
+	UPROPERTY(BlueprintReadOnly) int32 Count5 = 0;
+
+	// 천장 관련 통계
+	UPROPERTY(BlueprintReadOnly) int32 PityTriggered = 0;         // (InOutPity+1>=Threshold)로 "천장 강제픽" 들어간 횟수
+	UPROPERTY(BlueprintReadOnly) int32 MaxNoLegendaryStreak = 0;  // 5성 안 나온 최대 연속 횟수
+
+	// 로그용 문자열(한 줄로 보기)
+	FString ToString() const;
+};
+// =========================================================================================================================
+
 /**
  * 이 Subsystem 하나가 재화/천장/뽑기/중복처리/저장을 모두 담당하므로 여기만 호출하면됨
  */
@@ -208,5 +232,15 @@ public:
 	// 결과 배열을 한번에 출력(로그/화면)
 	void DebugPrintResults(FName BannerID, int32 DrawCount, const FGuid& TxnId, const TArray<FLRGachaResult>& Results) const;
 
-
+public:
+	//시뮬레이션 전용
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Debug")
+	bool Debug_SimulateBanner(
+		FName BannerID,
+		int32 TotalPulls,
+		int32 Seed,
+		FLRGachaSimSummary& OutSummary,
+		bool bOverrideUsePity = false,
+		bool bUsePityOverrideValue = false
+	);
 };
