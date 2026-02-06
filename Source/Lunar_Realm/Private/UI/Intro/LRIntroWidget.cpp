@@ -26,11 +26,6 @@ void ULRIntroWidget::NativeConstruct()
 	Img_3->SetIsEnabled(false);
 }
 
-void ULRIntroWidget::NativeDestruct()
-{
-	Super::NativeDestruct();
-}
-
 void ULRIntroWidget::PlayIntroAnimation()
 {
 	if (FadeAnim)
@@ -45,6 +40,20 @@ void ULRIntroWidget::PlayIntroAnimation()
 }
 
 void ULRIntroWidget::OnFinishedIntroAnim()
+{
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(
+		TimerHandle,
+		[this]()
+		{
+			OpenTitleWidget();
+		},
+		0.5f,
+		false
+	);
+}
+
+void ULRIntroWidget::OpenTitleWidget()
 {
 	if (TitleWidgetClass)
 	{

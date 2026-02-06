@@ -19,8 +19,7 @@ public:
 
 protected:
 	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
-
+	
 public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
 	void PlayIntroAnimation();
@@ -28,6 +27,8 @@ public:
 protected:
 	UFUNCTION()
 	void OnFinishedIntroAnim();
+
+	void OpenTitleWidget();
 
 protected:
 	UPROPERTY(meta = (BindWidget))

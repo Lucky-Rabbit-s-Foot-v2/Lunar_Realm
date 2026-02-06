@@ -8,95 +8,36 @@
 #include "System/LoggingSystem.h"
 #include "UI/Intro/LRLoadingWidget.h"
 
-void ULRGameInstance::ChangeLevelAsync(FName LevelToLoad)
+void ULRGameInstance::OpenNextLevel()
 {
-	if (!CurrentLevelName.IsNone())
-	{
-		ShowLoadingScreen();
-		UnloadCurrentLevel();
-	}
-	LoadLatentNewLevel(LevelToLoad);
+	ShowLoadingWidget();
+	OpenNextLevelLatent();
 }
 
-void ULRGameInstance::GoToIntro()
+void ULRGameInstance::SetNextLevelName(ELevelName LevelName)
 {
-	if(!Map_Intro.IsNull())
+	switch (LevelName)
 	{
-		ChangeLevelAsync(FName(*Map_Intro.GetAssetName()));
-	}
-	else
-	{
-		LR_SCREEN_INFO(TEXT("Map_Intro is null"));
-	}
-}
-
-void ULRGameInstance::GoToLobby()
-{
-	if(!Map_Lobby.IsNull())
-	{
-		ChangeLevelAsync(FName(*Map_Lobby.GetAssetName()));
-	}
-	else
-	{
-		LR_SCREEN_INFO(TEXT("Map_Lobby is null"));
+	case ELevelName::Intro:
+		NextLevelName = FName(Map_Intro.GetLongPackageFName());
+		break;
+	case ELevelName::Stage:
+		NextLevelName = FName(Map_Stage.GetLongPackageFName());
+		break;
+	case ELevelName::Lobby:
+		NextLevelName = FName(Map_Lobby.GetLongPackageFName());
+		break;
+	default:
+		LR_SCREEN_INFO(TEXT("Invalid LevelName enum value"));
+		break;
 	}
 }
 
-void ULRGameInstance::GoToStage()
-{
-	if(!Map_Stage.IsNull())
-	{
-		ChangeLevelAsync(FName(*Map_Stage.GetAssetName()));
-	}
-	else
-	{
-		LR_SCREEN_INFO(TEXT("Map_Stage is null"));
-	}
-}
-
-void ULRGameInstance::OnLevelLoadComplete()
-{
-	CompleteLoadingScreen();
-
-	FTimerHandle WaitHandle;
-	GetWorld()->GetTimerManager().SetTimer(
-		WaitHandle,
-		this,
-		&ULRGameInstance::RemoveLoadingScreen,
-		1.0f,
-		false
-	);
-}
-
-
-void ULRGameInstance::UnloadCurrentLevel()
-{
-	FLatentActionInfo LatentInfo;
-	LatentInfo.CallbackTarget = this;
-
-	UGameplayStatics::UnloadStreamLevel(this, CurrentLevelName, LatentInfo, false);
-}
-
-void ULRGameInstance::LoadLatentNewLevel(const FName& LevelToLoad)
-{
-	FLatentActionInfo LoadLatentInfo;
-	LoadLatentInfo.CallbackTarget = this;
-	LoadLatentInfo.ExecutionFunction = FName("OnLevelLoadComplete");
-	LoadLatentInfo.Linkage = 0;
-	LoadLatentInfo.UUID = FMath::Rand();
-
-	UGameplayStatics::LoadStreamLevel(this, LevelToLoad, true, false, LoadLatentInfo);
-
-	CurrentLevelName = LevelToLoad;
-}
-
-
-void ULRGameInstance::ShowLoadingScreen()
+void ULRGameInstance::ShowLoadingWidget()
 {
 	if (LoadingWidgetClass)
 	{
-		LoadingWidgetInstance = CreateWidget<ULRLoadingWidget>(this, LoadingWidgetClass);
-
+		LoadingWidgetInstance = CreateWidget<ULRLoadingWidget>(GetWorld(), LoadingWidgetClass);
 		if (LoadingWidgetInstance)
 		{
 			LoadingWidgetInstance->AddToViewport(1000);
@@ -104,19 +45,16 @@ void ULRGameInstance::ShowLoadingScreen()
 	}
 }
 
-void ULRGameInstance::CompleteLoadingScreen()
+void ULRGameInstance::OpenNextLevelLatent()
 {
-	if (LoadingWidgetInstance)
-	{
-		LoadingWidgetInstance->FinishLoading();
-	}
-}
-
-void ULRGameInstance::RemoveLoadingScreen()
-{
-	if (LoadingWidgetInstance)
-	{
-		LoadingWidgetInstance->RemoveFromParent();
-		LoadingWidgetInstance = nullptr;
-	}
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(
+		TimerHandle,
+		[this]()
+		{
+			UGameplayStatics::OpenLevel(this, Map_Transition.GetLongPackageFName());
+		},
+		0.1f,
+		false
+	);
 }

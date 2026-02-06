@@ -39,9 +39,10 @@ void ULRTitleWidget::OnClickedStartButton()
 {
 	LR_SCREEN_INFO(TEXT("Start Button Clicked"));
 
-	ULRGameInstance* LRGameInstance = Cast<ULRGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	if (LRGameInstance)
+	ULRGameInstance* GI = Cast<ULRGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (GI)
 	{
-		LRGameInstance->ChangeLevelAsync(LobbyLevelName);
+		GI->SetNextLevelName(ELevelName::Lobby);
+		GI->OpenNextLevel();
 	}
 }

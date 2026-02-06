@@ -9,48 +9,44 @@
 /**
  * (260206 PJB) 비동기 레벨 전환 기능 구현
  */
+
+UENUM(BlueprintType)
+enum class ELevelName : uint8
+{
+	None			UMETA(DisplayName = "None"),
+	Transition		UMETA(DisplayName = "Transition"),
+	Intro			UMETA(DisplayName = "Intro"),
+	Lobby			UMETA(DisplayName = "Lobby"),
+	Stage			UMETA(DisplayName = "Stage")
+};
+
 UCLASS()
 class LUNAR_REALM_API ULRGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 	
 public:
-	/**
-	* 레벨 이동할 때 사용하는 비동기 함수
-	* @param LevelToLoad	로드할 레벨 이름
-	*/
-	UFUNCTION(BlueprintCallable, Category = "LR|LevelStreming")
-	void ChangeLevelAsync(FName LevelToLoad);
+	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
+	void OpenNextLevel();
 
-	UFUNCTION(BlueprintCallable, Category = "LR|LevelStreming")
-	void GoToIntro();
+	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
+	FName GetNextLevelName() const { return NextLevelName; }
 
-	UFUNCTION(BlueprintCallable, Category = "LR|LevelStreming")
-	void GoToLobby();
-
-	UFUNCTION(BlueprintCallable, Category = "LR|LevelStreming")
-	void GoToStage();
-
-protected:
-	/**
-	* 레벨 로드 완료 콜백 함수. 비동기 로드가 완료되면 자동으로 호출
-	*/
-	UFUNCTION()
-	void OnLevelLoadComplete();
+	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
+	void SetNextLevelName(ELevelName LevelName);
 
 private:
-	void UnloadCurrentLevel();
-	void LoadLatentNewLevel(const FName& LevelToLoad);
-
-	void ShowLoadingScreen();
-	void CompleteLoadingScreen();
-	void RemoveLoadingScreen();
+	void ShowLoadingWidget();
+	void OpenNextLevelLatent();
 
 protected:
-	FName CurrentLevelName = EName::None;
+	FName NextLevelName = EName::None;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
-	TSubclassOf<class ULRLoadingWidget> LoadingWidgetClass = nullptr;
+	TSubclassOf<class ULRLoadingWidget> LoadingWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Level Streaming")
+	TSoftObjectPtr<UWorld> Map_Transition;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Level Streaming")
 	TSoftObjectPtr<UWorld> Map_Intro;
