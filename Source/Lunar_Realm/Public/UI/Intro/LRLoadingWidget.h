@@ -19,9 +19,12 @@ public:
 
 protected:
 	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
+
+public:
+	void FinishLoading();
 
 private:
+	void InitializeLoadingBar();
 	void UpdateProgressBar();
 
 protected:

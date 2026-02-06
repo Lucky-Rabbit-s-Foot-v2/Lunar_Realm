@@ -10,27 +10,39 @@
 
 void ULRGameInstance::ChangeLevelAsync(FName LevelToLoad)
 {
-	LR_SCREEN_INFO(TEXT("Current Level: %s"), *CurrentLevelName.ToString());
-	LR_SCREEN_INFO(TEXT("Changing Level Asynchronously to: %s"), *LevelToLoad.ToString());
-
 	if (!CurrentLevelName.IsNone())
 	{
-		if (LoadingWidgetClass)
-		{
-			LoadingWidgetInstance = CreateWidget<ULRLoadingWidget>(this, LoadingWidgetClass);
-
-			if (LoadingWidgetInstance)
-			{
-				LoadingWidgetInstance->AddToViewport(1000);
-			}
-		}
-
-		FLatentActionInfo LatentInfo;
-		LatentInfo.CallbackTarget = this;
-
-		UGameplayStatics::UnloadStreamLevel(this, CurrentLevelName, LatentInfo, false);
+		ShowLoadingScreen();
+		UnloadCurrentLevel();
 	}
-	
+	LoadLatentNewLevel(LevelToLoad);
+}
+
+void ULRGameInstance::OnLevelLoadComplete()
+{
+	CompleteLoadingScreen();
+
+	FTimerHandle WaitHandle;
+	GetWorld()->GetTimerManager().SetTimer(
+		WaitHandle,
+		this,
+		&ULRGameInstance::RemoveLoadingScreen,
+		1.0f,
+		false
+	);
+}
+
+
+void ULRGameInstance::UnloadCurrentLevel()
+{
+	FLatentActionInfo LatentInfo;
+	LatentInfo.CallbackTarget = this;
+
+	UGameplayStatics::UnloadStreamLevel(this, CurrentLevelName, LatentInfo, false);
+}
+
+void ULRGameInstance::LoadLatentNewLevel(const FName& LevelToLoad)
+{
 	FLatentActionInfo LoadLatentInfo;
 	LoadLatentInfo.CallbackTarget = this;
 	LoadLatentInfo.ExecutionFunction = FName("OnLevelLoadComplete");
@@ -38,22 +50,30 @@ void ULRGameInstance::ChangeLevelAsync(FName LevelToLoad)
 	LoadLatentInfo.UUID = FMath::Rand();
 
 	UGameplayStatics::LoadStreamLevel(this, LevelToLoad, true, false, LoadLatentInfo);
-	
+
 	CurrentLevelName = LevelToLoad;
 }
 
-void ULRGameInstance::OnLevelLoadComplete()
-{
-	FTimerHandle WaitHandle;
-	GetWorld()->GetTimerManager().SetTimer(
-		WaitHandle,
-		this,
-		&ULRGameInstance::RemoveLoadingScreen,
-		3.0f, // 3초 지연
-		false
-	);
 
-	LR_SCREEN_INFO(TEXT("Level Load Complete: %s"), *CurrentLevelName.ToString());
+void ULRGameInstance::ShowLoadingScreen()
+{
+	if (LoadingWidgetClass)
+	{
+		LoadingWidgetInstance = CreateWidget<ULRLoadingWidget>(this, LoadingWidgetClass);
+
+		if (LoadingWidgetInstance)
+		{
+			LoadingWidgetInstance->AddToViewport(1000);
+		}
+	}
+}
+
+void ULRGameInstance::CompleteLoadingScreen()
+{
+	if (LoadingWidgetInstance)
+	{
+		LoadingWidgetInstance->FinishLoading();
+	}
 }
 
 void ULRGameInstance::RemoveLoadingScreen()
@@ -63,5 +83,4 @@ void ULRGameInstance::RemoveLoadingScreen()
 		LoadingWidgetInstance->RemoveFromParent();
 		LoadingWidgetInstance = nullptr;
 	}
-	LR_SCREEN_INFO(TEXT("Loading Screen Removed!"));
 }

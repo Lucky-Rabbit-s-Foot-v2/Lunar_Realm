@@ -16,13 +16,7 @@ void ULRLoadingWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	Progress = 0.f;
-	ElapsedTime = 0.f;
-
-	if (Bar_Loading)
-	{
-		Bar_Loading->SetPercent(Progress);
-	}
+	InitializeLoadingBar();
 
 	GetWorld()->GetTimerManager().SetTimer(
 		LoadingTimerHandle, 
@@ -33,9 +27,14 @@ void ULRLoadingWidget::NativeConstruct()
 	);
 }
 
-void ULRLoadingWidget::NativeDestruct()
+void ULRLoadingWidget::InitializeLoadingBar()
 {
-	Super::NativeDestruct();
+	ElapsedTime = 0.f;
+	Progress = 0.f;
+	if (Bar_Loading)
+	{
+		Bar_Loading->SetPercent(Progress);
+	}
 }
 
 void ULRLoadingWidget::UpdateProgressBar()
@@ -55,6 +54,17 @@ void ULRLoadingWidget::UpdateProgressBar()
 			GetWorld()->GetTimerManager().ClearTimer(LoadingTimerHandle);
 		}
 
+		Bar_Loading->SetPercent(Progress);
+	}
+}
+
+void ULRLoadingWidget::FinishLoading()
+{
+	GetWorld()->GetTimerManager().ClearTimer(LoadingTimerHandle);
+
+	Progress = 1.f;
+	if (Bar_Loading)
+	{
 		Bar_Loading->SetPercent(Progress);
 	}
 }

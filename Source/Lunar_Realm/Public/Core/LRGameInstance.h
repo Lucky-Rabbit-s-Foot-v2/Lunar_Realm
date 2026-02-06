@@ -22,7 +22,12 @@ protected:
 	UFUNCTION()
 	void OnLevelLoadComplete();
 
-	UFUNCTION()
+private:
+	void UnloadCurrentLevel();
+	void LoadLatentNewLevel(const FName& LevelToLoad);
+
+	void ShowLoadingScreen();
+	void CompleteLoadingScreen();
 	void RemoveLoadingScreen();
 
 protected:
