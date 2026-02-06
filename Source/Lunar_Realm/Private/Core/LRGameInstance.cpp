@@ -18,6 +18,42 @@ void ULRGameInstance::ChangeLevelAsync(FName LevelToLoad)
 	LoadLatentNewLevel(LevelToLoad);
 }
 
+void ULRGameInstance::GoToIntro()
+{
+	if(!Map_Intro.IsNull())
+	{
+		ChangeLevelAsync(FName(*Map_Intro.GetAssetName()));
+	}
+	else
+	{
+		LR_SCREEN_INFO(TEXT("Map_Intro is null"));
+	}
+}
+
+void ULRGameInstance::GoToLobby()
+{
+	if(!Map_Lobby.IsNull())
+	{
+		ChangeLevelAsync(FName(*Map_Lobby.GetAssetName()));
+	}
+	else
+	{
+		LR_SCREEN_INFO(TEXT("Map_Lobby is null"));
+	}
+}
+
+void ULRGameInstance::GoToStage()
+{
+	if(!Map_Stage.IsNull())
+	{
+		ChangeLevelAsync(FName(*Map_Stage.GetAssetName()));
+	}
+	else
+	{
+		LR_SCREEN_INFO(TEXT("Map_Stage is null"));
+	}
+}
+
 void ULRGameInstance::OnLevelLoadComplete()
 {
 	CompleteLoadingScreen();
