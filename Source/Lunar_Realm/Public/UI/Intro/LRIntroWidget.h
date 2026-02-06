@@ -28,6 +28,7 @@ protected:
 	UFUNCTION()
 	void OnFinishedIntroAnim();
 
+private:
 	void OpenTitleWidget();
 
 protected:
