@@ -3,39 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ShaderCompilerJobTypes.h"
 #include "Abilities/GameplayAbility.h"
 #include "Engine/DataTable.h"
+#include "Data/LREnumType.h"
+#include "Elements/Framework/TypedElementQueryBuilder.h"
 #include "LRDataStructs.generated.h"
-
-// =============================================================================
-/** 
- * ELRStatusType, EEquipmentType
- * - 커브 테이블 조회 및 시스템 내부 조회 목적 ENUM
- * - 기획 확장에 유연하게 대처하기 위함.
- * - 스테이터스 타입, 장비 슬롯 타입
- */
-//=============================================================================
-// (260128) KHS 제작. 제반 사항 구현.
-// =============================================================================
-//스탯 타입
-UENUM(BlueprintType)
-enum class ELRStatusType : uint8
-{
-	HP,
-	ATK,
-	DEF,
-	MAX UMETA(Hidden)
-};
-
-//장비 슬롯 타입
-UENUM(BlueprintType)
-enum class EEquipmentType : uint8
-{
-	WEAPON = 0,
-	HELMET = 1,
-	ARMOR = 2, 
-	MAX UMETA(Hidden)
-};
 
 
 
@@ -44,128 +17,116 @@ enum class EEquipmentType : uint8
  * FCharacterIDInfo, FEquipmentIDInfo 구성 요소
  * - 캐릭터/장비 ID 파싱 처리 결과 구조체
 * 
-// 캐릭터 ID (5자리)
-// Format: T CC VV
-// 10101 = 1 / 01 / 01
-//         │   │    └─ Variant (등급/버전)
-//         │   └────── Class (직업)
-//         └────────── Type (캐릭터=1)
+// 캐릭터 ID (8자리)
+// Format: D G TT CC VV
+// 11010101 = 1 / 1 / 01 / 01 / 01
+//           │   │    │    │    └─ Variant (버전)
+//           │   │    │    └────── Class (직업)
+//           │   │    └────────── AttackType(공격스타일 - 원/근)
+//           │   └─────────────── Grade(일반/엘리트/유니크/에픽/전설)
+//           └────────────────────  Domain (캐릭터=1)
 
 // 장비 ID (8자리)  
-// Format: T CC III SS
-// 20100102 = 2 / 01 / 001 / 02
-//            │   │    │     └─ Set (세트효과)
-//            │   │    └─────── Item (아이템 번호)
-//            │   └──────────── Category (무기/방어구 등)
-//            └──────────────── Type (장비=2)
+// Format: D G C SS VVV
+// 20100102 = 2 / 1 / 1 / 02 / 001
+//            │   │   │   │     └─ Variant(아이템 번호)
+//            │   │   │   └─────── Set (세트효과)
+//            │   │   └──────────── Category (무기/방어구 등)
+//            │   └─────────────── Grade(일반/엘리트/유니크/에픽/전설)
+//            └──────────────── Domain (장비=2)
 
-// 적 캐릭터 ID (7자리)
-// Format: T CC RR VV
-// 31001 = 3 / 01 / 01 / 01
-//         │   │    │    └─ Variant (넘버링)
-//         │   │    └────── Role (근거리/원거리)
-//         │   └─────────── Class (노말/엘리트/보스)
-//         └─────────────── Type (Enemy = 3)
+// 적 캐릭터 ID (8자리)
+// Format: D G TT CC VV
+// 31010101 = 3 / 1 / 01 / 01 / 01
+//            │   │    │    │    └─ Variant (넘버링)
+//            │   │    │    └────── Class (슬라임/고블린/골렘)
+//            │   │    └─────────── AttackType (근거리/원거리)
+//            │   └─────────────── Grade(일반/엘리트/유니크/에픽/전설)
+//            └─────────────── Domain (Enemy = 3)
  */
 //=============================================================================
 // (260126) KHS ID 도메인에 따라 ID파싱결과 처리 구조체 추가
 // (260204) KWB 적 캐릭터용 ID 도메인 정보, ID파싱결과 처리 구조체 추가
+// (260205) KHS ID INFO 반환방식 통합.(ID 7자리로 통합)
 // =============================================================================
 
-//캐릭터 ID 파싱 결과를 처리하기 위한 구조체
+//ID 파싱 공통 사용 구조체(캐릭터, 장비, 적)
 USTRUCT(BlueprintType)
-struct FCharacterIDInfo
-{
-	GENERATED_BODY()
-	
-	UPROPERTY(BlueprintReadOnly)
-	uint8 Type; //1 = 캐릭터(고정)
-	
-	UPROPERTY(BlueprintReadOnly)
-	uint8 Class; //01 = 마법사 / 03 = 궁수
-	
-	UPROPERTY(BlueprintReadOnly)
-	uint8 Variant; //01 = 기본
-	
-	FCharacterIDInfo() 
-		: Type(0), Class(0), Variant(0)
-	{}
-	
-	FCharacterIDInfo(int32 CharacterID)
-	{
-		//10101 -> 1 / 01 / 01
-		Type = CharacterID / 10000; //1
-		Class = (CharacterID / 100) % 100; //01
-		Variant = CharacterID % 100; //01
-	}
-};
-
-
-//장비 ID 파싱 결과를 처리하기 위한 구조체
-USTRUCT(BlueprintType)
-struct FEquipmentIDInfo
-{
-	GENERATED_BODY()
-	
-	UPROPERTY(BlueprintReadOnly)
-	uint8 Type; //2 = 장비(고정)
-	
-	UPROPERTY(BlueprintReadOnly)
-	uint8 Category; //01 = 근거리무기, 15 = 머리방어구
-	
-	UPROPERTY(BlueprintReadOnly)
-	uint8 ItemNumber; //001 = 단검, 002 = 장검
-	
-	UPROPERTY(BlueprintReadOnly)
-	uint8 SetID; //02 = 화염세트, 03 = 얼음세트
-	
-	FEquipmentIDInfo()
-		: Type(0), Category(0), ItemNumber(0), SetID(0)
-	{}
-	
-	FEquipmentIDInfo(int32 EquipmentID)
-	{
-		//20100102 -> 2 / 01 / 001 / 02
-		Type = EquipmentID / 10000000; //2
-		Category = (EquipmentID / 100000) % 100; //01
-		ItemNumber = (EquipmentID / 100) % 1000; //001
-		SetID = EquipmentID % 100; //02
-	}
-	
-	bool IsSetItem() const {return SetID > 0;}
-};
-
-
-//적 ID 파싱 결과를 처리하기 위한 구조체
-USTRUCT(BlueprintType)
-struct FEnemyIDInfo
+struct FEntityIDInfo
 {
 	GENERATED_BODY()
 
+public:
+	// 1. 원본 데이터 (ID 보존)
 	UPROPERTY(BlueprintReadOnly)
-	uint8 Type; //3 = 적(고정)
+	int32 FullID;
 
+	// 2. 기본 도메인 정보 (언제나 파싱됨)
 	UPROPERTY(BlueprintReadOnly)
-	uint8 Class; //01 = 노말, 02 = 엘리트, 03 = 보스 
+	ELRDomain Domain;
 
-	UPROPERTY(BlueprintReadOnly)
-	uint8 Role; //01 = 근거리, 02 = 원거리
-
-	UPROPERTY(BlueprintReadOnly)
-	uint8 Variant; //01 ~ 99 = 종류
-
-	FEnemyIDInfo()
-		: Type(0), Class(0), Role(0), Variant(0)
+	// 3. 생성자: ID를 넣으면 즉시 기본 도메인만 파싱 (기본은 캐릭터)
+	FEntityIDInfo() 
+	: FullID(0), Domain(ELRDomain::CHARACTER) 
 	{}
 	
-	FEnemyIDInfo(int32 EnemyID)
+	FEntityIDInfo(int32 InID) 
+	: FullID(InID)
 	{
-		//3 / 01 / 01 / 01  타입, 클래스, role, variant
-		Type = EnemyID / 1000000; //3
-		Class = (EnemyID / 10000) % 100; //01
-		Role = (EnemyID / 100) % 100; //01
-		Variant = EnemyID % 100; //01
+		Domain = static_cast<ELRDomain>(InID / 10000000); //1번 자리
 	}
+
+	//==========================
+	// --- 헬퍼 함수 (Getter) ---
+	//==========================
+
+	//[공통] 등급 반환 (2번자리)
+	ELRGrade GetGrade() const { return static_cast<ELRGrade>((FullID / 1000000) % 10 );}
+
+	//[공통] 상세 버전 반환(필요시.)
+	int32 GetVariantType() const
+	{
+		if (Domain == ELRDomain::CHARACTER || Domain == ELRDomain::ENEMY) return FullID % 100; //7-8번
+		else if (Domain == ELRDomain::EQUIPMENT) return FullID % 1000; //6-8번
+		else return -1;
+	}
+	
+	//[캐릭터/적] 공격타입 반환(3-4번)
+	ELRAttackType GetAttackType() const 
+	{ 
+		//ID가 캐릭터/적 타입이 아니면 무시
+		if (Domain != ELRDomain::CHARACTER || Domain != ELRDomain::ENEMY) return ELRAttackType::NONE;
+		return static_cast<ELRAttackType>((FullID / 10000) % 100); 
+	}
+	
+	//[캐릭터] 클래스 반환(5-6번)
+	ELRClassType GetClassType() const 
+	{
+		if (Domain != ELRDomain::CHARACTER) return ELRClassType::NONE;
+		return static_cast<ELRClassType>((FullID / 100) % 100);
+	}
+	
+	//[적] 클래스 반환(5-6번)
+	ELREnemyType GetEnemyType() const
+	{
+		if (Domain != ELRDomain::ENEMY) return ELREnemyType::NONE;
+		return static_cast<ELREnemyType>((FullID / 100) % 100);
+	}
+	
+	//[장비] 카테고리 반환(3번)
+	ELRItemType GetItemType() const
+	{
+		if (Domain != ELRDomain::EQUIPMENT) return ELRItemType::NONE;
+		return static_cast<ELRItemType>((FullID / 100000) % 10);
+	}
+	
+	//[장비] 세트 번호 반환(4-5번)
+	ELRSetItemType GetSetItemType() const
+	{
+		if (Domain != ELRDomain::EQUIPMENT) return ELRSetItemType::NONE;
+		return static_cast<ELRSetItemType>((FullID/1000) % 100);
+	}
+	
 };
 
 // =============================================================================

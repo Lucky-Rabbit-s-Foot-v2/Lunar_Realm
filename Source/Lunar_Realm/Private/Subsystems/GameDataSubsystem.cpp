@@ -285,7 +285,7 @@ const FSetEffectData& UGameDataSubsystem::GetSetEffectData(int32 SetID) const
 TArray<int32> UGameDataSubsystem::CheckActiveSetIDs(const TArray<int32>& EquipmentIDs) const
 {
 	//세트별 장착갯수 집계
-	TMap<int32, int32> setCounts; 
+	TMap<ELRSetItemType, int32> setCounts; 
 	
 	for (int32 id : EquipmentIDs)
 	{
@@ -294,19 +294,21 @@ TArray<int32> UGameDataSubsystem::CheckActiveSetIDs(const TArray<int32>& Equipme
 			continue;
 		}
 		
-		FEquipmentIDInfo info(id);
+		FEntityIDInfo info(id);
+		ELRSetItemType setType = info.GetSetItemType();
 		
-		if (info.IsSetItem()) //기본 제외
+		if (setType != ELRSetItemType::NONE) //기본 제외
 		{
-			setCounts.FindOrAdd(info.SetID)++;
+			setCounts.FindOrAdd(setType)++;
 		}
 	}
 	
 	//활성화 조건 체크
 	TArray<int32> activeSets;
 	
-	for (auto& [setId, count] : setCounts)
+	for (auto& [setType, count] : setCounts)
 	{
+		int32 setId = static_cast<int32>(setType);
 		//세트 달성여부 확인
 		const FSetEffectData& setData = GetSetEffectData(setId);
 		
