@@ -26,6 +26,15 @@
 //           │   └─────────────── Grade(일반/엘리트/유니크/에픽/전설)
 //           └────────────────────  Domain (캐릭터=1)
 
+// 적 캐릭터 ID (8자리)
+// Format: D G TT CC VV
+// 31010101 = 3 / 1 / 01 / 01 / 01
+//            │   │    │    │    └─ Variant (넘버링)
+//            │   │    │    └────── Class (슬라임/고블린/골렘)
+//            │   │    └─────────── AttackType (근거리/원거리)
+//            │   └─────────────── Grade(일반/엘리트/유니크/에픽/전설)
+//            └─────────────── Domain (Enemy = 3)
+
 // 장비 ID (8자리)  
 // Format: D G C SS VVV
 // 20100102 = 2 / 1 / 1 / 02 / 001
@@ -35,14 +44,14 @@
 //            │   └─────────────── Grade(일반/엘리트/유니크/에픽/전설)
 //            └──────────────── Domain (장비=2)
 
-// 적 캐릭터 ID (8자리)
-// Format: D G TT CC VV
-// 31010101 = 3 / 1 / 01 / 01 / 01
-//            │   │    │    │    └─ Variant (넘버링)
-//            │   │    │    └────── Class (슬라임/고블린/골렘)
-//            │   │    └─────────── AttackType (근거리/원거리)
-//            │   └─────────────── Grade(일반/엘리트/유니크/에픽/전설)
-//            └─────────────── Domain (Enemy = 3)
+// 스킬 ID (8자리) - 현재 따로 구성이 없어 도메인만 구분.
+// Format: D X X XX VVV
+// 40000001 = 4 / 0 / 0 / 00 / 001
+//            │   │   │   │     └─ Variant(아이템 번호)
+//            │   │   │   └─────── 미사용
+//            │   │   └──────────── 미사용
+//            │   └─────────────── 미사용
+//            └──────────────── Domain (스킬 = 4)
  */
 //=============================================================================
 // (260126) KHS ID 도메인에 따라 ID파싱결과 처리 구조체 추가
@@ -50,7 +59,7 @@
 // (260205) KHS ID INFO 반환방식 통합.(ID 7자리로 통합)
 // =============================================================================
 
-//ID 파싱 공통 사용 구조체(캐릭터, 장비, 적)
+//ID 파싱 공통 사용 구조체(캐릭터, 장비, 적, 스킬)
 USTRUCT(BlueprintType)
 struct FEntityIDInfo
 {
@@ -87,7 +96,7 @@ public:
 	int32 GetVariantType() const
 	{
 		if (Domain == ELRDomain::CHARACTER || Domain == ELRDomain::ENEMY) return FullID % 100; //7-8번
-		else if (Domain == ELRDomain::EQUIPMENT) return FullID % 1000; //6-8번
+		else if (Domain == ELRDomain::EQUIPMENT || Domain == ELRDomain::SKILL) return FullID % 1000; //6-8번
 		else return -1;
 	}
 	
@@ -262,6 +271,7 @@ struct FEquipmentStaticData : public FTableRowBase
     
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Skills")
 	TArray<int32> SkillIDs;
+	
 };
 
 
