@@ -78,4 +78,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	TObjectPtr<ULRCombatComponent> CombatComponent;
 
+public:
+	// 블루프린트에서 테스트용 스킬 부여 함수
+	UFUNCTION(BlueprintCallable, Category = "GAS|Test")
+	void GrantTestAbility(TSubclassOf<class UGameplayAbility> AbilityClass);
+
 };
