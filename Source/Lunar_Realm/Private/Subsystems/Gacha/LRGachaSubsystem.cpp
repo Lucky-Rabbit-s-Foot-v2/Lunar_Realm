@@ -285,13 +285,13 @@ int32 ULRGachaSubsystem::GetDuplicateGold(ELRGachaRarity Rarity) const
 {
 	if(!LoadedDupRewardDT) return 0;
 
-	// RowName을 "Common/UnCommon/..." 키로 맞춘다는 규칙
+	// RowName을 "Common/Elite/..." 키로 맞춘다는 규칙
 	const TCHAR* RowKey = TEXT("Common");
 	switch (Rarity)
 	{
 	case ELRGachaRarity::Common: RowKey = TEXT("Common"); break;
-	case ELRGachaRarity::Uncommon: RowKey = TEXT("Uncommon"); break;
-	case ELRGachaRarity::Rare: RowKey = TEXT("Rare"); break;
+	case ELRGachaRarity::Elite: RowKey = TEXT("Elite"); break;
+	case ELRGachaRarity::Unique: RowKey = TEXT("Unique"); break;
 	case ELRGachaRarity::Epic: RowKey = TEXT("Epic"); break;
 	case ELRGachaRarity::Legendary: RowKey = TEXT("Legendary"); break;
 	}
@@ -904,8 +904,8 @@ FLinearColor ULRGachaSubsystem::DebugRarityToColor(ELRGachaRarity Rarity) const
 	switch (Rarity)
 	{
 	case ELRGachaRarity::Common:    return FLinearColor(0.6f, 0.6f, 0.6f, 1.0f); // Gray
-	case ELRGachaRarity::Uncommon:  return FLinearColor(0.2f, 0.8f, 0.2f, 1.0f); // Green
-	case ELRGachaRarity::Rare:      return FLinearColor(0.2f, 0.4f, 1.0f, 1.0f); // Blue
+	case ELRGachaRarity::Elite:     return FLinearColor(0.20f, 0.55f, 1.00f, 1.0f); // Blue (Elite)
+	case ELRGachaRarity::Unique:    return FLinearColor(1.00f, 0.25f, 0.25f, 1.0f); // Red (Unique)
 	case ELRGachaRarity::Epic:      return FLinearColor(0.6f, 0.2f, 0.8f, 1.0f); // Purple
 	case ELRGachaRarity::Legendary: return FLinearColor(1.0f, 0.8f, 0.2f, 1.0f); // Gold
 	default:                        return FLinearColor::White;
@@ -925,8 +925,8 @@ FString ULRGachaSubsystem::DebugResultToColoredString(const FLRGachaResult& Resu
 	switch (Result.Rarity)
 	{
 	case ELRGachaRarity::Common:    ColorName = TEXT("Gray"); break;
-	case ELRGachaRarity::Uncommon:  ColorName = TEXT("Green"); break;
-	case ELRGachaRarity::Rare:      ColorName = TEXT("Blue"); break;
+	case ELRGachaRarity::Elite:  ColorName = TEXT("Green"); break;
+	case ELRGachaRarity::Unique:      ColorName = TEXT("Blue"); break;
 	case ELRGachaRarity::Epic:      ColorName = TEXT("Purple"); break;
 	case ELRGachaRarity::Legendary: ColorName = TEXT("Gold"); break;
 	}
@@ -984,8 +984,8 @@ static int32 RarityToIndex(ELRGachaRarity R)
 	switch (R)
 	{
 	case ELRGachaRarity::Common:    return 1;
-	case ELRGachaRarity::Uncommon:  return 2;
-	case ELRGachaRarity::Rare:      return 3;
+	case ELRGachaRarity::Elite:  return 2;
+	case ELRGachaRarity::Unique:      return 3;
 	case ELRGachaRarity::Epic:      return 4;
 	case ELRGachaRarity::Legendary: return 5;
 	default: return 0;

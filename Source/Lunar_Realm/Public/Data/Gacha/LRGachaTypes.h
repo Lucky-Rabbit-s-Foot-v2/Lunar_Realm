@@ -25,11 +25,11 @@ enum class ELRGachaItemType : uint8
 UENUM(BlueprintType)
 enum class ELRGachaRarity : uint8
 {
-	Common		UMETA(DisplayName = "1성(일반)"),
-	Uncommon	UMETA(DisplayName = "2성(고급)"),
-	Rare		UMETA(DisplayName = "3성(희귀)"),
-	Epic		UMETA(DisplayName = "4성(에픽)"),
-	Legendary	UMETA(DisplayName = "5성(전설)"),
+	Common    UMETA(DisplayName = "1성(일반)"),
+	Elite     UMETA(DisplayName = "2성(엘리트)"),
+	Unique    UMETA(DisplayName = "3성(유니크)"),
+	Epic      UMETA(DisplayName = "4성(에픽)"),
+	Legendary UMETA(DisplayName = "5성(전설)"),
 };
 
 // 티켓 종류
