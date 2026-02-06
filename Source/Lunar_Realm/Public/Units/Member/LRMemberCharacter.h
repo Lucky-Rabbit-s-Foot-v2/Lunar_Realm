@@ -26,8 +26,13 @@ public:
 
 	ULRPlayerAttributeSet* GetAttributeSet() const { return MemberAttributeSet; }
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "GAS")
+	void OnHealthChanged(float NewValue);
+
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void OnHealthChangedNative(const FOnAttributeChangeData& Data);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")

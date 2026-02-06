@@ -203,6 +203,17 @@ void ALRPlayerCharacter::Input_Summon(FGameplayTag InputTag)
 	}
 }
 
+void ALRPlayerCharacter::GrantTestAbility(TSubclassOf<class UGameplayAbility> AbilityClass)
+{
+	if (AbilitySystemComponent && AbilityClass)
+	{
+		FGameplayAbilitySpec Spec(AbilityClass, 1, INDEX_NONE, this);
+		AbilitySystemComponent->GiveAbility(Spec);
+
+		UE_LOG(LogTemp, Warning, TEXT("[Test] 스킬 부여됨: %s"), *AbilityClass->GetName());
+	}
+}
+
 //void ALRPlayerCharacter::SummonSlot1()
 //{
 //	if (SummonComponent)
