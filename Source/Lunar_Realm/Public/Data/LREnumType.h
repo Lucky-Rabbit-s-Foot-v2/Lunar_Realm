@@ -22,6 +22,7 @@ enum class ELRDomain : uint8
 	CHARACTER = 1,
 	EQUIPMENT = 2,
 	ENEMY = 3,
+	SKILL = 4,
 	
 	MAX UMETA(Hidden)
 };

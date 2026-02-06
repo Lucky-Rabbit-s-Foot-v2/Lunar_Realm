@@ -2,6 +2,7 @@
 
 
 #include "Subsystems/GameDataSubsystem.h"
+#include "Data/LRGameDataConfig.h"
 
 //Static 기본값 정의(조회 실패시 반환용도)
 FCharacterStaticData UGameDataSubsystem::EmptyCharacterStaticData;
@@ -84,27 +85,34 @@ float UGameDataSubsystem::GetStatusMultiplier(int32 CharacterID, ELRStatusType S
 
 void UGameDataSubsystem::LoadDataTables()
 {
-	//BaseStat CurveTable 로드
-	LoadDataTable(BaseStatsCurveTable, LoadedBaseStatsCurve, TEXT("BaseStatsCurveTable"));
+	// Config 로드
+	ULRGameDataConfig* Config = LoadObject<ULRGameDataConfig>(
+		nullptr, TEXT("/Script/Lunar_Realm.LRGameDataConfig'/Game/DataTables/LRGameDataConfig.LRGameDataConfig'"));
+    
+	if (!ensureMsgf(Config,TEXT("FAILED TO LOAD GameDataConfig!!!!!")))
+	{
+		return;
+	}
 	
-	//CharacterStaticData DT 로드
-	LoadDataTable(CharacterStaticDataTable, LoadedCharacterStaticData, TEXT("CharacterStaticData"));
-	//CharacterMultipliers DT 로드
-	LoadDataTable(CharacterMultipliersTable, LoadedCharacterMultipliers, TEXT("CharacterMultipliers"));
+	// Config의 SoftObjectPtr를 경유하여 로드 → LoadedXXX에 저장
+	LoadedBaseStatsCurve = Config->BaseStatsCurveTable.LoadSynchronous(); //베이스 스탯 커브
+	LoadedCharacterStaticData = Config->CharacterStaticDataTable.LoadSynchronous(); //캐릭터 데이터
+	LoadedCharacterMultipliers = Config->CharacterMultipliersTable.LoadSynchronous(); //캐릭터 승수
+	LoadedEnemyStaticData = Config->EnemyStaticDataTable.LoadSynchronous(); //적 데이터
+	LoadedEquipmentStaticData = Config->EquipmentStaticDataTable.LoadSynchronous(); //장비 데이터
+	LoadedEquipmentStatBonus = Config->EquipmentStatBonusTable.LoadSynchronous(); //장비 보너스
+	LoadedSetEffectBonus = Config->EquipmentSetEffectTable.LoadSynchronous(); //세트장비 효과
+	LoadedSkillStaticData = Config->SkillStaticDataTable.LoadSynchronous(); //스킬 데이터
 	
-	//EquipmentStaticData DT 로드
-	LoadDataTable(EquipmentStaticDataTable, LoadedEquipmentStaticData, TEXT("EquipmentStaticData"));
-	//EquipmentStatBonus DT 로드
-	LoadDataTable(EquipmentStatBonusTable, LoadedEquipmentStatBonus, TEXT("EquipmentStatBonus"));
-	
-	//SetEffectBonus DT 로드
-	LoadDataTable(EquipmentSetEffectTable, LoadedSetEffectBonus, TEXT("SetEffectData"));
-	
-	//SkillStaticData DT 로드
-	LoadDataTable(SkillStaticDataTable, LoadedSkillStaticData, TEXT("SkillStaticData"));
-	
-	//EnemyStaticData DT 로드
-	LoadDataTable(EnemyStaticDataTable, LoadedEnemyStaticData, TEXT("EnemyStaticData"));
+	//로직 변경으로 시스템에서 직접 로드 방식은 미사용
+	// LoadDataTable(BaseStatsCurveTable, LoadedBaseStatsCurve, TEXT("BaseStatsCurveTable"));
+	// LoadDataTable(CharacterStaticDataTable, LoadedCharacterStaticData, TEXT("CharacterStaticData"));
+	// LoadDataTable(CharacterMultipliersTable, LoadedCharacterMultipliers, TEXT("CharacterMultipliers"));
+	// LoadDataTable(EquipmentStaticDataTable, LoadedEquipmentStaticData, TEXT("EquipmentStaticData"));
+	// LoadDataTable(EquipmentStatBonusTable, LoadedEquipmentStatBonus, TEXT("EquipmentStatBonus"));
+	// LoadDataTable(EquipmentSetEffectTable, LoadedSetEffectBonus, TEXT("SetEffectData"));
+	// LoadDataTable(SkillStaticDataTable, LoadedSkillStaticData, TEXT("SkillStaticData"));
+	// LoadDataTable(EnemyStaticDataTable, LoadedEnemyStaticData, TEXT("EnemyStaticData"));
 }
 
 void UGameDataSubsystem::CacheAllData()

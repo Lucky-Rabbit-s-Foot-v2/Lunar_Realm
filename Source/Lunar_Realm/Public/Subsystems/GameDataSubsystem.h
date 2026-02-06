@@ -23,6 +23,7 @@
 // (260128) KHS 제작. 제반 사항 구현. 
 // (260128) KHS 내부 헬퍼가 많아 인터페이스 순서를 public->protected->private순으로 변경
 // (260205) KHS 에너미 데이터 처리 핸들러 추가. ID파싱-> 구조체 생성자로 이전.
+// (260206) KHS 데이터 테이블 소프트 레퍼런스들은 LRGameDataConfig통해 비동기 로드방식으로 변경
 // =============================================================================
 
 UCLASS()
@@ -138,44 +139,51 @@ private:
 	
 protected:
 	// ========================================
-	// DataTable 참조 (에디터에서 설정용 소프트 레퍼런스)
+	// DataTable 참조 (LRDataConfig 경유하여 로드)
 	// ========================================
-	//공통 베이스 스탯 CurveTable - 모든 캐릭터가 공유
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|GameData|Tables")
-	TSoftObjectPtr<UCurveTable> BaseStatsCurveTable;
-	
-	// 캐릭터 도감 DataTable
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|GameData|Tables")
-	TSoftObjectPtr<UDataTable> CharacterStaticDataTable;
-    
-	// 캐릭터별 승수 DataTable
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|GameData|Tables")
-	TSoftObjectPtr<UDataTable> CharacterMultipliersTable;
-	
-	// 장비 도감 DataTable
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|GameData|Tables")
-	TSoftObjectPtr<UDataTable> EquipmentStaticDataTable;
-    
-	// 장비스탯 보너스 DataTable 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|GameData|Tables")
-	TSoftObjectPtr<UDataTable> EquipmentStatBonusTable;
-
-	// 세트장비 데이터 DataTable 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|GameData|Tables")
-	TSoftObjectPtr<UDataTable> EquipmentSetEffectTable;
-	
-	// 스킬 정적 데이터 DataTable
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|GameData|Tables")
-	TSoftObjectPtr<UDataTable> SkillStaticDataTable;
-
-	// 에너미 정적 데이터 DataTable
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|GameData|Tables")
-	TSoftObjectPtr<UDataTable> EnemyStaticDataTable;
+	// //공통 베이스 스탯 CurveTable - 모든 캐릭터가 공유
+	// TSoftObjectPtr<UCurveTable> BaseStatsCurveTable;
+	// // 캐릭터 도감 DataTable
+	// TSoftObjectPtr<UDataTable> CharacterStaticDataTable;
+	// // 캐릭터별 승수 DataTable
+	// TSoftObjectPtr<UDataTable> CharacterMultipliersTable;
+	// // 장비 도감 DataTable
+	// TSoftObjectPtr<UDataTable> EquipmentStaticDataTable;
+	// // 장비스탯 보너스 DataTable 
+	// TSoftObjectPtr<UDataTable> EquipmentStatBonusTable;
+	// // 세트장비 데이터 DataTable 
+	// TSoftObjectPtr<UDataTable> EquipmentSetEffectTable;
+	// // 스킬 정적 데이터 DataTable
+	// TSoftObjectPtr<UDataTable> SkillStaticDataTable;
+	// // 에너미 정적 데이터 DataTable
+	// TSoftObjectPtr<UDataTable> EnemyStaticDataTable;
 	
 	
 private:
 	// ========================================
-	// 캐싱 (성능 최적화. Initialize 시점에 모두 로드)
+	// 로드 (Initialize 시점에 DataConfig통해 로드)
+	// ========================================
+	//CurveTable 캐시
+	UPROPERTY()
+	UCurveTable* LoadedBaseStatsCurve;
+	//DataTable 캐시
+	UPROPERTY()
+	UDataTable* LoadedCharacterStaticData;
+	UPROPERTY()
+	UDataTable* LoadedCharacterMultipliers;
+	UPROPERTY()
+	UDataTable* LoadedEquipmentStaticData;
+	UPROPERTY()
+	UDataTable* LoadedEquipmentStatBonus;
+	UPROPERTY()
+	UDataTable* LoadedSetEffectBonus;
+	UPROPERTY()
+	UDataTable* LoadedSkillStaticData;
+	UPROPERTY()
+	UDataTable* LoadedEnemyStaticData;
+	
+	// ========================================
+	// 데이터 캐싱 (성능 최적화)
 	// ========================================
 	//캐릭터 정적 데이터 캐시
 	UPROPERTY()
@@ -206,27 +214,6 @@ private:
 	static FSkillStaticData EmptySkillStaticData;
 	static FEnemyStaticData EmptyEnemyStaticData;
 	
-	// ========================================
-	// 커브/데이터 테이블 참조 캐시
-	// ========================================
-	//CurveTable 캐시
-	UPROPERTY()
-	UCurveTable* LoadedBaseStatsCurve;
-	//DataTable 캐시
-	UPROPERTY()
-	UDataTable* LoadedCharacterStaticData;
-	UPROPERTY()
-	UDataTable* LoadedCharacterMultipliers;
-	UPROPERTY()
-	UDataTable* LoadedEquipmentStaticData;
-	UPROPERTY()
-	UDataTable* LoadedEquipmentStatBonus;
-	UPROPERTY()
-	UDataTable* LoadedSetEffectBonus;
-	UPROPERTY()
-	UDataTable* LoadedSkillStaticData;
-	UPROPERTY()
-	UDataTable* LoadedEnemyStaticData;
 	
 };
 
