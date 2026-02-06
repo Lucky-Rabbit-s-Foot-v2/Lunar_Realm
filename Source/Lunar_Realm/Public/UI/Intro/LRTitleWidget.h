@@ -26,6 +26,9 @@ private:
 	void OnClickedStartButton();
 
 protected:
+	UPROPERTY(EditDefaultsOnly, Category = "LR|LevelStreaming")
+	FName LobbyLevelName = FName("Map_Lobby");
+
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Start;
 };

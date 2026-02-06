@@ -22,6 +22,7 @@ protected:
 	virtual void NativeDestruct() override;
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
 	void PlayIntroAnimation();
 
 protected:

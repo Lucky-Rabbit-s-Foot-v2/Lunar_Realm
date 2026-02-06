@@ -3,8 +3,10 @@
 
 #include "UI/Intro/LRTitleWidget.h"
 
+#include "Kismet/GameplayStatics.h"
 #include "System/LoggingSystem.h"
 #include "Components/Button.h"
+#include "Core/LRGameInstance.h"
 
 ULRTitleWidget::ULRTitleWidget()
 {
@@ -36,4 +38,10 @@ void ULRTitleWidget::NativeDestruct()
 void ULRTitleWidget::OnClickedStartButton()
 {
 	LR_SCREEN_INFO(TEXT("Start Button Clicked"));
+
+	ULRGameInstance* LRGameInstance = Cast<ULRGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (LRGameInstance)
+	{
+		LRGameInstance->ChangeLevelAsync(LobbyLevelName);
+	}
 }

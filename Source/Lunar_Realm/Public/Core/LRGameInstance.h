@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -14,4 +14,24 @@ class LUNAR_REALM_API ULRGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 	
+public:
+	UFUNCTION(BlueprintCallable, Category = "LR|LevelStreming")
+	void ChangeLevelAsync(FName LevelToLoad);
+
+protected:
+	UFUNCTION()
+	void OnLevelLoadComplete();
+
+	UFUNCTION()
+	void RemoveLoadingScreen();
+
+protected:
+	FName CurrentLevelName = EName::None;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
+	TSubclassOf<class ULRLoadingWidget> LoadingWidgetClass = nullptr;
+
+private:
+	UPROPERTY()
+	TObjectPtr<class ULRLoadingWidget> LoadingWidgetInstance = nullptr;
 };
