@@ -11,17 +11,18 @@ ULRPlayerAttributeSet::ULRPlayerAttributeSet()
 	InitMaxHealth(100.0f);
 	InitAether(0.0f);
 	InitAttackPower(10.0f);
+	InitDefense(0.0f);
 }
 
-void ULRPlayerAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME_CONDITION_NOTIFY(ULRPlayerAttributeSet, Health, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(ULRPlayerAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(ULRPlayerAttributeSet, Aether, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(ULRPlayerAttributeSet, AttackPower, COND_None, REPNOTIFY_Always);
-}
+//void ULRPlayerAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+//{
+//	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+//
+//	DOREPLIFETIME_CONDITION_NOTIFY(ULRPlayerAttributeSet, Health, COND_None, REPNOTIFY_Always);
+//	DOREPLIFETIME_CONDITION_NOTIFY(ULRPlayerAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
+//	DOREPLIFETIME_CONDITION_NOTIFY(ULRPlayerAttributeSet, Aether, COND_None, REPNOTIFY_Always);
+//	DOREPLIFETIME_CONDITION_NOTIFY(ULRPlayerAttributeSet, AttackPower, COND_None, REPNOTIFY_Always);
+//}
 
 void ULRPlayerAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
@@ -45,8 +46,3 @@ void ULRPlayerAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 		}
 	}
 }
-
-void ULRPlayerAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) { GAMEPLAYATTRIBUTE_REPNOTIFY(ULRPlayerAttributeSet, Health, OldHealth); }
-void ULRPlayerAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth) { GAMEPLAYATTRIBUTE_REPNOTIFY(ULRPlayerAttributeSet, MaxHealth, OldMaxHealth); }
-void ULRPlayerAttributeSet::OnRep_Aether(const FGameplayAttributeData& OldAether) { GAMEPLAYATTRIBUTE_REPNOTIFY(ULRPlayerAttributeSet, Aether, OldAether); }
-void ULRPlayerAttributeSet::OnRep_AttackPower(const FGameplayAttributeData& OldAttackPower) { GAMEPLAYATTRIBUTE_REPNOTIFY(ULRPlayerAttributeSet, AttackPower, OldAttackPower); }
