@@ -1,0 +1,36 @@
+[가챠 확률 시뮬 콘솔 명령어]
+
+명령어:
+
+GachaSim <BannerID> <TotalPulls> <Seed>
+
+
+예시:
+
+GachaSim Hero_Crescent 1000000 7
+
+GachaSim Hero_FullMoon 1000000 7
+
+GachaSim Equip_Crescent 1000000 7
+
+GachaSim Equip_FullMoon 1000000 7
+
+
+파라미터 뜻:
+
+BannerID : 배너 RowName (예: Hero_Crescent, Hero_FullMoon, Equip_Crescent, Equip_FullMoon)
+
+TotalPulls : 시뮬 돌릴 횟수 (권장: 100,000 ~ 1,000,000)
+
+Seed : 랜덤 고정값(아무 숫자 가능). 같은 Seed면 결과가 항상 동일해서 비교/검증용으로 좋음.
+
+
+출력 해석:
+
+NoPity : 천장 없이 “순수 확률”만 적용한 결과
+
+WithPity : 천장 포함 결과
+
+PityTriggered : 천장 발동 횟수
+
+MaxNo5Streak : 5성이 안 나온 최악의 연속 횟수
