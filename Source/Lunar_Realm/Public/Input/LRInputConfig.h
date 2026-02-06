@@ -8,6 +8,10 @@
 #include "InputAction.h"
 #include "LRInputConfig.generated.h"
 
+//=============================================================================
+// (260206) BJM 제작. Player Input 관련 Component로 관리하기 위한 Config.
+// =============================================================================
+
 USTRUCT(BlueprintType)
 struct FLRInputAction
 {

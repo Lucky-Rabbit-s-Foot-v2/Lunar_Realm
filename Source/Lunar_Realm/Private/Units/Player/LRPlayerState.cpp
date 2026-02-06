@@ -42,8 +42,8 @@ void ALRPlayerState::InitializePlayerData()
 	CharacterID = 10101;
 	CharacterLevel = 1;
 
-	EquippedItems.Add(EEquipmentType::WEAPON, 20100101);
-	EquippedItemLevels.Add(EEquipmentType::WEAPON, 1);
+	EquippedItems.Add(EEquipmentSlotType::WEAPON, 20100101);
+	EquippedItemLevels.Add(EEquipmentSlotType::WEAPON, 1);
 
 	// 스텟 계산
 	InitializeAttributes();
@@ -114,7 +114,7 @@ void ALRPlayerState::InitializeAttributes()
 
 }
 
-void ALRPlayerState::EquipItem(EEquipmentType Slot, int32 ItemID)
+void ALRPlayerState::EquipItem(EEquipmentSlotType Slot, int32 ItemID)
 {
 	UnequipItem(Slot);
 
@@ -127,7 +127,7 @@ void ALRPlayerState::EquipItem(EEquipmentType Slot, int32 ItemID)
 	
 }
 
-void ALRPlayerState::UnequipItem(EEquipmentType Slot)
+void ALRPlayerState::UnequipItem(EEquipmentSlotType Slot)
 {
 	// 기존 스킬 제거
 	if (EquipmentAbilityHandles.Contains(Slot))
@@ -173,7 +173,7 @@ void ALRPlayerState::GrantCharacterAbilities()
 	}
 }
 
-void ALRPlayerState::GrantEquipmentAbilities(EEquipmentType Slot, int32 EquipmentID)
+void ALRPlayerState::GrantEquipmentAbilities(EEquipmentSlotType Slot, int32 EquipmentID)
 {
 	UGameInstance* GI = GetGameInstance();
 	if (!GI) return;

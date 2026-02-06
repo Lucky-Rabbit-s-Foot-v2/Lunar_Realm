@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/Controller.h"
 #include "GameplayTagsManager.h"
+#include "Data/LRDataStructs.h"
 #include "GAS/Tags/LRGameplayTags.h"
 
 ULRCombatComponent::ULRCombatComponent()
@@ -84,23 +85,24 @@ void ULRCombatComponent::SetAutoMode(bool bEnableAuto)
 
 void ULRCombatComponent::UpdateWeaponInfo(int32 InWeaponID)
 {
-	// 장비 ID 파싱 로직
-	// ID Format: T CC III SS (예: 2 01 001 02)
-	int32 Category = (InWeaponID / 100000) % 100;
-	if (Category == 1)
+	FEntityIDInfo ParsingInfo(InWeaponID);
+
+	ELRItemType ItemType = ParsingInfo.GetItemType();
+
+	if (ItemType == ELRItemType::MELEE) // 근거리
 	{
-		AttackRange = 150.0f; 
+		AttackRange = 150.0f;
 	}
-	else if (Category == 2)
+	else if (ItemType == ELRItemType::RANGED) // 원거리
 	{
-		AttackRange = 800.0f; 
+		AttackRange = 800.0f;
 	}
 	else
 	{
 		AttackRange = 100.0f;
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("무기설정 ID: %d, Category: %02d, Range: %.1f"), InWeaponID, Category, AttackRange);
+	UE_LOG(LogTemp, Log, TEXT("무기설정 ID: %d, Type: %d, Range: %.1f"), InWeaponID, (int32)ItemType, AttackRange);
 }
 
 void ULRCombatComponent::FindBestTarget()
