@@ -27,6 +27,7 @@ void ALREnemyCharacter::OnDie()
 	UPoolingSubsystem* PoolSys = GetWorld()->GetSubsystem<UPoolingSubsystem>();
 	PoolSys->ReturnToPool(this);
 }
+
 void ALREnemyCharacter::BeginPlay()
 {
 
