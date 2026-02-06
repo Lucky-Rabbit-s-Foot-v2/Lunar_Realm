@@ -104,7 +104,7 @@ public:
 	ELRAttackType GetAttackType() const 
 	{ 
 		//ID가 캐릭터/적 타입이 아니면 무시
-		if (Domain != ELRDomain::CHARACTER || Domain != ELRDomain::ENEMY) return ELRAttackType::NONE;
+		if (Domain != ELRDomain::CHARACTER && Domain != ELRDomain::ENEMY) return ELRAttackType::NONE;
 		return static_cast<ELRAttackType>((FullID / 10000) % 100); 
 	}
 	
