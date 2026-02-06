@@ -167,10 +167,10 @@ void ALRPlayerCharacter::Move(const FInputActionValue& Value)
 	if (Controller != nullptr)
 	{
 		const FVector ForwardDirection = FVector::ForwardVector;
-		AddMovementInput(ForwardDirection, MovementVector.X);
+		AddMovementInput(ForwardDirection, MovementVector.Y);
 
 		const FVector RightDirection = FVector::RightVector;
-		AddMovementInput(RightDirection, MovementVector.Y);
+		AddMovementInput(RightDirection, MovementVector.X);
 	}
 }
 
