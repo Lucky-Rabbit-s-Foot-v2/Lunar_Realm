@@ -11,13 +11,4 @@ void ALROutGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
-	{
-		FInputModeUIOnly InputMode;
-		InputMode.SetWidgetToFocus(nullptr);
-		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockInFullscreen);
-
-		PC->SetInputMode(InputMode);
-		PC->bShowMouseCursor = true;
-	}
 }
