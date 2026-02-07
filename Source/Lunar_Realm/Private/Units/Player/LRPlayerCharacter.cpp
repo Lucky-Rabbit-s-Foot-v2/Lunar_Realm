@@ -167,10 +167,10 @@ void ALRPlayerCharacter::Move(const FInputActionValue& Value)
 	if (Controller != nullptr)
 	{
 		const FVector ForwardDirection = FVector::ForwardVector;
-		AddMovementInput(ForwardDirection, MovementVector.X);
+		AddMovementInput(ForwardDirection, MovementVector.Y);
 
 		const FVector RightDirection = FVector::RightVector;
-		AddMovementInput(RightDirection, MovementVector.Y);
+		AddMovementInput(RightDirection, MovementVector.X);
 	}
 }
 
@@ -200,6 +200,17 @@ void ALRPlayerCharacter::Input_Summon(FGameplayTag InputTag)
 	if (SlotIndex >= 0)
 	{
 		SummonComponent->TrySummonUnit(SlotIndex);
+	}
+}
+
+void ALRPlayerCharacter::GrantTestAbility(TSubclassOf<class UGameplayAbility> AbilityClass)
+{
+	if (AbilitySystemComponent && AbilityClass)
+	{
+		FGameplayAbilitySpec Spec(AbilityClass, 1, INDEX_NONE, this);
+		AbilitySystemComponent->GiveAbility(Spec);
+
+		UE_LOG(LogTemp, Warning, TEXT("[Test] 스킬 부여됨: %s"), *AbilityClass->GetName());
 	}
 }
 
