@@ -96,6 +96,12 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Enemy")
 	TArray<int32> GetAllEnemyIDs();
+
+	// ========================================
+	// 스테이지 데이터 조회
+	// ========================================
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Stage")
+	const FStageStaticData& GetStageStaticData(int32 StageID) const;
 	
 private:
 	// ========================================
@@ -181,6 +187,8 @@ private:
 	UDataTable* LoadedSkillStaticData;
 	UPROPERTY()
 	UDataTable* LoadedEnemyStaticData;
+	UPROPERTY()
+	UDataTable* LoadedStageStaticData;
 	
 	// ========================================
 	// 데이터 캐싱 (성능 최적화)
@@ -204,6 +212,8 @@ private:
 	TMap<int32, FSkillStaticData> CachedSkillStaticData;
 	//에너미 정적 데이터 캐시
 	TMap<int32, FEnemyStaticData> CachedEnemyStaticData;
+	//스테이지 정적 데이터 캐시
+	TMap<int32, FStageStaticData> CachedStageStaticData;
 	
 	//캐싱 실패시 사용할 기본값
 	static FCharacterStaticData EmptyCharacterStaticData;
@@ -213,6 +223,7 @@ private:
 	static FSetEffectData EmptySetEffectData;
 	static FSkillStaticData EmptySkillStaticData;
 	static FEnemyStaticData EmptyEnemyStaticData;
+	static FStageStaticData EmptyStageStaticData;
 	
 	
 };
@@ -254,6 +265,7 @@ void UGameDataSubsystem::CacheDataTable(UDataTable* DataTable, TMap<E, T>& OutRe
 	if (!DataTable)
 	{
 		LR_WARN(TEXT("DataTable is null"));
+		return;
 	}
 	//기존 데이터 초기화
 	OutRef.Empty();

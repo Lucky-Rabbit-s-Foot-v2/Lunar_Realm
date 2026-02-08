@@ -42,7 +42,10 @@ public:
 	// 에너미 정적 데이터 DataTable
 	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Enemy")
 	TSoftObjectPtr<UDataTable> EnemyStaticDataTable;
-	
+
+	// 스테이지 정적 데이터 DataTable
+	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Stage")
+	TSoftObjectPtr<UDataTable> StageStaticDataTable;
 	
 	// 장비 도감 DataTable
 	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Equipment")

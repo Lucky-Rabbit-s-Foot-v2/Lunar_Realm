@@ -4,58 +4,76 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Subsystems/PoolingSubsystem.h"
-#include "Subsystems/GameDataSubsystem.h"
+#include "Data/LRDataStructs.h"
 #include "LREnemySpawner.generated.h"
 
 class ALREnemyCharacter;
+class UBoxComponent;
 
 /**
  * 에너미 스포너 클래스
- * - GameDataSubsystem 에서 받아온 키값들 멤버로 저장
- * - 스테이지 정보 받아와서 해당하는 Enemy 후보 선택
+ * - StageStaticData 기반 ID/가중치 확정 후 타이머 스폰
  * - 스폰은 오브젝트 풀링 시스템 사용
  */
- //============================================================================
- // (260205) KWB 제작. 제반 사항 구현.
- // TODO: 파싱 시스템 구현(enum 기반으로 변경 - TBD) / 오브젝트 풀링 파트 구현 필요
- //============================================================================
+//============================================================================
+// (260205) KWB 제작.
+// (260208) Codex 확장. Stage 데이터 드리븐 + 가중치 랜덤 + 보스 스테이지 필터링.
+//============================================================================
 UCLASS()
 class LUNAR_REALM_API ALREnemySpawner : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
-	// Sets default values for this actor's properties
+public:
 	ALREnemySpawner();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
+public:
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void SpawnEnemy();
 
-	UPROPERTY()
-	TSubclassOf<ALREnemyCharacter> TargetEnemeyclass = nullptr;
+protected:
+	UFUNCTION(BlueprintCallable)
+	bool InitializeFromStageData();
 
-	UPROPERTY()
-	TArray<int32> CachedEnemyIDs;
-
-	UPROPERTY()
-	int32 TargetEnemyID;
+	int32 PickEnemyIDByWeight() const;
+	FTransform MakeRandomSpawnTransform() const;
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Components")
-	TObjectPtr<class USphereComponent> SpawnRadiusVisualizer;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
+	TSubclassOf<ALREnemyCharacter> EnemyClass;
+
+	// true면 보스 스테이지만 동작, false면 일반 스테이지만 동작
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
+	bool bSpawnOnlyBossStage = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
+	int32 PrewarmCount = 50;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
+	float DefaultSpawnInterval = 1.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
+	TObjectPtr<UBoxComponent> SpawnAreaBox;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
+	TArray<int32> CachedEnemyIDs;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
+	TArray<float> CachedEnemyWeights;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
+	int32 CurrentStageID = 1;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
+	bool bIsBossStage = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
+	float CurrentSpawnInterval = 1.0f;
 
 	FTimerHandle SpawnTimerHandle;
-
-private:
-	UPROPERTY(VisibleAnywhere, Category = "LR|Components")
-	class UArrowComponent* ArrowComp = nullptr;
 };
