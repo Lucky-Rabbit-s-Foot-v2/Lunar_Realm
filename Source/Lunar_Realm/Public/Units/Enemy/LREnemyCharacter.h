@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Units/LRCharacter.h"
+#include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "LREnemyCharacter.generated.h"
 
 class ULREnemyAttributeSet;
+class UGameplayAbility;
 
 /**
  * 적 캐릭터(Enemy) 베이스 클래스
@@ -30,7 +32,15 @@ public:
 		return AbilitySystemComponent;
 	}
 
+	UFUNCTION(BlueprintCallable)
 	void OnDie();
+
+	UFUNCTION(BlueprintCallable)
+	void InitializeByEnemyID(int32 EnemyID);
+
+	void GrantEnemyAbilities(const TArray<TSubclassOf<UGameplayAbility>>& InAbilities);
+
+	void ClearGrantedEnemyAbilities();
 
 protected:
 	virtual void BeginPlay() override;
@@ -44,4 +54,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Attribute")
 	TObjectPtr<ULREnemyAttributeSet> AttributeSet = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Enemy", meta = (AllowPrivateAccess = "true"))
+	int32 CurrentEnemyID = 0;
+
+	TArray<FGameplayAbilitySpecHandle> GrantedAbilityHandles;
 };

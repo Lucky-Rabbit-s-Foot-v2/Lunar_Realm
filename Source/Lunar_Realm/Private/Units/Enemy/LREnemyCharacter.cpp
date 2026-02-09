@@ -11,26 +11,37 @@
 
 ALREnemyCharacter::ALREnemyCharacter()
 {
-	// 스포너에서 ID 받아오는 함수
-	// enum 기반으로 처리되는 것 우선 wait
+	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 
-
-	// InitializeAttributes(/* 받은 ID 인자로 삽입 */);
+	AttributeSet = CreateDefaultSubobject<ULREnemyAttributeSet>(TEXT("AttributeSet"));
 }
 
 void ALREnemyCharacter::OnDie()
 {
-	// 죽는 모션 재생
-	// 컨트롤러 해제
-	// 등등 죽었을 때 필요한 작업들 처리
-	
-	UPoolingSubsystem* PoolSys = GetWorld()->GetSubsystem<UPoolingSubsystem>();
+	UPoolingSubsystem* PoolSys = GetWorld() ? GetWorld()->GetSubsystem<UPoolingSubsystem>() : nullptr;
+	if (!PoolSys)
+	{
+		LR_ERROR(TEXT("PoolingSubsystem not found while returning enemy to pool"));
+		return;
+	}
+
 	PoolSys->ReturnToPool(this);
+}
+
+void ALREnemyCharacter::InitializeByEnemyID(int32 EnemyID)
+{
+	CurrentEnemyID = EnemyID;
+	InitializeAttributes(EnemyID);
 }
 
 void ALREnemyCharacter::BeginPlay()
 {
+	Super::BeginPlay();
 
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	}
 }
 
 void ALREnemyCharacter::InitializeAttributes(int32 EnemyID)
@@ -42,7 +53,7 @@ void ALREnemyCharacter::InitializeAttributes(int32 EnemyID)
 	}
 
 	UGameInstance* GI = GetGameInstance();
-	UGameDataSubsystem* DataSys = GI->GetSubsystem<UGameDataSubsystem>();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
 
 	if (!DataSys)
 	{
@@ -51,13 +62,52 @@ void ALREnemyCharacter::InitializeAttributes(int32 EnemyID)
 	}
 
 	const FEnemyStaticData& EnemyData = DataSys->GetEnemyStaticData(EnemyID);
-	int32 HP = EnemyData.Health;
-	int32 ATK = EnemyData.Attack;
-	int32 SPD = EnemyData.Speed;
 
-	AttributeSet->InitHealth(HP);
-	AttributeSet->InitAttack(ATK);
-	AttributeSet->InitSpeed(SPD);
+	AttributeSet->InitHealth(static_cast<float>(EnemyData.Health));
+	AttributeSet->InitAttack(static_cast<float>(EnemyData.Attack));
+	AttributeSet->InitSpeed(static_cast<float>(EnemyData.Speed));
 
-	// LR_INFO(TEXT("Attributes initialized - HP: %.0f, ATK: %.0f, DEF: %.0f"), HP, ATK, SPD);
+	ClearGrantedEnemyAbilities();
+	// GrantEnemyAbilities(EnemyData.GrantedAbilities); => 수정해야할 로직
+}
+
+void ALREnemyCharacter::GrantEnemyAbilities(const TArray<TSubclassOf<UGameplayAbility>>& InAbilities)
+{
+	if (!AbilitySystemComponent)
+	{
+		return;
+	}
+
+	for (const TSubclassOf<UGameplayAbility>& AbilityClass : InAbilities)
+	{
+		if (!AbilityClass)
+		{
+			continue;
+		}
+
+		const FGameplayAbilitySpec Spec(AbilityClass, 1);
+		FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
+		if (Handle.IsValid())
+		{
+			GrantedAbilityHandles.Add(Handle);
+		}
+	}
+}
+
+void ALREnemyCharacter::ClearGrantedEnemyAbilities()
+{
+	if (!AbilitySystemComponent)
+	{
+		return;
+	}
+
+	for (const FGameplayAbilitySpecHandle& Handle : GrantedAbilityHandles)
+	{
+		if (Handle.IsValid())
+		{
+			AbilitySystemComponent->ClearAbility(Handle);
+		}
+	}
+
+	GrantedAbilityHandles.Reset();
 }

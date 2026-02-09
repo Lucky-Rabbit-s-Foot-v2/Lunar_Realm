@@ -9,12 +9,15 @@
 #include "AbilitySystemInterface.h"
 #include "InputActionValue.h"
 #include "Component/LRSummonComponent.h"
+#include "Components/DecalComponent.h"
 #include "GameplayTagContainer.h"
+
 #include "LRPlayerCharacter.generated.h"
 
 //=============================================================================
 // (260203) BJM 제작. 플레이어 캐릭터.
 // (260205_BJM) 전투 컴포넌트 추가.
+// (260208_BJM) 타겟 락온 기능 추기
 //=============================================================================
 
 class ULRInputConfig;
@@ -57,6 +60,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<ULRInputConfig> InputConfig;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	TObjectPtr<UDecalComponent> TargetIndicator;
 
 
 	void Move(const FInputActionValue& Value);

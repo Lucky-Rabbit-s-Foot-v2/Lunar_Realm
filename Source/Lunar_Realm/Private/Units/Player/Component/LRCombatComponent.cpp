@@ -27,7 +27,24 @@ void ULRCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
+	TArray<AActor*> AllBases;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Enemy.Structure.Core"), AllBases);
+	if (AllBases.Num() > 0)
+	{
+		CachedEnemyBase = AllBases[0];
+		UE_LOG(LogTemp, Log, TEXT("[Combat] 적 기지 캐싱 완료: %s"), *CachedEnemyBase->GetName());
+	}
+
+	float RandomDelay = FMath::RandRange(0.1f, 0.3f);
+
+	GetWorld()->GetTimerManager().SetTimer(
+		CombatLogicTimerHandle,
+		this,
+		&ULRCombatComponent::OnCombatLogicTimer,
+		0.2f,
+		true,
+		RandomDelay
+	);
 }
 
 
@@ -35,96 +52,39 @@ void ULRCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (CurrentAttackCooldown > 0.0f)
+	{
+		CurrentAttackCooldown -= DeltaTime;
+	}
+
+	if (!CurrentTarget) return;
+
 	ALRCharacter* OwnerCharacter = Cast<ALRCharacter>(GetOwner());
 	if (!OwnerCharacter) return;
 
+	float DistSq = FVector::DistSquared(OwnerCharacter->GetActorLocation(), CurrentTarget->GetActorLocation());
+	float AttackRangeSq = AttackRange * AttackRange;
 
-		// 1.죽음 확인 / 타겟체력이 0 이하면 -> 타겟 해제
-	if (CurrentTarget)
+	if (DistSq <= AttackRangeSq)
 	{
-		// 1-1. 액터 자체가 소멸되었으면 해제
-		if (!IsValid(CurrentTarget))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("[Tick] 타겟이 메모리에서 소멸됨(IsValid False). 타겟 해제."));
-			CurrentTarget = nullptr;
-		}
-		// 1-2. 액터는 있지만 체력이 0 이하면 해제 (죽은 적)
-		else
-		{
-			IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(CurrentTarget);
-			if (ASCInterface)
-			{
-				UAbilitySystemComponent* TargetASC = ASCInterface->GetAbilitySystemComponent();
-				if (TargetASC)
-				{
-					bool bFound = false;
-					float Health = TargetASC->GetGameplayAttributeValue(ULRPlayerAttributeSet::GetHealthAttribute(), bFound);
+		TryAction(DeltaTime);
 
-					// 체력 속성을 찾았고, 0 이하라면?
-					if (bFound)
-					{
-						// 체력이 0 이하면 해제
-						if (Health <= 0.0f)
-						{
-							UE_LOG(LogTemp, Warning, TEXT("[Tick] 타겟 사망 확인(Health: %.1f). 타겟 해제."), Health);
-							CurrentTarget = nullptr;
-						}
-					}
-					else
-					{
-						// 속성 자체를 못 찾음 (버그 가능성)
-						UE_LOG(LogTemp, Error, TEXT("[Tick] 타겟의 Health Attribute를 찾을 수 없음! (bFound False)"));
-					}
-				}
-			}
-		}
-	}
-
-	// 2. 타겟 찾기 타겟이 없으면 새로 찾음
-	if (!CurrentTarget)
-	{
-		// 오토 모드일 때만 스스로 찾기
 		if (CombatState == EAutoCombatState::Auto)
 		{
-			UE_LOG(LogTemp, Log, TEXT("[Tick] 타겟 없음. FindBestTarget 시도..."));
-			FindBestTarget();
-			if (!CurrentTarget)
+			if (OwnerCharacter->GetController())
 			{
-				// FindBestTarget을 돌렸는데도 못 찾음 -> 멍 때리는 원인
-				// 너무 자주 찍히면 렉 걸리니까 1초에 한번만 찍히게 해도 됨 (일단은 그냥 확인)
-				UE_LOG(LogTemp, Warning, TEXT("[Tick] 새 타겟을 못 찾음! 멍 때리는 중..."));
+				OwnerCharacter->GetController()->StopMovement();
 			}
 		}
 	}
-
-	// 3. 타겟이 있으면 -> 거리 재고 공격 or 이동
-	if (CurrentTarget)
+	else
 	{
-		float DistSq = FVector::DistSquared(OwnerCharacter->GetActorLocation(), CurrentTarget->GetActorLocation());
-		float AttackRangeSq = AttackRange * AttackRange;
-
-		if (DistSq <= AttackRangeSq)
+		if (CombatState == EAutoCombatState::Auto)
 		{
-			// 공격 범위 안: 공격 시도
-			TryAction(DeltaTime);
-
-			if (CombatState == EAutoCombatState::Auto)
-			{
-				if (OwnerCharacter->GetController())
-				{
-					OwnerCharacter->GetController()->StopMovement();
-				}
-			}
-		}
-		else
-		{
-			// 공격 범위 밖: 추적 이동
-			if (CombatState == EAutoCombatState::Auto)
-			{
-				MoveToTarget(DeltaTime);
-			}
+			MoveToTarget(DeltaTime);
 		}
 	}
+
 }
 
 void ULRCombatComponent::SetAutoMode(bool bEnableAuto)
@@ -164,6 +124,46 @@ void ULRCombatComponent::UpdateWeaponInfo(int32 InWeaponID)
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("무기설정 ID: %d, Type: %d, Range: %.1f"), InWeaponID, (int32)ItemType, AttackRange);
+}
+
+void ULRCombatComponent::OnCombatLogicTimer()
+{
+	if (CurrentTarget)
+	{
+		bool bShouldClearTarget = false;
+
+		if (!IsValid(CurrentTarget))
+		{
+			bShouldClearTarget = true;
+		}
+		else
+		{
+			IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(CurrentTarget);
+			if (ASCInterface)
+			{
+				UAbilitySystemComponent* TargetASC = ASCInterface->GetAbilitySystemComponent();
+				if (TargetASC)
+				{
+					bool bFound = false;
+					float Health = TargetASC->GetGameplayAttributeValue(ULRPlayerAttributeSet::GetHealthAttribute(), bFound);
+					if (bFound && Health <= 0.0f)
+					{
+						bShouldClearTarget = true;
+					}
+				}
+			}
+		}
+
+		if (bShouldClearTarget)
+		{
+			CurrentTarget = nullptr;
+		}
+	}
+
+	if (!CurrentTarget && CombatState == EAutoCombatState::Auto)
+	{
+		FindBestTarget();
+	}
 }
 
 void ULRCombatComponent::FindBestTarget()
@@ -271,7 +271,7 @@ void ULRCombatComponent::TryAction(float DeltaTime)
 {
 	if (CurrentAttackCooldown > 0.0f)
 	{
-		CurrentAttackCooldown -= DeltaTime; // 쿨타임 감소
+		CurrentAttackCooldown -= DeltaTime;
 		return;
 	}
 	

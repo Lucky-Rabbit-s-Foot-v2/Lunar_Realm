@@ -14,4 +14,15 @@ void ALRStageHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilityS
 	OverlayWidget->AddToViewport(); 
 
 	OverlayWidget->SetWidgetController(PC);
+
+	if (PC)
+	{
+		FInputModeGameAndUI InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		InputMode.SetHideCursorDuringCapture(false);
+		PC->SetInputMode(InputMode);
+
+		PC->bShowMouseCursor = true;
+	}
+
 }

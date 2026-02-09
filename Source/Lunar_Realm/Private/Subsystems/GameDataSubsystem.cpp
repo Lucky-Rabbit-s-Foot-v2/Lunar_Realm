@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Subsystems/GameDataSubsystem.h"
@@ -12,6 +12,7 @@ FEquipmentBonus UGameDataSubsystem::EmptyEquipmentBonus;
 FSetEffectData UGameDataSubsystem::EmptySetEffectData;
 FSkillStaticData UGameDataSubsystem::EmptySkillStaticData;
 FEnemyStaticData UGameDataSubsystem::EmptyEnemyStaticData;
+FStageStaticData UGameDataSubsystem::EmptyStageStaticData;
 
 
 void UGameDataSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -35,6 +36,7 @@ void UGameDataSubsystem::Deinitialize()
 	CachedSetEffectData.Empty();
 	CachedSkillStaticData.Empty();
 	CachedEnemyStaticData.Empty();
+	CachedStageStaticData.Empty();
 	
 	LR_INFO(TEXT("GameDataSubsystem Deinitialize - Cleaned up caches"));
 	
@@ -103,6 +105,7 @@ void UGameDataSubsystem::LoadDataTables()
 	LoadedEquipmentStatBonus = Config->EquipmentStatBonusTable.LoadSynchronous(); //장비 보너스
 	LoadedSetEffectBonus = Config->EquipmentSetEffectTable.LoadSynchronous(); //세트장비 효과
 	LoadedSkillStaticData = Config->SkillStaticDataTable.LoadSynchronous(); //스킬 데이터
+	LoadedStageStaticData = Config->StageStaticDataTable.LoadSynchronous(); //스테이지 데이터
 	
 	//로직 변경으로 시스템에서 직접 로드 방식은 미사용
 	// LoadDataTable(BaseStatsCurveTable, LoadedBaseStatsCurve, TEXT("BaseStatsCurveTable"));
@@ -143,6 +146,10 @@ void UGameDataSubsystem::CacheAllData()
 	//에너미 데이터 캐싱
 	CacheDataTable<FEnemyStaticData, int32>(
 		LoadedEnemyStaticData, CachedEnemyStaticData, &FEnemyStaticData::CharacterID, TEXT("EnemyStaticData"));
+
+	//스테이지 데이터 캐싱
+	CacheDataTable<FStageStaticData, int32>(
+		LoadedStageStaticData, CachedStageStaticData, &FStageStaticData::StageID, TEXT("StageStaticData"));
 }
 
 FName UGameDataSubsystem::StatTypeToName(ELRStatusType StatusType)
@@ -398,4 +405,9 @@ TArray<int32> UGameDataSubsystem::GetAllEnemyIDs()
 	LR_INFO(TEXT("Found %d Enemy"), EnemyIDs.Num());
 	
 	return EnemyIDs;
+}
+
+const FStageStaticData& UGameDataSubsystem::GetStageStaticData(int32 StageID) const
+{
+	return GetCachedData(CachedStageStaticData, StageID, EmptyStageStaticData, TEXT("StageStaticData"));
 }
