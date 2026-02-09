@@ -6,6 +6,7 @@
 #include "ShaderCompilerJobTypes.h"
 #include "Abilities/GameplayAbility.h"
 #include "Engine/DataTable.h"
+#include "Engine/SkeletalMesh.h"
 #include "Data/LREnumType.h"
 #include "Elements/Framework/TypedElementQueryBuilder.h"
 #include "LRDataStructs.generated.h"
@@ -322,6 +323,7 @@ struct FSkillStaticData : public FTableRowBase
  */
  //=============================================================================
  // (260204) KWB 제작. 제반 사항 구현.
+ // (260209) KWB 멤버 추가 및 순서 변경, 헤더 추가("Engine/SkeletalMesh.h")
  // =============================================================================
 USTRUCT(BlueprintType)
 struct FEnemyStaticData : public FTableRowBase
@@ -339,16 +341,28 @@ struct FEnemyStaticData : public FTableRowBase
 	FText Description;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
-	int32 Speed;
+	int32 Health;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
 	int32 Attack;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
-	int32 Health;
+	int32 Speed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
+	int32 AttackSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
+	int32 AttackRange;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	TSoftObjectPtr<USkeletalMesh> EnemyMesh;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
 	TSoftObjectPtr<UTexture2D> CharacterTexture;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	TSoftClassPtr<UAnimInstance> AnimBlueprintClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Skills")
 	TArray<int32> SkillIDs;

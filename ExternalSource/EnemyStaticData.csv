@@ -1,9 +1,9 @@
-﻿,CharacterID,CharacterName,Description,Speed,Attack,Health,CharacterTexture,GrantedAbilities
-1,31010101,Normal Slime,일반 슬라임,1,1,1,,"""()"""
-2,31020101,Normal Slime,원거리 슬라임,1,1,1,,"""()"""
-3,31010201,Normal Beast,일반 수인,1,1,1,,"""()"""
-4,31020201,Normal Beast,원거리 수인,1,1,1,,"""()"""
-5,31010301,Normal Cell,근거리 동물,1,1,1,,"""()"""
-6,31020301,Normal Bat,원거리 동물,1,1,1,,"""()"""
-7,31010401,Normal Mask,근거리 유령,1,1,1,,"""()"""
-8,31020401,Normal Ghost,원거리 유령,1,1,1,,"""()"""
+﻿,CharacterID,CharacterName,Description,Health,Attack,Speed,AttackSpeed,AttackRange,EnemyMesh,CharacterTexture,AnimBlueprintClass,SkillIDs
+1,31010101,Normal Slime,일반 슬라임,1,1,1,1,100,,,,()
+2,31020101,Normal Slime,원거리 슬라임,1,1,1,1,100,,,,()
+3,31010201,Normal Beast,일반 수인,1,1,1,1,100,,,,()
+4,31020201,Normal Beast,원거리 수인,1,1,1,1,100,,,,()
+5,31010301,Normal Cell,근거리 동물,1,1,1,1,100,,,,()
+6,31020301,Normal Bat,원거리 동물,1,1,1,1,100,,,,()
+7,31010401,Normal Mask,근거리 유령,1,1,1,1,100,,,,()
+8,31020401,Normal Ghost,원거리 유령,1,1,1,1,100,,,,()
