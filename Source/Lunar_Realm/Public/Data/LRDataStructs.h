@@ -309,7 +309,7 @@ struct FSkillStaticData : public FTableRowBase
     
 	// 실제 GA 클래스
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<TSubclassOf<UGameplayAbility>> GrantedAbilities;
+	TArray<TSoftClassPtr<UGameplayAbility>> GrantedAbilities;
 };
 
 

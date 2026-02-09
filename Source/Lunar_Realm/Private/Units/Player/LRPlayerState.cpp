@@ -161,14 +161,24 @@ void ALRPlayerState::GrantCharacterAbilities()
 		// 스킬 id로 정적 데이터 가져오기
 		const FSkillStaticData& SkillData = DataSubsystem->GetSkillStaticData(SkillID);
 
-		for (TSubclassOf<UGameplayAbility> AbilityClass : SkillData.GrantedAbilities)
+		for (const TSoftClassPtr<UGameplayAbility>& SoftAbilityClass : SkillData.GrantedAbilities)
 		{
-			if (AbilityClass)
+			if (SoftAbilityClass.IsNull())
 			{
-				FGameplayAbilitySpec Spec(AbilityClass, 1, INDEX_NONE, this);
-				FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
-				CharacterAbilityHandles.Add(Handle);
+				LR_WARN(TEXT("Invalid Soft Class Reference in Skill %d"), SkillID);
+				continue;
 			}
+			
+			TSubclassOf<UGameplayAbility> AbilityClass = SoftAbilityClass.LoadSynchronous();
+			
+			if (!AbilityClass)
+			{
+				LR_ERROR(TEXT("Failed to load Ability Class for Skill %d"), SkillID);
+			}
+			
+			FGameplayAbilitySpec Spec(AbilityClass, 1, INDEX_NONE, this);
+			FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
+			CharacterAbilityHandles.Add(Handle);
 		}
 	}
 }
@@ -189,14 +199,23 @@ void ALRPlayerState::GrantEquipmentAbilities(EEquipmentSlotType Slot, int32 Equi
 	{
 		const FSkillStaticData& SkillData = DataSubsystem->GetSkillStaticData(SkillID);
 
-		for (TSubclassOf<UGameplayAbility> AbilityClass : SkillData.GrantedAbilities)
+		for (TSoftClassPtr<UGameplayAbility> SoftAbilityClass : SkillData.GrantedAbilities)
 		{
-			if (AbilityClass)
+			if (SoftAbilityClass.IsNull())
 			{
-				FGameplayAbilitySpec Spec(AbilityClass, 1, INDEX_NONE, this);
-				FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
-				NewHandles.Add(Handle);
+				LR_WARN(TEXT("Invalid Soft Class Reference in Skill %d"), SkillID);
 			}
+			
+			TSubclassOf<UGameplayAbility> AbilityClass = SoftAbilityClass.LoadSynchronous();
+			
+			if (!AbilityClass)
+			{
+				LR_ERROR(TEXT("Failed to load Ability Class for Skill %d"), SkillID);
+			}
+			
+			FGameplayAbilitySpec Spec(AbilityClass, 1, INDEX_NONE, this);
+			FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
+			NewHandles.Add(Handle);
 		}
 	}
 
