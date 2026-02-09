@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 
 #include "Engine/DataTable.h"
-#include "GameplayTagContainer.h"
+#include "Data/LRCurrencyTypes.h"
 
 #include "LRGachaTypes.generated.h"
 
@@ -55,9 +55,9 @@ struct FLRGachaBannerRow : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ELRGachaItemType ItemType = ELRGachaItemType::Hero;
 
-	// 이 배너가 소모하는 재화 태그(초승달/보름달/골드 등)
+	// 이 배너가 소모하는 재화 타입(초승달/보름달/골드 등)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FGameplayTag CostCurrencyTag;
+	ELRCurrencyType CostCurrencyType = ELRCurrencyType::CrescentTicket;
 
 	// 1회 / 10회 비용
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

@@ -1,10 +1,14 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "Data/LRDataStructs.h"
+#include "Data/Gacha/LRGachaTransactionTypes.h"
+
 #include "GameFramework/SaveGame.h"
+
 #include "LRSaveGame.generated.h"
 
 // =============================================================================
@@ -66,4 +70,36 @@ public:
 	UPROPERTY(SaveGame, BlueprintReadWrite)
 	TArray<int32> SelectedEquipmentIDs; // 리더 장비 3개 [무기, 헬멧, 갑옷]
     
+	// ========================================
+	// Currency (태그/맵 없음)
+	// ========================================
+	UPROPERTY(SaveGame, BlueprintReadWrite)
+	int32 Gold = 0;
+
+	UPROPERTY(SaveGame, BlueprintReadWrite)
+	int32 CrescentTicket = 0;
+
+	UPROPERTY(SaveGame, BlueprintReadWrite)
+	int32 FullMoonTicket = 0;
+
+	UPROPERTY(SaveGame, BlueprintReadWrite)
+	FDateTime LastUpdatedUtc;
+
+	// ========================================
+	// Gacha (Pity / Pending Transactions)
+	// ========================================
+	UPROPERTY(SaveGame, BlueprintReadWrite)
+	TMap<FName, int32> GachaPityCounterMap;
+
+	UPROPERTY(SaveGame, BlueprintReadWrite)
+	TMap<FGuid, FLRGachaPendingTransaction> GachaPendingTransactions;
+
+	// 신규 유저 기본값 (현재 테스트용 임시값)
+	void ApplyDefaults()
+	{
+		Gold = 1000;
+		CrescentTicket = 1000;
+		FullMoonTicket = 1000;
+		LastUpdatedUtc = FDateTime::UtcNow();
+	}
 };
