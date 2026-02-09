@@ -1,3 +1,4 @@
 ,StageID,StageName,SpawnEnemyIDs,SpawnWeights,SpawnInterval,bIsBossStage,RewardGold,RewardNormalTicket,RewardEnhanceTicket
 1,1,Basic,"""()""","""()""",1,FALSE,10,1,1
 2,2,Enhance,"""()""","""()""",2,TRUE,100,5,5
+3,3,WoobinBABO,"""()""","""()""",3,FALSE,500,4,4
