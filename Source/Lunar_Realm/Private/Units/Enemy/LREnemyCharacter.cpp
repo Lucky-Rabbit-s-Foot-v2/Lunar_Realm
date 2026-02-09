@@ -68,7 +68,7 @@ void ALREnemyCharacter::InitializeAttributes(int32 EnemyID)
 	AttributeSet->InitSpeed(static_cast<float>(EnemyData.Speed));
 
 	ClearGrantedEnemyAbilities();
-	GrantEnemyAbilities(EnemyData.GrantedAbilities);
+	// GrantEnemyAbilities(EnemyData.GrantedAbilities); => 수정해야할 로직
 }
 
 void ALREnemyCharacter::GrantEnemyAbilities(const TArray<TSubclassOf<UGameplayAbility>>& InAbilities)

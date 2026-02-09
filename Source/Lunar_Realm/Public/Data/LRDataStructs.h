@@ -351,7 +351,7 @@ struct FEnemyStaticData : public FTableRowBase
 	TSoftObjectPtr<UTexture2D> CharacterTexture;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Skills")
-	TArray<TSubclassOf<UGameplayAbility>> GrantedAbilities;
+	TArray<int32> SkillIDs;
 };
 
 // =============================================================================
