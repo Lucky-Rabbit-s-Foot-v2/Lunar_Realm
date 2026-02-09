@@ -384,6 +384,13 @@ TArray<int32> UGameDataSubsystem::GetCharacterSkillIDs(int32 CharacterID)
 	return data.SkillIDs;
 }
 
+TArray<int32> UGameDataSubsystem::GetEnemySkillIDs(int32 EnemyID)
+{
+	FEnemyStaticData data = GetEnemyStaticData(EnemyID);
+
+	return data.SkillIDs;
+}
+
 TArray<int32> UGameDataSubsystem::GetEquipmentSkillIDs(int32 EquipmentID)
 {
 	FEquipmentStaticData data = GetEquipmentStaticData(EquipmentID);
