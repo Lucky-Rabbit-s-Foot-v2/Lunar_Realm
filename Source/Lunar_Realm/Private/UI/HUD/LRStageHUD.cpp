@@ -8,12 +8,18 @@ void ALRStageHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilityS
 {
 	checkf(OverlayWidgetClass, TEXT("Overlay Widget Class uninitialized, please fill out BP_LRHUD"));
 
-	OverlayWidget = CreateWidget<ULRPlayerWidget>(GetWorld(), OverlayWidgetClass);
+	OverlayWidget = CreateWidget<ULRPlayerWidget>(PC, OverlayWidgetClass);
 
 	OverlayWidget->OpenUI();
 	OverlayWidget->AddToViewport(); 
 
 	OverlayWidget->SetWidgetController(PC);
+
+	if (ASC)
+	{
+		OverlayWidget->InitializeGAS(ASC);
+		UE_LOG(LogTemp, Warning, TEXT("[HUD] 위젯에게 ASC 직접 전달 완료!"));
+	}
 
 	if (PC)
 	{

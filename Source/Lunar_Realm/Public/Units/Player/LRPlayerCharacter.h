@@ -57,6 +57,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	class UInputAction* MoveAction;
 
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<ULRInputConfig> InputConfig;
 
@@ -66,6 +67,7 @@ protected:
 
 	void Move(const FInputActionValue& Value);
 	void Input_Summon(FGameplayTag InputTag);
+	void Input_Charge(const FInputActionValue& Value);
 
 
 public:
@@ -87,5 +89,8 @@ public:
 	// 블루프린트에서 테스트용 스킬 부여 함수
 	UFUNCTION(BlueprintCallable, Category = "GAS|Test")
 	void GrantTestAbility(TSubclassOf<class UGameplayAbility> AbilityClass);
+
+protected:
+
 
 };

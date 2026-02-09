@@ -10,6 +10,7 @@
 
 //=============================================================================
 // (260206) BJM 제작. Player Input 관련 Component로 관리하기 위한 Config.
+// (260209_BJM) Aether Charge Action 추가.
 // =============================================================================
 
 USTRUCT(BlueprintType)
@@ -39,5 +40,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<FLRInputAction> AbilityInputActions;
+
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<class UInputAction> ChargeAction;
 	
 };

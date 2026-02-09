@@ -110,6 +110,9 @@ void ALRPlayerState::InitializeAttributes()
 	AttributeSet->InitMaxHealth(FinalHP);
 	AttributeSet->InitAttackPower(FinalAtk);
 
+	// 테스트용
+	AttributeSet->SetHealth(10.0f);
+
 	UE_LOG(LogTemp, Log, TEXT("Final Stats - HP: %.1f, ATK: %.1f, DEF: %.1f"), FinalHP, FinalAtk, FinalDef);
 
 }

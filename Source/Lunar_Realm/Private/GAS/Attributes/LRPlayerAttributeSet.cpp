@@ -7,22 +7,12 @@
 
 ULRPlayerAttributeSet::ULRPlayerAttributeSet()
 {
-	InitHealth(100.0f);
+	InitHealth(10.0f);
 	InitMaxHealth(100.0f);
 	InitAether(0.0f);
 	InitAttackPower(10.0f);
 	InitDefense(0.0f);
 }
-
-//void ULRPlayerAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-//{
-//	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-//
-//	DOREPLIFETIME_CONDITION_NOTIFY(ULRPlayerAttributeSet, Health, COND_None, REPNOTIFY_Always);
-//	DOREPLIFETIME_CONDITION_NOTIFY(ULRPlayerAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
-//	DOREPLIFETIME_CONDITION_NOTIFY(ULRPlayerAttributeSet, Aether, COND_None, REPNOTIFY_Always);
-//	DOREPLIFETIME_CONDITION_NOTIFY(ULRPlayerAttributeSet, AttackPower, COND_None, REPNOTIFY_Always);
-//}
 
 void ULRPlayerAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {

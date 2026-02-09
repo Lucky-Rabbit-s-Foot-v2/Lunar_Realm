@@ -18,5 +18,18 @@ UCLASS()
 class LUNAR_REALM_API ULRGA_Charge : public ULRGameplayAbilityBase
 {
 	GENERATED_BODY()
+
+public:
+	ULRGA_Charge();
+
+	virtual void ActivateAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		const FGameplayEventData* TriggerEventData) override;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+	TSubclassOf<UGameplayEffect> ChargeEffectClass;
 	
 };

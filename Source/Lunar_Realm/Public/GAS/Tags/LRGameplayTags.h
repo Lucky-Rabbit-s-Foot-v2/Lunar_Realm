@@ -52,6 +52,14 @@ namespace LRTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Movement_Dash);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Movement_Dash_Cooldown);
 	
+	// Aether관련 GA태그
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Aether_Charge);
+		
+	// Heal GA태그
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Heal);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Skill_Heal);
+	
+	
 	
 	//===============================================
 	// 상태 태그(State.*)

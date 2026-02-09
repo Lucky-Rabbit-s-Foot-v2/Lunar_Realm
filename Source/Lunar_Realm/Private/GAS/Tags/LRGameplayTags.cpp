@@ -12,6 +12,9 @@ namespace LRTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Fireball_Cooldown, "Ability.Skill.Fireball.Cooldown");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Movement_Dash, "Ability.Movement.Dash");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Movement_Dash_Cooldown, "Ability.Movement.Dash.Cooldown");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Aether_Charge, "Ability.Aether.Charge");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Heal, "Ability.Skill.Heal");
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Skill_Heal, "Cooldown.Skill.Heal");
 	
 	//상태 태그
 	UE_DEFINE_GAMEPLAY_TAG(State_Debuff_Burning, "State.Debuff.Burning");

@@ -167,6 +167,11 @@ void ALRPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	if (InputConfig)
 	{
 		LRInputComp->BindAbilityActions(InputConfig, this, &ALRPlayerCharacter::Input_Summon, /*ReleasedFunc=*/ nullptr);
+		
+		if (InputConfig->ChargeAction)
+		{
+			LRInputComp->BindAction(InputConfig->ChargeAction, ETriggerEvent::Started, this, &ALRPlayerCharacter::Input_Charge);
+		}
 	}
 
 
@@ -256,22 +261,15 @@ void ALRPlayerCharacter::GrantTestAbility(TSubclassOf<class UGameplayAbility> Ab
 	}
 }
 
-//void ALRPlayerCharacter::SummonSlot1()
-//{
-//	if (SummonComponent)
-//	{
-//		SummonComponent->TrySummonUnit(0);
-//	}
-//}
-//
-//void ALRPlayerCharacter::SummonSlot2()
-//{
-//}
-//
-//void ALRPlayerCharacter::SummonSlot3()
-//{
-//}
-//
-//void ALRPlayerCharacter::SummonSlot4()
-//{
-//}
+void ALRPlayerCharacter::Input_Charge(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("키보드 Q 입력 감지됨!"));
+
+	if (GetAbilitySystemComponent())
+	{
+		FGameplayTagContainer TagContainer;
+		TagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Aether.Charge")));
+		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(TagContainer);
+	}
+}
+
