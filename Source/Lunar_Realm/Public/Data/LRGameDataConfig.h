@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -16,6 +16,7 @@
  */
 //=============================================================================
 // (260206) KHS 제작. 제반 사항 구현.
+// (260209) KWB 스테이지 정적 데이터 테이블 추가.
 // =============================================================================
 UCLASS()
 class LUNAR_REALM_API ULRGameDataConfig : public UPrimaryDataAsset
@@ -42,7 +43,7 @@ public:
 	// 에너미 정적 데이터 DataTable
 	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Enemy")
 	TSoftObjectPtr<UDataTable> EnemyStaticDataTable;
-	
+
 	
 	// 장비 도감 DataTable
 	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Equipment")
@@ -62,4 +63,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Skill")
 	TSoftObjectPtr<UDataTable> SkillStaticDataTable;
 	
+
+	// 스테이지 정적 데이터 DataTable
+	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Stage")
+	TSoftObjectPtr<UDataTable> StageStaticDataTable;
 };

@@ -1,0 +1,7 @@
+﻿,SkillID,SkillName,Description,SkillIcon,GrantedAbilities
+1,40000001,Basic Shoot,Basic Gun Shoot,,"""()"""
+2,40000002,Basic Missile,Basic Magic Missile,,"""()"""
+3,40000003,Basic Attack,Basic Sword Attack,,"""()"""
+4,40000100,Auro of Power,Health Buff,,"""()"""
+5,40000501,Power Shoot,Big Bomb Skill,,"""()"""
+6,40000601,Fire Ball,Fireball Skill,,"""()"""
