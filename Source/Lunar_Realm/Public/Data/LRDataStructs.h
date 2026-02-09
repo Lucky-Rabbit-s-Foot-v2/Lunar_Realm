@@ -354,7 +354,60 @@ struct FEnemyStaticData : public FTableRowBase
 	TArray<TSubclassOf<UGameplayAbility>> GrantedAbilities;
 };
 
+// =============================================================================
+/**
+ * FStageStaticData 구성 요소
+ * - 스테이지 데이터 드리븐 전투를 위한 정적 데이터
+ * - StageID 기준으로 해당 스테이지 소환 후보 EnemyID/가중치, 스폰 주기, 보상 정보 등을 제공
+ *
+ * NOTE(260208, Codex):
+ * - 임시 데이터 필드 수정 필요
+ * - StageID 관리 주체는 GameInstance로 가정, Spawner는 해당 ID로 데이터 조회함.
+ */
+ //=============================================================================
+ // (260208) KWB 제작. 제반 사항 구현.
+ // =============================================================================
+USTRUCT(BlueprintType)
+struct FStageStaticData : public FTableRowBase
+{
+	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
+	int32 StageID = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
+	FText StageName;
+
+	// 스테이지에서 소환 가능한 Enemy ID 리스트 (1~4종 가정)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spawn")
+	TArray<int32> SpawnEnemyIDs;
+
+	// SpawnEnemyIDs와 같은 인덱스의 확률 가중치
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spawn")
+	TArray<float> SpawnWeights;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spawn")
+	float SpawnInterval = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Boss")
+	bool bIsBossStage = false;
+
+	// ===== 확장/메타 필드 (UI/보상 연동용) =====
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Reward")
+	int32 RewardGold = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Reward")
+	int32 RewardNormalTicket = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Reward")
+	int32 RewardEnhanceTicket = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Progress")
+	bool bCleared = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Progress")
+	int32 ClearStarCount = 0;
+};
 
 
 
