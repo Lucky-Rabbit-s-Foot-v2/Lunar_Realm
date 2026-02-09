@@ -87,7 +87,7 @@ private:
 
 
 	UFUNCTION()
-	void HandleCurrencyChanged(FGameplayTag Tag, int32 NewValue);
+	void HandleCurrencyChanged(ELRCurrencyType Type, int32 NewValue);
 
 	UFUNCTION()
 	void HandlePityChanged(FName BannerID, int32 NewValue);
