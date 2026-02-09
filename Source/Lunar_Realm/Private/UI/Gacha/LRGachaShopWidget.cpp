@@ -179,7 +179,7 @@ void ULRGachaShopWidget::OnClickFullMoonDraw10()
 }
 
 
-void ULRGachaShopWidget::HandleCurrencyChanged(FGameplayTag Tag, int32 NewValue)
+void ULRGachaShopWidget::HandleCurrencyChanged(ELRCurrencyType Type, int32 NewValue)
 {
 	// 어떤 재화가 바뀌든 전체 텍스트를 갱신
 	RefreshCurrencyTexts();
@@ -200,14 +200,15 @@ void ULRGachaShopWidget::RefreshCurrencyTexts()
 {
 	if (!GachaSys) return;
 
-	const int32 Gold = GachaSys->GetCurrency(FGameplayTag::RequestGameplayTag(TEXT("Currency.Gold")));
-	const int32 Crescent = GachaSys->GetCurrency(FGameplayTag::RequestGameplayTag(TEXT("Currency.Ticket.Crescent")));
-	const int32 FullMoon = GachaSys->GetCurrency(FGameplayTag::RequestGameplayTag(TEXT("Currency.Ticket.FullMoon")));
+	const int32 Gold = GachaSys->GetCurrency(ELRCurrencyType::Gold);
+	const int32 Crescent = GachaSys->GetCurrency(ELRCurrencyType::CrescentTicket);
+	const int32 FullMoon = GachaSys->GetCurrency(ELRCurrencyType::FullMoonTicket);
 
-	if (TextGold) TextGold->SetText(FText::AsNumber(Gold));
+	if (TextGold)     TextGold->SetText(FText::AsNumber(Gold));
 	if (TextCrescent) TextCrescent->SetText(FText::AsNumber(Crescent));
 	if (TextFullMoon) TextFullMoon->SetText(FText::AsNumber(FullMoon));
 }
+
 
 void ULRGachaShopWidget::RefreshPityText()
 {

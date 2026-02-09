@@ -2,8 +2,7 @@
 
 #include "CoreMinimal.h"
 
-#include "GameplayTagContainer.h"
-
+#include "Data/LRCurrencyTypes.h" 
 #include "Data/Gacha/LRGachaTypes.h"
 
 #include "LRGachaTransactionTypes.generated.h"
@@ -42,7 +41,7 @@ struct FLRGachaPendingTransaction
 
 	// 비용 정보(취소 시 환불용)
 	UPROPERTY(SaveGame, BlueprintReadOnly)
-	FGameplayTag CostCurrencyTag;
+	ELRCurrencyType CostCurrencyType = ELRCurrencyType::CrescentTicket;
 
 	UPROPERTY(SaveGame, BlueprintReadOnly)
 	int32 CostAmount = 0;

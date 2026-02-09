@@ -1,5 +1,7 @@
 [가챠 확률 시뮬 콘솔 명령어]
 
+*** 플레이어 컨트롤러 클래스를 LRPlayerController로 설정해야 동작함 ***
+
 명령어:
 
 GachaSim <BannerID> <TotalPulls> <Seed>
