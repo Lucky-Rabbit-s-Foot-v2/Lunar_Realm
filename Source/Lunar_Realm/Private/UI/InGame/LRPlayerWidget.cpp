@@ -8,3 +8,10 @@ void ULRPlayerWidget::SetWidgetController(UObject* InWidgetController)
 	WidgetController = InWidgetController;
 	WidgetControllerSet();
 }
+
+void ULRPlayerWidget::OpenUI()
+{
+	bIsOpen = true;
+
+	SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+}
