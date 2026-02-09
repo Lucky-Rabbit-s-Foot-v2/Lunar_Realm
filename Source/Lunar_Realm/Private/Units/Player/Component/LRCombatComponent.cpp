@@ -67,7 +67,18 @@ void ULRCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 
 	if (DistSq <= AttackRangeSq)
 	{
-		TryAction(DeltaTime);
+		if (CurrentAttackCooldown <= 0.0f)
+		{
+			if (CombatState == EAutoCombatState::Manual)
+			{
+				if (OwnerCharacter->GetController())
+				{
+					OwnerCharacter->GetController()->StopMovement();
+				}
+			}
+
+			TryAction(DeltaTime);
+		}
 
 		if (CombatState == EAutoCombatState::Auto)
 		{
@@ -84,7 +95,6 @@ void ULRCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 			MoveToTarget(DeltaTime);
 		}
 	}
-
 }
 
 void ULRCombatComponent::SetAutoMode(bool bEnableAuto)
@@ -161,6 +171,10 @@ void ULRCombatComponent::OnCombatLogicTimer()
 	}
 
 	if (!CurrentTarget && CombatState == EAutoCombatState::Auto)
+	{
+		FindBestTarget();
+	}
+	if (!CurrentTarget)
 	{
 		FindBestTarget();
 	}
@@ -292,7 +306,7 @@ void ULRCombatComponent::TryAction(float DeltaTime)
 			
 			if (ASC->TryActivateAbilitiesByTag(TagContainer))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("[Action] Attack! Target: %s"), *CurrentTarget->GetName());
+				UE_LOG(LogTemp, Warning, TEXT("공격 / 타겟 : %s"), *CurrentTarget->GetName());
 				CurrentAttackCooldown = 1.0f; 
 			}
 			else
@@ -316,7 +330,7 @@ void ULRCombatComponent::MoveToTarget(float DeltaTime)
 
 	FVector Direction = (TargetLoc - MyLoc).GetSafeNormal();
 
-	UE_LOG(LogTemp, Log, TEXT("Move To: %s, Dir: %s"), *CurrentTarget->GetName(), *Direction.ToString());
+	//UE_LOG(LogTemp, Log, TEXT("Move To: %s, Dir: %s"), *CurrentTarget->GetName(), *Direction.ToString());
 
 	OwnerChar->AddMovementInput(Direction, 1.0f);
 }

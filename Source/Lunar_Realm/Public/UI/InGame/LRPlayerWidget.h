@@ -35,4 +35,7 @@ protected:
 public:
 	virtual void OpenUI() override;
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "GAS")
+	void InitializeGAS(UAbilitySystemComponent* ASC);
+
 };
