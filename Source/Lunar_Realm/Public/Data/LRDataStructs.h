@@ -402,11 +402,6 @@ struct FStageStaticData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Reward")
 	int32 RewardEnhanceTicket = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Progress")
-	bool bCleared = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Progress")
-	int32 ClearStarCount = 0;
 };
 
 
