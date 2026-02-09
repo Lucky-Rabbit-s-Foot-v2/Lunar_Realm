@@ -19,6 +19,8 @@
 #include "GameplayTagsManager.h"
 #include "GAS/Tags/LRGameplayTags.h"
 
+#include "Components/CapsuleComponent.h"
+
 
 
 
@@ -48,6 +50,12 @@ ALRPlayerCharacter::ALRPlayerCharacter()
 
 	SummonComponent = CreateDefaultSubobject<ULRSummonComponent>(TEXT("SummonComponent"));
 	CombatComponent = CreateDefaultSubobject<ULRCombatComponent>(TEXT("CombatComponent"));
+
+	TargetIndicator = CreateDefaultSubobject<UDecalComponent>(TEXT("TargetIndicator"));
+	TargetIndicator->SetupAttachment(RootComponent);
+	TargetIndicator->SetRelativeRotation(FRotator(-90.0f, 0.0f, 0.0f));
+	TargetIndicator->DecalSize = FVector(400.0f, 120.0f, 120.0f);
+	TargetIndicator->SetVisibility(false);
 }
 
 void ALRPlayerCharacter::BeginPlay()
@@ -103,6 +111,40 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 
 void ALRPlayerCharacter::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
+
+	AActor* Target = nullptr;
+	if (CombatComponent)
+	{
+		Target = CombatComponent->GetCurrentTarget();
+	}
+
+	if (Target)
+	{
+		TargetIndicator->SetVisibility(true);
+
+		FVector TargetLoc = Target->GetActorLocation(); 
+
+		ACharacter* TargetChar = Cast<ACharacter>(Target);
+		if (TargetChar)
+		{
+			float HalfHeight = TargetChar->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+			TargetLoc.Z -= HalfHeight; 
+
+			TargetLoc.Z += 1.0f;
+		}
+		else
+		{
+			// 캐릭터가 아니면 그냥 대충 90cm 정도 내림
+			TargetLoc.Z -= 90.0f;
+		}
+
+		TargetIndicator->SetWorldLocation(TargetLoc);
+	}
+	else
+	{
+		TargetIndicator->SetVisibility(false);
+	}
 }
 
 void ALRPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

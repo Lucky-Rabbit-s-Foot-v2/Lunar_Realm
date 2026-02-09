@@ -8,6 +8,8 @@
 
 //=============================================================================
 // (260205) BJM 제작. 전투 관련 로직 생성(수동, 자동).
+// (260206_BJM) 자동 전투 상태 enum 추가.
+// (260208_BJM) 자동전투 최적화 적용 (Tick 로직 분리 및 캐싱)
 //=============================================================================
 
 UENUM(BlueprintType)
@@ -42,6 +44,8 @@ public:
 
 protected:
 
+	void OnCombatLogicTimer();
+
 	void FindBestTarget();
 
 	void TryAction(float DeltaTime);
@@ -56,10 +60,15 @@ protected:
 	TObjectPtr<AActor> CurrentTarget;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	TObjectPtr<AActor> CachedEnemyBase;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	float AttackRange = 150.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float SearchRadius = 1000.0f;
 
 	float CurrentAttackCooldown = 1.0f;
+
+	FTimerHandle CombatLogicTimerHandle;
 };
