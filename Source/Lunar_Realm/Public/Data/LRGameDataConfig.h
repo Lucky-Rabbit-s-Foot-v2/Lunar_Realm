@@ -34,11 +34,6 @@ public:
 	// 캐릭터 도감 DataTable
 	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Character")
 	TSoftObjectPtr<UDataTable> CharacterStaticDataTable;
-    
-	// 캐릭터별 승수 DataTable
-	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Character")
-	TSoftObjectPtr<UDataTable> CharacterMultipliersTable;
-	
 	
 	// 에너미 정적 데이터 DataTable
 	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Enemy")

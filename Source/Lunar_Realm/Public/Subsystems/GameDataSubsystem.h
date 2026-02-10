@@ -160,8 +160,6 @@ private:
 	UPROPERTY()
 	UDataTable* LoadedCharacterStaticData;
 	UPROPERTY()
-	UDataTable* LoadedCharacterMultipliers;
-	UPROPERTY()
 	UDataTable* LoadedEquipmentStaticData;
 	UPROPERTY()
 	UDataTable* LoadedEquipmentStatBonus;

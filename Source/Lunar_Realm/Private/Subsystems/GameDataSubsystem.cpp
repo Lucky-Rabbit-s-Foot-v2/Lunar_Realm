@@ -97,7 +97,6 @@ void UGameDataSubsystem::LoadDataTables()
 	// Config의 SoftObjectPtr를 경유하여 로드 → LoadedXXX에 저장
 	LoadedBaseStatsCurve = Config->BaseStatsCurveTable.LoadSynchronous(); //베이스 스탯 커브
 	LoadedCharacterStaticData = Config->CharacterStaticDataTable.LoadSynchronous(); //캐릭터 데이터
-	LoadedCharacterMultipliers = Config->CharacterMultipliersTable.LoadSynchronous(); //캐릭터 승수
 	LoadedEnemyStaticData = Config->EnemyStaticDataTable.LoadSynchronous(); //적 데이터
 	LoadedEquipmentStaticData = Config->EquipmentStaticDataTable.LoadSynchronous(); //장비 데이터
 	LoadedEquipmentStatBonus = Config->EquipmentStatBonusTable.LoadSynchronous(); //장비 보너스
@@ -108,7 +107,6 @@ void UGameDataSubsystem::LoadDataTables()
 	//로직 변경으로 시스템에서 직접 로드 방식은 미사용
 	// LoadDataTable(BaseStatsCurveTable, LoadedBaseStatsCurve, TEXT("BaseStatsCurveTable"));
 	// LoadDataTable(CharacterStaticDataTable, LoadedCharacterStaticData, TEXT("CharacterStaticData"));
-	// LoadDataTable(CharacterMultipliersTable, LoadedCharacterMultipliers, TEXT("CharacterMultipliers"));
 	// LoadDataTable(EquipmentStaticDataTable, LoadedEquipmentStaticData, TEXT("EquipmentStaticData"));
 	// LoadDataTable(EquipmentStatBonusTable, LoadedEquipmentStatBonus, TEXT("EquipmentStatBonus"));
 	// LoadDataTable(EquipmentSetEffectTable, LoadedSetEffectBonus, TEXT("SetEffectData"));
