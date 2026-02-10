@@ -27,6 +27,9 @@ class LUNAR_REALM_API ULREnemyAttributeSet : public ULRAttributeSet
 public:
 	ULREnemyAttributeSet();
 
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+
 	UPROPERTY(BlueprintReadOnly, Category = "LR|Spec")
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(ULREnemyAttributeSet, Health)
@@ -44,16 +47,14 @@ public:
 	float MaxHealth = 100.0f;
 
 	UPROPERTY(BlueprintReadWrite, Category = "LR|Spec|Limits")
-	float MaxSpeed = 2.0f; // 1.0 = 100%, 2.0 = 200%
+	float MaxAttack = 500.0f;
 
 	UPROPERTY(BlueprintReadWrite, Category = "LR|Spec|Limits")
-	float MaxAttack = 3.0f; // 1.0 = 100%, 3.0 = 300%
+	float MaxSpeed = 300.0f;
 
 	UPROPERTY(BlueprintReadWrite, Category = "LR|Spec|Limits")
 	float MaxAttackRange = 2000.0f;	// TEMP : 임시값 엔진에서 거리 보면서 조정 필요
 
 	UPROPERTY(BlueprintReadWrite, Category = "LR|Spec|Limits")
 	float MaxScale = 1.5f;	// 150%
-
-		virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 };
