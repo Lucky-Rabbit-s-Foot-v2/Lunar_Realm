@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -52,6 +52,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
 	ULRSaveGame* GetCurrentSaveGame() const {return CurrentSaveGame;}
 	
+	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
+	void TouchAndSave();
+
 	//세이브 캐릭터/장비 정보 관리
 	//선택된 캐릭터 파티 정보 관리
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")

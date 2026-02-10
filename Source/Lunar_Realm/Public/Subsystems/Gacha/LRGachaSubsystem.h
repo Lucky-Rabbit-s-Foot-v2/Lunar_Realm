@@ -5,15 +5,18 @@
 #include "CoreMinimal.h"
 
 #include "Engine/DataTable.h"
-#include "GameplayTagContainer.h"
+
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "Subsystems/CurrencySubsystem.h"
+#include "Subsystems/SaveGameSubsystem.h"
 
 #include "Data/Gacha/LRGachaTransactionTypes.h"
 #include "Data/Gacha/LRGachaTypes.h"
+#include "Data/LRCurrencyTypes.h"
 
 #include "LRGachaSubsystem.generated.h"
 
-class ULRGachaSaveGame;
+class ULRSaveGame;
 
 /*
 * 이 Subsystem 하나가 가챠의 로직을 모두 담당.
@@ -21,7 +24,7 @@ class ULRGachaSaveGame;
 */
 
 // UI갱신 델리게이트(재화/뽑기완료)
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCurrencyChanged, FGameplayTag, CurrencyTag, int32, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCurrencyChanged, ELRCurrencyType, CurrencyType, int32, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPityChanged, FName, BannerID, int32, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGachaFinished, FName, BannerID, const TArray<FLRGachaResult>&, Results);
 
@@ -65,25 +68,21 @@ public:
 
 	// Currency(재화) API ==========================================
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Currency")
-	int32 GetCurrency(FGameplayTag CurrencyTag) const;
+	int32 GetCurrency(ELRCurrencyType Type) const;
 
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Currency")
-	void AddCurrency(FGameplayTag CurrencyTag, int32 Delta);
+	void AddCurrency(ELRCurrencyType Type, int32 Delta);
 
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Currency")
-	bool SpendCurrency(FGameplayTag CurrencyTag, int32 Cost);
+	bool SpendCurrency(ELRCurrencyType Type, int32 Cost);
 
 	// Pity(천장) API ================================================
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Pity")
 	int32 GetPityCount(FName BannerID) const;
 
-	// Draw API(뽑기) ========================================================================================
+	// 뽑기 가능한지 ========================================================================================
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Draw")
 	bool CanDraw(FName BannerID, int32 DrawCount, int32& OutNeedCost) const;
-
-	// 실제 뽑기 실행(1회/10회)
-	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Draw")
-	bool Draw(FName BannerID, int32 DrawCount, TArray<FLRGachaResult>& OutResults);
 
 	// 델리게이트(위젯 바인딩) =================================================================================
 	UPROPERTY(BlueprintAssignable, Category = "LR|Gacha|Event")
@@ -158,12 +157,6 @@ private:
 	UPROPERTY()
 	UDataTable* LoadedRarityRateDT = nullptr;
 
-	// 저장 데이터 ===========================================
-	UPROPERTY()
-	TObjectPtr<ULRGachaSaveGame> GachaSave;
-
-	// 슬롯 이름(기존 PlayerSaveSlot과 분리해서 충돌 방지)
-	const FString SaveSlotName = TEXT("GachaSaveSlot");
 	const uint32 UserIndex = 0;
 
 	// 트랜잭션 락(연타 방지)
@@ -174,9 +167,6 @@ private:
 		int32& InOutPityCounter, TArray<FLRGachaResult>& OutResults);
 private:
 	// 내부 로직 ==================================
-	void LoadOrCreateSave();
-	void Save();
-
 	void LoadDataTables();
 
 	bool GetBannerRow(FName BannerID, FLRGachaBannerRow& OutRow) const;
@@ -199,16 +189,21 @@ private:
 	// 중복보상 골드량 조회
 	int32 GetDuplicateGold(ELRGachaRarity Rarity) const;
 
-	// 실제 획득 처리(컬렉션에 추가 or 중복이면 골드)
-	void ApplyResultToCollection(FLRGachaResult& InOutResult);
+	bool TryAddToCollection(const FLRGachaResult& Result, bool& bOutWasNew);
 
 	// 천장 카운트 조작
 	void IncrementPity(FName BannerID);
 	void ResetPity(FName BannerID);
 
-	// 태그 헬퍼(골드)
-	FGameplayTag GetGoldTag() const;
+	// 재화 관련
+	UPROPERTY()
+	UCurrencySubsystem* CurrencySys = nullptr;
 
+	UPROPERTY()
+	USaveGameSubsystem* SaveSS = nullptr; // Pending/Pity 저장용
+
+	// 헬퍼 선언
+	ULRSaveGame* SG() const;
 
 public:
 	// ===================== Debug 옵션 =====================

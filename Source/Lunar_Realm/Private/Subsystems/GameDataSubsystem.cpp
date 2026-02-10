@@ -1,7 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Subsystems/GameDataSubsystem.h"
+#include "Data/LRGameDataConfig.h"
 
 //Static 기본값 정의(조회 실패시 반환용도)
 FCharacterStaticData UGameDataSubsystem::EmptyCharacterStaticData;
@@ -11,6 +12,7 @@ FEquipmentBonus UGameDataSubsystem::EmptyEquipmentBonus;
 FSetEffectData UGameDataSubsystem::EmptySetEffectData;
 FSkillStaticData UGameDataSubsystem::EmptySkillStaticData;
 FEnemyStaticData UGameDataSubsystem::EmptyEnemyStaticData;
+FStageStaticData UGameDataSubsystem::EmptyStageStaticData;
 
 
 void UGameDataSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -34,6 +36,7 @@ void UGameDataSubsystem::Deinitialize()
 	CachedSetEffectData.Empty();
 	CachedSkillStaticData.Empty();
 	CachedEnemyStaticData.Empty();
+	CachedStageStaticData.Empty();
 	
 	LR_INFO(TEXT("GameDataSubsystem Deinitialize - Cleaned up caches"));
 	
@@ -84,27 +87,35 @@ float UGameDataSubsystem::GetStatusMultiplier(int32 CharacterID, ELRStatusType S
 
 void UGameDataSubsystem::LoadDataTables()
 {
-	//BaseStat CurveTable 로드
-	LoadDataTable(BaseStatsCurveTable, LoadedBaseStatsCurve, TEXT("BaseStatsCurveTable"));
+	// Config 로드
+	ULRGameDataConfig* Config = LoadObject<ULRGameDataConfig>(
+		nullptr, TEXT("/Script/Lunar_Realm.LRGameDataConfig'/Game/DataTables/LRGameDataConfig.LRGameDataConfig'"));
+    
+	if (!ensureMsgf(Config,TEXT("FAILED TO LOAD GameDataConfig!!!!!")))
+	{
+		return;
+	}
 	
-	//CharacterStaticData DT 로드
-	LoadDataTable(CharacterStaticDataTable, LoadedCharacterStaticData, TEXT("CharacterStaticData"));
-	//CharacterMultipliers DT 로드
-	LoadDataTable(CharacterMultipliersTable, LoadedCharacterMultipliers, TEXT("CharacterMultipliers"));
+	// Config의 SoftObjectPtr를 경유하여 로드 → LoadedXXX에 저장
+	LoadedBaseStatsCurve = Config->BaseStatsCurveTable.LoadSynchronous(); //베이스 스탯 커브
+	LoadedCharacterStaticData = Config->CharacterStaticDataTable.LoadSynchronous(); //캐릭터 데이터
+	LoadedCharacterMultipliers = Config->CharacterMultipliersTable.LoadSynchronous(); //캐릭터 승수
+	LoadedEnemyStaticData = Config->EnemyStaticDataTable.LoadSynchronous(); //적 데이터
+	LoadedEquipmentStaticData = Config->EquipmentStaticDataTable.LoadSynchronous(); //장비 데이터
+	LoadedEquipmentStatBonus = Config->EquipmentStatBonusTable.LoadSynchronous(); //장비 보너스
+	LoadedSetEffectBonus = Config->EquipmentSetEffectTable.LoadSynchronous(); //세트장비 효과
+	LoadedSkillStaticData = Config->SkillStaticDataTable.LoadSynchronous(); //스킬 데이터
+	LoadedStageStaticData = Config->StageStaticDataTable.LoadSynchronous(); //스테이지 데이터
 	
-	//EquipmentStaticData DT 로드
-	LoadDataTable(EquipmentStaticDataTable, LoadedEquipmentStaticData, TEXT("EquipmentStaticData"));
-	//EquipmentStatBonus DT 로드
-	LoadDataTable(EquipmentStatBonusTable, LoadedEquipmentStatBonus, TEXT("EquipmentStatBonus"));
-	
-	//SetEffectBonus DT 로드
-	LoadDataTable(EquipmentSetEffectTable, LoadedSetEffectBonus, TEXT("SetEffectData"));
-	
-	//SkillStaticData DT 로드
-	LoadDataTable(SkillStaticDataTable, LoadedSkillStaticData, TEXT("SkillStaticData"));
-	
-	//EnemyStaticData DT 로드
-	LoadDataTable(EnemyStaticDataTable, LoadedEnemyStaticData, TEXT("EnemyStaticData"));
+	//로직 변경으로 시스템에서 직접 로드 방식은 미사용
+	// LoadDataTable(BaseStatsCurveTable, LoadedBaseStatsCurve, TEXT("BaseStatsCurveTable"));
+	// LoadDataTable(CharacterStaticDataTable, LoadedCharacterStaticData, TEXT("CharacterStaticData"));
+	// LoadDataTable(CharacterMultipliersTable, LoadedCharacterMultipliers, TEXT("CharacterMultipliers"));
+	// LoadDataTable(EquipmentStaticDataTable, LoadedEquipmentStaticData, TEXT("EquipmentStaticData"));
+	// LoadDataTable(EquipmentStatBonusTable, LoadedEquipmentStatBonus, TEXT("EquipmentStatBonus"));
+	// LoadDataTable(EquipmentSetEffectTable, LoadedSetEffectBonus, TEXT("SetEffectData"));
+	// LoadDataTable(SkillStaticDataTable, LoadedSkillStaticData, TEXT("SkillStaticData"));
+	// LoadDataTable(EnemyStaticDataTable, LoadedEnemyStaticData, TEXT("EnemyStaticData"));
 }
 
 void UGameDataSubsystem::CacheAllData()
@@ -135,6 +146,10 @@ void UGameDataSubsystem::CacheAllData()
 	//에너미 데이터 캐싱
 	CacheDataTable<FEnemyStaticData, int32>(
 		LoadedEnemyStaticData, CachedEnemyStaticData, &FEnemyStaticData::CharacterID, TEXT("EnemyStaticData"));
+
+	//스테이지 데이터 캐싱
+	CacheDataTable<FStageStaticData, int32>(
+		LoadedStageStaticData, CachedStageStaticData, &FStageStaticData::StageID, TEXT("StageStaticData"));
 }
 
 FName UGameDataSubsystem::StatTypeToName(ELRStatusType StatusType)
@@ -285,7 +300,7 @@ const FSetEffectData& UGameDataSubsystem::GetSetEffectData(int32 SetID) const
 TArray<int32> UGameDataSubsystem::CheckActiveSetIDs(const TArray<int32>& EquipmentIDs) const
 {
 	//세트별 장착갯수 집계
-	TMap<int32, int32> setCounts; 
+	TMap<ELRSetItemType, int32> setCounts; 
 	
 	for (int32 id : EquipmentIDs)
 	{
@@ -294,19 +309,21 @@ TArray<int32> UGameDataSubsystem::CheckActiveSetIDs(const TArray<int32>& Equipme
 			continue;
 		}
 		
-		FEquipmentIDInfo info(id);
+		FEntityIDInfo info(id);
+		ELRSetItemType setType = info.GetSetItemType();
 		
-		if (info.IsSetItem()) //기본 제외
+		if (setType != ELRSetItemType::NONE) //기본 제외
 		{
-			setCounts.FindOrAdd(info.SetID)++;
+			setCounts.FindOrAdd(setType)++;
 		}
 	}
 	
 	//활성화 조건 체크
 	TArray<int32> activeSets;
 	
-	for (auto& [setId, count] : setCounts)
+	for (auto& [setType, count] : setCounts)
 	{
+		int32 setId = static_cast<int32>(setType);
 		//세트 달성여부 확인
 		const FSetEffectData& setData = GetSetEffectData(setId);
 		
@@ -367,6 +384,13 @@ TArray<int32> UGameDataSubsystem::GetCharacterSkillIDs(int32 CharacterID)
 	return data.SkillIDs;
 }
 
+TArray<int32> UGameDataSubsystem::GetEnemySkillIDs(int32 EnemyID)
+{
+	FEnemyStaticData data = GetEnemyStaticData(EnemyID);
+
+	return data.SkillIDs;
+}
+
 TArray<int32> UGameDataSubsystem::GetEquipmentSkillIDs(int32 EquipmentID)
 {
 	FEquipmentStaticData data = GetEquipmentStaticData(EquipmentID);
@@ -388,4 +412,9 @@ TArray<int32> UGameDataSubsystem::GetAllEnemyIDs()
 	LR_INFO(TEXT("Found %d Enemy"), EnemyIDs.Num());
 	
 	return EnemyIDs;
+}
+
+const FStageStaticData& UGameDataSubsystem::GetStageStaticData(int32 StageID) const
+{
+	return GetCachedData(CachedStageStaticData, StageID, EmptyStageStaticData, TEXT("StageStaticData"));
 }

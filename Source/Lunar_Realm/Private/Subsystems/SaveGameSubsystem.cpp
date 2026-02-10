@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Subsystems/SaveGameSubsystem.h"
@@ -22,6 +22,9 @@ void USaveGameSubsystem::CreateNewSaveGame()
 	//세이브게임 로드가 안될 시 사용하는 더미 데이터
 	CurrentSaveGame = Cast<ULRSaveGame>(UGameplayStatics::CreateSaveGameObject(ULRSaveGame::StaticClass()));
 	
+	// 신규 유저 기본값(재화)
+	CurrentSaveGame->ApplyDefaults();
+
 #if WITH_EDITOR
 	//테스트용 데이터......
 	//도감 보유 캐릭터 정보
@@ -159,4 +162,18 @@ TArray<int32> USaveGameSubsystem::GetAllLeaderEquipmentIDs() const
 	}
 	
 	return CurrentSaveGame->GetAllEquippedIDs();
+}
+
+void USaveGameSubsystem::TouchAndSave()
+{
+	if (!ensureMsgf(CurrentSaveGame, TEXT("TouchAndSave failed: CurrentSaveGame is NULL")))
+	{
+		return;
+	}
+
+	// 저장 타임스탬프는 SaveGameSubsystem에서만 관리
+	CurrentSaveGame->LastUpdatedUtc = FDateTime::UtcNow();
+
+	// 실제 저장
+	SaveGame();
 }

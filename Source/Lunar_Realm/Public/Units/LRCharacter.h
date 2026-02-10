@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/LRPoolableInterface.h"
+#include "GameplayTagContainer.h"
 #include "LRCharacter.generated.h"
 
 /**
@@ -15,6 +16,7 @@
  */
 //============================================================================
 // (260127) PJB 제작. 제반 사항 구현.
+// (260205_BJM) GetUnitTag() 추가.
 //============================================================================
 
 UCLASS()
@@ -46,4 +48,12 @@ public:
 	*/
 	UFUNCTION(BlueprintPure)
 	TSubclassOf<ALRCharacter> GetBaseClass() const { return TSubclassOf<ALRCharacter>(GetClass()); }
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "Tags")
+	FGameplayTag GetUnitTag() const { return UnitTag; }
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags")
+	FGameplayTag UnitTag;
 };

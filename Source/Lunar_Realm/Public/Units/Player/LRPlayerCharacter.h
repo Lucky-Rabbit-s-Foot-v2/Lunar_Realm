@@ -4,10 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "Units/LRCharacter.h"
+#include "Units/Player/Component/LRCombatComponent.h"
+
 #include "AbilitySystemInterface.h"
 #include "InputActionValue.h"
+#include "Component/LRSummonComponent.h"
+#include "Components/DecalComponent.h"
+#include "GameplayTagContainer.h"
+
 #include "LRPlayerCharacter.generated.h"
 
+//=============================================================================
+// (260203) BJM 제작. 플레이어 캐릭터.
+// (260205_BJM) 전투 컴포넌트 추가.
+// (260208_BJM) 타겟 락온 기능 추기
+//=============================================================================
+
+class ULRInputConfig;
 /**
  * 
  */
@@ -44,7 +57,18 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	class UInputAction* MoveAction;
 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<ULRInputConfig> InputConfig;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	TObjectPtr<UDecalComponent> TargetIndicator;
+
+
 	void Move(const FInputActionValue& Value);
+	void Input_Summon(FGameplayTag InputTag);
+	void Input_Charge(const FInputActionValue& Value);
+
 
 public:
 	UPROPERTY()
@@ -52,5 +76,21 @@ public:
 
 	UPROPERTY()
 	class UAttributeSet* AttributeSet;
+
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Summon")
+	TObjectPtr<ULRSummonComponent> SummonComponent;
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	TObjectPtr<ULRCombatComponent> CombatComponent;
+
+public:
+	// 블루프린트에서 테스트용 스킬 부여 함수
+	UFUNCTION(BlueprintCallable, Category = "GAS|Test")
+	void GrantTestAbility(TSubclassOf<class UGameplayAbility> AbilityClass);
+
+protected:
+
 
 };

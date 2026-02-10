@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Units/LRCharacter.h"
+#include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "LREnemyCharacter.generated.h"
 
 class ULREnemyAttributeSet;
+class UGameplayAbility;
 
 /**
  * 적 캐릭터(Enemy) 베이스 클래스
@@ -15,7 +17,8 @@ class ULREnemyAttributeSet;
  */
  //============================================================================
  // (260204) KWB 제작. 제반 사항 구현.
- // (260205) DataSubsystem 구조체에서 Attribute 별 값 받아와 초기화하는 로직 구현(ING)
+ // (260205) KWB DataSubsystem 구조체에서 Attribute 별 값 받아와 초기화하는 로직 구현
+ // (260209) KWB "GrantEnemyAbilities()" 함수 리팩터 -> "FEnemyStaticData" 스킬 항목 "TArray<int32>" 타입으로 캐릭터, 장비와 통일
  //============================================================================
 
 UCLASS()
@@ -30,7 +33,15 @@ public:
 		return AbilitySystemComponent;
 	}
 
+	UFUNCTION(BlueprintCallable)
 	void OnDie();
+
+	UFUNCTION(BlueprintCallable)
+	void InitializeByEnemyID(int32 EnemyID);
+
+	void GrantEnemyAbilities();
+
+	void ClearGrantedEnemyAbilities();
 
 protected:
 	virtual void BeginPlay() override;
@@ -44,4 +55,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Attribute")
 	TObjectPtr<ULREnemyAttributeSet> AttributeSet = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Enemy", meta = (AllowPrivateAccess = "true"))
+	int32 CurrentEnemyID = 0;
+
+	TArray<FGameplayAbilitySpecHandle> GrantedAbilityHandles;
 };

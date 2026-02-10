@@ -6,12 +6,20 @@
 #include "GameFramework/PlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/LocalPlayer.h"
+#include "UI/HUD/LRStageHUD.h"
 
 #include "Units/Player/LRPlayerState.h"
 #include "AbilitySystemComponent.h"
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+
+#include "Input/LRInputComponent.h"
+#include "Input/LRInputConfig.h"   
+#include "GameplayTagsManager.h"
+#include "GAS/Tags/LRGameplayTags.h"
+
+#include "Components/CapsuleComponent.h"
 
 
 
@@ -39,6 +47,15 @@ ALRPlayerCharacter::ALRPlayerCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 720.f, 0.f); 
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0; // 플레이어 자동 빙의 (싱글 플레이 테스트용)
+
+	SummonComponent = CreateDefaultSubobject<ULRSummonComponent>(TEXT("SummonComponent"));
+	CombatComponent = CreateDefaultSubobject<ULRCombatComponent>(TEXT("CombatComponent"));
+
+	TargetIndicator = CreateDefaultSubobject<UDecalComponent>(TEXT("TargetIndicator"));
+	TargetIndicator->SetupAttachment(RootComponent);
+	TargetIndicator->SetRelativeRotation(FRotator(-90.0f, 0.0f, 0.0f));
+	TargetIndicator->DecalSize = FVector(400.0f, 120.0f, 120.0f);
+	TargetIndicator->SetVisibility(false);
 }
 
 void ALRPlayerCharacter::BeginPlay()
@@ -72,20 +89,112 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 
 		UE_LOG(LogTemp, Log, TEXT("GAS Initialized completely in %s"), *GetName());
 	}
+	if (APlayerController* PC = Cast<APlayerController>(NewController))
+	{
+		AHUD* RawHUD = PC->GetHUD();
+		if (RawHUD)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("HUD Found: %s"), *RawHUD->GetName());
+		}
+
+		if (ALRStageHUD* LRHUD = Cast<ALRStageHUD>(RawHUD))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("HUD Cast SUCCESS! Initializing Overlay..."));
+			LRHUD->InitOverlay(PC, PS, AbilitySystemComponent, AttributeSet);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("HUD Cast FAILED! Is BP_StageHUD parent class 'ALRHUD'?"));
+		}
+	}
 }
 
 void ALRPlayerCharacter::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
+
+	AActor* Target = nullptr;
+	if (CombatComponent)
+	{
+		Target = CombatComponent->GetCurrentTarget();
+	}
+
+	if (Target)
+	{
+		TargetIndicator->SetVisibility(true);
+
+		FVector TargetLoc = Target->GetActorLocation(); 
+
+		ACharacter* TargetChar = Cast<ACharacter>(Target);
+		if (TargetChar)
+		{
+			float HalfHeight = TargetChar->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+			TargetLoc.Z -= HalfHeight; 
+
+			TargetLoc.Z += 1.0f;
+		}
+		else
+		{
+			// 캐릭터가 아니면 그냥 대충 90cm 정도 내림
+			TargetLoc.Z -= 90.0f;
+		}
+
+		TargetIndicator->SetWorldLocation(TargetLoc);
+	}
+	else
+	{
+		TargetIndicator->SetVisibility(false);
+	}
 }
 
 void ALRPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	ULRInputComponent* LRInputComp = Cast<ULRInputComponent>(PlayerInputComponent);
+
+	if (!LRInputComp)
 	{
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ALRPlayerCharacter::Move);
+		UE_LOG(LogTemp, Error, TEXT("SetupInput Failed: PlayerInputComponent is NOT ULRInputComponent!"));
+		return;
 	}
+
+	if (MoveAction)
+	{
+		LRInputComp->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ALRPlayerCharacter::Move);
+	}
+
+	if (InputConfig)
+	{
+		LRInputComp->BindAbilityActions(InputConfig, this, &ALRPlayerCharacter::Input_Summon, /*ReleasedFunc=*/ nullptr);
+		
+		if (InputConfig->ChargeAction)
+		{
+			LRInputComp->BindAction(InputConfig->ChargeAction, ETriggerEvent::Started, this, &ALRPlayerCharacter::Input_Charge);
+		}
+	}
+
+
+	//if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	//{
+	//	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ALRPlayerCharacter::Move);
+	//	if (SummonAction_1)
+	//		{
+	//			EnhancedInputComponent->BindAction(SummonAction_1, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot1);
+	//		}
+	//	if (SummonAction_2)
+	//		{
+	//			EnhancedInputComponent->BindAction(SummonAction_2, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot2);
+	//		}
+	//	if (SummonAction_3)
+	//		{
+	//			EnhancedInputComponent->BindAction(SummonAction_3, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot3);
+	//		}
+	//	if (SummonAction_4)
+	//		{
+	//			EnhancedInputComponent->BindAction(SummonAction_4, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot4);
+	//		}
+	//}
 }
 
 UAbilitySystemComponent* ALRPlayerCharacter::GetAbilitySystemComponent() const
@@ -95,14 +204,72 @@ UAbilitySystemComponent* ALRPlayerCharacter::GetAbilitySystemComponent() const
 
 void ALRPlayerCharacter::Move(const FInputActionValue& Value)
 {
+	if (CombatComponent && CombatComponent->IsAutoMode())
+	{
+		return;
+	}
+
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
 	{
 		const FVector ForwardDirection = FVector::ForwardVector;
-		AddMovementInput(ForwardDirection, MovementVector.X);
+		AddMovementInput(ForwardDirection, MovementVector.Y);
 
 		const FVector RightDirection = FVector::RightVector;
-		AddMovementInput(RightDirection, MovementVector.Y);
+		AddMovementInput(RightDirection, MovementVector.X);
 	}
 }
+
+void ALRPlayerCharacter::Input_Summon(FGameplayTag InputTag)
+{
+	if (!SummonComponent) return;
+
+	int32 SlotIndex = -1;
+
+	if (InputTag.MatchesTag(LRTags::Input_Summon_1))
+	{
+		SlotIndex = 0;
+	}
+	else if (InputTag.MatchesTag(LRTags::Input_Summon_2))
+	{
+		SlotIndex = 1;
+	}
+	else if (InputTag.MatchesTag(LRTags::Input_Summon_3))
+	{
+		SlotIndex = 2;
+	}
+	else if (InputTag.MatchesTag(LRTags::Input_Summon_4))
+	{
+		SlotIndex = 3;
+	}
+
+	if (SlotIndex >= 0)
+	{
+		SummonComponent->TrySummonUnit(SlotIndex);
+	}
+}
+
+void ALRPlayerCharacter::GrantTestAbility(TSubclassOf<class UGameplayAbility> AbilityClass)
+{
+	if (AbilitySystemComponent && AbilityClass)
+	{
+		FGameplayAbilitySpec Spec(AbilityClass, 1, INDEX_NONE, this);
+		AbilitySystemComponent->GiveAbility(Spec);
+
+		UE_LOG(LogTemp, Warning, TEXT("[Test] 스킬 부여됨: %s"), *AbilityClass->GetName());
+	}
+}
+
+void ALRPlayerCharacter::Input_Charge(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("키보드 Q 입력 감지됨!"));
+
+	if (GetAbilitySystemComponent())
+	{
+		FGameplayTagContainer TagContainer;
+		TagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Aether.Charge")));
+		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(TagContainer);
+	}
+}
+

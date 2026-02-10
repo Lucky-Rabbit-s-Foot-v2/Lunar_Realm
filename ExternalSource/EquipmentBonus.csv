@@ -1,0 +1,6 @@
+,EquipmentID,BaseHPBonus,HPBonusPerLevel,BaseAttackBonus,AttackBonusPerLevel,BaseDefenseBonus,DefenseBonusPerLevel
+1,21102001,10,10,20,12,10,5
+2,22103039,15,15,35,15,10,10
+3,23202082,30,25,100,25,40,20
+4,24203199,80,40,250,50,55,25
+5,25402599,120,50,120,25,400,45

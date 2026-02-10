@@ -2,33 +2,25 @@
 
 
 #include "Structures/Spawner/LREnemySpawner.h"
-#include "Units/Enemy/LREnemyCharacter.h"
-#include "Subsystems/GameDataSubsystem.h"
+#include "Components/BoxComponent.h"
+#include "Core/LRGameInstance.h"
 #include "Engine/GameInstance.h"
-
+#include "Kismet/KismetMathLibrary.h"
+#include "Subsystems/GameDataSubsystem.h"
+#include "Subsystems/PoolingSubsystem.h"
+#include "System/LoggingSystem.h"
+#include "Units/Enemy/LREnemyCharacter.h"
+#include "TimerManager.h"
 
 // Sets default values
 ALREnemySpawner::ALREnemySpawner()
 {
- //	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	//PrimaryActorTick.bCanEverTick = true;
-
-	//// GameDataSubsystem에서 TArray<int32> 타입으로 가져온 EnemyIDs를 스테이지에 맞게 파싱해서 그 값을 저장해둔다.
-	//// 저장한 값을 토대로 타이머를 통해서 시간마다 소환 Or.. (소환 타이밍은 추후 고려)
-	//// 소환 과정: 파싱해서 저장된 값을 Enemy한테 전달
-	////			 전달 받은 아이디를 토대로 Enemy 클래스에서 이후 알아서 동작
-
-	//// 에너미 아이디 목록 가져와서 저장
-	//UGameInstance* GI = GetGameInstance();
-	//UGameDataSubsystem* DataSys = GI->GetSubsystem<UGameDataSubsystem>();
-	//CachedEnemyIDs = DataSys->GetAllEnemyIDs();
-
-	//// 특정 아이디로 확정하는 로직
-	//
-
-	//// => 결과값은 int32
+	PrimaryActorTick.bCanEverTick = false;
 	
-
+	SpawnAreaBox = CreateDefaultSubobject<UBoxComponent>(TEXT("SpawnAreaBox"));
+	SetRootComponent(SpawnAreaBox);
+	SpawnAreaBox->SetBoxExtent(FVector(300.0f, 300.0f, 100.0f));
+	SpawnAreaBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 }
 
@@ -37,36 +29,168 @@ void ALREnemySpawner::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (!InitializeFromStageData())
+	{
+		LR_WARN(TEXT("EnemySpawner(%s) failed to initialize from stage data"), *GetName());
+		return;
+	}
+
+	if (!EnemyClass)
+	{
+		LR_WARN(TEXT("EnemySpawner(%s) has no EnemyClass"), *GetName());
+		return;
+	}
+
+	UPoolingSubsystem* PoolSys = GetWorld() ? GetWorld()->GetSubsystem<UPoolingSubsystem>() : nullptr;
+	if (PoolSys)
+	{
+		PoolSys->InitializePool(EnemyClass, PrewarmCount);
+	}
+
+	GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy,
+		FMath::Max(CurrentSpawnInterval, 0.05f), true);
 }
 
 // Called every frame
 void ALREnemySpawner::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
 
+bool ALREnemySpawner::InitializeFromStageData()
+{
+	UGameInstance* GI = GetGameInstance();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+	if (!DataSys)
+	{
+		LR_ERROR(TEXT("GameDataSubsystem not found in spawner"));
+		return false;
+	}
+
+	if (const ULRGameInstance* LRGameInstance = Cast<ULRGameInstance>(GI))
+	{
+		CurrentStageID = LRGameInstance->GetCurrentStageID();
+	}
+	// NOTE: StageID -> GameInstance의 CurrentStageID를 임시 사용. => 추후 준범님이 스테이지 매니저 구현하면 거기서 받아올 예정
+
+	const FStageStaticData& StageData = DataSys->GetStageStaticData(CurrentStageID);
+
+	// 스테이지 데이터 검사[1 스테이지 데이터로 폴백, 1 스테이지 데이터 없을 시 하드 코딩된 데이터 사용]
+	// TODO: StageManager에서 데이터 가져오는 로직으로 수정
+
+	bool bValidStageData = (StageData.StageID != 0) && (StageData.SpawnEnemyIDs.Num() > 0);
+	if (!bValidStageData && CurrentStageID != 1)
+	{
+		// 현재 스테이지 데이터를 불러올 수 없으면 1스테이지로 폴백
+		LR_WARN(TEXT("Stage(%d) data not found or has no enemy IDs. Falling back to Stage 1."), CurrentStageID);
+		CurrentStageID = 1;
+		const FStageStaticData& FallbackData = DataSys->GetStageStaticData(1);
+		bValidStageData = (FallbackData.StageID != 0) && (FallbackData.SpawnEnemyIDs.Num() > 0);
+		if (bValidStageData)
+		{
+			CachedEnemyIDs = FallbackData.SpawnEnemyIDs;
+			CachedEnemyWeights = FallbackData.SpawnWeights;
+			CurrentSpawnInterval = FallbackData.SpawnInterval > 0.0f ? FallbackData.SpawnInterval : DefaultSpawnInterval;
+			bIsBossStage = FallbackData.bIsBossStage;
+		}
+		else
+		{
+			// 1스테이지 데이터도 없으면 하드코딩 기본값으로 세팅
+			LR_WARN(TEXT("Stage 1 data also not found. Using hardcoded defaults for spawner."));
+			CachedEnemyIDs = { 31010101 };
+			CachedEnemyWeights = { 1.0f };
+			CurrentSpawnInterval = DefaultSpawnInterval;
+			bIsBossStage = false;
+		}
+	}
+	else if (!bValidStageData)
+	{
+		// CurrentStageID == 1인데도 데이터가 없는 경우
+		LR_WARN(TEXT("Stage 1 data not found in DataTable. Using hardcoded defaults for spawner."));
+		CachedEnemyIDs = { 31010101 };
+		CachedEnemyWeights = { 1.0f };
+		CurrentSpawnInterval = DefaultSpawnInterval;
+		bIsBossStage = false;
+	}
+	else
+	{
+		CachedEnemyIDs = StageData.SpawnEnemyIDs;
+		CachedEnemyWeights = StageData.SpawnWeights;
+		CurrentSpawnInterval = StageData.SpawnInterval > 0.0f ? StageData.SpawnInterval : DefaultSpawnInterval;
+		bIsBossStage = StageData.bIsBossStage;
+	}
+	if (bSpawnOnlyBossStage != bIsBossStage)
+	{
+		if (CachedEnemyIDs.Num() <= 0)
+		{
+			LR_WARN(TEXT("Stage(%d) has no enemy IDs after fallback"), CurrentStageID);
+			return false;
+		}
+	}
+
+	LR_INFO(TEXT("EnemySpawner initialized: Stage(%d), EnemyCount(%d), Interval(%.2f)"),
+	CurrentStageID, CachedEnemyIDs.Num(), CurrentSpawnInterval);
+	
+	return true;
+}
+
+int32 ALREnemySpawner::PickEnemyIDByWeight() const
+{
+	if (CachedEnemyIDs.Num() <= 0)
+	{
+		return 0;
+	}
+
+	const float RandomValue = FMath::FRand();
+	float Accumulated = 0.0f;
+
+	for (int32 i = 0; i < CachedEnemyIDs.Num(); ++i)
+	{
+		const float Weight = CachedEnemyWeights.IsValidIndex(i) ? CachedEnemyWeights[i] : (1.0f / CachedEnemyIDs.Num());
+		Accumulated += Weight;
+		if (RandomValue <= Accumulated)
+		{
+			return CachedEnemyIDs[i];
+		}
+	}
+
+	return CachedEnemyIDs.Last();
+}
+
+FTransform ALREnemySpawner::MakeRandomSpawnTransform() const
+{
+	if (!SpawnAreaBox)
+	{
+		return GetActorTransform();
+	}
+
+	const FVector Origin = SpawnAreaBox->GetComponentLocation();
+	const FVector Extent = SpawnAreaBox->GetScaledBoxExtent();
+	const FVector RandomLocation = UKismetMathLibrary::RandomPointInBoundingBox(Origin, Extent);
+	return FTransform(GetActorRotation(), RandomLocation, FVector::OneVector);
 }
 
 void ALREnemySpawner::SpawnEnemy()
 {
-	
+	UPoolingSubsystem* PoolSys = GetWorld() ? GetWorld()->GetSubsystem<UPoolingSubsystem>() : nullptr;
+	if (!PoolSys || !EnemyClass)
+	{
+		return;
+	}
 
-	//// 1. 풀링 서브시스템 가져오기
-	//UPoolingSubsystem* PoolSys = GetWorld()->GetSubsystem<UPoolingSubsystem>();
-	//if (!PoolSys || !TargetEnemeyclass) return;
+	const int32 TargetEnemyID = PickEnemyIDByWeight();
+	if (TargetEnemyID <= 0)
+	{
+		return;
+	}
 
-	//// 2. 스폰 위치 설정
-	//FTransform SpawnTransform = GetActorTransform();
+	FTransform SpawnTransform = MakeRandomSpawnTransform();
+	ALREnemyCharacter* NewEnemy = PoolSys->Spawn<ALREnemyCharacter>(EnemyClass, SpawnTransform);
+	if (!NewEnemy)
+	{
+		return;
+	}
 
-	//// 3. 풀에서 꺼내기 (Spawn<T> 템플릿 사용 권장)
-	//// 자동으로 캐스팅되어 나옵니다.
-	//ALREnemyCharacter* NewEnemy = PoolSys->Spawn<ALREnemyCharacter>(TargetEnemeyclass, SpawnTransform);
-
-	////// (필요 시 추가 로직)
-	////if (NewBullet)
-	////{
-	////	// 예: 발사한 주인 설정
-	////	NewBullet->SetOwner(this);
-	////}
-
+	NewEnemy->InitializeByEnemyID(TargetEnemyID);
 }
 

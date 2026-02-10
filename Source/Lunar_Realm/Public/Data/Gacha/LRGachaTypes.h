@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 
 #include "Engine/DataTable.h"
-#include "GameplayTagContainer.h"
+#include "Data/LRCurrencyTypes.h"
 
 #include "LRGachaTypes.generated.h"
 
@@ -25,11 +25,11 @@ enum class ELRGachaItemType : uint8
 UENUM(BlueprintType)
 enum class ELRGachaRarity : uint8
 {
-	Common		UMETA(DisplayName = "1성(일반)"),
-	Uncommon	UMETA(DisplayName = "2성(고급)"),
-	Rare		UMETA(DisplayName = "3성(희귀)"),
-	Epic		UMETA(DisplayName = "4성(에픽)"),
-	Legendary	UMETA(DisplayName = "5성(전설)"),
+	Common    UMETA(DisplayName = "1성(일반)"),
+	Elite     UMETA(DisplayName = "2성(엘리트)"),
+	Unique    UMETA(DisplayName = "3성(유니크)"),
+	Epic      UMETA(DisplayName = "4성(에픽)"),
+	Legendary UMETA(DisplayName = "5성(전설)"),
 };
 
 // 티켓 종류
@@ -55,9 +55,9 @@ struct FLRGachaBannerRow : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ELRGachaItemType ItemType = ELRGachaItemType::Hero;
 
-	// 이 배너가 소모하는 재화 태그(초승달/보름달/골드 등)
+	// 이 배너가 소모하는 재화 타입(초승달/보름달/골드 등)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FGameplayTag CostCurrencyTag;
+	ELRCurrencyType CostCurrencyType = ELRCurrencyType::CrescentTicket;
 
 	// 1회 / 10회 비용
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
