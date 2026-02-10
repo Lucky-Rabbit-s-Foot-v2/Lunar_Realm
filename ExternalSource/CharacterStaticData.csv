@@ -1,4 +1,5 @@
-﻿,CharacterID,CharacterName,Description,CharacterTexture,SkillIDs
-1,11010101,데이지,기본 메이지,,"""()"""
-2,13020201,링크,유니크 기본전사,,"""()"""
-3,15010102,간달프,전설 아크메이지,,"""()"""
+﻿---,RowName,CharacterName,Description,Grade,AttackType,ClassType,HPMultiplier,AttackMultiplier,DefenseMultiplier,CharacterTexture,SkillIDs
+1,CHAR_MAGE_01,Daisy,Basic Mage,BASIC,RANGED,MAGICIAN,1.02,1.05,1.01,,"""()"""
+2,CHAR_WARRIOR_01,Lancelot,Unique Warrior,UNIQUE,MELEE,WARRIOR,1.05,1.03,1.03,,"""()"""
+3,CHAR_HERO_01,Merlin,Legend Arc Mage,LEGEND,RANGED,MAGICIAN,1.1,1.15,1.08,,"""()"""
+4,CHAR_ARCHER_01,RobinHoot,Epic WindArcher,EPIC,RANGED,ARCHER,1.07,1.08,1.05,,"""()"""

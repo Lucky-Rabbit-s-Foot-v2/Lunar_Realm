@@ -346,6 +346,7 @@ void UGameDataSubsystem::GetSetEffectStatBonus(const TArray<FName>& EquipmentIDs
 	OutAtkBonus = 1.f;
 	OutDefBonus = 1.f;
 	
+	//TODO FName으로 변경후 세트 효과 체크가 제대로 되고있는지 디버깅 찍어봐야함.
 	//세트효과 활성화 체크
 	TArray<FName> activeSets = CheckActiveSetIDs(EquipmentIDs);
 	

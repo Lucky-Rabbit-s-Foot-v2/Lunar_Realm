@@ -85,6 +85,9 @@ enum class ELREnemyType : uint8
 	GOBLIN = 1, 
 	GOLEM = 2,
 	SLIME = 3,
+	BEAST = 4,
+	BAT = 5, 
+	GHOST = 6,
 	
 	MAX UMETA(Hidden)
 };

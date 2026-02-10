@@ -1,4 +1,4 @@
-﻿,SetID,SetName,RequiredPieces,BonusHPPercent,BonusAttackPercent,BonusDefensePercent
-1,2,Fire,3,1.1,1.15,1
-2,3,Ice,3,1.15,1,1.2
-3,4,Electric,3,1,1.2,1.1
+﻿,RowName,SetName,RequiredPieces,BonusHPPercent,BonusAttackPercent,BonusDefensePercent
+1,SETEFFECT_01,Fire Set,3,1.1,1.15,1
+2,SETEFFECT_02,Ice Set,3,1.15,1,1.2
+3,SETEFFECT_03,Electric Set,3,1,1.2,1.1
