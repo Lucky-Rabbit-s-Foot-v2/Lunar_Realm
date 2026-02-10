@@ -14,6 +14,6 @@ void ULREnemyAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribut
 
 	if (Attribute == GetHealthAttribute())
 	{
-		// NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxHealth());
+		//NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxHealth());
 	}
 }
