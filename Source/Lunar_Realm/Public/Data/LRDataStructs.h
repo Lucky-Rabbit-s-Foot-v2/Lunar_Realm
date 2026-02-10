@@ -343,34 +343,22 @@ struct FEnemyStaticData : public FTableRowBase
 	int32 DropAether;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
-	float Health;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
 	float MaxHealth;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
 	float Attack;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
-	float MaxAttack;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
 	float Speed;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
-	float MaxSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
 	float AttackSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
-	float MaxAttackSpeed;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
 	float AttackRange;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
-	float MaxAttackRange;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	float Scale;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
 	TSoftObjectPtr<USkeletalMesh> EnemyMesh;
