@@ -6,9 +6,13 @@
 #include "Engine/GameInstance.h"
 #include "LRGameInstance.generated.h"
 
+// =============================================================================
 /**
- * (260206 PJB) 비동기 레벨 전환 기능 구현
+ * 맵 이름 enum class
  */
+//=============================================================================
+// (260206) PJB 제작.
+// =============================================================================
 
 UENUM(BlueprintType)
 enum class ELevelName : uint8
@@ -20,9 +24,14 @@ enum class ELevelName : uint8
 	Stage			UMETA(DisplayName = "Stage")
 };
 
- //=============================================================================
- // (260208) KWB Stage 관리 주체 GI로 가정 -> 관련 내용 해당 클래스에 작성 (임시)
- // =============================================================================
+// =============================================================================
+/**
+ * 프로젝트 게임 인스턴스
+ */
+//=============================================================================
+// (260206) PJB 제작. 비동기 레벨 전환 기능 구현
+// (260208) KWB Stage 관리 주체 GI로 가정 -> 관련 내용 해당 클래스에 작성 (임시)
+// =============================================================================
 UCLASS()
 class LUNAR_REALM_API ULRGameInstance : public UGameInstance
 {
@@ -60,7 +69,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Level Streaming")
 	TSoftObjectPtr<UWorld> Map_Stage;
 
-private:
+public:
 	UPROPERTY()
 	TObjectPtr<class ULRLoadingWidget> LoadingWidgetInstance = nullptr;
 	UFUNCTION(BlueprintCallable, Category = "LR|Stage")

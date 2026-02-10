@@ -6,9 +6,14 @@
 #include "Core/LRGameModeBase.h"
 #include "LRTransitionGameMode.generated.h"
 
+// =============================================================================
 /**
- * 
+ * 비동기 레벨 전환용 게임모드
  */
+//=============================================================================
+// (260205) PJB 제작.
+//=============================================================================
+
 UCLASS()
 class LUNAR_REALM_API ALRTransitionGameMode : public ALRGameModeBase
 {
