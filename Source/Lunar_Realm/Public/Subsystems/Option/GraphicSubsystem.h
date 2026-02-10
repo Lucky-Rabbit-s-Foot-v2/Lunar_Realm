@@ -68,4 +68,13 @@ public:
 private:
 	int32 ConvertLevelToInt(EGraphicOptionLevel Level) const;
 
+	int32 Texture;
+	int32 Shadow;
+	int32 AntiAliasing;
+	int32 PostProcessing;
+	int32 VisualEffect;
+	int32 Resolution;
+	int32 FrameRate;
+	
+
 };

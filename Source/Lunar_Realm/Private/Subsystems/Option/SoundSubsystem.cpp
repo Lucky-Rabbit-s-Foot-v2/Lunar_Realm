@@ -1,6 +1,6 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Subsystems/SoundSubsystem.h"
+#include "Subsystems/Option/SoundSubsystem.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "SaveGame/LROptionSaveGame.h"
@@ -13,12 +13,13 @@ void USoundSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	{
 		UGameplayStatics::PushSoundMixModifier(GetWorld(), GlobalSoundMix);
 	}
-	
+	// TODO : SaveGame 에서 볼륨 로드
 	LoadVolumesFromSaveData();
 }
 
 void USoundSubsystem::Deinitialize()
 {
+	// TODO : SaveGame 에 볼륨 저장
 	SaveVolumesToSaveData();
 	Super::Deinitialize();
 }
