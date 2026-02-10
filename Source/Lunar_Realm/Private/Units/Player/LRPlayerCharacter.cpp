@@ -28,20 +28,20 @@ ALRPlayerCharacter::ALRPlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
-	SpringArmComponent->SetupAttachment(RootComponent);
+	//SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
+	//SpringArmComponent->SetupAttachment(RootComponent);
 
-	SpringArmComponent->TargetArmLength = 800.0f;
-	SpringArmComponent->SetRelativeRotation(FRotator(-45.0f, 0.0f, 0.0f));
-	SpringArmComponent->bDoCollisionTest = false;
+	//SpringArmComponent->TargetArmLength = 800.0f;
+	//SpringArmComponent->SetRelativeRotation(FRotator(-45.0f, 0.0f, 0.0f));
+	//SpringArmComponent->bDoCollisionTest = false;
 
-	SpringArmComponent->bInheritPitch = false;
-	SpringArmComponent->bInheritYaw = false;
-	SpringArmComponent->bInheritRoll = false;
+	//SpringArmComponent->bInheritPitch = false;
+	//SpringArmComponent->bInheritYaw = false;
+	//SpringArmComponent->bInheritRoll = false;
 
 
-	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
-	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
+	//CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
+	//CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 720.f, 0.f); 
