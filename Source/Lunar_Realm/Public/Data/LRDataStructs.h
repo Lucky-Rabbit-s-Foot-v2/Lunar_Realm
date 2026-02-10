@@ -616,7 +616,7 @@ struct FLRGachaPoolRow : public FTableRowBase
 	ELRGachaItemType ItemType = ELRGachaItemType::Hero;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 ItemID = 0;
+	FName ItemID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ELRGachaRarity Rarity = ELRGachaRarity::Common;
@@ -645,7 +645,7 @@ struct FLRGachaResult
 	ELRGachaItemType ItemType = ELRGachaItemType::Hero;
 
 	UPROPERTY(SaveGame, BlueprintReadOnly)
-	int32 ItemID = 0;
+	FName ItemID;
 
 	UPROPERTY(SaveGame, BlueprintReadOnly)
 	ELRGachaRarity Rarity = ELRGachaRarity::Common;

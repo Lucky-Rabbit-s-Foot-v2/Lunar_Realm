@@ -593,7 +593,7 @@ bool ULRGachaSubsystem::RollResults_NoApply(const FLRGachaBannerRow& Banner, con
 		return false;
 	}
 
-	TSet<int32> NewlyObtainedInThisTxn;	//	이번 트랜잭션에서 새로 뽑힌 것(중복 판정용)
+	TSet<FName> NewlyObtainedInThisTxn;	//	이번 트랜잭션에서 새로 뽑힌 것(중복 판정용)
 
 	for (int32 i = 0; i < DrawCount; i++)
 	{
@@ -792,7 +792,7 @@ FString ULRGachaSubsystem::DebugResultToColoredString(const FLRGachaResult& Resu
 		TEXT("%s | %s(%s) | ItemID=%d | New=%d | GoldConv=%d(+%d)"),
 		*ItemTypeStr,
 		*RarityStr, *ColorName,
-		Result.ItemID,
+		*Result.ItemID.ToString(),
 		Result.bIsNew ? 1 : 0,
 		Result.bConvertedToGold ? 1 : 0,
 		Result.ConvertedGoldAmount
