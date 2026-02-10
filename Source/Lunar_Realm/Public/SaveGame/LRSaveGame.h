@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 
 #include "Data/LRDataStructs.h"
-#include "Data/Gacha/LRGachaTransactionTypes.h"
 
 #include "GameFramework/SaveGame.h"
 

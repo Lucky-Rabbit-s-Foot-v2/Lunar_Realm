@@ -54,8 +54,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
 	bool bSpawnOnlyBossStage = false;
 
+	// 사전 생성 오브젝트 풀 - 추후 개수 변경 필요 (50 ~ 100)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
-	int32 PrewarmCount = 10;
+	int32 PrewarmCount = 5;	// TEMP
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
 	float DefaultSpawnInterval = 1.0f;

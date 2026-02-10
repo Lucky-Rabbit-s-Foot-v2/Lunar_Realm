@@ -6,6 +6,7 @@
 #include "ShaderCompilerJobTypes.h"
 #include "Abilities/GameplayAbility.h"
 #include "Engine/DataTable.h"
+#include "Engine/SkeletalMesh.h"
 #include "Data/LREnumType.h"
 #include "Elements/Framework/TypedElementQueryBuilder.h"
 #include "LRDataStructs.generated.h"
@@ -322,12 +323,12 @@ struct FSkillStaticData : public FTableRowBase
  */
  //=============================================================================
  // (260204) KWB 제작. 제반 사항 구현.
+ // (260209) KWB 멤버 추가 및 순서 변경, 헤더 추가("Engine/SkeletalMesh.h")
  // =============================================================================
 USTRUCT(BlueprintType)
 struct FEnemyStaticData : public FTableRowBase
 {
 	GENERATED_BODY()
-
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
 	int32 CharacterID;
@@ -338,17 +339,35 @@ struct FEnemyStaticData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
 	FText Description;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
-	int32 Speed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
+	int32 DropAether;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
-	int32 Attack;
+	float MaxHealth;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
-	int32 Health;
+	float Attack;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
+	float Speed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
+	float AttackSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
+	float AttackRange;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	float Scale;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	TSoftObjectPtr<USkeletalMesh> EnemyMesh;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
 	TSoftObjectPtr<UTexture2D> CharacterTexture;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	TSoftClassPtr<UAnimInstance> AnimBlueprintClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Skills")
 	TArray<int32> SkillIDs;
@@ -530,4 +549,150 @@ public:
 		return static_cast<ELRSetItemType>((FullID/1000) % 100);
 	}
 	
+};
+// =============================================================================
+// (260210) PYI 제작
+// =============================================================================
+// Gacha Data Structs (Banner/Pool/Rate/DuplicateReward/Result/Txn)
+// =============================================================================
+
+// 배너(뽑기) 설정 DataTable
+USTRUCT(BlueprintType)
+struct FLRGachaBannerRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName BannerID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ELRGachaItemType ItemType = ELRGachaItemType::Hero;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ELRCurrencyType CostCurrencyType = ELRCurrencyType::CrescentTicket;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 CostSingle = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 CostTen = 10;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bUsePity = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 PityThreshold = 100;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ELRGachaRarity PityGuaranteedRarity = ELRGachaRarity::Legendary;
+};
+
+// 배너 풀 DT
+USTRUCT(BlueprintType)
+struct FLRGachaPoolRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName BannerID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ELRGachaItemType ItemType = ELRGachaItemType::Hero;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 ItemID = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ELRGachaRarity Rarity = ELRGachaRarity::Common;
+};
+
+// 중복 보상(등급별 골드 전환량) DT
+USTRUCT(BlueprintType)
+struct FLRGachaDuplicateRewardRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ELRGachaRarity Rarity = ELRGachaRarity::Common;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 GoldAmount = 10;
+};
+
+// 1회 결과(연출/UI에 넘길 데이터)
+USTRUCT(BlueprintType)
+struct FLRGachaResult
+{
+	GENERATED_BODY()
+
+	UPROPERTY(SaveGame, BlueprintReadOnly)
+	ELRGachaItemType ItemType = ELRGachaItemType::Hero;
+
+	UPROPERTY(SaveGame, BlueprintReadOnly)
+	int32 ItemID = 0;
+
+	UPROPERTY(SaveGame, BlueprintReadOnly)
+	ELRGachaRarity Rarity = ELRGachaRarity::Common;
+
+	UPROPERTY(SaveGame, BlueprintReadOnly)
+	bool bIsNew = false;
+
+	UPROPERTY(SaveGame, BlueprintReadOnly)
+	bool bConvertedToGold = false;
+
+	UPROPERTY(SaveGame, BlueprintReadOnly)
+	int32 ConvertedGoldAmount = 0;
+};
+
+// 등급별 확률 DT
+USTRUCT(BlueprintType)
+struct FLRGachaRarityRateRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName BannerID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ELRGachaItemType ItemType = ELRGachaItemType::Hero;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ELRGachaRarity Rarity = ELRGachaRarity::Common;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Rate = 0.0f;
+};
+
+// SaveGame에 저장될 Pending 트랜잭션
+USTRUCT(BlueprintType)
+struct FLRGachaPendingTransaction
+{
+	GENERATED_BODY()
+
+	UPROPERTY(SaveGame, BlueprintReadOnly)
+	FGuid TxnId;
+
+	UPROPERTY(SaveGame, BlueprintReadOnly)
+	FName BannerID;
+
+	UPROPERTY(SaveGame, BlueprintReadOnly)
+	int32 DrawCount = 0;
+
+	UPROPERTY(SaveGame, BlueprintReadOnly)
+	ELRCurrencyType CostCurrencyType = ELRCurrencyType::CrescentTicket;
+
+	UPROPERTY(SaveGame, BlueprintReadOnly)
+	int32 CostAmount = 0;
+
+	UPROPERTY(SaveGame, BlueprintReadOnly)
+	int32 PrevPity = 0;
+
+	UPROPERTY(SaveGame, BlueprintReadOnly)
+	int32 NewPity = 0;
+
+	UPROPERTY(SaveGame, BlueprintReadOnly)
+	TArray<FLRGachaResult> Results;
+
+	UPROPERTY(SaveGame, BlueprintReadOnly)
+	ELRGachaTxnState State = ELRGachaTxnState::None;
 };

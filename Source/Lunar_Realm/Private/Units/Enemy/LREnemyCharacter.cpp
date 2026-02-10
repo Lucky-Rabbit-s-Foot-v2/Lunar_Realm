@@ -3,6 +3,7 @@
 
 #include "Units/Enemy/LREnemyCharacter.h"
 
+#include "Abilities/GameplayAbility.h"
 #include "Engine/GameInstance.h"
 #include "GAS/Attributes/LREnemyAttributeSet.h"
 #include "Subsystems/GameDataSubsystem.h"
@@ -68,28 +69,57 @@ void ALREnemyCharacter::InitializeAttributes(int32 EnemyID)
 	AttributeSet->InitSpeed(static_cast<float>(EnemyData.Speed));
 
 	ClearGrantedEnemyAbilities();
-	// GrantEnemyAbilities(EnemyData.GrantedAbilities); => 수정해야할 로직
+	GrantEnemyAbilities();
 }
 
-void ALREnemyCharacter::GrantEnemyAbilities(const TArray<TSubclassOf<UGameplayAbility>>& InAbilities)
+void ALREnemyCharacter::GrantEnemyAbilities()
 {
 	if (!AbilitySystemComponent)
 	{
 		return;
 	}
 
-	for (const TSubclassOf<UGameplayAbility>& AbilityClass : InAbilities)
+	UGameInstance* GI = GetGameInstance();
+	if (!GI)
 	{
-		if (!AbilityClass)
-		{
-			continue;
-		}
+		return;
+	}
 
-		const FGameplayAbilitySpec Spec(AbilityClass, 1);
-		FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
-		if (Handle.IsValid())
+	UGameDataSubsystem* DataSys = GI->GetSubsystem<UGameDataSubsystem>();
+	if (!DataSys)
+	{
+		return;
+	}
+
+	TArray<int32> SkillIDs = DataSys->GetEnemySkillIDs(CurrentEnemyID);
+
+	for (int32 SkillID : SkillIDs)
+	{
+		const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillID);
+
+		for (const TSoftClassPtr<UGameplayAbility>& SoftAbilityClass : SkillData.GrantedAbilities)
 		{
-			GrantedAbilityHandles.Add(Handle);
+			if (SoftAbilityClass.IsNull())
+			{
+				LR_WARN(TEXT("Invalid Soft Class Reference in Enemy Skill %d"), SkillID);
+				continue;
+			}
+
+			TSubclassOf<UGameplayAbility> AbilityClass = SoftAbilityClass.LoadSynchronous();
+
+			if (!AbilityClass)
+			{
+				LR_ERROR(TEXT("Failed to load Ability Class for Enemy Skill %d"), SkillID);
+				continue;
+			}
+
+			FGameplayAbilitySpec Spec(AbilityClass, 1, INDEX_NONE, this);
+			FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
+
+			if (Handle.IsValid())
+			{
+				GrantedAbilityHandles.Add(Handle);
+			}
 		}
 	}
 }

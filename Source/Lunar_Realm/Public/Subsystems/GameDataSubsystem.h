@@ -24,7 +24,8 @@
 // (260128) KHS 내부 헬퍼가 많아 인터페이스 순서를 public->protected->private순으로 변경
 // (260205) KHS 에너미 데이터 처리 핸들러 추가. ID파싱-> 구조체 생성자로 이전.
 // (260206) KHS 데이터 테이블 소프트 레퍼런스들은 LRGameDataConfig통해 비동기 로드방식으로 변경
-// (260208) KWB 스테이지 데이터 관련 항목 임시 추가 : EnemySpawner 테스트용
+// (260208) KWB 스테이지 데이터 관련 항목 추가 : EnemySpawner에서 필요
+// (260208) KWB 에너미 스킬 데이터 조회 함수 추가
 // =============================================================================
 
 UCLASS()
@@ -83,7 +84,11 @@ public:
 	// 현재 캐릭터가 보유한 스킬 ID 조회
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Skills")
 	TArray<int32> GetCharacterSkillIDs(int32 CharacterID);
-	
+
+	// 현재 에너미가 보유한 스킬 ID 조회
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Skills")
+	TArray<int32> GetEnemySkillIDs(int32 CharacterID);
+
 	// 현재 착용장비가 보유한 스킬 ID 조회
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Skills")
 	TArray<int32> GetEquipmentSkillIDs(int32 EquipmentID);
