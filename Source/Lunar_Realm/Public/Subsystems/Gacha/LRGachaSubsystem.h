@@ -10,9 +10,8 @@
 #include "Subsystems/CurrencySubsystem.h"
 #include "Subsystems/SaveGameSubsystem.h"
 
-#include "Data/Gacha/LRGachaTransactionTypes.h"
-#include "Data/Gacha/LRGachaTypes.h"
-#include "Data/LRCurrencyTypes.h"
+#include "Data/LREnumType.h"
+#include "Data/LRDataStructs.h"
 
 #include "LRGachaSubsystem.generated.h"
 

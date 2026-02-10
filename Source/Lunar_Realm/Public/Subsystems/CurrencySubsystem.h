@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-#include "Data/LRCurrencyTypes.h"
+#include "Data/LREnumType.h"
 #include "CurrencySubsystem.generated.h"
 
 class USaveGameSubsystem;
