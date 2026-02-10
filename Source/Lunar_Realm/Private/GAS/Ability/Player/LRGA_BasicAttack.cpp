@@ -10,7 +10,11 @@
 
 ULRGA_BasicAttack::ULRGA_BasicAttack()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Combat.BasicShoot")));
+	//AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Combat.BasicShoot")));
+	FGameplayTagContainer Tags;
+	Tags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Combat.BasicAttack")));
+	SetAssetTags(Tags);
+
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 

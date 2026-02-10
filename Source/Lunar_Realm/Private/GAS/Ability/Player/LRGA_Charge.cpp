@@ -6,7 +6,11 @@
 
 ULRGA_Charge::ULRGA_Charge()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Aether.Charge")));
+	//AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Aether.Charge")));
+
+	FGameplayTagContainer Tags;
+	Tags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Aether.Charge")));
+	SetAssetTags(Tags);
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 

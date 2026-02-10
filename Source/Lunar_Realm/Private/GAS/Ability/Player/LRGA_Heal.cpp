@@ -8,7 +8,10 @@
 
 ULRGA_Heal::ULRGA_Heal()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Heal")));
+	//AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Heal")));
+	FGameplayTagContainer Tags;
+	Tags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Heal")));
+	SetAssetTags(Tags);
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
