@@ -58,26 +58,26 @@ public:
 	//세이브 캐릭터/장비 정보 관리
 	//선택된 캐릭터 파티 정보 관리
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
-	void SetPartySlot(int32 Slots, int32 CharacterID);
+	void SetPartySlot(int32 Slots, FName CharacterID);
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
-	int32 GetPartyCharacterID(int32 Slot) const;
+	FName GetPartyCharacterID(int32 Slot) const;
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
-	TArray<int32> GetAllPartyCharactersIDs() const;
+	TArray<FName> GetAllPartyCharactersIDs() const;
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
-	int32 GetLeaderCharacterID() const;
+	FName GetLeaderCharacterID() const;
 	
 	//선택된 리더 캐릭터 장비 정보 관리
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
-	void SetLeaderEquipmentSlot(int32 Slots, int32 EquipmentIDs);
+	void SetLeaderEquipmentSlot(int32 Slots, FName EquipmentIDs);
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
-	int32 GetLeaderEquipmentID(int32 SlotIdx) const;
+	FName GetLeaderEquipmentID(int32 SlotIdx) const;
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
-	TArray<int32> GetAllLeaderEquipmentIDs() const;
+	TArray<FName> GetAllLeaderEquipmentIDs() const;
 	
 private:
 	UPROPERTY()

@@ -18,7 +18,7 @@
  	USaveGameSubsystem* saveGameSys = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
  	check(saveGameSys);
  	saveGameSys->OnSaveGameLoadedDel.AddDynamic(this, &UCollectionSubsystem::HandleSaveGameLoaded);
- 	LR_INFO(TEXT("Collection Subsystem Initialied"));
+ 	LR_INFO(TEXT("Collection Subsystem Initialized"));
  }
 
  void UCollectionSubsystem::HandleSaveGameLoaded(ULRSaveGame* LoadedSave)
@@ -54,12 +54,12 @@
  	saveGameSys->SaveGame();
  }
 
- bool UCollectionSubsystem::HasCharacter(int32 CharacterID) const
+ bool UCollectionSubsystem::HasCharacter(FName CharacterID) const
  {
  	return OwnedCharactersMap.Contains(CharacterID) && OwnedCharactersMap[CharacterID].bIsUnlocked;
  }
 
- FPlayerCharacterInstance UCollectionSubsystem::GetCharacterInstance(int32 CharacterID) const
+ FPlayerCharacterInstance UCollectionSubsystem::GetCharacterInstance(FName CharacterID) const
  {
  	if (OwnedCharactersMap.Contains(CharacterID))
  	{
@@ -70,7 +70,7 @@
  	return FPlayerCharacterInstance();
  }
 
- void UCollectionSubsystem::AddCharacter(int32 CharacterID, int32 StartLevel)
+ void UCollectionSubsystem::AddCharacter(FName CharacterID, int32 StartLevel)
  {
  	if (!OwnedCharactersMap.Contains(CharacterID))
  	{
@@ -82,7 +82,7 @@
  		//업데이트 정보 동기화
  		SyncToSaveGame();
  		
- 		LR_INFO(TEXT("Character ID : %d - unlocked at level %d"), CharacterID, StartLevel);
+ 		LR_INFO(TEXT("Character ID : %s - unlocked at level %d"), *CharacterID.ToString(), StartLevel);
  	}
     else
     {
@@ -90,7 +90,7 @@
     }
  }
 
- void UCollectionSubsystem::LevelUpCharacter(int32 CharacterID)
+ void UCollectionSubsystem::LevelUpCharacter(FName CharacterID)
  {
  	FPlayerCharacterInstance* instance = OwnedCharactersMap.Find(CharacterID);
  	if (!ensureMsgf(instance, TEXT("Invalid Character ID")))
@@ -106,10 +106,10 @@
  	OnCharacterUpdatedDel.Broadcast(CharacterID, instance->CurrentLevel);
  	SyncToSaveGame();
  	
- 	LR_INFO(TEXT("Character %d leveled up to %d"), CharacterID, instance->CurrentLevel);
+ 	LR_INFO(TEXT("Character %s leveled up to %d"), *CharacterID.ToString(), instance->CurrentLevel);
  }
 
- void UCollectionSubsystem::AddCharacterExp(int32 CharacterID, int32 ExpAmount)
+ void UCollectionSubsystem::AddCharacterExp(FName CharacterID, int32 ExpAmount)
  {
  	FPlayerCharacterInstance* instance = OwnedCharactersMap.Find(CharacterID);
  	if (!ensureMsgf(instance, TEXT("Invalid Character ID")))
@@ -132,12 +132,12 @@
     }
  }
 
- bool UCollectionSubsystem::HasEquipment(int32 EquipmentID) const
+ bool UCollectionSubsystem::HasEquipment(FName EquipmentID) const
  {
  	return OwnedEquipmentsMap.Contains(EquipmentID) && OwnedEquipmentsMap[EquipmentID].bIsUnlocked;
  }
 
- FPlayerEquipmentInstance UCollectionSubsystem::GetEquipmentInstance(int32 EquipmentID) const
+ FPlayerEquipmentInstance UCollectionSubsystem::GetEquipmentInstance(FName EquipmentID) const
  {
  	if (OwnedEquipmentsMap.Contains(EquipmentID))
  	{
@@ -147,7 +147,7 @@
  	return FPlayerEquipmentInstance();
  }
 
- void UCollectionSubsystem::AddEquipment(int32 EquipmentID, int32 StartLevel)
+ void UCollectionSubsystem::AddEquipment(FName EquipmentID, int32 StartLevel)
  {
  	if (!OwnedEquipmentsMap.Contains(EquipmentID))
  	{
@@ -158,7 +158,7 @@
  		OnEquipmentUnlockedDel.Broadcast(EquipmentID, newEquipment);
  		SyncToSaveGame();
  		
- 		LR_INFO(TEXT("Equipment %d unlocked at level %d"), EquipmentID, StartLevel);
+ 		LR_INFO(TEXT("Equipment %s unlocked at level %d"), *EquipmentID.ToString(), StartLevel);
  	}
     else
     {
@@ -166,7 +166,7 @@
     }
  }
 
- void UCollectionSubsystem::LevelUpEquipment(int32 EquipmentID)
+ void UCollectionSubsystem::LevelUpEquipment(FName EquipmentID)
  {
  	FPlayerEquipmentInstance* instance = OwnedEquipmentsMap.Find(EquipmentID);
  	if (!ensureMsgf(instance, TEXT("Invalid EquipmentID")))
@@ -179,10 +179,10 @@
  	OnEquipmentUpdatedDel.Broadcast(EquipmentID, instance->CurrentLevel);
  	SyncToSaveGame();
  	
- 	LR_INFO(TEXT("Equipment %d leveled up to %d"), EquipmentID, instance->CurrentLevel);
+ 	LR_INFO(TEXT("Equipment %s leveled up to %d"), *EquipmentID.ToString(), instance->CurrentLevel);
  }
 
- void UCollectionSubsystem::AddEquipmentExp(int32 EquipmentID, int32 ExpAmount)
+ void UCollectionSubsystem::AddEquipmentExp(FName EquipmentID, int32 ExpAmount)
  {
  	
  	FPlayerEquipmentInstance* instance = OwnedEquipmentsMap.Find(EquipmentID);

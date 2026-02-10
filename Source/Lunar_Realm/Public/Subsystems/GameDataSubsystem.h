@@ -42,72 +42,72 @@ public:
 	// ========================================
 	// 캐릭터 정적 데이터 가져오기 (이름, 설명, 텍스처 등)
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Character")
-	const FCharacterStaticData& GetCharacterStaticData(int32 CharacterID) const;
+	const FCharacterStaticData& GetCharacterStaticData(FName CharacterID) const;
 	
 	// 특정 레벨의 캐릭터 최종 스탯 계산 (공식: 베이스 스탯(레벨) * 캐릭터 승수)
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Character")
-	float GetCharacterFinalStat(int32 CharacterID, ELRStatusType StatusType, int32 CharacterLevel);
+	float GetCharacterFinalStat(FName CharacterID, ELRStatusType StatusType, int32 CharacterLevel);
 	
 	//도감에 등록된 모든 캐릭터 ID 가져오기
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Character")
-	TArray<int32> GetAllCharacterIDs();
+	TArray<FName> GetAllCharacterIDs();
 	
 	// ========================================
 	// 장비 데이터 조회
 	// ========================================
 	// 장비 정적 데이터 가져오기
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Equipment")
-	const FEquipmentStaticData& GetEquipmentStaticData(int32 EquipmentID) const;
+	const FEquipmentStaticData& GetEquipmentStaticData(FName EquipmentID) const;
 	
 	//착용 장비 스탯 보너스 합계
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Equipment")
-	float GetTotalEquipmentBonus(const TArray<int32>& EquipmentIDs, const TArray<int32>& EquipmentLevels, ELRStatusType StatusType);
+	float GetTotalEquipmentBonus(const TArray<FName>& EquipmentIDs, const TArray<int32>& EquipmentLevels, ELRStatusType StatusType);
 	
 	//도감에 등록된 모든 장비 ID 가져오기
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Equipment")
-	TArray<int32> GetAllEquipmentIDs();
+	TArray<FName> GetAllEquipmentIDs();
 	
 	// ========================================
 	// 장비 세트효과 조회
 	// ========================================
 	//장비 세트효과 보너스 계산
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Equipment")
-	void GetSetEffectStatBonus(const TArray<int32>& EquipmentIDs, float& OutHPBonus, float& OutAtkBonus, float& OutDefBonus);
+	void GetSetEffectStatBonus(const TArray<FName>& EquipmentIDs, float& OutHPBonus, float& OutAtkBonus, float& OutDefBonus);
 	
 	// ========================================
 	// 스킬 데이터 조회
 	// ========================================
 	//스킬 정적 데이터 가져오기
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Skills")
-	const FSkillStaticData& GetSkillStaticData(int32 SkillID) const;
+	const FSkillStaticData& GetSkillStaticData(FName SkillID) const;
 	
 	// 현재 캐릭터가 보유한 스킬 ID 조회
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Skills")
-	TArray<int32> GetCharacterSkillIDs(int32 CharacterID);
+	TArray<FName> GetCharacterSkillIDs(FName CharacterID);
 
 	// 현재 에너미가 보유한 스킬 ID 조회
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Skills")
-	TArray<int32> GetEnemySkillIDs(int32 CharacterID);
+	TArray<FName> GetEnemySkillIDs(FName CharacterID);
 
 	// 현재 착용장비가 보유한 스킬 ID 조회
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Skills")
-	TArray<int32> GetEquipmentSkillIDs(int32 EquipmentID);
+	TArray<FName> GetEquipmentSkillIDs(FName EquipmentID);
 	
 	// ========================================
 	// 에너미 데이터 조회
 	// ========================================
 	// 에너미 정적 데이터 가져오기 (이름, 설명, 텍스처 등)
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Enemy")
-	const FEnemyStaticData& GetEnemyStaticData(int32 EnemyID) const;
+	const FEnemyStaticData& GetEnemyStaticData(FName EnemyID) const;
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Enemy")
-	TArray<int32> GetAllEnemyIDs();
+	TArray<FName> GetAllEnemyIDs();
 	
 	// ========================================
 	// 스테이지 데이터 조회
 	// ========================================
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Stage")
-	const FStageStaticData& GetStageStaticData(int32 StageID) const;
+	const FStageStaticData& GetStageStaticData(FName StageID) const;
 
 private:
 	// ========================================
@@ -120,21 +120,21 @@ private:
 	
 	// 베이스 스탯 가져오기 (CurveTable에서 레벨에 따른 값)
 	float GetBaseStatAtLevel(ELRStatusType StatusType, int32 Level);
-	// 캐싱된 캐릭터 승수 데이터 가져오기 
-	const FCharacterMultipliers& GetCharacterMultipliers(int32 CharacterID) const;
 	// 스테이터스 승수값 가져오기 (캐싱 없음)
-	float GetStatusMultiplier(int32 CharacterID, ELRStatusType StatusType);
+	float GetStatusMultiplier(FName CharacterID, ELRStatusType StatusType);
 	// 착용 장비 보너스 데이터 가져오기
-	const FEquipmentBonus& GetEquipmentBonus(int32 EquipmentID) const;
+	const FEquipmentBonus& GetEquipmentBonus(FName EquipmentID) const;
 	// 착용 장비 스탯 보너스값 가져오기
-	float GetEquipmentStatBonus(int32 EquipmentID, ELRStatusType StatusType, int32 EquipmentLevel);
+	float GetEquipmentStatBonus(FName EquipmentID, ELRStatusType StatusType, int32 EquipmentLevel);
 	// 착용 장비 세트효과 데이터 조회
-	const FSetEffectData& GetSetEffectData(int32 SetID) const;
+	const FSetEffectData& GetSetEffectData(FName SetID) const;
 	//활성화된 세트 ID 체크
-	TArray<int32> CheckActiveSetIDs(const TArray<int32>& EquipmentIDs) const;
+	TArray<FName> CheckActiveSetIDs(const TArray<FName>& EquipmentIDs) const;
 	
 	//Enum->FName 변환 헬퍼(CT 접근용)
 	static FName StatTypeToName(ELRStatusType StatusType);
+	//Enum->FName 변환 헬퍼(세트 아이템 체크용
+	static FName SetTypeToName(ELRSetItemType SetType);
 	
 	//데이터 테이블 로드 헬퍼 탬플릿
 	template<typename T, typename E>
@@ -146,30 +146,8 @@ private:
 	
 	//캐시데이터 조회 헬퍼 탬플릿
 	template<typename T>
-	const T& GetCachedData(const TMap<int32, T>& Cache, int32 ID, const T& EmptyData, const TCHAR* DataName) const;
+	const T& GetCachedData(const TMap<FName, T>& Cache, FName ID, const T& EmptyData, const TCHAR* DataName) const;
 
-	
-protected:
-	// ========================================
-	// DataTable 참조 (LRDataConfig 경유하여 로드)
-	// ========================================
-	// //공통 베이스 스탯 CurveTable - 모든 캐릭터가 공유
-	// TSoftObjectPtr<UCurveTable> BaseStatsCurveTable;
-	// // 캐릭터 도감 DataTable
-	// TSoftObjectPtr<UDataTable> CharacterStaticDataTable;
-	// // 캐릭터별 승수 DataTable
-	// TSoftObjectPtr<UDataTable> CharacterMultipliersTable;
-	// // 장비 도감 DataTable
-	// TSoftObjectPtr<UDataTable> EquipmentStaticDataTable;
-	// // 장비스탯 보너스 DataTable 
-	// TSoftObjectPtr<UDataTable> EquipmentStatBonusTable;
-	// // 세트장비 데이터 DataTable 
-	// TSoftObjectPtr<UDataTable> EquipmentSetEffectTable;
-	// // 스킬 정적 데이터 DataTable
-	// TSoftObjectPtr<UDataTable> SkillStaticDataTable;
-	// // 에너미 정적 데이터 DataTable
-	// TSoftObjectPtr<UDataTable> EnemyStaticDataTable;
-	
 	
 private:
 	// ========================================
@@ -201,29 +179,25 @@ private:
 	// ========================================
 	//캐릭터 정적 데이터 캐시
 	UPROPERTY()
-	TMap<int32, FCharacterStaticData> CachedCharacterStaticData;
-	//캐릭터 승수 캐시
-	UPROPERTY()
-	TMap<int32, FCharacterMultipliers> CachedCharacterMultipliers;
+	TMap<FName, FCharacterStaticData> CachedCharacterStaticData;
 	//장비 정적 데이터 캐시
 	UPROPERTY()
-	TMap<int32, FEquipmentStaticData> CachedEquipmentStaticData;
+	TMap<FName, FEquipmentStaticData> CachedEquipmentStaticData;
 	//장비 가산 스탯보너스 캐시
 	UPROPERTY()
-	TMap<int32, FEquipmentBonus> CachedEquipmentBonus;
+	TMap<FName, FEquipmentBonus> CachedEquipmentBonus;
 	//세트장비 가산 스탯보너스 캐시
 	UPROPERTY()
-	TMap<int32, FSetEffectData> CachedSetEffectData;
+	TMap<FName, FSetEffectData> CachedSetEffectData;
 	//캐릭터/장비 스킬데이터 캐시
-	TMap<int32, FSkillStaticData> CachedSkillStaticData;
+	TMap<FName, FSkillStaticData> CachedSkillStaticData;
 	//에너미 정적 데이터 캐시
-	TMap<int32, FEnemyStaticData> CachedEnemyStaticData;
+	TMap<FName, FEnemyStaticData> CachedEnemyStaticData;
 	//스테이지 정적 데이터 캐시
-	TMap<int32, FStageStaticData> CachedStageStaticData;
+	TMap<FName, FStageStaticData> CachedStageStaticData;
 	
 	//캐싱 실패시 사용할 기본값
 	static FCharacterStaticData EmptyCharacterStaticData;
-	static FCharacterMultipliers EmptyCharacterMultipliers;
 	static FEquipmentStaticData EmptyEquipmentStaticData;
 	static FEquipmentBonus EmptyEquipmentBonus;
 	static FSetEffectData EmptySetEffectData;
@@ -295,12 +269,12 @@ void UGameDataSubsystem::CacheDataTable(UDataTable* DataTable, TMap<E, T>& OutRe
 
 //캐시데이터 조회 헬퍼 탬플릿
 template<typename T>
-const T& UGameDataSubsystem::GetCachedData(const TMap<int32, T>& Cache, int32 ID, const T& EmptyData, const TCHAR* DataName) const
+const T& UGameDataSubsystem::GetCachedData(const TMap<FName, T>& Cache, FName ID, const T& EmptyData, const TCHAR* DataName) const
 {
 	const T* found = Cache.Find(ID);
 	if (!found)
 	{
-		LR_WARN(TEXT("%s not found for ID : %d"), DataName, ID);
+		LR_WARN(TEXT("%s not found for ID : %s"), DataName, *ID.ToString());
 		return EmptyData;
 	}
 		
