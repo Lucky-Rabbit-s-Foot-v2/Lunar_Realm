@@ -8,8 +8,9 @@
 
 //=============================================================================
 // (260205) BJM 제작. 전투 관련 로직 생성(수동, 자동).
-// (260206_BJM) 자동 전투 상태 enum 추가.
-// (260208_BJM) 자동전투 최적화 적용 (Tick 로직 분리 및 캐싱)
+// (260206) BJM 자동 전투 상태 enum 추가.
+// (260209) BJM 자동전투 최적화 적용 (Tick 로직 분리 및 캐싱)
+// (260210) BJM 전투 로직 수정 (타겟 탐색 및 이동, 공격 로직 분리)
 //=============================================================================
 
 UENUM(BlueprintType)
@@ -48,7 +49,7 @@ protected:
 
 	void FindBestTarget();
 
-	void TryAction(float DeltaTime);
+	void AttemptAction(float DeltaTime);
 
 	void MoveToTarget(float DeltaTime);
 
@@ -71,4 +72,18 @@ protected:
 	float CurrentAttackCooldown = 1.0f;
 
 	FTimerHandle CombatLogicTimerHandle;
+
+private:
+	// 타겟이 죽었는지 확인하는 함수
+	bool IsTargetDead(AActor* TargetActor) const;
+
+	// 타겟 인디케이터 업데이트 함수
+	void UpdateTargetIndicator(ALRCharacter* OwnerCharacter);
+
+	// 실제 전투 처리 메인 로직
+	void ProcessCombatLogic(ALRCharacter* OwnerCharacter, float DeltaTime);
+
+	// 공격 실행 시도 함수
+	void AttemptAttack(ALRCharacter* OwnerCharacter);
+
 };

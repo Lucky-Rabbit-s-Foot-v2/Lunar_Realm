@@ -9,12 +9,26 @@
 /**
  * 
  */
+
+//=============================================================================
+// (260203) BJM 제작. 플레이어 컨트롤러
+// (260210) BJM 카메라매니저 연동
+//=============================================================================
+
+class UTouchInterface;
+
 UCLASS()
 class LUNAR_REALM_API ALRPlayerController : public ALRControllerBase
 {
 	GENERATED_BODY()
 	
 public:
-	UFUNCTION(Exec)
-	void GachaSim(const FString& BannerIdStr, int32 TotalPulls = 100000, int32 Seed = 12345);
+	ALRPlayerController();
+
+protected:
+	virtual void BeginPlay() override;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Mobile")
+	TObjectPtr<UTouchInterface> MobileTouchInterface;
 };

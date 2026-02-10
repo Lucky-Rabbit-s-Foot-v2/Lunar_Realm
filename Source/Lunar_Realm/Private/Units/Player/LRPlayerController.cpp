@@ -1,32 +1,27 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Units/Player/LRPlayerController.h"
-#include "Engine/GameInstance.h"
-#include "Engine/Engine.h"
-#include "Subsystems/Gacha/LRGachaSubsystem.h"
+#include "Units/Player/LRPlayerCameraManager.h"
+#include "GameFramework/TouchInterface.h"
 
-void ALRPlayerController::GachaSim(const FString& BannerIdStr, int32 TotalPulls, int32 Seed)
+ALRPlayerController::ALRPlayerController()
 {
-	UGameInstance* GI = GetGameInstance();
-	if (!GI) return;
-
-	ULRGachaSubsystem* Gacha = GI->GetSubsystem<ULRGachaSubsystem>();
-	if (!Gacha) return;
-
-	const FName BannerID(*BannerIdStr);
-
-	FLRGachaSimSummary NoPity;
-	FLRGachaSimSummary WithPity;
-
-	// 1) 천장 OFF
-	Gacha->Debug_SimulateBanner(BannerID, TotalPulls, Seed, NoPity, true, false);
-
-	// 2) 천장 ON
-	Gacha->Debug_SimulateBanner(BannerID, TotalPulls, Seed, WithPity, true, true);
-
-	// 로그
-	UE_LOG(LogTemp, Warning, TEXT("[GachaSimCompare] Banner=%s Seed=%d Pulls=%d"), *BannerID.ToString(), Seed, TotalPulls);
-	UE_LOG(LogTemp, Warning, TEXT("  NoPity  : %s"), *NoPity.ToString());
-	UE_LOG(LogTemp, Warning, TEXT("  WithPity: %s"), *WithPity.ToString());
+	PlayerCameraManagerClass = ALRPlayerCameraManager::StaticClass();
 }
 
+void ALRPlayerController::BeginPlay()
+{
+	if (IsLocalController())
+	{
+		if (MobileTouchInterface)
+		{
+			ActivateTouchInterface(MobileTouchInterface);
+			SetVirtualJoystickVisibility(true);
+			UE_LOG(LogTemp, Warning, TEXT("터치 인터페이스 활성화 성공"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("터치 인터페이스 활성화 실패"));
+		}
+	}
+}
