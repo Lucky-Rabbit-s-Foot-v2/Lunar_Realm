@@ -5,6 +5,7 @@
 #include "Units/LRCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/DecalComponent.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/Controller.h"
 #include "GameplayTagsManager.h"
@@ -52,49 +53,118 @@ void ULRCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (CurrentAttackCooldown > 0.0f)
-	{
-		CurrentAttackCooldown -= DeltaTime;
-	}
-
-	if (!CurrentTarget) return;
+	if (CurrentAttackCooldown > 0.0f) CurrentAttackCooldown -= DeltaTime;
 
 	ALRCharacter* OwnerCharacter = Cast<ALRCharacter>(GetOwner());
 	if (!OwnerCharacter) return;
 
-	float DistSq = FVector::DistSquared(OwnerCharacter->GetActorLocation(), CurrentTarget->GetActorLocation());
-	float AttackRangeSq = AttackRange * AttackRange;
+	UDecalComponent* TargetIndicator = nullptr;
+	TargetIndicator = OwnerCharacter->FindComponentByClass<UDecalComponent>();
 
-	if (DistSq <= AttackRangeSq)
+
+	if (CurrentTarget)
 	{
-		if (CurrentAttackCooldown <= 0.0f)
-		{
-			if (CombatState == EAutoCombatState::Manual)
-			{
-				if (OwnerCharacter->GetController())
-				{
-					OwnerCharacter->GetController()->StopMovement();
-				}
-			}
+		float DistSq = FVector::DistSquared(OwnerCharacter->GetActorLocation(), CurrentTarget->GetActorLocation());
+		float AttackRangeSq = AttackRange * AttackRange;
+		bool bInRange = (DistSq <= AttackRangeSq);
 
-			TryAction(DeltaTime);
-		}
+
+		bool bShowIndicator = false;
 
 		if (CombatState == EAutoCombatState::Auto)
 		{
-			if (OwnerCharacter->GetController())
+			bShowIndicator = true;
+		}
+		else // Manual Mode
+		{
+			bShowIndicator = bInRange; 
+		}
+
+		if (TargetIndicator)
+		{
+			TargetIndicator->SetVisibility(bShowIndicator);
+
+			if (bShowIndicator)
 			{
-				OwnerCharacter->GetController()->StopMovement();
+				FVector TargetLoc = CurrentTarget->GetActorLocation();
+				TargetLoc.Z -= 90.0f;
+				TargetIndicator->SetWorldLocation(TargetLoc);
+			}
+		}
+
+		if (bInRange)
+		{
+			if (CurrentAttackCooldown <= 0.0f)
+			{
+				if (CombatState == EAutoCombatState::Manual)
+				{
+					if (OwnerCharacter->GetController()) OwnerCharacter->GetController()->StopMovement();
+				}
+				TryAction(DeltaTime);
+			}
+			else if (CombatState == EAutoCombatState::Auto)
+			{
+				if (OwnerCharacter->GetController()) OwnerCharacter->GetController()->StopMovement();
+			}
+		}
+		else
+		{
+			if (CombatState == EAutoCombatState::Auto)
+			{
+				MoveToTarget(DeltaTime);
 			}
 		}
 	}
 	else
 	{
-		if (CombatState == EAutoCombatState::Auto)
-		{
-			MoveToTarget(DeltaTime);
-		}
+		if (TargetIndicator) TargetIndicator->SetVisibility(false);
 	}
+
+
+
+	//if (CurrentAttackCooldown > 0.0f)
+	//{
+	//	CurrentAttackCooldown -= DeltaTime;
+	//}
+
+	//if (!CurrentTarget) return;
+
+	//ALRCharacter* OwnerCharacter = Cast<ALRCharacter>(GetOwner());
+	//if (!OwnerCharacter) return;
+
+	//float DistSq = FVector::DistSquared(OwnerCharacter->GetActorLocation(), CurrentTarget->GetActorLocation());
+	//float AttackRangeSq = AttackRange * AttackRange;
+
+	//if (DistSq <= AttackRangeSq)
+	//{
+	//	if (CurrentAttackCooldown <= 0.0f)
+	//	{
+	//		if (CombatState == EAutoCombatState::Manual)
+	//		{
+	//			if (OwnerCharacter->GetController())
+	//			{
+	//				OwnerCharacter->GetController()->StopMovement();
+	//			}
+	//		}
+
+	//		TryAction(DeltaTime);
+	//	}
+
+	//	if (CombatState == EAutoCombatState::Auto)
+	//	{
+	//		if (OwnerCharacter->GetController())
+	//		{
+	//			OwnerCharacter->GetController()->StopMovement();
+	//		}
+	//	}
+	//}
+	//else
+	//{
+	//	if (CombatState == EAutoCombatState::Auto)
+	//	{
+	//		MoveToTarget(DeltaTime);
+	//	}
+	//}
 }
 
 void ULRCombatComponent::SetAutoMode(bool bEnableAuto)
@@ -109,7 +179,7 @@ void ULRCombatComponent::SetAutoMode(bool bEnableAuto)
 		ALRCharacter* OwnerCharactor = Cast<ALRCharacter>(GetOwner());
 		if (OwnerCharactor && OwnerCharactor->GetController())
 		{
-			OwnerCharactor->GetController()->StopMovement(); // 일단 멈추고 유저 입력 대기
+			OwnerCharactor->GetController()->StopMovement();
 		}
 	}
 }
@@ -170,14 +240,21 @@ void ULRCombatComponent::OnCombatLogicTimer()
 		}
 	}
 
-	if (!CurrentTarget && CombatState == EAutoCombatState::Auto)
+	bool bIsManualMode = (CombatState == EAutoCombatState::Manual);
+
+	if (!CurrentTarget || bIsManualMode)
 	{
 		FindBestTarget();
 	}
-	if (!CurrentTarget)
-	{
-		FindBestTarget();
-	}
+
+	//if (!CurrentTarget && CombatState == EAutoCombatState::Auto)
+	//{
+	//	FindBestTarget();
+	//}
+	//if (!CurrentTarget)
+	//{
+	//	FindBestTarget();
+	//}
 }
 
 void ULRCombatComponent::FindBestTarget()

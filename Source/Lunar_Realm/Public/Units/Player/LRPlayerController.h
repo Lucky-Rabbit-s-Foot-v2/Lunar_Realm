@@ -15,6 +15,8 @@
 // (260210) BJM 카메라매니저 연동
 //=============================================================================
 
+class UTouchInterface;
+
 UCLASS()
 class LUNAR_REALM_API ALRPlayerController : public ALRControllerBase
 {
@@ -22,4 +24,11 @@ class LUNAR_REALM_API ALRPlayerController : public ALRControllerBase
 	
 public:
 	ALRPlayerController();
+
+protected:
+	virtual void BeginPlay() override;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Mobile")
+	TObjectPtr<UTouchInterface> MobileTouchInterface;
 };

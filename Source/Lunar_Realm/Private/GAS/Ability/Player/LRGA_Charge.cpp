@@ -28,7 +28,7 @@ void ULRGA_Charge::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 		if (SpecHandle.IsValid())
 		{
 			ActorInfo->AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-			UE_LOG(LogTemp, Log, TEXT("에이다 충전"));
+			UE_LOG(LogTemp, Log, TEXT("에테르 충전"));
 
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		}
