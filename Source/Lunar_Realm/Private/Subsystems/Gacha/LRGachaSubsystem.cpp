@@ -789,7 +789,7 @@ FString ULRGachaSubsystem::DebugResultToColoredString(const FLRGachaResult& Resu
 	}
 
 	return FString::Printf(
-		TEXT("%s | %s(%s) | ItemID=%d | New=%d | GoldConv=%d(+%d)"),
+		TEXT("%s | %s(%s) | ItemID=%s | New=%d | GoldConv=%d(+%d)"),
 		*ItemTypeStr,
 		*RarityStr, *ColorName,
 		*Result.ItemID.ToString(),

@@ -11,6 +11,7 @@
  */
  //=============================================================================
  // (260208) KWB Stage 관리 주체 GI로 가정 -> 관련 내용 해당 클래스에 작성 (임시)
+ // (260210) KWB 키값 타입 int32 -> FName 으로 변경 반영
  // =============================================================================
 UCLASS()
 class LUNAR_REALM_API ULRGameInstance : public UGameInstance
@@ -19,12 +20,12 @@ class LUNAR_REALM_API ULRGameInstance : public UGameInstance
 	
 public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Stage")
-	void SetCurrentStageID(int32 InStageID) { CurrentStageID = InStageID; }
+	void SetCurrentStageID(FName InStageID) { CurrentStageID = InStageID; }
 
 	UFUNCTION(BlueprintPure, Category = "LR|Stage")
-	int32 GetCurrentStageID() const { return CurrentStageID; }
+	FName GetCurrentStageID() const { return CurrentStageID; }
 
 private:
 	UPROPERTY(EditAnywhere, Category = "LR|Stage")
-	int32 CurrentStageID = 1;
+	FName CurrentStageID;
 };

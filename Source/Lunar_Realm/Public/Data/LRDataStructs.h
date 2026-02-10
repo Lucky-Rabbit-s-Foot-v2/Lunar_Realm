@@ -413,7 +413,7 @@ struct FStageStaticData : public FTableRowBase
 
 	// 스테이지에서 소환 가능한 Enemy ID 리스트 (1~4종 가정)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spawn")
-	TArray<int32> SpawnEnemyIDs;
+	TArray<FName> SpawnEnemyIDs;
 
 	// SpawnEnemyIDs와 같은 인덱스의 확률 가중치
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spawn")

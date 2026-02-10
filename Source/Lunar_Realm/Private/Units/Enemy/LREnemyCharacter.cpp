@@ -29,7 +29,7 @@ void ALREnemyCharacter::OnDie()
 	PoolSys->ReturnToPool(this);
 }
 
-void ALREnemyCharacter::InitializeByEnemyID(int32 EnemyID)
+void ALREnemyCharacter::InitializeByEnemyID(FName EnemyID)	// FIX(KWB) : FName으로 수정 필요한 부분
 {
 	CurrentEnemyID = EnemyID;
 	InitializeAttributes(EnemyID);
@@ -45,7 +45,7 @@ void ALREnemyCharacter::BeginPlay()
 	}
 }
 
-void ALREnemyCharacter::InitializeAttributes(int32 EnemyID)
+void ALREnemyCharacter::InitializeAttributes(FName EnemyID)
 {
 	if (!AttributeSet || !AbilitySystemComponent)
 	{
@@ -62,7 +62,7 @@ void ALREnemyCharacter::InitializeAttributes(int32 EnemyID)
 		return;
 	}
 
-	const FEnemyStaticData& EnemyData = DataSys->GetEnemyStaticData(EnemyID);
+	const FEnemyStaticData& EnemyData = DataSys->GetEnemyStaticData(EnemyID);	// FIX(KWB) : FName으로 수정 필요한 부분
 
 	AttributeSet->InitHealth(static_cast<float>(EnemyData.MaxHealth));
 	AttributeSet->InitAttack(static_cast<float>(EnemyData.Attack));
@@ -72,7 +72,7 @@ void ALREnemyCharacter::InitializeAttributes(int32 EnemyID)
 	GrantEnemyAbilities();
 }
 
-void ALREnemyCharacter::GrantEnemyAbilities()
+void ALREnemyCharacter::GrantEnemyAbilities()	// FIX(KWB) : FName으로 수정 필요한 부분
 {
 	if (!AbilitySystemComponent)
 	{
@@ -91,17 +91,17 @@ void ALREnemyCharacter::GrantEnemyAbilities()
 		return;
 	}
 
-	TArray<int32> SkillIDs = DataSys->GetEnemySkillIDs(CurrentEnemyID);
+	TArray<FName> SkillIDs = DataSys->GetEnemySkillIDs(CurrentEnemyID);	// FIX(KWB) : FName으로 수정 필요한 부분
 
-	for (int32 SkillID : SkillIDs)
+	for (FName SkillID : SkillIDs)
 	{
-		const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillID);
+		const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillID);	// FIX(KWB) : FName으로 수정 필요한 부분
 
 		for (const TSoftClassPtr<UGameplayAbility>& SoftAbilityClass : SkillData.GrantedAbilities)
 		{
 			if (SoftAbilityClass.IsNull())
 			{
-				LR_WARN(TEXT("Invalid Soft Class Reference in Enemy Skill %d"), SkillID);
+				LR_WARN(TEXT("Invalid Soft Class Reference in Enemy Skill %s"), *SkillID.ToString());
 				continue;
 			}
 
@@ -109,7 +109,7 @@ void ALREnemyCharacter::GrantEnemyAbilities()
 
 			if (!AbilityClass)
 			{
-				LR_ERROR(TEXT("Failed to load Ability Class for Enemy Skill %d"), SkillID);
+				LR_ERROR(TEXT("Failed to load Ability Class for Enemy Skill %s"), *SkillID.ToString());
 				continue;
 			}
 

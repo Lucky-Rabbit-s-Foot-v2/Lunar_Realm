@@ -179,7 +179,7 @@ void ULRCombatComponent::UpdateWeaponInfo(FName InWeaponID)
 	else if (ItemType == ELRItemType::RANGED) AttackRange = 800.0f;
 	else AttackRange = 100.0f;
 
-	UE_LOG(LogTemp, Log, TEXT("무기설정 ID: %d, Range: %.1f"), InWeaponID, AttackRange);
+	UE_LOG(LogTemp, Log, TEXT("무기설정 ID: %s, Range: %.1f"), *InWeaponID.ToString(), AttackRange);
 }
 
 
