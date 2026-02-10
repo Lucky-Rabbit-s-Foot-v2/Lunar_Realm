@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AttributeSet.h"
 #include "AbilitySystemComponent.h"
 #include "GAS/Common/LRGameAbilitySystemMacros.h"
+#include "GAS/Attributes/LRAttributeSet.h"
 #include "LREnemyAttributeSet.generated.h"
 
 /**
@@ -19,7 +19,7 @@
  // (260210) KWB 멤버 추가(속성, 속성 한계값), 
  //============================================================================
 UCLASS()
-class LUNAR_REALM_API ULREnemyAttributeSet : public UAttributeSet
+class LUNAR_REALM_API ULREnemyAttributeSet : public ULRAttributeSet
 {
 	GENERATED_BODY()
 	
