@@ -330,7 +330,6 @@ struct FEnemyStaticData : public FTableRowBase
 {
 	GENERATED_BODY()
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
 	int32 CharacterID;
 
@@ -340,20 +339,38 @@ struct FEnemyStaticData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
 	FText Description;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
-	int32 Health;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
+	int32 DropAether;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
-	int32 Attack;
+	float Health;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
-	int32 Speed;
+	float MaxHealth;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
-	int32 AttackSpeed;
+	float Attack;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
-	int32 AttackRange;
+	float MaxAttack;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
+	float Speed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
+	float MaxSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
+	float AttackSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
+	float MaxAttackSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
+	float AttackRange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spec")
+	float MaxAttackRange;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
 	TSoftObjectPtr<USkeletalMesh> EnemyMesh;
