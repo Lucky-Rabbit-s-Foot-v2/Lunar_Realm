@@ -1,0 +1,46 @@
+﻿// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "Units/Player/LRPlayerCameraManager.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/PlayerController.h"
+
+ALRPlayerCameraManager::ALRPlayerCameraManager()
+{
+	FixedRotation = FRotator(-45.0f, 0.0f, 0.0f);
+	FixedX = -1000.0f;
+	FixedZ = 1000.0f;  
+}
+
+void ALRPlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
+{
+	if (!OutVT.Target)
+	{
+		Super::UpdateViewTarget(OutVT, DeltaTime);
+		return;
+	}
+
+	FVector TargetLoc = OutVT.Target->GetActorLocation();
+
+	float NewX = FixedX;
+
+	float NewY = FMath::Clamp(TargetLoc.Y, MinY, MaxY);
+
+	float NewZ = FixedZ;
+
+	FVector DesiredLoc = FVector(NewX, NewY, NewZ);
+	FRotator DesiredRot = FixedRotation;
+
+	if (CameraLagSpeed > 0.0f)
+	{
+		OutVT.POV.Location = FMath::VInterpTo(OutVT.POV.Location, DesiredLoc, DeltaTime, CameraLagSpeed);
+	}
+	else
+	{
+		OutVT.POV.Location = DesiredLoc;
+	}
+
+	OutVT.POV.Rotation = DesiredRot;
+	OutVT.POV.FOV = 90.0f;
+
+}
