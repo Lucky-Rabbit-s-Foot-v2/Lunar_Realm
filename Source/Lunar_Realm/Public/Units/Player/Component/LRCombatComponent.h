@@ -35,7 +35,7 @@ public:
 	void SetAutoMode(bool bEnableAuto);
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void UpdateWeaponInfo(int32 InWeaponID);
+	void UpdateWeaponInfo(FName InWeaponID);
 
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	AActor* GetCurrentTarget() const { return CurrentTarget; }

@@ -12,6 +12,8 @@
 #include "Data/LRDataStructs.h"
 #include "GAS/Tags/LRGameplayTags.h"
 #include "GAS/Attributes/LRPlayerAttributeSet.h"
+#include "Engine/GameInstance.h" 
+#include "Subsystems/GameDataSubsystem.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 
@@ -161,10 +163,17 @@ void ULRCombatComponent::SetAutoMode(bool bEnableAuto)
 	}
 }
 
-void ULRCombatComponent::UpdateWeaponInfo(int32 InWeaponID)
+void ULRCombatComponent::UpdateWeaponInfo(FName InWeaponID)
 {
-	FEntityIDInfo ParsingInfo(InWeaponID);
-	ELRItemType ItemType = ParsingInfo.GetItemType();
+	UGameInstance* GI = GetWorld()->GetGameInstance();
+	if (!GI) return;
+
+	UGameDataSubsystem* DataSys = GI->GetSubsystem<UGameDataSubsystem>();
+	if (!DataSys) return;
+
+	const FEquipmentStaticData& EquipData = DataSys->GetEquipmentStaticData(InWeaponID);
+
+	ELRItemType ItemType = EquipData.ItemType;
 
 	if (ItemType == ELRItemType::MELEE) AttackRange = 150.0f;
 	else if (ItemType == ELRItemType::RANGED) AttackRange = 800.0f;

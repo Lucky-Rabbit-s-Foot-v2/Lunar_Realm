@@ -39,10 +39,10 @@ void ALRPlayerState::InitializePlayerData()
 {
 	// TODO: SaveGameSubsystem에서 플레이어 데이터 로드
 	// 지금은 임시 데이터 넣음
-	CharacterID = 10101;
-	CharacterLevel = 1;
+	CharacterID = FName("10101");
+	CharacterLevel = FName("1");
 
-	EquippedItems.Add(EEquipmentSlotType::WEAPON, 20100101);
+	EquippedItems.Add(EEquipmentSlotType::WEAPON, FName(TEXT("20100101")));
 	EquippedItemLevels.Add(EEquipmentSlotType::WEAPON, 1);
 
 	// 스텟 계산
@@ -80,12 +80,14 @@ void ALRPlayerState::InitializeAttributes()
 		return;
 	}
 
-	float CharHP = DataSubsystem->GetCharacterFinalStat(CharacterID, ELRStatusType::HP, CharacterLevel);
-	float CharAtk = DataSubsystem->GetCharacterFinalStat(CharacterID, ELRStatusType::ATK, CharacterLevel);
-	float CharDef = DataSubsystem->GetCharacterFinalStat(CharacterID, ELRStatusType::DEF, CharacterLevel);
+	int32 CharLevelInt = FCString::Atoi(*CharacterLevel.ToString());
+
+	float CharHP = DataSubsystem->GetCharacterFinalStat(CharacterID, ELRStatusType::HP, CharLevelInt);
+	float CharAtk = DataSubsystem->GetCharacterFinalStat(CharacterID, ELRStatusType::ATK, CharLevelInt);
+	float CharDef = DataSubsystem->GetCharacterFinalStat(CharacterID, ELRStatusType::DEF, CharLevelInt);
 
 	// 장비보너스 계산
-	TArray<int32> ItemIDs;
+	TArray<FName> ItemIDs;
 	TArray<int32> ItemLevels;
 	EquippedItems.GenerateValueArray(ItemIDs);
 	EquippedItemLevels.GenerateValueArray(ItemLevels);
@@ -117,7 +119,7 @@ void ALRPlayerState::InitializeAttributes()
 
 }
 
-void ALRPlayerState::EquipItem(EEquipmentSlotType Slot, int32 ItemID)
+void ALRPlayerState::EquipItem(EEquipmentSlotType Slot, FName ItemID)
 {
 	UnequipItem(Slot);
 
@@ -157,9 +159,9 @@ void ALRPlayerState::GrantCharacterAbilities()
 	if (!DataSubsystem || !AbilitySystemComponent) return;
 
 	// 캐릭터 id로 스킬 id 목록 가져오기
-	TArray<int32> SkillIDs = DataSubsystem->GetCharacterSkillIDs(CharacterID);
+	TArray<FName> SkillIDs = DataSubsystem->GetCharacterSkillIDs(CharacterID);
 
-	for (int32 SkillID : SkillIDs)
+	for (FName SkillID : SkillIDs)
 	{
 		// 스킬 id로 정적 데이터 가져오기
 		const FSkillStaticData& SkillData = DataSubsystem->GetSkillStaticData(SkillID);
@@ -168,7 +170,7 @@ void ALRPlayerState::GrantCharacterAbilities()
 		{
 			if (SoftAbilityClass.IsNull())
 			{
-				LR_WARN(TEXT("Invalid Soft Class Reference in Skill %d"), SkillID);
+				LR_WARN(TEXT("Invalid Soft Class Reference in Skill %s"), *SkillID.ToString());
 				continue;
 			}
 			
@@ -176,7 +178,7 @@ void ALRPlayerState::GrantCharacterAbilities()
 			
 			if (!AbilityClass)
 			{
-				LR_ERROR(TEXT("Failed to load Ability Class for Skill %d"), SkillID);
+				LR_ERROR(TEXT("Failed to load Ability Class for Skill %s"), *SkillID.ToString());
 			}
 			
 			FGameplayAbilitySpec Spec(AbilityClass, 1, INDEX_NONE, this);
@@ -186,7 +188,7 @@ void ALRPlayerState::GrantCharacterAbilities()
 	}
 }
 
-void ALRPlayerState::GrantEquipmentAbilities(EEquipmentSlotType Slot, int32 EquipmentID)
+void ALRPlayerState::GrantEquipmentAbilities(EEquipmentSlotType Slot, FName EquipmentID)
 {
 	UGameInstance* GI = GetGameInstance();
 	if (!GI) return;
@@ -194,11 +196,11 @@ void ALRPlayerState::GrantEquipmentAbilities(EEquipmentSlotType Slot, int32 Equi
 	if (!DataSubsystem || !AbilitySystemComponent) return;
 
 	// 1. 장비 ID로 스킬 ID 목록 조회
-	TArray<int32> SkillIDs = DataSubsystem->GetEquipmentSkillIDs(EquipmentID);
+	TArray<FName> SkillIDs = DataSubsystem->GetEquipmentSkillIDs(EquipmentID);
 
 	TArray<FGameplayAbilitySpecHandle> NewHandles;
 
-	for (int32 SkillID : SkillIDs)
+	for (FName SkillID : SkillIDs)
 	{
 		const FSkillStaticData& SkillData = DataSubsystem->GetSkillStaticData(SkillID);
 
@@ -206,14 +208,14 @@ void ALRPlayerState::GrantEquipmentAbilities(EEquipmentSlotType Slot, int32 Equi
 		{
 			if (SoftAbilityClass.IsNull())
 			{
-				LR_WARN(TEXT("Invalid Soft Class Reference in Skill %d"), SkillID);
+				LR_WARN(TEXT("Invalid Soft Class Reference in Skill %s"), *SkillID.ToString());
 			}
 			
 			TSubclassOf<UGameplayAbility> AbilityClass = SoftAbilityClass.LoadSynchronous();
 			
 			if (!AbilityClass)
 			{
-				LR_ERROR(TEXT("Failed to load Ability Class for Skill %d"), SkillID);
+				LR_ERROR(TEXT("Failed to load Ability Class for Skill %s"), *SkillID.ToString());
 			}
 			
 			FGameplayAbilitySpec Spec(AbilityClass, 1, INDEX_NONE, this);
