@@ -49,7 +49,7 @@ protected:
 
 	void FindBestTarget();
 
-	void TryAction(float DeltaTime);
+	void AttemptAction(float DeltaTime);
 
 	void MoveToTarget(float DeltaTime);
 
@@ -72,4 +72,18 @@ protected:
 	float CurrentAttackCooldown = 1.0f;
 
 	FTimerHandle CombatLogicTimerHandle;
+
+private:
+	// 타겟이 죽었는지 확인하는 함수
+	bool IsTargetDead(AActor* TargetActor) const;
+
+	// 타겟 인디케이터 업데이트 함수
+	void UpdateTargetIndicator(ALRCharacter* OwnerCharacter);
+
+	// 실제 전투 처리 메인 로직
+	void ProcessCombatLogic(ALRCharacter* OwnerCharacter, float DeltaTime);
+
+	// 공격 실행 시도 함수
+	void AttemptAttack(ALRCharacter* OwnerCharacter);
+
 };
