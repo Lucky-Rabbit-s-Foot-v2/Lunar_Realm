@@ -64,7 +64,7 @@ void ALREnemyCharacter::InitializeAttributes(int32 EnemyID)
 
 	const FEnemyStaticData& EnemyData = DataSys->GetEnemyStaticData(EnemyID);
 
-	AttributeSet->InitHealth(static_cast<float>(EnemyData.Health));
+	AttributeSet->InitHealth(static_cast<float>(EnemyData.MaxHealth));
 	AttributeSet->InitAttack(static_cast<float>(EnemyData.Attack));
 	AttributeSet->InitSpeed(static_cast<float>(EnemyData.Speed));
 

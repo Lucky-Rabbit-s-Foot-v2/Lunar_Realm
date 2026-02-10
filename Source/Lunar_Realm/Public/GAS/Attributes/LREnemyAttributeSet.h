@@ -16,7 +16,7 @@
  */
  //============================================================================
  // (260204) KWB 제작.
- // (260210) KWB 속성 추가 (스켈레탈 메시, 공격 속도 etc).
+ // (260210) KWB 멤버 추가(속성, 속성 한계값), 
  //============================================================================
 UCLASS()
 class LUNAR_REALM_API ULREnemyAttributeSet : public UAttributeSet
@@ -27,17 +27,33 @@ class LUNAR_REALM_API ULREnemyAttributeSet : public UAttributeSet
 public:
 	ULREnemyAttributeSet();
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(BlueprintReadOnly, Category = "LR|Spec")
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(ULREnemyAttributeSet, Health)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(BlueprintReadOnly, Category = "LR|Spec")
 	FGameplayAttributeData Attack;
 	ATTRIBUTE_ACCESSORS(ULREnemyAttributeSet, Attack)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(BlueprintReadOnly, Category = "LR|Spec")
 	FGameplayAttributeData Speed;
 	ATTRIBUTE_ACCESSORS(ULREnemyAttributeSet, Speed)
+
+	// 속성값 한계치
+	UPROPERTY(BlueprintReadWrite, Category = "LR|Spec|Limits")
+	float MaxHealth = 100.0f;
+
+	UPROPERTY(BlueprintReadWrite, Category = "LR|Spec|Limits")
+	float MaxSpeed = 2.0f; // 1.0 = 100%, 2.0 = 200%
+
+	UPROPERTY(BlueprintReadWrite, Category = "LR|Spec|Limits")
+	float MaxAttack = 3.0f; // 1.0 = 100%, 3.0 = 300%
+
+	UPROPERTY(BlueprintReadWrite, Category = "LR|Spec|Limits")
+	float MaxAttackRange = 2000.0f;	// TEMP : 임시값 엔진에서 거리 보면서 조정 필요
+
+	UPROPERTY(BlueprintReadWrite, Category = "LR|Spec|Limits")
+	float MaxScale = 1.5f;	// 150%
 
 		virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 };
