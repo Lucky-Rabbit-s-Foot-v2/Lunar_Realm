@@ -78,7 +78,7 @@ bool ALREnemySpawner::InitializeFromStageData()
 	// 스테이지 데이터 검사[1 스테이지 데이터로 폴백, 1 스테이지 데이터 없을 시 하드 코딩된 데이터 사용]
 	// TODO: StageManager에서 데이터 가져오는 로직으로 수정
 
-	bool bValidStageData = (StageData.RowName != NAME_None) && (StageData.SpawnEnemyIDs.Num() > 0);
+	bool bValidStageData = (StageData.DataID != NAME_None) && (StageData.SpawnEnemyIDs.Num() > 0);
 	if (!bValidStageData)
 	{
 		LR_WARN(TEXT("Invalid Stage Data"));

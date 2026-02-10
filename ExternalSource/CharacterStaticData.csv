@@ -1,4 +1,4 @@
-﻿---,RowName,CharacterName,Description,Grade,AttackType,ClassType,HPMultiplier,AttackMultiplier,DefenseMultiplier,CharacterTexture,SkillIDs
+﻿---,DataID,CharacterName,Description,Grade,AttackType,ClassType,HPMultiplier,AttackMultiplier,DefenseMultiplier,CharacterTexture,SkillIDs
 1,CHAR_MAGE_01,Daisy,Basic Mage,BASIC,RANGED,MAGICIAN,1.02,1.05,1.01,,"""()"""
 2,CHAR_WARRIOR_01,Lancelot,Unique Warrior,UNIQUE,MELEE,WARRIOR,1.05,1.03,1.03,,"""()"""
 3,CHAR_HERO_01,Merlin,Legend Arc Mage,LEGEND,RANGED,MAGICIAN,1.1,1.15,1.08,,"""()"""
