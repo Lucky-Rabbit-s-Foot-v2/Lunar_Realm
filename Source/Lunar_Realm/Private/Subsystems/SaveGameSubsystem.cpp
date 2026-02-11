@@ -26,28 +26,28 @@ void USaveGameSubsystem::CreateNewSaveGame()
 	CurrentSaveGame->ApplyDefaults();
 
 #if WITH_EDITOR
-	//테스트용 데이터......
-	//도감 보유 캐릭터 정보
-	CurrentSaveGame->OwnedCharacters.Add(10102, FPlayerCharacterInstance(10102, 10)); //리더
-	CurrentSaveGame->OwnedCharacters.Add(10301, FPlayerCharacterInstance(10301, 3)); //파티원 1
-	CurrentSaveGame->OwnedCharacters.Add(10201, FPlayerCharacterInstance(10201, 4)); //파티원 2
-	CurrentSaveGame->OwnedCharacters.Add(10101, FPlayerCharacterInstance(10101, 4)); //파티원 3
-	
-	//도감 보유 장비 정보
-	CurrentSaveGame->OwnedEquipments.Add(20100201, FPlayerEquipmentInstance(20100201, 3)); //리더장비 무기
-	CurrentSaveGame->OwnedEquipments.Add(21150102, FPlayerEquipmentInstance(21150102, 3)); //리더장비 헬멧
-	CurrentSaveGame->OwnedEquipments.Add(21255101, FPlayerEquipmentInstance(21255101, 3)); //리더장비 갑옷
-	
-	//선정 파티 정보
-	CurrentSaveGame->SelectedCharactersIDs.Add(10102);
-	CurrentSaveGame->SelectedCharactersIDs.Add(10301);
-	CurrentSaveGame->SelectedCharactersIDs.Add(10201);
-	CurrentSaveGame->SelectedCharactersIDs.Add(10301);
-	
-	//리더 장비 정보
-	CurrentSaveGame->SelectedEquipmentIDs.Add(20100201);
-	CurrentSaveGame->SelectedEquipmentIDs.Add(21150102);
-	CurrentSaveGame->SelectedEquipmentIDs.Add(21255102);
+	// //테스트용 데이터......
+	// //도감 보유 캐릭터 정보
+	// CurrentSaveGame->OwnedCharacters.Add(10102, FPlayerCharacterInstance(10102, 10)); //리더
+	// CurrentSaveGame->OwnedCharacters.Add(10301, FPlayerCharacterInstance(10301, 3)); //파티원 1
+	// CurrentSaveGame->OwnedCharacters.Add(10201, FPlayerCharacterInstance(10201, 4)); //파티원 2
+	// CurrentSaveGame->OwnedCharacters.Add(10101, FPlayerCharacterInstance(10101, 4)); //파티원 3
+	//
+	// //도감 보유 장비 정보
+	// CurrentSaveGame->OwnedEquipments.Add(20100201, FPlayerEquipmentInstance(20100201, 3)); //리더장비 무기
+	// CurrentSaveGame->OwnedEquipments.Add(21150102, FPlayerEquipmentInstance(21150102, 3)); //리더장비 헬멧
+	// CurrentSaveGame->OwnedEquipments.Add(21255101, FPlayerEquipmentInstance(21255101, 3)); //리더장비 갑옷
+	//
+	// //선정 파티 정보
+	// CurrentSaveGame->SelectedCharactersIDs.Add(10102);
+	// CurrentSaveGame->SelectedCharactersIDs.Add(10301);
+	// CurrentSaveGame->SelectedCharactersIDs.Add(10201);
+	// CurrentSaveGame->SelectedCharactersIDs.Add(10301);
+	//
+	// //리더 장비 정보
+	// CurrentSaveGame->SelectedEquipmentIDs.Add(20100201);
+	// CurrentSaveGame->SelectedEquipmentIDs.Add(21150102);
+	// CurrentSaveGame->SelectedEquipmentIDs.Add(21255102);
 	
 #endif
 	
@@ -88,7 +88,7 @@ void USaveGameSubsystem::SaveGame()
 	}
 }
 
-void USaveGameSubsystem::SetPartySlot(int32 Slots, int32 CharacterID)
+void USaveGameSubsystem::SetPartySlot(int32 Slots, FName CharacterID)
 {
 	if (!ensureMsgf(CurrentSaveGame, TEXT("CurrentSaveGame is NULL")))
 	{
@@ -98,40 +98,40 @@ void USaveGameSubsystem::SetPartySlot(int32 Slots, int32 CharacterID)
 	CurrentSaveGame->SetCharacterPartySlot(Slots, CharacterID);
 	SaveGame(); //자동저장
 	
-	LR_INFO(TEXT("Character Slot %d set to ID %d"), Slots, CharacterID);
+	LR_INFO(TEXT("Character Slot %d set to ID %s"), Slots, *CharacterID.ToString());
 }
 
-int32 USaveGameSubsystem::GetPartyCharacterID(int32 Slot) const
+FName USaveGameSubsystem::GetPartyCharacterID(int32 Slot) const
 {
 	if (!ensureMsgf(CurrentSaveGame, TEXT("CurrentSaveGame is NULL")))
 	{
-		return -1;
+		return NAME_None;
 	}
 	
 	return CurrentSaveGame->GetCharacterID(Slot);
 }
 
-TArray<int32> USaveGameSubsystem::GetAllPartyCharactersIDs() const
+TArray<FName> USaveGameSubsystem::GetAllPartyCharactersIDs() const
 {
 	if (!ensureMsgf(CurrentSaveGame, TEXT("CurrentSaveGame is NULL")))
 	{
-		return TArray<int32>();
+		return TArray<FName>();
 	}
 	
 	return CurrentSaveGame->GetAllCharacterSlots();
 }
 
-int32 USaveGameSubsystem::GetLeaderCharacterID() const
+FName USaveGameSubsystem::GetLeaderCharacterID() const
 {
 	if (!ensureMsgf(CurrentSaveGame, TEXT("CurrentSaveGame is NULL")))
 	{
-		return -1;
+		return NAME_None;
 	}
 	
 	return CurrentSaveGame->GetLeaderCharacterID();
 }
 
-void USaveGameSubsystem::SetLeaderEquipmentSlot(int32 Slots, int32 EquipmentIDs)
+void USaveGameSubsystem::SetLeaderEquipmentSlot(int32 Slots, FName EquipmentIDs)
 {
 	if (!ensureMsgf(CurrentSaveGame, TEXT("CurrentSaveGame is NULL")))
 	{
@@ -141,24 +141,24 @@ void USaveGameSubsystem::SetLeaderEquipmentSlot(int32 Slots, int32 EquipmentIDs)
 	CurrentSaveGame->SetEquipmentSlot(Slots, EquipmentIDs);
 	SaveGame(); //자동저장
 	
-	LR_INFO(TEXT("Character Slot %d set to ID %d"), Slots, EquipmentIDs);
+	LR_INFO(TEXT("Character Slot %d set to ID %s"), Slots, *EquipmentIDs.ToString());
 }
 
-int32 USaveGameSubsystem::GetLeaderEquipmentID(int32 SlotIdx) const
+FName USaveGameSubsystem::GetLeaderEquipmentID(int32 SlotIdx) const
 {
 	if (!ensureMsgf(CurrentSaveGame, TEXT("CurrentSaveGame is NULL")))
 	{
-		return -1;
+		return NAME_None;
 	}
 	
 	return CurrentSaveGame->GetEquipmentID(SlotIdx);
 }
 
-TArray<int32> USaveGameSubsystem::GetAllLeaderEquipmentIDs() const
+TArray<FName> USaveGameSubsystem::GetAllLeaderEquipmentIDs() const
 {
 	if (!ensureMsgf(CurrentSaveGame, TEXT("CurrentSaveGame is NULL")))
 	{
-		return TArray<int32>();
+		return TArray<FName>();
 	}
 	
 	return CurrentSaveGame->GetAllEquippedIDs();

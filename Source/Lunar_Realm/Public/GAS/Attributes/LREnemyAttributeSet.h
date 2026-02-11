@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AttributeSet.h"
 #include "AbilitySystemComponent.h"
 #include "GAS/Common/LRGameAbilitySystemMacros.h"
+#include "GAS/Attributes/LRAttributeSet.h"
 #include "LREnemyAttributeSet.generated.h"
 
 /**
@@ -16,10 +16,10 @@
  */
  //============================================================================
  // (260204) KWB 제작.
- // TODO 하신 형님 보여주신 예시대로 데이터 드리븐 구조로 설정
+ // (260210) KWB 멤버 추가(속성, 속성 한계값), 
  //============================================================================
 UCLASS()
-class LUNAR_REALM_API ULREnemyAttributeSet : public UAttributeSet
+class LUNAR_REALM_API ULREnemyAttributeSet : public ULRAttributeSet
 {
 	GENERATED_BODY()
 	
@@ -27,17 +27,34 @@ class LUNAR_REALM_API ULREnemyAttributeSet : public UAttributeSet
 public:
 	ULREnemyAttributeSet();
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+
+	UPROPERTY(BlueprintReadOnly, Category = "LR|Spec")
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(ULREnemyAttributeSet, Health)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(BlueprintReadOnly, Category = "LR|Spec")
 	FGameplayAttributeData Attack;
 	ATTRIBUTE_ACCESSORS(ULREnemyAttributeSet, Attack)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(BlueprintReadOnly, Category = "LR|Spec")
 	FGameplayAttributeData Speed;
 	ATTRIBUTE_ACCESSORS(ULREnemyAttributeSet, Speed)
 
-		virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	// 속성값 한계치
+	UPROPERTY(BlueprintReadWrite, Category = "LR|Spec|Limits")
+	float MaxHealth = 100.0f;
+
+	UPROPERTY(BlueprintReadWrite, Category = "LR|Spec|Limits")
+	float MaxAttack = 500.0f;
+
+	UPROPERTY(BlueprintReadWrite, Category = "LR|Spec|Limits")
+	float MaxSpeed = 300.0f;
+
+	UPROPERTY(BlueprintReadWrite, Category = "LR|Spec|Limits")
+	float MaxAttackRange = 2000.0f;	// TEMP : 임시값 엔진에서 거리 보면서 조정 필요
+
+	UPROPERTY(BlueprintReadWrite, Category = "LR|Spec|Limits")
+	float MaxScale = 1.5f;	// 150%
 };

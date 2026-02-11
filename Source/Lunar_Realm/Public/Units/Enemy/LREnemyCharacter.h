@@ -19,6 +19,7 @@ class UGameplayAbility;
  // (260204) KWB 제작. 제반 사항 구현.
  // (260205) KWB DataSubsystem 구조체에서 Attribute 별 값 받아와 초기화하는 로직 구현
  // (260209) KWB "GrantEnemyAbilities()" 함수 리팩터 -> "FEnemyStaticData" 스킬 항목 "TArray<int32>" 타입으로 캐릭터, 장비와 통일
+ // (260210) KWB 키값 타입 int32 -> FName 으로 변경 반영
  //============================================================================
 
 UCLASS()
@@ -37,7 +38,7 @@ public:
 	void OnDie();
 
 	UFUNCTION(BlueprintCallable)
-	void InitializeByEnemyID(int32 EnemyID);
+	void InitializeByEnemyID(FName EnemyID);
 
 	void GrantEnemyAbilities();
 
@@ -47,7 +48,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
-	void InitializeAttributes(int32 EnemyID);
+	void InitializeAttributes(FName EnemyID);
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|ASC")
@@ -57,7 +58,7 @@ private:
 	TObjectPtr<ULREnemyAttributeSet> AttributeSet = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Enemy", meta = (AllowPrivateAccess = "true"))
-	int32 CurrentEnemyID = 0;
+	FName CurrentEnemyID;
 
 	TArray<FGameplayAbilitySpecHandle> GrantedAbilityHandles;
 };

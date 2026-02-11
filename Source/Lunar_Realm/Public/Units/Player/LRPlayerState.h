@@ -45,14 +45,14 @@ public:
 	// 데이터 초기화 및 로드
 	void InitializePlayerData();
 
-	void EquipItem(EEquipmentSlotType Slot, int32 ItemID);
+	void EquipItem(EEquipmentSlotType Slot, FName ItemID);
 	void UnequipItem(EEquipmentSlotType Slot);
 
 // 내부 로직
 protected:
 	void InitializeAttributes();		// 스탯 계산
 	void GrantCharacterAbilities();		// 캐릭터 스킬 부여
-	void GrantEquipmentAbilities(EEquipmentSlotType Slot, int32 EquipmentID);	// 장비 스킬 부여
+	void GrantEquipmentAbilities(EEquipmentSlotType Slot, FName EquipmentID);	// 장비 스킬 부여
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "GAS")
@@ -62,11 +62,11 @@ protected:
 	TObjectPtr<ULRPlayerAttributeSet> AttributeSet;
 
 protected:
-	int32 CharacterID = 10101;
-	int32 CharacterLevel = 1;
+	FName CharacterID = FName("10101");
+	FName CharacterLevel = FName("1");
 
 	UPROPERTY(VisibleAnywhere, Category = "Data")
-	TMap<EEquipmentSlotType, int32> EquippedItems;
+	TMap<EEquipmentSlotType, FName> EquippedItems;
 
 	UPROPERTY(VisibleAnywhere, Category = "Data")
 	TMap<EEquipmentSlotType, int32> EquippedItemLevels;

@@ -1,7 +1,7 @@
-﻿,SkillID,SkillName,Description,SkillIcon,GrantedAbilities
-1,40000001,Basic Shoot,Basic Gun Shoot,,"""()"""
-2,40000002,Basic Missile,Basic Magic Missile,,"""()"""
-3,40000003,Basic Attack,Basic Sword Attack,,"""()"""
-4,40000100,Auro of Power,Health Buff,,"""()"""
-5,40000501,Power Shoot,Big Bomb Skill,,"""()"""
-6,40000601,Fire Ball,Fireball Skill,,"""()"""
+﻿,DataID,SkillName,Description,SkillIcon,GrantedAbilities
+1,SKILL_ABILITY_01,Basic Shoot,Basic Gun Shoot,,"""()"""
+2,SKILL_ABILITY_02,Basic Missile,Basic Magic Missile,,"""()"""
+3,SKILL_ABILITY_03,Basic Attack,Basic Sword Attack,,"""()"""
+4,SKILL_ACTIVE_BUFF_01,Auro of Power,Health Buff,,"""()"""
+5,SKILL_ACTIVE_ATTACK_01,Power Shoot,Big Bomb Skill,,"""()"""
+6,SKILL_ACTIVE_ATTACK_02,Fire Ball,Fireball Skill,,"""()"""

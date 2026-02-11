@@ -3,68 +3,71 @@
 
 #include "SaveGame/LRSaveGame.h"
 
-bool ULRSaveGame::HasCharacter(int32 CharacterID) const
+bool ULRSaveGame::HasCharacter(FName CharacterID) const
 {
 	return OwnedCharacters.Contains(CharacterID);
 }
 
-bool ULRSaveGame::HasEquipment(int32 EquipmentID) const
+bool ULRSaveGame::HasEquipment(FName EquipmentID) const
 {
 	return OwnedEquipments.Contains(EquipmentID);
 }
 
-void ULRSaveGame::SetCharacterPartySlot(int32 SlotIndex, int32 CharacterID)
+void ULRSaveGame::SetCharacterPartySlot(int32 SlotIndex, FName CharacterID)
 {
 	//슬롯 수 보장
 	while (SelectedCharactersIDs.Num() <= SlotIndex)
 	{
-		SelectedCharactersIDs.Add(-1);
+		SelectedCharactersIDs.Add(NAME_None);
 	}
 	
 	SelectedCharactersIDs[SlotIndex] = CharacterID;
 }
 
-int32 ULRSaveGame::GetCharacterID(int32 SlotIndex) const
+FName ULRSaveGame::GetCharacterID(int32 SlotIndex) const
 {
 	if (SelectedCharactersIDs.IsValidIndex(SlotIndex))
 	{
 		return SelectedCharactersIDs[SlotIndex];
 	}
 	
-	return -1;
+	LR_WARN(TEXT("Invalid SlotIndex"));
+	return NAME_None;
 }
 
-int32 ULRSaveGame::GetLeaderCharacterID() const
+FName ULRSaveGame::GetLeaderCharacterID() const
 {
 	return GetCharacterID(0);
 }
 
-TArray<int32> ULRSaveGame::GetAllCharacterSlots() const
+TArray<FName> ULRSaveGame::GetAllCharacterSlots() const
 {
 	return SelectedCharactersIDs;
 }
 
-void ULRSaveGame::SetEquipmentSlot(int32 SlotIndex, int32 EquipmentID)
+void ULRSaveGame::SetEquipmentSlot(int32 SlotIndex, FName EquipmentID)
 {
 	// 슬롯 수 보장
 	while (SelectedEquipmentIDs.Num() <= SlotIndex)
 	{
-		SelectedEquipmentIDs.Add(-1);
+		SelectedEquipmentIDs.Add(NAME_None);
 	}
         
 	SelectedEquipmentIDs[SlotIndex] = EquipmentID;
 }
 
-int32 ULRSaveGame::GetEquipmentID(int32 SlotIndex) const
+FName ULRSaveGame::GetEquipmentID(int32 SlotIndex) const
 {
 	if (SelectedEquipmentIDs.IsValidIndex(SlotIndex))
 	{
 		return SelectedEquipmentIDs[SlotIndex];
 	}
-	return -1;
+	
+	LR_WARN(TEXT("Invalid SlotIndex"));
+	return NAME_None;
 }
 
-TArray<int32> ULRSaveGame::GetAllEquippedIDs() const
+TArray<FName> ULRSaveGame::GetAllEquippedIDs() const
 {
 	return SelectedEquipmentIDs;
 }

@@ -10,9 +10,6 @@
 /**
  * 맵 이름 enum class
  */
-//=============================================================================
-// (260206) PJB 제작.
-// =============================================================================
 
 UENUM(BlueprintType)
 enum class ELevelName : uint8
@@ -31,7 +28,8 @@ enum class ELevelName : uint8
 //=============================================================================
 // (260206) PJB 제작. 비동기 레벨 전환 기능 구현
 // (260208) KWB Stage 관리 주체 GI로 가정 -> 관련 내용 해당 클래스에 작성 (임시)
-// =============================================================================
+//=============================================================================
+
 UCLASS()
 class LUNAR_REALM_API ULRGameInstance : public UGameInstance
 {
@@ -73,12 +71,12 @@ public:
 	UPROPERTY()
 	TObjectPtr<class ULRLoadingWidget> LoadingWidgetInstance = nullptr;
 	UFUNCTION(BlueprintCallable, Category = "LR|Stage")
-	void SetCurrentStageID(int32 InStageID) { CurrentStageID = InStageID; }
+	void SetCurrentStageID(FName InStageID) { CurrentStageID = InStageID; }
 
 	UFUNCTION(BlueprintPure, Category = "LR|Stage")
-	int32 GetCurrentStageID() const { return CurrentStageID; }
+	FName GetCurrentStageID() const { return CurrentStageID; }
 
 private:
 	UPROPERTY(EditAnywhere, Category = "LR|Stage")
-	int32 CurrentStageID = 1;
+	FName CurrentStageID;
 };

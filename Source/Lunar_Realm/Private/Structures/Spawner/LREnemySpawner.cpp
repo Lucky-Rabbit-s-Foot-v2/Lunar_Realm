@@ -61,7 +61,7 @@ bool ALREnemySpawner::InitializeFromStageData()
 {
 	UGameInstance* GI = GetGameInstance();
 	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
-	if (!DataSys)
+	if (!GI || !DataSys)
 	{
 		LR_ERROR(TEXT("GameDataSubsystem not found in spawner"));
 		return false;
@@ -78,40 +78,44 @@ bool ALREnemySpawner::InitializeFromStageData()
 	// 스테이지 데이터 검사[1 스테이지 데이터로 폴백, 1 스테이지 데이터 없을 시 하드 코딩된 데이터 사용]
 	// TODO: StageManager에서 데이터 가져오는 로직으로 수정
 
-	bool bValidStageData = (StageData.StageID != 0) && (StageData.SpawnEnemyIDs.Num() > 0);
-	if (!bValidStageData && CurrentStageID != 1)
+	bool bValidStageData = (StageData.DataID != NAME_None) && (StageData.SpawnEnemyIDs.Num() > 0);
+	if (!bValidStageData)
 	{
-		// 현재 스테이지 데이터를 불러올 수 없으면 1스테이지로 폴백
-		LR_WARN(TEXT("Stage(%d) data not found or has no enemy IDs. Falling back to Stage 1."), CurrentStageID);
-		CurrentStageID = 1;
-		const FStageStaticData& FallbackData = DataSys->GetStageStaticData(1);
-		bValidStageData = (FallbackData.StageID != 0) && (FallbackData.SpawnEnemyIDs.Num() > 0);
-		if (bValidStageData)
-		{
-			CachedEnemyIDs = FallbackData.SpawnEnemyIDs;
-			CachedEnemyWeights = FallbackData.SpawnWeights;
-			CurrentSpawnInterval = FallbackData.SpawnInterval > 0.0f ? FallbackData.SpawnInterval : DefaultSpawnInterval;
-			bIsBossStage = FallbackData.bIsBossStage;
-		}
-		else
-		{
-			// 1스테이지 데이터도 없으면 하드코딩 기본값으로 세팅
-			LR_WARN(TEXT("Stage 1 data also not found. Using hardcoded defaults for spawner."));
-			CachedEnemyIDs = { 31010101 };
-			CachedEnemyWeights = { 1.0f };
-			CurrentSpawnInterval = DefaultSpawnInterval;
-			bIsBossStage = false;
-		}
+		LR_WARN(TEXT("Invalid Stage Data"));
+		return false;
+
+	//	// 현재 스테이지 데이터를 불러올 수 없으면 1스테이지로 폴백
+	//	LR_WARN(TEXT("Stage(%d) data not found or has no enemy IDs. Falling back to Stage 1."), CurrentStageID);
+	//	CurrentStageID = 1;
+	//	const FStageStaticData& FallbackData = DataSys->GetStageStaticData(1);
+	//	bValidStageData = (FallbackData.StageID != 0) && (FallbackData.SpawnEnemyIDs.Num() > 0);	// FIX(KWB) : FName으로 수정 필요한 부분
+	//	if (bValidStageData)
+	//	{
+	//		CachedEnemyIDs = FallbackData.SpawnEnemyIDs;
+	//		CachedEnemyWeights = FallbackData.SpawnWeights;
+	//		CurrentSpawnInterval = FallbackData.SpawnInterval > 0.0f ? FallbackData.SpawnInterval : DefaultSpawnInterval;
+	//		bIsBossStage = FallbackData.bIsBossStage;
+	//	}
+	//	else
+	//	{
+	//		// 1스테이지 데이터도 없으면 하드코딩 기본값으로 세팅
+	//		LR_WARN(TEXT("Stage 1 data also not found. Using hardcoded defaults for spawner."));
+	//		CachedEnemyIDs = { 31010101 };
+	//		CachedEnemyWeights = { 1.0f };
+	//		CurrentSpawnInterval = DefaultSpawnInterval;
+	//		bIsBossStage = false;
+	//	}
+	//}
+	//else if (!bValidStageData)
+	//{
+	//	// CurrentStageID == 1인데도 데이터가 없는 경우
+	//	LR_WARN(TEXT("Stage 1 data not found in DataTable. Using hardcoded defaults for spawner."));
+	//	CachedEnemyIDs = { 31010101 };
+	//	CachedEnemyWeights = { 1.0f };
+	//	CurrentSpawnInterval = DefaultSpawnInterval;
+	//	bIsBossStage = false;
 	}
-	else if (!bValidStageData)
-	{
-		// CurrentStageID == 1인데도 데이터가 없는 경우
-		LR_WARN(TEXT("Stage 1 data not found in DataTable. Using hardcoded defaults for spawner."));
-		CachedEnemyIDs = { 31010101 };
-		CachedEnemyWeights = { 1.0f };
-		CurrentSpawnInterval = DefaultSpawnInterval;
-		bIsBossStage = false;
-	}
+
 	else
 	{
 		CachedEnemyIDs = StageData.SpawnEnemyIDs;
@@ -119,26 +123,28 @@ bool ALREnemySpawner::InitializeFromStageData()
 		CurrentSpawnInterval = StageData.SpawnInterval > 0.0f ? StageData.SpawnInterval : DefaultSpawnInterval;
 		bIsBossStage = StageData.bIsBossStage;
 	}
+
+
 	if (bSpawnOnlyBossStage != bIsBossStage)
 	{
 		if (CachedEnemyIDs.Num() <= 0)
 		{
-			LR_WARN(TEXT("Stage(%d) has no enemy IDs after fallback"), CurrentStageID);
+			LR_WARN(TEXT("Stage(%s) has no enemy IDs after fallback"), *CurrentStageID.ToString());
 			return false;
 		}
 	}
 
-	LR_INFO(TEXT("EnemySpawner initialized: Stage(%d), EnemyCount(%d), Interval(%.2f)"),
-	CurrentStageID, CachedEnemyIDs.Num(), CurrentSpawnInterval);
+	LR_INFO(TEXT("EnemySpawner initialized: Stage(%s), EnemyCount(%d), Interval(%.2f)"),
+		*CurrentStageID.ToString(), CachedEnemyIDs.Num(), CurrentSpawnInterval);
 	
 	return true;
 }
 
-int32 ALREnemySpawner::PickEnemyIDByWeight() const
+FName ALREnemySpawner::PickEnemyIDByWeight() const
 {
 	if (CachedEnemyIDs.Num() <= 0)
 	{
-		return 0;
+		return NAME_None;
 	}
 
 	const float RandomValue = FMath::FRand();
@@ -150,11 +156,11 @@ int32 ALREnemySpawner::PickEnemyIDByWeight() const
 		Accumulated += Weight;
 		if (RandomValue <= Accumulated)
 		{
-			return CachedEnemyIDs[i];
+			return CachedEnemyIDs[i]; // FIX
 		}
 	}
 
-	return CachedEnemyIDs.Last();
+	return CachedEnemyIDs.Last();	// FIX
 }
 
 FTransform ALREnemySpawner::MakeRandomSpawnTransform() const
@@ -178,8 +184,8 @@ void ALREnemySpawner::SpawnEnemy()
 		return;
 	}
 
-	const int32 TargetEnemyID = PickEnemyIDByWeight();
-	if (TargetEnemyID <= 0)
+	const FName TargetEnemyID = PickEnemyIDByWeight();
+	if (TargetEnemyID == NAME_None)
 	{
 		return;
 	}

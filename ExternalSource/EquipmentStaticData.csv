@@ -1,6 +1,7 @@
-﻿,EquipmentID,EquipmentName,Description,EquipmentTexture,SkillIDs
-1,21102001,Basic Fire Dagger,기본 화염단검,,"""()"""
-2,22103039,Ice Sword,얼어붙은 바스타드소드,,"""()"""
-3,23202082,Arc Fire Rifle,번쩍이는 화염라이플,,"""()"""
-4,24203199,Epic Ice Staff ,대현자의 서리스태프,,"""()"""
-5,25402599,DemiGod Helmet,반신의 머리가리개,,"""()"""
+﻿,DataID,EquipmentName,Description,Grade,ItemType,SetType,EquipmentTexture,SkillIDs
+1,EQUIP_MELEE_01,Basic Dagger,기본 단검,BASIC,MELEE,BASIC,,"""()"""
+2,EQUIP_MELEE_02,Ice Sword,얼어붙은 바스타드소드,ELITE,MELEE,ICE,,"""()"""
+3,EQUIP_RANGED_72,Arc Fire Rifle,번쩍이는 화염라이플,UNIQUE,RANGED,FIRE,,"""()"""
+4,EQUIP_RANGED_93,Great Ice Staff ,대현자의 서리스태프,EPIC,RANGED,ELECTRIC,,"""()"""
+5,EQUIP_HELMET_94,DemiGod Helmet,반신의 머리가리개,LEGEND,HELMET,ICE,,"""()"""
+6,EQUIP_ARMOR_82,Demon Armor,악마의 체인플레이트,EPIC,ARMOR,FIRE,,"""()"""

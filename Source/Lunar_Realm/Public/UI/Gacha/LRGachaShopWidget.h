@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 
-#include "Data/Gacha/LRGachaTypes.h"
+#include "Data/LRDataStructs.h"
+#include "Data/LREnumType.h"
+
 #include "UI/BaseWidget.h"
 #include "UI/Gacha/LRGachaRevealWidget.h"
 

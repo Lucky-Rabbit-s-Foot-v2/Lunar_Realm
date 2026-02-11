@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 
 #include "Data/LRDataStructs.h"
-#include "Data/Gacha/LRGachaTransactionTypes.h"
 
 #include "GameFramework/SaveGame.h"
 
@@ -30,45 +29,45 @@ public:
 	// ========================================
 	// 로드아웃 헬퍼 함수들
 	// ========================================
-	bool HasCharacter(int32 CharacterID) const;
-	bool HasEquipment(int32 EquipmentID) const;
+	bool HasCharacter(FName CharacterID) const;
+	bool HasEquipment(FName EquipmentID) const;
 	
 	// 캐릭터 슬롯 관리
-	void SetCharacterPartySlot(int32 SlotIndex, int32 CharacterID);
-	int32 GetCharacterID(int32 SlotIndex) const;
+	void SetCharacterPartySlot(int32 SlotIndex, FName CharacterID);
+	FName GetCharacterID(int32 SlotIndex) const;
 	
 	//모든 캐릭터 슬롯 가져오기
-	TArray<int32> GetAllCharacterSlots() const;
+	TArray<FName> GetAllCharacterSlots() const;
 	
 	//리더캐릭터 ID 반환.
-	int32 GetLeaderCharacterID() const;
+	FName GetLeaderCharacterID() const;
 	
 	// 리더캐릭터 장비 슬롯 관리
-	void SetEquipmentSlot(int32 SlotIndex, int32 EquipmentID);
-	int32 GetEquipmentID(int32 SlotIndex) const;
+	void SetEquipmentSlot(int32 SlotIndex, FName EquipmentID);
+	FName GetEquipmentID(int32 SlotIndex) const;
 	
 	// 리더캐릭터 모든 장비 슬롯 가져오기
-	TArray<int32> GetAllEquippedIDs() const;
+	TArray<FName> GetAllEquippedIDs() const;
 	
 	// ========================================
 	// 소유 도감 데이터(캐릭터/장비 인스턴스)
 	// ========================================
 	UPROPERTY(SaveGame, BlueprintReadWrite)
-	TMap<int32, FPlayerCharacterInstance> OwnedCharacters;
+	TMap<FName, FPlayerCharacterInstance> OwnedCharacters;
     
 	UPROPERTY(SaveGame, BlueprintReadWrite)
-	TMap<int32, FPlayerEquipmentInstance> OwnedEquipments;
+	TMap<FName, FPlayerEquipmentInstance> OwnedEquipments;
     
 	// ========================================
 	// 선택된 로드아웃 정보
 	// ========================================
 	// 선택된 캐릭터 파티 정보
 	UPROPERTY(SaveGame, BlueprintReadWrite)
-	TArray<int32> SelectedCharactersIDs; // 4명[리더, 파티원1, 파티원2, 파티원3]
+	TArray<FName> SelectedCharactersIDs; // 4명[리더, 파티원1, 파티원2, 파티원3]
     
 	// 선택된 리더 캐릭터 장비 정보
 	UPROPERTY(SaveGame, BlueprintReadWrite)
-	TArray<int32> SelectedEquipmentIDs; // 리더 장비 3개 [무기, 헬멧, 갑옷]
+	TArray<FName> SelectedEquipmentIDs; // 리더 장비 3개 [무기, 헬멧, 갑옷]
     
 	// ========================================
 	// Currency (태그/맵 없음)

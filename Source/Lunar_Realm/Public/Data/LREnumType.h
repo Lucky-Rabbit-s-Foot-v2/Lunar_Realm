@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -85,6 +85,9 @@ enum class ELREnemyType : uint8
 	GOBLIN = 1, 
 	GOLEM = 2,
 	SLIME = 3,
+	BEAST = 4,
+	BAT = 5, 
+	GHOST = 6,
 	
 	MAX UMETA(Hidden)
 };
@@ -152,4 +155,56 @@ enum class EEquipmentSlotType : uint8
 	HELMET = 1,
 	ARMOR = 2, 
 	MAX UMETA(Hidden)
+};
+
+// =============================================================================
+// (260210) PYI 제작
+// =============================================================================
+// 재화
+// =============================================================================
+UENUM(BlueprintType)
+enum class ELRCurrencyType : uint8
+{
+	Gold,
+	CrescentTicket,
+	FullMoonTicket
+};
+
+// =============================================================================
+// Gacha Enums
+// =============================================================================
+UENUM(BlueprintType)
+enum class ELRGachaItemType : uint8
+{
+	Hero		UMETA(DisplayName = "Hero"),
+	Equipment	UMETA(DisplayName = "Equipment"),
+};
+
+UENUM(BlueprintType)
+enum class ELRGachaRarity : uint8
+{
+	Common    UMETA(DisplayName = "1성(일반)"),
+	Elite     UMETA(DisplayName = "2성(엘리트)"),
+	Unique    UMETA(DisplayName = "3성(유니크)"),
+	Epic      UMETA(DisplayName = "4성(에픽)"),
+	Legendary UMETA(DisplayName = "5성(전설)"),
+};
+
+UENUM(BlueprintType)
+enum class ELRGachaTicketType : uint8
+{
+	Crescent UMETA(DisplayName = "Crescent"),
+	FullMoon UMETA(DisplayName = "FullMoon"),
+};
+
+// =============================================================================
+// 가챠 트랜잭션 상태
+// =============================================================================
+UENUM(BlueprintType)
+enum class ELRGachaTxnState : uint8
+{
+	None,
+	PendingReveal,
+	Committed,
+	Canceled
 };
