@@ -55,12 +55,13 @@ void ALREnemyCharacter::InitializeByEnemyID(FName EnemyID)
 	// 비주얼 데이터 적용 (SkeletalMesh, AnimBP, Scale)
 	ApplyVisualData(EnemyData);
 
-	LR_INFO(TEXT("Enemy [%s] fully initialized - HP:%.0f ATK:%.0f SPD:%.0f Scale:%.2f"),
-		*EnemyID.ToString(),
-		EnemyData.MaxHealth,
-		EnemyData.Attack,
-		EnemyData.Speed,
-		EnemyData.Scale);
+	// 문제 있을 때만 다시 열어서 체크
+	//LR_INFO(TEXT("Enemy [%s] fully initialized - HP:%.0f ATK:%.0f SPD:%.0f Scale:%.2f"),
+	//	*EnemyID.ToString(),
+	//	EnemyData.MaxHealth,
+	//	EnemyData.Attack,
+	//	EnemyData.Speed,
+	//	EnemyData.Scale);
 }
 
 void ALREnemyCharacter::BeginPlay()
