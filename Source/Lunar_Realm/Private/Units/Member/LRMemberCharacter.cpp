@@ -88,7 +88,7 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 
 	if (CharData.DataID == NAME_None)
 	{
-		LR_ERROR(TEXT("옷 갈아입기 실패: 데이터 테이블에서 ID [%s]를 찾을 수 없습니다! (행 이름 확인)"), *InCharacterID.ToString());
+		LR_ERROR(TEXT("DT에서 ID [%s]를 찾을 수 없음"), *InCharacterID.ToString());
 		return;
 	}
 
@@ -102,12 +102,12 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 		}
 		else
 		{
-			LR_WARN(TEXT("[%s] 메시 로드 실패! 에셋 경로를 확인하세요."), *InCharacterID.ToString());
+			LR_WARN(TEXT("[%s] 메시 로드 실패."), *InCharacterID.ToString());
 		}
 	}
 	else
 	{
-		LR_WARN(TEXT("[%s] 데이터 테이블에 CharacterMesh가 비어있습니다!"), *InCharacterID.ToString());
+		LR_WARN(TEXT("[%s] 데이터 테이블에 CharacterMesh가 빔!"), *InCharacterID.ToString());
 	}
 
 	if (!CharData.AnimBlueprintClass.IsNull())
@@ -116,20 +116,20 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 		if (LoadedAnim && GetMesh())
 		{
 			GetMesh()->SetAnimInstanceClass(LoadedAnim);
-			LR_INFO(TEXT("[%s] 애님 블루프린트 적용 성공!"), *InCharacterID.ToString());
+			LR_INFO(TEXT("[%s] ABP 적용 성공"), *InCharacterID.ToString());
 		}
 		else
 		{
-			LR_WARN(TEXT("[%s] 애님 블루프린트 로드 실패!"), *InCharacterID.ToString());
+			LR_WARN(TEXT("[%s] ABP 로드 실패"), *InCharacterID.ToString());
 		}
 	}
 	else
 	{
-		LR_WARN(TEXT("[%s] 데이터 테이블에 AnimBlueprintClass가 비어있습니다!"), *InCharacterID.ToString());
+		LR_WARN(TEXT("[%s] DT에 AnimBlueprintClass가 비어있음"), *InCharacterID.ToString());
 	}
 
 	// (참고: 필요하면 여기서 CharData의 스탯을 이용해 체력/공격력 세팅을 추가할 수도 있음)
-	LR_INFO(TEXT("[%s] 캐릭터 데이터 세팅 완료!"), *InCharacterID.ToString());
+	LR_INFO(TEXT("[%s] 캐릭터 데이터 세팅 완료"), *InCharacterID.ToString());
 }
 
 void ALRMemberCharacter::ResetAttributes()
