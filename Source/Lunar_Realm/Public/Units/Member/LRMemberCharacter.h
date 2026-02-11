@@ -6,6 +6,7 @@
 #include "Units/LRCharacter.h"
 #include "AbilitySystemInterface.h"
 #include "GAS/Attributes/LRPlayerAttributeSet.h"
+#include "Interfaces/LRPoolableInterface.h"
 #include "LRMemberCharacter.generated.h"
 
 
@@ -14,6 +15,11 @@ class ULRPlayerAttributeSet;
 /**
  * 
  */
+//=============================================================================
+// (260204) BJM 제작. 소환캐릭터.
+// (260211) BJM 오브젝트 풀링시스템 적용, DataStruct 적용
+//=============================================================================
+
 UCLASS()
 class LUNAR_REALM_API ALRMemberCharacter : public ALRCharacter, public IAbilitySystemInterface
 {
@@ -34,11 +40,22 @@ protected:
 
 	virtual void OnHealthChangedNative(const FOnAttributeChangeData& Data);
 
+	virtual void OnPoolActivate_Implementation() override;
+	virtual void OnPoolDeactivate_Implementation() override;
+
+public:
+	void InitCharacterData(FName InCharacterID);
+
+private:
+	void ResetAttributes();
+	void ResetAIController();
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
 	TObjectPtr<ULRPlayerAttributeSet> MemberAttributeSet;
+
 
 };
