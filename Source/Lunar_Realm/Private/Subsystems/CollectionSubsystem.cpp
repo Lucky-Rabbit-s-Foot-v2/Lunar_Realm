@@ -2,11 +2,13 @@
 
 
 #include "Subsystems/CollectionSubsystem.h"
-#include "Data/LRDataStructs.h"
-#include "Engine/GameInstance.h"
-#include "SaveGame/LRSaveGame.h"
 #include "Subsystems/GameDataSubsystem.h"
 #include "Subsystems/SaveGameSubsystem.h"
+#include "SaveGame/LRSaveGame.h"
+
+#include "Algo/Count.h"
+#include "Data/LRDataStructs.h"
+#include "Engine/GameInstance.h"
 
  void UCollectionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
  {
@@ -200,37 +202,38 @@
 TArray<FName> UCollectionSubsystem::GetUnlockedCharacterIDs() const
  {
  	TArray<FName> IDs;
- 	for (const auto& pair : OwnedCharactersMap)
- 	{
- 		if (pair.Value.bIsUnlocked)
- 		{
- 			IDs.Add(pair.Key);
- 		}
- 	}
+ 	Algo::TransformIf(
+ 		OwnedCharactersMap, 
+ 		IDs, //대상
+ 		[] (const auto& pair) {return pair.Value.bIsUnlocked;}, //조건
+ 		[] (const auto& pair) {return pair.Key;} //변환
+ 		);
+ 	
  	return IDs;
  }
 
  bool UCollectionSubsystem::HasEquipment(FName EquipmentID) const
  {	
- 	for (const auto& instance : OwnedEquipmentsArray)
- 	{
- 		if (instance.EquipmentID == EquipmentID)
+ 	return OwnedEquipmentsArray.ContainsByPredicate(
+ 		[EquipmentID](const auto& instance)
  		{
- 			return true;
- 		}
- 	}
- 	
- 	return false;
+ 			return instance.EquipmentID == EquipmentID;
+ 		});
  }
 
  FEquipmentInstance UCollectionSubsystem::GetEquipmentInstance(FGuid InstanceID) const
  {
- 	for (const auto& instance : OwnedEquipmentsArray)
- 	{
- 		if (instance.InstanceID == InstanceID)
+ 	
+ 	const FEquipmentInstance* found = Algo::FindByPredicate(
+ 		OwnedEquipmentsArray,
+ 		[InstanceID](const FEquipmentInstance& instance)
  		{
- 			return instance;
- 		}
+ 			return instance.InstanceID == InstanceID;
+ 		});
+ 	
+ 	if (found)
+ 	{
+ 		return *found;
  	}
  	
  	LR_WARN(TEXT("Equipment ID %s not found"), *InstanceID.ToString());
@@ -239,16 +242,11 @@ TArray<FName> UCollectionSubsystem::GetUnlockedCharacterIDs() const
 
  TArray<FEquipmentInstance> UCollectionSubsystem::GetEquipmentInstancesByKey(FName EquipmentID) const
  {
- 	TArray<FEquipmentInstance> results;
- 	for (const auto& instance : OwnedEquipmentsArray)
- 	{
- 		if (instance.EquipmentID == EquipmentID)
+ 	return OwnedEquipmentsArray.FilterByPredicate(
+ 		[EquipmentID](const FEquipmentInstance& instance)
  		{
- 			results.Add(instance);
- 		}
- 	}
- 	
- 	return results;
+ 			return instance.EquipmentID == EquipmentID;
+ 		});
  }
 
  FGuid UCollectionSubsystem::AddEquipment(FName EquipmentID, int32 StartLevel)
@@ -282,39 +280,38 @@ TArray<FName> UCollectionSubsystem::GetUnlockedCharacterIDs() const
 
  void UCollectionSubsystem::LevelUpEquipment(FGuid InstanceID)
  {
- 	for (FEquipmentInstance& instance : OwnedEquipmentsArray)
- 	{
- 		if (instance.InstanceID == InstanceID)
+ 	FEquipmentInstance* instance = Algo::FindByPredicate(OwnedEquipmentsArray,
+ 		[InstanceID](const FEquipmentInstance& instance)
  		{
- 			instance.CurrentLevel++;
- 			instance.CurrentExp = 0;
- 			
- 			OnEquipmentUpdatedDel.Broadcast(InstanceID, instance.CurrentLevel);
- 			SyncToSaveGame();
- 			
- 			LR_INFO(TEXT("Equipment %s (ID: %s) leveled up to %d"),
-				*instance.EquipmentID.ToString(),
-				*InstanceID.ToString(),
-				instance.CurrentLevel);
- 			
- 			return;
- 		}
+ 			return instance.InstanceID == InstanceID;
+ 		});
+ 	
+ 	if (!ensureMsgf(instance, TEXT("Equipment InstanceID %s not found for level up"), *InstanceID.ToString()))
+ 	{
+ 		return;
  	}
  	
- 	LR_ERROR(TEXT("Equipment InstanceID %s not found for level up"), *InstanceID.ToString());
+ 	instance->CurrentLevel++;
+ 	instance->CurrentExp = 0;
+ 	
+ 	OnEquipmentUpdatedDel.Broadcast(InstanceID, instance->CurrentLevel);
+ 	SyncToSaveGame();
+ 	
+ 	LR_INFO(TEXT("Equipment %s (ID: %s) leveled up to %d"),
+				*instance->EquipmentID.ToString(),
+				*InstanceID.ToString(),
+				instance->CurrentLevel);
+ 	
  }
 
  void UCollectionSubsystem::AddEquipmentExp(FGuid EquipmentID, int32 ExpAmount)
  {
- 	FEquipmentInstance* instance = nullptr;
- 	for (FEquipmentInstance& equipment : OwnedEquipmentsArray)
- 	{
- 		if (equipment.InstanceID == EquipmentID)
- 		{
- 			instance = &equipment;
- 			break;
- 		}
- 	}
+ 	FEquipmentInstance* instance = Algo::FindByPredicate(OwnedEquipmentsArray,
+		 [EquipmentID](const FEquipmentInstance& instance)
+		 {
+			 return instance.InstanceID == EquipmentID;
+		 });
+ 	
  	
  	if (!ensureMsgf(instance, TEXT("Invalid EquipmentID")))
  	{
@@ -338,15 +335,11 @@ TArray<FName> UCollectionSubsystem::GetUnlockedCharacterIDs() const
 
  int32 UCollectionSubsystem::GetEquipmentCounts(FName EquipmentID) const
  {
- 	int32 count = 0;
- 	for (const auto& instance : OwnedEquipmentsArray)
- 	{
- 		if (instance.EquipmentID == EquipmentID)
+ 	return Algo::CountIf(OwnedEquipmentsArray, 
+ 		[EquipmentID](const FEquipmentInstance& instance)
  		{
- 			count++;
- 		}
- 	}
- 	return count;
+ 			return instance.EquipmentID == EquipmentID;
+ 		});
  }
 
  TArray<FEquipmentInstance> UCollectionSubsystem::GetAllEquipments() const
