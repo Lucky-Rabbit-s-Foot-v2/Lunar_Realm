@@ -16,6 +16,7 @@
  */
 //=============================================================================
 // (260126) KHS 제작. 제반 사항 구현.
+// (260211) PYI 제작. 재화 접근 인터페이스 추가.
 // =============================================================================
 
 //SaveGame 저장/로드 델리게이트
@@ -51,9 +52,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
 	ULRSaveGame* GetCurrentSaveGame() const {return CurrentSaveGame;}
-	
-	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
-	void TouchAndSave();
+
 
 	//세이브 캐릭터/장비 정보 관리
 	//선택된 캐릭터 파티 정보 관리
@@ -85,4 +84,19 @@ private:
 	
 	const FString SaveSlotName = TEXT("PlayerSaveSlot");
 	const uint32 UserIndex = 0;
+
+public:
+	// 재화 접근 인터페이스
+	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame|Currency")
+	int32 GetCurrency(ELRCurrencyType Type) const;
+
+	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame|Currency")
+	void AddCurrency(ELRCurrencyType Type, int32 Delta);
+
+	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame|Currency")
+	bool TrySpendCurrency(ELRCurrencyType Type, int32 Cost);
+
+	// 저장
+	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
+	void UpdateLastSavedTimeAndSave();
 };

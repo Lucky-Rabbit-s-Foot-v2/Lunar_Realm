@@ -104,6 +104,15 @@ void UGameDataSubsystem::LoadDataTables()
 	LoadedSkillStaticData = Config->SkillStaticDataTable.LoadSynchronous(); //스킬 데이터
 	LoadedStageStaticData = Config->StageStaticDataTable.LoadSynchronous(); //스테이지 데이터
 	
+	if (LoadedCharacterStaticData)
+	{
+		LR_INFO(TEXT("Character Data loaded with %d rows"), LoadedCharacterStaticData->GetRowNames().Num());
+	}
+	else
+	{
+		LR_ERROR(TEXT("CharacterStaticData is NULL"));
+	}
+	
 	//로직 변경으로 시스템에서 직접 로드 방식은 미사용
 	// LoadDataTable(BaseStatsCurveTable, LoadedBaseStatsCurve, TEXT("BaseStatsCurveTable"));
 	// LoadDataTable(CharacterStaticDataTable, LoadedCharacterStaticData, TEXT("CharacterStaticData"));
@@ -119,30 +128,30 @@ void UGameDataSubsystem::CacheAllData()
 	//ID기반으로 로드된 정보를 캐싱 데이터에 저장.
 	//캐릭터 정적데이터 캐싱 
 	CacheDataTable<FCharacterStaticData, FName>(
-		LoadedCharacterStaticData, CachedCharacterStaticData, &FCharacterStaticData::RowName, TEXT("CharacterStaticData"));
+		LoadedCharacterStaticData, CachedCharacterStaticData, &FCharacterStaticData::DataID, TEXT("CharacterStaticData"));
 
 	//장비 정적데이터 캐싱
 	CacheDataTable<FEquipmentStaticData, FName>(
-		LoadedEquipmentStaticData, CachedEquipmentStaticData, &FEquipmentStaticData::RowName, TEXT("EquipmentStaticData"));
+		LoadedEquipmentStaticData, CachedEquipmentStaticData, &FEquipmentStaticData::DataID, TEXT("EquipmentStaticData"));
 	//장비 스탯 보너스 데이터 캐싱
 	CacheDataTable<FEquipmentBonus, FName>(
-		LoadedEquipmentStatBonus, CachedEquipmentBonus, &FEquipmentBonus::RowName, TEXT("EquipmentBonus"));
+		LoadedEquipmentStatBonus, CachedEquipmentBonus, &FEquipmentBonus::DataID, TEXT("EquipmentBonus"));
 	
 	//세트 장비 효과 데이터 캐싱
 	CacheDataTable<FSetEffectData, FName>(
-		LoadedSetEffectBonus, CachedSetEffectData, &FSetEffectData::RowName, TEXT("SetEffectData"));
+		LoadedSetEffectBonus, CachedSetEffectData, &FSetEffectData::DataID, TEXT("SetEffectData"));
 	
 	//스킬 데이터 캐싱
 	CacheDataTable<FSkillStaticData, FName>(
-		LoadedSkillStaticData, CachedSkillStaticData, &FSkillStaticData::RowName, TEXT("SkillStaticData"));
+		LoadedSkillStaticData, CachedSkillStaticData, &FSkillStaticData::DataID, TEXT("SkillStaticData"));
 	
 	//에너미 데이터 캐싱
 	CacheDataTable<FEnemyStaticData, FName>(
-		LoadedEnemyStaticData, CachedEnemyStaticData, &FEnemyStaticData::RowName, TEXT("EnemyStaticData"));
+		LoadedEnemyStaticData, CachedEnemyStaticData, &FEnemyStaticData::DataID, TEXT("EnemyStaticData"));
 
 	//스테이지 데이터 캐싱
 	CacheDataTable<FStageStaticData, FName>(
-		LoadedStageStaticData, CachedStageStaticData, &FStageStaticData::RowName, TEXT("StageStaticData"));
+		LoadedStageStaticData, CachedStageStaticData, &FStageStaticData::DataID, TEXT("StageStaticData"));
 }
 
 FName UGameDataSubsystem::StatTypeToName(ELRStatusType StatusType)

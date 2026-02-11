@@ -33,7 +33,7 @@ struct FCharacterStaticData : public FTableRowBase
     
 	//참조키
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
-	FName RowName; 
+	FName DataID; 
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
 	FString CharacterName;
@@ -135,7 +135,7 @@ struct FEquipmentStaticData : public FTableRowBase
     
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
-	FName RowName; //EQUIP_FIRE_SWORD
+	FName DataID; //EQUIP_FIRE_SWORD
     
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
 	FString EquipmentName;
@@ -180,7 +180,7 @@ struct FEquipmentBonus : public FTableRowBase
     
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Stats")
-	FName RowName; //EquipmentStaticData의 RowName 참조 외래키
+	FName DataID; //EquipmentStaticData의 RowName 참조 외래키
     
 	// 레벨별 스탯 보너스
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Stats")
@@ -268,7 +268,7 @@ struct FSetEffectData : public FTableRowBase
 	GENERATED_BODY()
     
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Set")
-	FName RowName;  // 02 = 화염, 03 = 얼음
+	FName DataID;  // 02 = 화염, 03 = 얼음
     
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Set")
 	FString SetName;  // "Fire Set", "Ice Set"
@@ -307,7 +307,7 @@ struct FSkillStaticData : public FTableRowBase
 	GENERATED_BODY()
     
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName RowName; //SKILL_FIREBALL
+	FName DataID; //SKILL_FIREBALL
     
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString SkillName;
@@ -342,7 +342,7 @@ struct FEnemyStaticData : public FTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
-	FName RowName; //ENEMY_GOBLIN_NORMAL
+	FName DataID; //ENEMY_GOBLIN_NORMAL
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
 	FString CharacterName;
@@ -413,7 +413,7 @@ struct FStageStaticData : public FTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
-	FName RowName;
+	FName DataID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
 	FText StageName;

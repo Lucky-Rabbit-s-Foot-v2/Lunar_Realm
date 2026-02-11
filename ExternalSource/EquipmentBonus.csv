@@ -1,4 +1,4 @@
-﻿,RowName,BaseHPBonus,HPBonusPerLevel,BaseAttackBonus,AttackBonusPerLevel,BaseDefenseBonus,DefenseBonusPerLevel
+﻿,DataID,BaseHPBonus,HPBonusPerLevel,BaseAttackBonus,AttackBonusPerLevel,BaseDefenseBonus,DefenseBonusPerLevel
 1,EQUIP_MELEE_01,10,10,20,12,10,5
 2,EQUIP_MELEE_02,15,15,35,15,10,10
 3,EQUIP_RANGED_72,30,25,100,25,40,20

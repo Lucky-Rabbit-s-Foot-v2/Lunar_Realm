@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -6,9 +6,15 @@
 #include "GameFramework/PlayerController.h"
 #include "LRControllerBase.generated.h"
 
+//============================================================================
 /**
- * 
+ * 플레이어 컨트롤러 베이스 클래스
+ * - InGame / OutGame 공통 기능 구현
  */
+ //============================================================================
+ // (260127) PJB 제작.
+ //============================================================================
+
 UCLASS()
 class LUNAR_REALM_API ALRControllerBase : public APlayerController
 {

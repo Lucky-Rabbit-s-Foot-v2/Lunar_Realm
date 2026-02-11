@@ -1,9 +1,11 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Subsystems/SoundSubsystem.h"
+#include "Subsystems/Option/SoundSubsystem.h"
 
+#include "Engine/GameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "SaveGame/LROptionSaveGame.h"
+#include "Subsystems/Option/OptionManagerSubsystem.h"
 
 void USoundSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -13,14 +15,6 @@ void USoundSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	{
 		UGameplayStatics::PushSoundMixModifier(GetWorld(), GlobalSoundMix);
 	}
-	
-	LoadVolumesFromSaveData();
-}
-
-void USoundSubsystem::Deinitialize()
-{
-	SaveVolumesToSaveData();
-	Super::Deinitialize();
 }
 
 void USoundSubsystem::PlayBGM(USoundBase* NewBGM, float FadeTime)
@@ -82,15 +76,15 @@ void USoundSubsystem::SetVolume(ESoundChannel Channel, float Volume)
 	{
 	case ESoundChannel::Master:
 		TargetClass = MasterClass;
-		CurrentMasterVolume = Volume;
+		CurrentOptions.MasterVolume = Volume;
 		break;
 	case ESoundChannel::BGM:
 		TargetClass = BGMClass;
-		CurrentBGMVolume = Volume;
+		CurrentOptions.BGMVolume = Volume;
 		break;
 	case ESoundChannel::SFX:
 		TargetClass = SFXClass;
-		CurrentSFXVolume = Volume;
+		CurrentOptions.SFXVolume = Volume;
 		break;
 	}
 
@@ -103,42 +97,15 @@ void USoundSubsystem::SetVolume(ESoundChannel Channel, float Volume)
 	}
 }
 
-void USoundSubsystem::LoadVolumesFromSaveData()
+void USoundSubsystem::InitializeFromSaveData(const FSoundOptionData& Data)
 {
-	CurrentMasterVolume = 1.f;
-	CurrentBGMVolume = 1.f;
-	CurrentSFXVolume = 1.f;
-
-	if(UGameplayStatics::DoesSaveGameExist(TEXT("OptionSaveSlot"), 0))
-	{
-		ULROptionSaveGame* LoadData = Cast<ULROptionSaveGame>(UGameplayStatics::LoadGameFromSlot(TEXT("OptionSaveSlot"), 0));
-		if(LoadData)
-		{
-			CurrentMasterVolume = LoadData->MasterVolume;
-			CurrentBGMVolume = LoadData->BGMVolume;
-			CurrentSFXVolume = LoadData->SFXVolume;
-		}
-	}
-
-	ApplySoundMix();
+	CurrentOptions = Data;
+	ApplyOptions();
 }
 
-void USoundSubsystem::SaveVolumesToSaveData()
+void USoundSubsystem::ApplyOptions()
 {
-	ULROptionSaveGame* SaveData = Cast<ULROptionSaveGame>(UGameplayStatics::CreateSaveGameObject(ULROptionSaveGame::StaticClass()));
-	if (SaveData)
-	{
-		SaveData->MasterVolume = CurrentMasterVolume;
-		SaveData->BGMVolume = CurrentBGMVolume;
-		SaveData->SFXVolume = CurrentSFXVolume;
-
-		UGameplayStatics::SaveGameToSlot(SaveData, TEXT("OptionSaveSlot"), 0);
-	}
-}
-
-void USoundSubsystem::ApplySoundMix()
-{
-	SetVolume(ESoundChannel::Master, CurrentMasterVolume);
-	SetVolume(ESoundChannel::BGM, CurrentBGMVolume);
-	SetVolume(ESoundChannel::SFX, CurrentSFXVolume);
+	SetVolume(ESoundChannel::Master, CurrentOptions.MasterVolume);
+	SetVolume(ESoundChannel::BGM, CurrentOptions.BGMVolume);
+	SetVolume(ESoundChannel::SFX, CurrentOptions.SFXVolume);
 }

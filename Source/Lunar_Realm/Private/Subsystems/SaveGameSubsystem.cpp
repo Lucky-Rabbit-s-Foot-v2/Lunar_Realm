@@ -23,7 +23,7 @@ void USaveGameSubsystem::CreateNewSaveGame()
 	CurrentSaveGame = Cast<ULRSaveGame>(UGameplayStatics::CreateSaveGameObject(ULRSaveGame::StaticClass()));
 	
 	// 신규 유저 기본값(재화)
-	CurrentSaveGame->ApplyDefaults();
+	CurrentSaveGame->InitializeNewPlayerDefaults();
 
 #if WITH_EDITOR
 	// //테스트용 데이터......
@@ -164,16 +164,57 @@ TArray<FName> USaveGameSubsystem::GetAllLeaderEquipmentIDs() const
 	return CurrentSaveGame->GetAllEquippedIDs();
 }
 
-void USaveGameSubsystem::TouchAndSave()
+int32 USaveGameSubsystem::GetCurrency(ELRCurrencyType Type) const
 {
-	if (!ensureMsgf(CurrentSaveGame, TEXT("TouchAndSave failed: CurrentSaveGame is NULL")))
+	if (!CurrentSaveGame) return 0;
+
+	switch (Type)
+	{
+	case ELRCurrencyType::Gold:           return CurrentSaveGame->Gold;
+	case ELRCurrencyType::CrescentTicket: return CurrentSaveGame->CrescentTicket;
+	case ELRCurrencyType::FullMoonTicket: return CurrentSaveGame->FullMoonTicket;
+	default: return 0;
+	}
+}
+
+void USaveGameSubsystem::AddCurrency(ELRCurrencyType Type, int32 Delta)
+{
+	if (!CurrentSaveGame || Delta == 0) return;
+
+	switch (Type)
+	{
+	case ELRCurrencyType::Gold:
+		CurrentSaveGame->Gold = FMath::Max(0, CurrentSaveGame->Gold + Delta);
+		break;
+	case ELRCurrencyType::CrescentTicket:
+		CurrentSaveGame->CrescentTicket = FMath::Max(0, CurrentSaveGame->CrescentTicket + Delta);
+		break;
+	case ELRCurrencyType::FullMoonTicket:
+		CurrentSaveGame->FullMoonTicket = FMath::Max(0, CurrentSaveGame->FullMoonTicket + Delta);
+		break;
+	default:
+		break;
+	}
+
+	UpdateLastSavedTimeAndSave();
+}
+
+bool USaveGameSubsystem::TrySpendCurrency(ELRCurrencyType Type, int32 Cost)
+{
+	if (Cost <= 0) return true;
+	if (GetCurrency(Type) < Cost) return false;
+
+	AddCurrency(Type, -Cost);
+	return true;
+}
+
+void USaveGameSubsystem::UpdateLastSavedTimeAndSave()
+{
+	if (!ensureMsgf(CurrentSaveGame, TEXT("UpdateLastSavedTimeAndSave failed: CurrentSaveGame is NULL")))
 	{
 		return;
 	}
 
-	// 저장 타임스탬프는 SaveGameSubsystem에서만 관리
 	CurrentSaveGame->LastUpdatedUtc = FDateTime::UtcNow();
-
-	// 실제 저장
 	SaveGame();
 }

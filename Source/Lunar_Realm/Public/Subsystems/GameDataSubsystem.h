@@ -257,6 +257,8 @@ void UGameDataSubsystem::CacheDataTable(UDataTable* DataTable, TMap<E, T>& OutRe
 		{
 			//T 구조체 내부의 keyField 값 가져오기
 			E keyValue = (*row).*KeyField;
+			
+			//LR_INFO(TEXT("Row [%s] -> KeyField value [%s]"), *name.ToString(), *keyValue.ToString());
 			//맵에 추가
 			OutRef.Add(keyValue, *row);
 		}
