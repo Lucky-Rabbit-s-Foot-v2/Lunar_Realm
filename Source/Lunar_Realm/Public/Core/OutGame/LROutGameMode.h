@@ -3,22 +3,26 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
-#include "LRGameModeBase.generated.h"
+#include "Core/LRGameModeBase.h"
+#include "LROutGameMode.generated.h"
 
 // =============================================================================
 /**
- * 프로젝트 최상위 게임모드
+ * OutGame 전용 게임모드
  */
 //=============================================================================
 // (260203) PJB 제작.
 //=============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ALRGameModeBase : public AGameModeBase
+class LUNAR_REALM_API ALROutGameMode : public ALRGameModeBase
 {
 	GENERATED_BODY()
 	
+public:
+	ALROutGameMode();
+
 protected:
-	virtual void BeginPlay() override;	
+	virtual void BeginPlay() override;
+
 };
