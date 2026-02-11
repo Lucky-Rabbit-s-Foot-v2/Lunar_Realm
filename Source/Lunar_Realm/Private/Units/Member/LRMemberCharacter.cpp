@@ -86,7 +86,7 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 
 	const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(InCharacterID);
 
-	if (CharData.RowName == NAME_None)
+	if (CharData.DataID == NAME_None)
 	{
 		LR_ERROR(TEXT("옷 갈아입기 실패: 데이터 테이블에서 ID [%s]를 찾을 수 없습니다! (행 이름 확인)"), *InCharacterID.ToString());
 		return;
@@ -97,7 +97,7 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 		USkeletalMesh* LoadedMesh = CharData.CharacterMesh.LoadSynchronous();
 		if (LoadedMesh && GetMesh())
 		{
-			GetMesh()->SetSkeletalMesh(LoadedMesh);
+			GetMesh()->SetSkeletalMeshAsset(LoadedMesh);
 			LR_INFO(TEXT("[%s] 메시 적용 성공!"), *InCharacterID.ToString());
 		}
 		else
