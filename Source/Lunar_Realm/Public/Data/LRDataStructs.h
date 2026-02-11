@@ -23,6 +23,7 @@
 //=============================================================================
 // (260123) KHS 제작. 제반 사항 구현.
 // (260210) KHS Int타입 참조키를 FName타입으로 변경. 분류 필드 추가
+// (260211) BJM 소환할 캐릭터 매쉬, 애님블루프린트 변수 추가
 // =============================================================================
 
 USTRUCT(BlueprintType)
@@ -63,6 +64,12 @@ struct FCharacterStaticData : public FTableRowBase
     
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Skills")
 	TArray<FName> SkillIDs;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	TSoftObjectPtr<USkeletalMesh> CharacterMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	TSoftClassPtr<UAnimInstance> AnimBlueprintClass;
 };
 
 
