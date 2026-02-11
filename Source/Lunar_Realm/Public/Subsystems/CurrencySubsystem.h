@@ -6,7 +6,6 @@
 #include "CurrencySubsystem.generated.h"
 
 class USaveGameSubsystem;
-class ULRSaveGame;
 
 UCLASS()
 class LUNAR_REALM_API UCurrencySubsystem : public UGameInstanceSubsystem
@@ -26,9 +25,5 @@ public:
 	bool SpendCurrency(ELRCurrencyType Type, int32 Amount);
 
 private:
-	ULRSaveGame* SG() const;
-
-private:
-	UPROPERTY()
-	USaveGameSubsystem* SaveSS = nullptr;
+	USaveGameSubsystem* GetSaveGameSubsystem() const;
 };
