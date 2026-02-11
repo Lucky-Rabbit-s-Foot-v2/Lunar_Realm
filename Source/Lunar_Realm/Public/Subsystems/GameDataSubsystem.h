@@ -48,12 +48,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Character")
 	float GetCharacterFinalStat(FName CharacterID, ELRStatusType StatusType, int32 CharacterLevel);
 	
-	//도감에 등록된 모든 캐릭터 ID 가져오기
+	//모든 캐릭터 ID 가져오기
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Character")
 	TArray<FName> GetAllCharacterIDs();
 	
 	// ========================================
-	// 장비 데이터 조회
+	// 장비 정적 데이터 조회
 	// ========================================
 	// 장비 정적 데이터 가져오기
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Equipment")
@@ -63,19 +63,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Equipment")
 	float GetTotalEquipmentBonus(const TArray<FName>& EquipmentIDs, const TArray<int32>& EquipmentLevels, ELRStatusType StatusType);
 	
-	//도감에 등록된 모든 장비 ID 가져오기
+	//모든 장비 ID 가져오기
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Equipment")
 	TArray<FName> GetAllEquipmentIDs();
 	
 	// ========================================
-	// 장비 세트효과 조회
+	// 장비 세트효과 정적 데이터 조회
 	// ========================================
 	//장비 세트효과 보너스 계산
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Equipment")
 	void GetSetEffectStatBonus(const TArray<FName>& EquipmentIDs, float& OutHPBonus, float& OutAtkBonus, float& OutDefBonus);
 	
 	// ========================================
-	// 스킬 데이터 조회
+	// 스킬 정적 데이터 조회
 	// ========================================
 	//스킬 정적 데이터 가져오기
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Skills")
@@ -94,7 +94,7 @@ public:
 	TArray<FName> GetEquipmentSkillIDs(FName EquipmentID);
 	
 	// ========================================
-	// 에너미 데이터 조회
+	// 에너미 정적 데이터 조회
 	// ========================================
 	// 에너미 정적 데이터 가져오기 (이름, 설명, 텍스처 등)
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Enemy")
@@ -104,7 +104,7 @@ public:
 	TArray<FName> GetAllEnemyIDs();
 	
 	// ========================================
-	// 스테이지 데이터 조회
+	// 스테이지 정적 데이터 조회
 	// ========================================
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Stage")
 	const FStageStaticData& GetStageStaticData(FName StageID) const;
