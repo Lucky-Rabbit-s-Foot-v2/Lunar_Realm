@@ -159,8 +159,8 @@ FName UGameDataSubsystem::StatTypeToName(ELRStatusType StatusType)
 	switch (StatusType)
 	{
 	case ELRStatusType::HP : return FName(TEXT("HP")); 
-	case ELRStatusType::ATK: return FName(TEXT("Attack"));
-	case ELRStatusType::DEF : return FName(TEXT("Defense"));
+	case ELRStatusType::ATK: return FName(TEXT("ATK"));
+	case ELRStatusType::DEF : return FName(TEXT("DEF"));
 	
 	default:
 		{

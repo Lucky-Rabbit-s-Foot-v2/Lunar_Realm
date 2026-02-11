@@ -5,6 +5,7 @@
 #include "Data/LRDataStructs.h"
 #include "Engine/GameInstance.h"
 #include "SaveGame/LRSaveGame.h"
+#include "Subsystems/GameDataSubsystem.h"
 #include "Subsystems/SaveGameSubsystem.h"
 
  void UCollectionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -18,6 +19,7 @@
  	USaveGameSubsystem* saveGameSys = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
  	check(saveGameSys);
  	saveGameSys->OnSaveGameLoadedDel.AddDynamic(this, &UCollectionSubsystem::HandleSaveGameLoaded);
+ 	
  	LR_INFO(TEXT("Collection Subsystem Initialized"));
  }
 
@@ -28,11 +30,45 @@
  		return;
  	}
  	
- 	//SaveGame 데이터를 내부 맵에 복사
- 	OwnedCharactersMap = LoadedSave->OwnedCharacters;
- 	OwnedEquipmentsMap = LoadedSave->OwnedEquipments;
+ 	//GameData에서 전체 캐릭터/장비데이터 가져오기
+ 	UGameDataSubsystem* GameDataSys = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+ 	check(GameDataSys);
  	
- 	LR_INFO(TEXT("Collection loaded : %d characters, %d equipments"), OwnedCharactersMap.Num(), OwnedEquipmentsMap.Num());
+ 	//캐릭터 도감 초기화
+ 	TArray<FName> AllCharacterKeys = GameDataSys->GetAllCharacterIDs();
+ 	OwnedCharactersMap.Empty();
+ 	for (FName Key : AllCharacterKeys)
+ 	{
+ 		FCharacterInstance instance;
+ 		
+ 		instance.CharacterID = Key;
+ 		instance.bIsUnlocked = false;
+ 		instance.CurrentLevel = 1;
+ 		instance.CurrentExp = 0;
+ 		
+ 		OwnedCharactersMap.Add(Key, instance);
+ 	}
+ 	
+ 	//SaveGame 데이터로 덮어 쓰기
+ 	TMap<FName, FCharacterInstance> savedCharacterList = LoadedSave->GetOwnedCharactersList();
+ 	for (auto& pair : savedCharacterList)
+ 	{
+ 		FName key = pair.Key;
+ 		if (OwnedCharactersMap.Contains(key))
+ 		{
+ 			OwnedCharactersMap[key] = pair.Value;
+ 		}
+	    else
+	    {
+		    LR_WARN(TEXT("Savegame has unknown character : %s"), *key.ToString());
+	    }
+ 	}
+ 	
+ 	OwnedEquipmentsArray = LoadedSave->GetOwnedEquipmentsList();
+ 	
+ 	LR_INFO(TEXT("Collection loaded: %d/%d characters unlocked, %d equipment instances"),
+		LoadedSave->GetOwnedCharactersList().Num(), AllCharacterKeys.Num(),
+		OwnedEquipmentsArray.Num());
  }
 
  void UCollectionSubsystem::SyncToSaveGame()
@@ -47,8 +83,8 @@
  	}
  	
  	//변경사항을 SaveGame에 동기화
- 	saveGame->OwnedCharacters = OwnedCharactersMap;
- 	saveGame->OwnedEquipments = OwnedEquipmentsMap;
+ 	saveGame->SetOwnedCharactersList(OwnedCharactersMap);
+ 	saveGame->SetOwnedEquipmentsList(OwnedEquipmentsArray);
  	
  	//자동 저장
  	saveGameSys->SaveGame();
@@ -56,45 +92,65 @@
 
  bool UCollectionSubsystem::HasCharacter(FName CharacterID) const
  {
- 	return OwnedCharactersMap.Contains(CharacterID) && OwnedCharactersMap[CharacterID].bIsUnlocked;
+ 	const FCharacterInstance* instance = OwnedCharactersMap.Find(CharacterID);
+ 	return instance && instance->bIsUnlocked;
  }
 
- FPlayerCharacterInstance UCollectionSubsystem::GetCharacterInstance(FName CharacterID) const
+ FCharacterInstance UCollectionSubsystem::GetCharacterInstance(FName CharacterID) const
  {
- 	if (OwnedCharactersMap.Contains(CharacterID))
+ 	const FCharacterInstance* instance = OwnedCharactersMap.Find(CharacterID);
+ 	
+ 	if (instance)
  	{
- 		return OwnedCharactersMap[CharacterID];
+ 		return *instance;
  	}
  	
  	//없으면 빈 인스턴스 생성
- 	return FPlayerCharacterInstance();
+ 	LR_WARN(TEXT("Character %s not found in collection"), *CharacterID.ToString());
+ 	return FCharacterInstance();
  }
 
  void UCollectionSubsystem::AddCharacter(FName CharacterID, int32 StartLevel)
  {
  	if (!OwnedCharactersMap.Contains(CharacterID))
  	{
- 		FPlayerCharacterInstance newCharacter(CharacterID, StartLevel);
- 		OwnedCharactersMap.Add(CharacterID, newCharacter);
- 		
- 		//캐릭터 해금 이벤트 브로드캐스트
- 		OnCharacterUnlockedDel.Broadcast(CharacterID, newCharacter);
- 		//업데이트 정보 동기화
- 		SyncToSaveGame();
- 		
- 		LR_INFO(TEXT("Character ID : %s - unlocked at level %d"), *CharacterID.ToString(), StartLevel);
+ 		LR_ERROR(TEXT("Character %s not found in Collection! Check GameData"), *CharacterID.ToString());
+ 		return;
  	}
-    else
-    {
-	    LR_WARN(TEXT("Character ID already in use"));
-    }
+ 	
+ 	FCharacterInstance* instance = OwnedCharactersMap.Find(CharacterID);
+ 	//이미 해금된 경우
+ 	if (instance->bIsUnlocked)
+ 	{
+ 		LR_WARN(TEXT("Character %s already unlocked"), *CharacterID.ToString());
+ 		return;
+ 	}
+ 	
+ 	//미해금만 해금 처리
+ 	instance->bIsUnlocked = true;
+ 	instance->CurrentLevel = StartLevel;
+ 	instance->CurrentExp = 0;
+ 	instance->AcquisitionTime = FDateTime::UtcNow();
+ 	
+ 	//캐릭터 해금 이벤트 브로드캐스트
+ 	OnCharacterUnlockedDel.Broadcast(CharacterID, *instance);
+ 	//업데이트 정보 동기화
+ 	SyncToSaveGame();
+ 		
+ 	LR_INFO(TEXT("Character ID : %s - unlocked at level %d"), *CharacterID.ToString(), StartLevel);
  }
 
  void UCollectionSubsystem::LevelUpCharacter(FName CharacterID)
  {
- 	FPlayerCharacterInstance* instance = OwnedCharactersMap.Find(CharacterID);
+ 	FCharacterInstance* instance = OwnedCharactersMap.Find(CharacterID);
  	if (!ensureMsgf(instance, TEXT("Invalid Character ID")))
  	{
+ 		return;
+ 	}
+ 	
+ 	if (!instance->bIsUnlocked)
+ 	{
+ 		LR_ERROR(TEXT("Cannot level up unlocked character : %s "), *CharacterID.ToString());
  		return;
  	}
  	
@@ -111,7 +167,7 @@
 
  void UCollectionSubsystem::AddCharacterExp(FName CharacterID, int32 ExpAmount)
  {
- 	FPlayerCharacterInstance* instance = OwnedCharactersMap.Find(CharacterID);
+ 	FCharacterInstance* instance = OwnedCharactersMap.Find(CharacterID);
  	if (!ensureMsgf(instance, TEXT("Invalid Character ID")))
  	{
  		return;
@@ -132,60 +188,134 @@
     }
  }
 
+
+ TArray<FName> UCollectionSubsystem::GetAllCharacterIDs() const
+ {
+ 	TArray<FName> IDs;
+ 	OwnedCharactersMap.GetKeys(IDs);
+ 	return IDs;
+ }
+
+
+TArray<FName> UCollectionSubsystem::GetUnlockedCharacterIDs() const
+ {
+ 	TArray<FName> IDs;
+ 	for (const auto& pair : OwnedCharactersMap)
+ 	{
+ 		if (pair.Value.bIsUnlocked)
+ 		{
+ 			IDs.Add(pair.Key);
+ 		}
+ 	}
+ 	return IDs;
+ }
+
  bool UCollectionSubsystem::HasEquipment(FName EquipmentID) const
- {
- 	return OwnedEquipmentsMap.Contains(EquipmentID) && OwnedEquipmentsMap[EquipmentID].bIsUnlocked;
- }
-
- FPlayerEquipmentInstance UCollectionSubsystem::GetEquipmentInstance(FName EquipmentID) const
- {
- 	if (OwnedEquipmentsMap.Contains(EquipmentID))
+ {	
+ 	for (const auto& instance : OwnedEquipmentsArray)
  	{
- 		return OwnedEquipmentsMap[EquipmentID];
+ 		if (instance.EquipmentID == EquipmentID)
+ 		{
+ 			return true;
+ 		}
  	}
  	
- 	return FPlayerEquipmentInstance();
+ 	return false;
  }
 
- void UCollectionSubsystem::AddEquipment(FName EquipmentID, int32 StartLevel)
+ FEquipmentInstance UCollectionSubsystem::GetEquipmentInstance(FGuid InstanceID) const
  {
- 	if (!OwnedEquipmentsMap.Contains(EquipmentID))
+ 	for (const auto& instance : OwnedEquipmentsArray)
  	{
- 		FPlayerEquipmentInstance newEquipment(EquipmentID, StartLevel);
- 		OwnedEquipmentsMap.Add(EquipmentID, newEquipment);
- 		
- 		//해금 이벤트 브로드캐스트
- 		OnEquipmentUnlockedDel.Broadcast(EquipmentID, newEquipment);
- 		SyncToSaveGame();
- 		
- 		LR_INFO(TEXT("Equipment %s unlocked at level %d"), *EquipmentID.ToString(), StartLevel);
- 	}
-    else
-    {
-	    LR_WARN(TEXT("Equipment ID already in use"));
-    }
- }
-
- void UCollectionSubsystem::LevelUpEquipment(FName EquipmentID)
- {
- 	FPlayerEquipmentInstance* instance = OwnedEquipmentsMap.Find(EquipmentID);
- 	if (!ensureMsgf(instance, TEXT("Invalid EquipmentID")))
- 	{
- 		return;
+ 		if (instance.InstanceID == InstanceID)
+ 		{
+ 			return instance;
+ 		}
  	}
  	
- 	instance->CurrentLevel++;
- 	//장비 레벨업 이벤트 브로드캐스트
- 	OnEquipmentUpdatedDel.Broadcast(EquipmentID, instance->CurrentLevel);
+ 	LR_WARN(TEXT("Equipment ID %s not found"), *InstanceID.ToString());
+ 	return FEquipmentInstance();
+ }
+
+ TArray<FEquipmentInstance> UCollectionSubsystem::GetEquipmentInstancesByKey(FName EquipmentID) const
+ {
+ 	TArray<FEquipmentInstance> results;
+ 	for (const auto& instance : OwnedEquipmentsArray)
+ 	{
+ 		if (instance.EquipmentID == EquipmentID)
+ 		{
+ 			results.Add(instance);
+ 		}
+ 	}
+ 	
+ 	return results;
+ }
+
+ FGuid UCollectionSubsystem::AddEquipment(FName EquipmentID, int32 StartLevel)
+ {
+ 	//GameData에 존재하는지 검증
+ 	UGameDataSubsystem* GameDataSys = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+ 	check(GameDataSys);
+ 	
+ 	if (!GameDataSys->GetAllEquipmentIDs().Contains(EquipmentID))
+ 	{
+ 		LR_ERROR(TEXT("Equipment %s not found in GameData"), *EquipmentID.ToString());
+ 		return FGuid();
+ 	}
+ 	
+ 	// 새인스턴스 생성
+ 	FEquipmentInstance newEquipment(EquipmentID, StartLevel);
+ 	OwnedEquipmentsArray.Add(newEquipment);
+ 		
+ 	//해금 이벤트 브로드캐스트
+ 	OnEquipmentUnlockedDel.Broadcast(EquipmentID, newEquipment);
+ 	
  	SyncToSaveGame();
+ 	LR_INFO(TEXT("Equipment %s acquired (InstanceID: %s, Level: %d)"),
+	   *EquipmentID.ToString(),
+	   *newEquipment.InstanceID.ToString(),
+	   StartLevel);
  	
- 	LR_INFO(TEXT("Equipment %s leveled up to %d"), *EquipmentID.ToString(), instance->CurrentLevel);
+ 	return newEquipment.InstanceID;
  }
 
- void UCollectionSubsystem::AddEquipmentExp(FName EquipmentID, int32 ExpAmount)
+
+ void UCollectionSubsystem::LevelUpEquipment(FGuid InstanceID)
  {
+ 	for (FEquipmentInstance& instance : OwnedEquipmentsArray)
+ 	{
+ 		if (instance.InstanceID == InstanceID)
+ 		{
+ 			instance.CurrentLevel++;
+ 			instance.CurrentExp = 0;
+ 			
+ 			OnEquipmentUpdatedDel.Broadcast(InstanceID, instance.CurrentLevel);
+ 			SyncToSaveGame();
+ 			
+ 			LR_INFO(TEXT("Equipment %s (ID: %s) leveled up to %d"),
+				*instance.EquipmentID.ToString(),
+				*InstanceID.ToString(),
+				instance.CurrentLevel);
+ 			
+ 			return;
+ 		}
+ 	}
  	
- 	FPlayerEquipmentInstance* instance = OwnedEquipmentsMap.Find(EquipmentID);
+ 	LR_ERROR(TEXT("Equipment InstanceID %s not found for level up"), *InstanceID.ToString());
+ }
+
+ void UCollectionSubsystem::AddEquipmentExp(FGuid EquipmentID, int32 ExpAmount)
+ {
+ 	FEquipmentInstance* instance = nullptr;
+ 	for (FEquipmentInstance& equipment : OwnedEquipmentsArray)
+ 	{
+ 		if (equipment.InstanceID == EquipmentID)
+ 		{
+ 			instance = &equipment;
+ 			break;
+ 		}
+ 	}
+ 	
  	if (!ensureMsgf(instance, TEXT("Invalid EquipmentID")))
  	{
  		return;
@@ -204,4 +334,22 @@
  	{
  		SyncToSaveGame();
  	}
+ }
+
+ int32 UCollectionSubsystem::GetEquipmentCounts(FName EquipmentID) const
+ {
+ 	int32 count = 0;
+ 	for (const auto& instance : OwnedEquipmentsArray)
+ 	{
+ 		if (instance.EquipmentID == EquipmentID)
+ 		{
+ 			count++;
+ 		}
+ 	}
+ 	return count;
+ }
+
+ TArray<FEquipmentInstance> UCollectionSubsystem::GetAllEquipments() const
+ {
+ 	return OwnedEquipmentsArray;
  }
