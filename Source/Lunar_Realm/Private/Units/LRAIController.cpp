@@ -2,22 +2,22 @@
 
 #include "Units/LRAIController.h"
 
-#include "Units/LRCharacter.h"
-#include "Structures/Core/LRCore.h"
-
-#include "GAS/Tags/LRGameplayTags.h"
-#include "GameplayTagAssetInterface.h"
-
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
-
-#include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
+#include "GAS/Tags/LRGameplayTags.h"
+#include "GameplayTagAssetInterface.h"
+
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
+
+#include "Structures/Core/LRCore.h"
 #include "System/LoggingSystem.h"
+
+#include "Units/LRCharacter.h"
 
 
 ALRAIController::ALRAIController()
@@ -37,26 +37,26 @@ void ALRAIController::OnPossess(APawn* InPawn)
 	// 태그 유효성 검사
 	if (!HostileRootTag.IsValid())
 	{
-		LR_ERROR(TEXT("[%s] HostileRootTag is not set. 자식 클래스 생성자를 확인하세요."), *GetName());
+		LR_ERROR(TEXT("[%s] HostileRootTag is not set."), *GetName());
 		return;
 	}
 	if (!TargetCoreTag.IsValid())
 	{
-		LR_ERROR(TEXT("[%s] TargetCoreTag is not set. 자식 클래스 생성자를 확인하세요."), *GetName());
+		LR_ERROR(TEXT("[%s] TargetCoreTag is not set."), *GetName());
 		return;
 	}
 
-	// BT 유효성 검사 — BT가 없으면 AI가 동작하지 않는다
+	// BT 유효성 검사
 	if (!BehaviorTreeAsset)
 	{
-		LR_ERROR(TEXT("[%s] BehaviorTreeAsset is NULL. BT 에셋을 할당하세요."), *GetName());
+		LR_ERROR(TEXT("[%s] BehaviorTreeAsset is NULL."), *GetName());
 		return;
 	}
 
 	// BT 실행
 	if (!RunBehaviorTree(BehaviorTreeAsset))
 	{
-		LR_ERROR(TEXT("[%s] RunBehaviorTree() failed. BT 에셋 또는 BB 연결을 확인하세요."), *GetName());
+		LR_ERROR(TEXT("[%s] RunBehaviorTree() failed."), *GetName());
 		return;
 	}
 
@@ -81,12 +81,13 @@ void ALRAIController::OnUnPossess()
 	Super::OnUnPossess();
 }
 
-
+// ex. LREnemyController에서는 "LRTags::Team_Player"
 FGameplayTag ALRAIController::GetHostileRootTag() const
 {
 	return HostileRootTag;
 }
 
+// ex. LRTags::Team_Player_Structure_Core
 FGameplayTag ALRAIController::GetTargetCoreTag() const
 {
 	return TargetCoreTag;
@@ -244,7 +245,7 @@ bool ALRAIController::TryAttackTarget(AActor* Target)
 				return true;
 			}
 
-			LR_WARN(TEXT("[%s] No attack ability on [%s]. SkillIDs를 확인하세요."),
+			LR_WARN(TEXT("[%s] No attack ability on [%s]."),
 				*GetName(), *MyPawn->GetName());
 			LastAttackTime = CurrentTime;
 		}

@@ -33,10 +33,12 @@ namespace LRBBKeys
  * - BT_AutoCombat과 연동
  * 
  * [자식 클래스가 해야 할 일]
- * 생성자에서 필요한 세팅:
+ * 코드 :
+ *  생성자에서 세팅
  *   - HostileRootTag : 적대 진영 루트 태그 (예: "Player" 또는 "Enemy")
  *   - TargetCoreTag  : 폴백 공격 대상 코어 태그 (예: "Player.Structure.Core")
- *   - BehaviorTreeAsset
+ * 엔진 :
+ *- BehaviorTreeAsset 세팅
  * 
  * [행동 우선순위]
  * 1. DetectionRadius 내 HostileRootTag 계열 캐릭터 → 가장 가까운 것 추적 & 공격
@@ -80,7 +82,6 @@ protected:
 	AActor* FindActorWithGameplayTag(TSubclassOf<AActor> ActorClass, const FGameplayTag& Tag) const;
 
 	// === 설정값 ===
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|AI|BehaviorTree")
 	TObjectPtr<UBehaviorTree> BehaviorTreeAsset;
 
@@ -94,7 +95,6 @@ protected:
 	float AttackCooldown = 1.5f;
 
 	// === 태그 (자식 클래스가 생성자에서 설정) ===
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|AI|Tags")
 	FGameplayTag HostileRootTag;
 
