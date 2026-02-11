@@ -196,13 +196,13 @@ private:
 
 	// 재화 관련
 	UPROPERTY()
-	UCurrencySubsystem* CurrencySys = nullptr;
+	UCurrencySubsystem* CurrencySubsystem = nullptr;
 
 	UPROPERTY()
-	USaveGameSubsystem* SaveSS = nullptr; // Pending/Pity 저장용
+	USaveGameSubsystem* SaveGameSubsystem = nullptr; // Pending/Pity 저장용
 
 	// 헬퍼 선언
-	ULRSaveGame* SG() const;
+	ULRSaveGame* GetSaveGame() const;
 
 public:
 	// ===================== Debug 옵션 =====================

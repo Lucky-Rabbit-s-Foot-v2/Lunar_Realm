@@ -26,9 +26,5 @@ public:
 	bool SpendCurrency(ELRCurrencyType Type, int32 Amount);
 
 private:
-	ULRSaveGame* SG() const;
-
-private:
-	UPROPERTY()
-	USaveGameSubsystem* SaveSS = nullptr;
+	USaveGameSubsystem* GetSaveGameSubsystem() const;
 };

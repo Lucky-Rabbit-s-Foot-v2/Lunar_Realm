@@ -50,8 +50,8 @@ void ULRGachaSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 	if (UGameInstance* GI = GetGameInstance())
 	{
-		CurrencySys = GI->GetSubsystem<UCurrencySubsystem>();
-		SaveSS = GI->GetSubsystem<USaveGameSubsystem>();
+		CurrencySubsystem = GI->GetSubsystem<UCurrencySubsystem>();
+		SaveGameSubsystem = GI->GetSubsystem<USaveGameSubsystem>();
 	}
 
 	// DataTable 로드
@@ -59,7 +59,7 @@ void ULRGachaSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 	LR_INFO(TEXT("LRGachaSubsystem Initialized"));
 
-	if (ULRSaveGame* S = SG())
+	if (ULRSaveGame* S = GetSaveGame())
 	{
 		if (S->GachaPendingTransactions.Num() > 0)
 		{
@@ -84,28 +84,28 @@ void ULRGachaSubsystem::LoadDataTables()
 		LoadedRarityRateDT ? TEXT("OK") : TEXT("NULL"));
 }
 
-ULRSaveGame* ULRGachaSubsystem::SG() const
+ULRSaveGame* ULRGachaSubsystem::GetSaveGame() const
 {
-	return SaveSS ? SaveSS->GetCurrentSaveGame() : nullptr;
+	return SaveGameSubsystem ? SaveGameSubsystem->GetCurrentSaveGame() : nullptr;
 }
 
 // Currency ==================================================================
 int32 ULRGachaSubsystem::GetCurrency(ELRCurrencyType Type) const
 {
-	return CurrencySys ? CurrencySys->GetCurrency(Type) : 0;
+	return CurrencySubsystem ? CurrencySubsystem->GetCurrency(Type) : 0;
 }
 
 void ULRGachaSubsystem::AddCurrency(ELRCurrencyType Type, int32 Delta)
 {
-	if (!CurrencySys) return;
-	CurrencySys->AddCurrency(Type, Delta);
+	if (!CurrencySubsystem) return;
+	CurrencySubsystem->AddCurrency(Type, Delta);
 	OnCurrencyChanged.Broadcast(Type, GetCurrency(Type));
 }
 
 bool ULRGachaSubsystem::SpendCurrency(ELRCurrencyType Type, int32 Cost)
 {
-	if (!CurrencySys) return false;
-	const bool bOk = CurrencySys->SpendCurrency(Type, Cost);
+	if (!CurrencySubsystem) return false;
+	const bool bOk = CurrencySubsystem->SpendCurrency(Type, Cost);
 	if (bOk) OnCurrencyChanged.Broadcast(Type, GetCurrency(Type));
 	return bOk;
 }
@@ -113,7 +113,7 @@ bool ULRGachaSubsystem::SpendCurrency(ELRCurrencyType Type, int32 Cost)
 // Pity(천장) ==========================================================
 int32 ULRGachaSubsystem::GetPityCount(FName BannerID) const
 {
-	ULRSaveGame* S = SG();
+	ULRSaveGame* S = GetSaveGame();
 	if (!S) return 0;
 
 	if (const int32* Found = S->GachaPityCounterMap.Find(BannerID))
@@ -125,7 +125,7 @@ int32 ULRGachaSubsystem::GetPityCount(FName BannerID) const
 
 void ULRGachaSubsystem::IncrementPity(FName BannerID)
 {
-	ULRSaveGame* S = SG();
+	ULRSaveGame* S = GetSaveGame();
 	if (!S) return;
 
 	int32& PityValue = S->GachaPityCounterMap.FindOrAdd(BannerID);
@@ -133,16 +133,16 @@ void ULRGachaSubsystem::IncrementPity(FName BannerID)
 
 	OnPityChanged.Broadcast(BannerID, PityValue);
 
-	if (SaveSS)
+	if (SaveGameSubsystem)
 	{
-		SaveSS->TouchAndSave();
+		SaveGameSubsystem->UpdateLastSavedTimeAndSave();
 	}
 }
 
 
 void ULRGachaSubsystem::ResetPity(FName BannerID)
 {
-	ULRSaveGame* S = SG();
+	ULRSaveGame* S = GetSaveGame();
 	if (!S) return;
 
 	int32& PityValue = S->GachaPityCounterMap.FindOrAdd(BannerID);
@@ -150,9 +150,9 @@ void ULRGachaSubsystem::ResetPity(FName BannerID)
 
 	OnPityChanged.Broadcast(BannerID, PityValue);
 
-	if (SaveSS)
+	if (SaveGameSubsystem)
 	{
-		SaveSS->TouchAndSave();
+		SaveGameSubsystem->UpdateLastSavedTimeAndSave();
 	}
 }
 
@@ -341,7 +341,7 @@ bool ULRGachaSubsystem::BeginDrawTransaction(FName BannerID, int32 DrawCount, FG
 	OutTxnId.Invalidate();
 	OutResults.Empty();
 
-	ULRSaveGame* S = SG();
+	ULRSaveGame* S = GetSaveGame();
 	if (!S)
 	{
 		LR_WARN(TEXT("BeginDrawTransaction failed : SaveGame null"));
@@ -456,9 +456,9 @@ bool ULRGachaSubsystem::BeginDrawTransaction(FName BannerID, int32 DrawCount, FG
 
 	S->GachaPendingTransactions.Add(Pending.TxnId, Pending);
 
-	if (SaveSS)
+	if (SaveGameSubsystem)
 	{
-		SaveSS->TouchAndSave();
+		SaveGameSubsystem->UpdateLastSavedTimeAndSave();
 	}
 
 
@@ -484,7 +484,7 @@ bool ULRGachaSubsystem::BeginDrawTransaction(FName BannerID, int32 DrawCount, FG
 // 트랜잭션 커밋 : 실제 지급(컬렉션 반영/중복 골드 지급) + Pending 제거
 bool ULRGachaSubsystem::CommitTransaction(const FGuid& TxnId)
 {
-	ULRSaveGame* S = SG();
+	ULRSaveGame* S = GetSaveGame();
 	if (!S) return false;
 
 	// Pending 트랜잭션 찾기
@@ -521,9 +521,9 @@ bool ULRGachaSubsystem::CommitTransaction(const FGuid& TxnId)
 	// Pending 제거 + 저장
 	S->GachaPendingTransactions.Remove(TxnId);
 
-	if (SaveSS)
+	if (SaveGameSubsystem)
 	{
-		SaveSS->TouchAndSave();
+		SaveGameSubsystem->UpdateLastSavedTimeAndSave();
 	}
 
 
@@ -538,7 +538,7 @@ bool ULRGachaSubsystem::CommitTransaction(const FGuid& TxnId)
 // 트랜잭션 취소 : 비용 환불 + 천장 원복 + Pending 제거
 bool ULRGachaSubsystem::CancelTransaction(const FGuid& TxnId)
 {
-	ULRSaveGame* S = SG();
+	ULRSaveGame* S = GetSaveGame();
 	if (!S) return false;
 
 	// Pending 찾기
@@ -565,9 +565,9 @@ bool ULRGachaSubsystem::CancelTransaction(const FGuid& TxnId)
 	// Pending 제거 + 저장
 	S->GachaPendingTransactions.Remove(TxnId);
 
-	if (SaveSS)
+	if (SaveGameSubsystem)
 	{
-		SaveSS->TouchAndSave();
+		SaveGameSubsystem->UpdateLastSavedTimeAndSave();
 	}
 
 
@@ -699,7 +699,7 @@ bool ULRGachaSubsystem::GetAnyPendingTransaction(FLRGachaPendingTransaction& Out
 {
 	OutPending = FLRGachaPendingTransaction();
 
-	ULRSaveGame* S = SG();
+	ULRSaveGame* S = GetSaveGame();
 	if (!S) return false;
 	if (S->GachaPendingTransactions.Num() <= 0) return false;
 
