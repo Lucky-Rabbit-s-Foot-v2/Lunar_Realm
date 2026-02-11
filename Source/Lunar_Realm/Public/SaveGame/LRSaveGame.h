@@ -16,9 +16,10 @@
  * - 직렬화 구현을 위해 런타임 인스턴스 정보 보관
  * - SaveGameSubsys / InventorySubsys를 통해 역직렬화 후 로드 데이터 세팅
  */
-//=============================================================================
+//===================================================================================
 // (260123) KHS 제작. 제반 사항 구현.
-// =============================================================================
+// (260211) PYI 제작. 재화, 가챠저장용 데이터(천장카운터, 트랜잭션), 유저 재화 기본값 추가
+// ==================================================================================
 UCLASS()
 class LUNAR_REALM_API ULRSaveGame : public USaveGame
 {
@@ -70,7 +71,7 @@ public:
 	TArray<FName> SelectedEquipmentIDs; // 리더 장비 3개 [무기, 헬멧, 갑옷]
     
 	// ========================================
-	// Currency (태그/맵 없음)
+	// 재화
 	// ========================================
 	UPROPERTY(SaveGame, BlueprintReadWrite)
 	int32 Gold = 0;
@@ -81,11 +82,12 @@ public:
 	UPROPERTY(SaveGame, BlueprintReadWrite)
 	int32 FullMoonTicket = 0;
 
+	// 마지막 저장(UTC) - "언제 SaveGameToSlot 되었는지"
 	UPROPERTY(SaveGame, BlueprintReadWrite)
 	FDateTime LastUpdatedUtc;
 
 	// ========================================
-	// Gacha (Pity / Pending Transactions)
+	// 가챠 (Pity / Pending Transactions)
 	// ========================================
 	UPROPERTY(SaveGame, BlueprintReadWrite)
 	TMap<FName, int32> GachaPityCounterMap;
@@ -93,8 +95,9 @@ public:
 	UPROPERTY(SaveGame, BlueprintReadWrite)
 	TMap<FGuid, FLRGachaPendingTransaction> GachaPendingTransactions;
 
-	// 신규 유저 기본값 (현재 테스트용 임시값)
-	void ApplyDefaults()
+	// 신규 유저 기본값 세팅(테스트/첫 실행용)
+	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
+	void InitializeNewPlayerDefaults()
 	{
 		Gold = 1000;
 		CrescentTicket = 1000;
