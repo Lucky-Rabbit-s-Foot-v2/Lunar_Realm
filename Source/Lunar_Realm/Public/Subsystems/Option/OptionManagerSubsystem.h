@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SaveGame/LROptionSaveGame.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "OptionManagerSubsystem.generated.h"
 
@@ -24,7 +25,34 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 
-	void SaveOverallSettings();
-	void LoadOverallSettings();
-	void SetOverallSettings();
+public:
+	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
+	void LoadOptions();
+	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
+	void SaveOptions();
+
+	//////////////////////////////////////////////
+	// Option Data Getter
+	//////////////////////////////////////////////
+
+	UFUNCTION(BlueprintCallable)
+	ULROptionSaveGame* GetCurrentOptionSaveGame() { return CurrentOptionSaveGame; }
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateCurrentOptionSaveGame();
+
+private:
+	/**
+	* 저장된 옵션 데이터가 없을 경우 새로 생성.
+	*/
+	void CreateNewOptionSaveData();
+	
+	void InitializeOptions();
+
+private:
+	UPROPERTY()
+	TObjectPtr<ULROptionSaveGame> CurrentOptionSaveGame;
+
+	const FString SaveSlotName = TEXT("GlobalOptionData");
+	const uint32 UserIndex = 0;
 };

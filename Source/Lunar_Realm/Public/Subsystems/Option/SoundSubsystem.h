@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Data/LROptionDataStructs.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Sound/SoundClass.h"
 #include "Sound/SoundMix.h"
@@ -18,6 +19,7 @@
  */
 //============================================================================
 // (260204) PJB 제작. 제반 사항 구현.
+// (260210) PJB 수정. 옵션 메니저 서브시스템과의 연동 고려하여 일부 기능 이동 및 수정.
 //============================================================================
 
 UENUM(BlueprintType)
@@ -35,7 +37,20 @@ class LUNAR_REALM_API USoundSubsystem : public UGameInstanceSubsystem
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-	virtual void Deinitialize() override;
+	
+	/**
+	* 데이터 로드 및 저장 함수
+	*/
+	void InitializeFromSaveData(const FSoundOptionData& Data);
+
+	/**
+	* 설정 정보 게임에 반영.
+	*/
+	UFUNCTION(BlueprintCallable)
+	void ApplyOptions();
+
+	UFUNCTION(BlueprintCallable)
+	FSoundOptionData GetCurrentOptions() const { return CurrentOptions; }
 
 	/**
 	* BGM 제어
@@ -75,11 +90,5 @@ protected:
 	USoundMix* GlobalSoundMix;
 
 private:
-	float CurrentMasterVolume = 1.f;
-	float CurrentBGMVolume = 1.f;
-	float CurrentSFXVolume = 1.f;
-
-	void LoadVolumesFromSaveData();
-	void SaveVolumesToSaveData();
-	void ApplySoundMix();
+	FSoundOptionData CurrentOptions;
 };

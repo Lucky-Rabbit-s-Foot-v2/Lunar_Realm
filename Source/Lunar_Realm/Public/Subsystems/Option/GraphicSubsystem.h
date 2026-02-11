@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Data/LROptionDataStructs.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "GraphicSubsystem.generated.h"
 
@@ -16,6 +17,7 @@
  */
 //============================================================================
 // (260204) PJB 제작. 제반 사항 구현.
+// (260210) PJB 수정. 옵션 메니저 서브시스템과의 연동 고려하여 일부 기능 이동 및 수정.
 //============================================================================
 
 UENUM(BlueprintType)
@@ -33,48 +35,51 @@ class LUNAR_REALM_API UGraphicSubsystem : public UGameInstanceSubsystem
 	
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-	virtual void Deinitialize() override;
+
+	/**
+	* 옵션 메니저에서 옵션 데이터 로드 시 호출.
+	*/
+	void InitializeFromSaveData(const FGraphicOptionData& NewLoadedOptions);
+
+	/**
+	* 옵션 적용 시 현재 옵션 정보를 전체 저장
+	*/
+	UFUNCTION(BlueprintCallable)
+	void ApplyOptions();
 
 	UFUNCTION(BlueprintCallable)
-	void SetTextureQuality(EGraphicOptionLevel Level);
+	FGraphicOptionData GetCurrentOptions() const { return CurrentOptions; }
 
+	/**
+	* 그래픽 세팅 함수
+	* - 현재 옵션 정보에 저장 (반영되지 않음)
+	*/
 	UFUNCTION(BlueprintCallable)
-	void SetShadowQuality(EGraphicOptionLevel Level);
-
+	void SetTextureQuality(EGraphicOptionLevel Level) { CurrentOptions.TextureQuality = ConvertLevelToInt(Level); }
+	
 	UFUNCTION(BlueprintCallable)
-	void SetAntiAliasingQuality(EGraphicOptionLevel Level);
-
+	void SetShadowQuality(EGraphicOptionLevel Level) { CurrentOptions.ShadowQuality = ConvertLevelToInt(Level); }
+	
 	UFUNCTION(BlueprintCallable)
-	void SetPostProcessingQuality(EGraphicOptionLevel Level);
-
+	void SetAntiAliasingQuality(EGraphicOptionLevel Level) { CurrentOptions.AntiAliasingQuality = ConvertLevelToInt(Level); }
+	
 	UFUNCTION(BlueprintCallable)
-	void SetVisualEffectQuality(EGraphicOptionLevel Level);
-
+	void SetPostProcessingQuality(EGraphicOptionLevel Level) { CurrentOptions.PostProcessingQuality = ConvertLevelToInt(Level); }
+	
 	UFUNCTION(BlueprintCallable)
-	void SetResolutionScale(float Percent);
-
+	void SetVisualEffectQuality(EGraphicOptionLevel Level) { CurrentOptions.VisualEffectQuality = ConvertLevelToInt(Level); }
+	
 	UFUNCTION(BlueprintCallable)
-	void SetFrameRateLimit(float Limit);
-
+	void SetResolutionScale(float Percent) { CurrentOptions.ResolutionScale = Percent; }
+	
 	UFUNCTION(BlueprintCallable)
-	void SetOverallQuality(EGraphicOptionLevel Level);
-
-	UFUNCTION(BlueprintCallable)
-	void ApplyAndSave();
-
-	UFUNCTION(BlueprintCallable)
-	void RunAutoBenchmark();
+	void SetFrameRateLimit(float Limit) { CurrentOptions.FrameRateLimit = Limit; }
 
 private:
+	/**
+	* 그래픽 옵션 레벨 헬퍼 함수
+	*/
 	int32 ConvertLevelToInt(EGraphicOptionLevel Level) const;
-
-	int32 Texture;
-	int32 Shadow;
-	int32 AntiAliasing;
-	int32 PostProcessing;
-	int32 VisualEffect;
-	int32 Resolution;
-	int32 FrameRate;
 	
-
+	FGraphicOptionData CurrentOptions;
 };

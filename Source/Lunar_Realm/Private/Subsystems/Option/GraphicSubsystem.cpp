@@ -4,6 +4,7 @@
 
 #include "GameFramework/GameUserSettings.h"
 #include "Kismet/GameplayStatics.h"
+#include "Data/LROptionDataStructs.h"
 
 void UGraphicSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -12,115 +13,40 @@ void UGraphicSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	if(UGameUserSettings* UserSettings = UGameUserSettings::GetGameUserSettings())
 	{
 		UserSettings->LoadSettings();
-		UserSettings->ApplySettings(false);
 	}
 }
 
-void UGraphicSubsystem::Deinitialize()
+void UGraphicSubsystem::InitializeFromSaveData(const FGraphicOptionData& NewLoadedOptions)
 {
-	ApplyAndSave();
-	Super::Deinitialize();
+	CurrentOptions = NewLoadedOptions;
+	ApplyOptions();
 }
 
-void UGraphicSubsystem::SetTextureQuality(EGraphicOptionLevel Level)
+void UGraphicSubsystem::ApplyOptions()
 {
-	if(UGameUserSettings* UserSettings = UGameUserSettings::GetGameUserSettings())
-	{
-		int32 QualityLevel = ConvertLevelToInt(Level);
-		UserSettings->SetTextureQuality(QualityLevel);
-	}
-}
 
-void UGraphicSubsystem::SetShadowQuality(EGraphicOptionLevel Level)
-{
-	if (UGameUserSettings* UserSettings = UGameUserSettings::GetGameUserSettings())
-	{
-		int32 QualityLevel = ConvertLevelToInt(Level);
-		UserSettings->SetShadowQuality(QualityLevel);
-	}
-}
+	UGameUserSettings* UserSettings = UGameUserSettings::GetGameUserSettings();
+	if (!UserSettings) return;
+	
+	// 1. 퀄리티 설정 적용
+	UserSettings->SetTextureQuality(CurrentOptions.TextureQuality);
+	UserSettings->SetShadowQuality(CurrentOptions.ShadowQuality);
+	UserSettings->SetAntiAliasingQuality(CurrentOptions.AntiAliasingQuality);
+	UserSettings->SetPostProcessingQuality(CurrentOptions.PostProcessingQuality);
+	UserSettings->SetVisualEffectQuality(CurrentOptions.VisualEffectQuality);
 
-void UGraphicSubsystem::SetAntiAliasingQuality(EGraphicOptionLevel Level)
-{
-	if (UGameUserSettings* UserSettings = UGameUserSettings::GetGameUserSettings())
-	{
-		int32 QualityLevel = ConvertLevelToInt(Level);
-		UserSettings->SetAntiAliasingQuality(QualityLevel);
-	}
-}
+	// 2. 렌더링 해상도 (50% ~ 100%)
+	const float NewResScale = FMath::Clamp(CurrentOptions.ResolutionScale, 50.f, 100.f);
+	UserSettings->SetResolutionScaleValueEx(NewResScale);
 
-void UGraphicSubsystem::SetPostProcessingQuality(EGraphicOptionLevel Level)
-{
-	if (UGameUserSettings* UserSettings = UGameUserSettings::GetGameUserSettings())
-	{
-		int32 QualityLevel = ConvertLevelToInt(Level);
-		UserSettings->SetPostProcessingQuality(QualityLevel);
-	}
-}
+	// 3. 프레임 제한 (30, 60, 120)
+	const float NewFrameRate = FMath::Clamp(CurrentOptions.FrameRateLimit, 30.f, 120.f);
+	UserSettings->SetFrameRateLimit(NewFrameRate);
 
-void UGraphicSubsystem::SetVisualEffectQuality(EGraphicOptionLevel Level)
-{
-	if (UGameUserSettings* UserSettings = UGameUserSettings::GetGameUserSettings())
-	{
-		int32 QualityLevel = ConvertLevelToInt(Level);
-		UserSettings->SetVisualEffectQuality(QualityLevel);
-	}
-}
-
-void UGraphicSubsystem::SetResolutionScale(float Percent)
-{
-	if (UGameUserSettings* UserSettings = UGameUserSettings::GetGameUserSettings())
-	{
-		float ClampedValue = FMath::Clamp(Percent, 50.0f, 100.0f);
-		UserSettings->SetResolutionScaleValueEx(ClampedValue);
-	}
-}
-
-void UGraphicSubsystem::SetFrameRateLimit(float Limit)
-{
-	if(UGameUserSettings* UserSettings = UGameUserSettings::GetGameUserSettings())
-	{
-		UserSettings->SetFrameRateLimit(Limit);
-	}
-}
-
-void UGraphicSubsystem::SetOverallQuality(EGraphicOptionLevel Level)
-{
-	if(UGameUserSettings* UserSettings = UGameUserSettings::GetGameUserSettings())
-	{
-		int32 QualityLevel = ConvertLevelToInt(Level);
-		UserSettings->SetOverallScalabilityLevel(QualityLevel);
-	}
-}
-
-void UGraphicSubsystem::ApplyAndSave()
-{
-	if(UGameUserSettings* UserSettings = UGameUserSettings::GetGameUserSettings())
-	{
-		UserSettings->ApplySettings(false);
-		UserSettings->SaveSettings();
-	}
-}
-
-void UGraphicSubsystem::RunAutoBenchmark()
-{
-	if(UGameUserSettings* UserSettings = UGameUserSettings::GetGameUserSettings())
-	{
-		UserSettings->RunHardwareBenchmark();
-		UserSettings->ApplyHardwareBenchmarkResults();
-		ApplyAndSave();
-	}
+	UserSettings->SaveSettings();
 }
 
 int32 UGraphicSubsystem::ConvertLevelToInt(EGraphicOptionLevel Level) const
 {
-	int32 Value = static_cast<int32>(Level);
-
-#if PLATFORM_ANDROID
-	if (Value > 2)
-	{
-		Value = 2;
-	}
-#endif
-	return Value;
+	return FMath::Clamp(static_cast<int32>(Level), 0, 2);
 }

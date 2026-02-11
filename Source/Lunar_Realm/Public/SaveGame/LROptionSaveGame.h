@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Data/LROptionDataStructs.h"
 #include "GameFramework/SaveGame.h"
 #include "LROptionSaveGame.generated.h"
-
 
 //============================================================================
 /**
@@ -24,13 +24,19 @@ class LUNAR_REALM_API ULROptionSaveGame : public USaveGame
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditAnywhere)
-	float MasterVolume = 1.f;
+	void ApplyDefaults();
+	void ApplyOverallOptions();
 
-	UPROPERTY(EditAnywhere)
-	float BGMVolume = 1.f;
+	void SetSoundOptions(const FSoundOptionData& NewSoundOptions) { SoundOptions = NewSoundOptions; }
+	void SetGraphicsOptions(const FGraphicOptionData& NewGraphicOptions) { GraphicOptions = NewGraphicOptions; }
 
-	UPROPERTY(EditAnywhere)
-	float SFXVolume = 1.f;
+	FSoundOptionData& GetSoundOptions() { return SoundOptions; }
+	FGraphicOptionData& GetGraphicOptions() { return GraphicOptions; }
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Options")
+	FSoundOptionData SoundOptions;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Options")
+	FGraphicOptionData GraphicOptions;
 };
