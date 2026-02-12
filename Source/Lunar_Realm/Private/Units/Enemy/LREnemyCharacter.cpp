@@ -129,8 +129,16 @@ void ALREnemyCharacter::ApplyVisualData(const FEnemyStaticData& EnemyData)
 		if (LoadedMesh)
 		{
 			MeshComp->SetSkeletalMesh(LoadedMesh);
-			LR_INFO(TEXT("Enemy [%s] mesh set to [%s]"),
-				*CurrentEnemyID.ToString(), *LoadedMesh->GetName());
+
+			MeshComp->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+
+			// 높이 보정: 메시 발바닥을 캡슐 바닥에 맞춘다
+			FBoxSphereBounds ImportedBounds = LoadedMesh->GetImportedBounds();
+			float MeshBottomZ = ImportedBounds.Origin.Z - ImportedBounds.BoxExtent.Z;
+			float HalfHeight = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
+
+			float RelativeZ = -HalfHeight - MeshBottomZ;
+			MeshComp->SetRelativeLocation(FVector(0.0f, 0.0f, RelativeZ));
 		}
 		else
 		{
@@ -148,8 +156,7 @@ void ALREnemyCharacter::ApplyVisualData(const FEnemyStaticData& EnemyData)
 		if (AnimClass)
 		{
 			MeshComp->SetAnimInstanceClass(AnimClass);
-			LR_INFO(TEXT("Enemy [%s] AnimBP set to [%s]"),
-				*CurrentEnemyID.ToString(), *AnimClass->GetName());
+			LR_INFO(TEXT("Enemy [%s] AnimBP set to [%s]"), *CurrentEnemyID.ToString(), *AnimClass->GetName());	// TODO: AnimBP 넣고 테스트
 		}
 		else
 		{

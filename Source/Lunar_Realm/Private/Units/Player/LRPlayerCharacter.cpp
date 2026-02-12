@@ -28,21 +28,6 @@ ALRPlayerCharacter::ALRPlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	//SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
-	//SpringArmComponent->SetupAttachment(RootComponent);
-
-	//SpringArmComponent->TargetArmLength = 800.0f;
-	//SpringArmComponent->SetRelativeRotation(FRotator(-45.0f, 0.0f, 0.0f));
-	//SpringArmComponent->bDoCollisionTest = false;
-
-	//SpringArmComponent->bInheritPitch = false;
-	//SpringArmComponent->bInheritYaw = false;
-	//SpringArmComponent->bInheritRoll = false;
-
-
-	//CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
-	//CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
-
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 720.f, 0.f); 
 
@@ -76,7 +61,6 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	// PlayerState 가져오기
 	ALRPlayerState* PS = GetPlayerState<ALRPlayerState>();
 	if (PS)
 	{
@@ -84,8 +68,13 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 		AttributeSet = PS->GetAttributeSet();
 
 		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
-
 		PS->InitializePlayerData();
+
+		if (AttributeSet)
+		{
+			AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+				ULRPlayerAttributeSet::GetHealthAttribute()).AddUObject(this, &ALRPlayerCharacter::OnHealthChangedNative);
+		}
 
 		UE_LOG(LogTemp, Log, TEXT("GAS Initialized completely in %s"), *GetName());
 	}
@@ -173,28 +162,6 @@ void ALRPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 			LRInputComp->BindAction(InputConfig->ChargeAction, ETriggerEvent::Started, this, &ALRPlayerCharacter::Input_Charge);
 		}
 	}
-
-
-	//if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
-	//{
-	//	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ALRPlayerCharacter::Move);
-	//	if (SummonAction_1)
-	//		{
-	//			EnhancedInputComponent->BindAction(SummonAction_1, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot1);
-	//		}
-	//	if (SummonAction_2)
-	//		{
-	//			EnhancedInputComponent->BindAction(SummonAction_2, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot2);
-	//		}
-	//	if (SummonAction_3)
-	//		{
-	//			EnhancedInputComponent->BindAction(SummonAction_3, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot3);
-	//		}
-	//	if (SummonAction_4)
-	//		{
-	//			EnhancedInputComponent->BindAction(SummonAction_4, ETriggerEvent::Started, this, &ALRPlayerCharacter::SummonSlot4);
-	//		}
-	//}
 }
 
 UAbilitySystemComponent* ALRPlayerCharacter::GetAbilitySystemComponent() const
@@ -273,3 +240,39 @@ void ALRPlayerCharacter::Input_Charge(const FInputActionValue& Value)
 	}
 }
 
+void ALRPlayerCharacter::OnHealthChangedNative(const FOnAttributeChangeData& Data)
+{
+	float NewHealth = Data.NewValue;
+
+	if (bIsDead)
+	{
+		return;
+	}
+	if (NewHealth <= 0.0f)
+	{
+		Die();
+	}
+}
+
+void ALRPlayerCharacter::Die()
+{
+	if (bIsDead) return;
+	bIsDead = true;
+
+	LR_INFO(TEXT("플레이어 사망! 게임 오버 대기 상태 진입."));
+
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		DisableInput(PC);
+	}
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	GetCharacterMovement()->StopMovementImmediately();
+	GetCharacterMovement()->DisableMovement();
+
+	if (DeathMontage)
+	{
+		PlayAnimMontage(DeathMontage);
+	}
+}
