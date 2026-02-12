@@ -14,7 +14,7 @@ void ALRTransitionHUD::BeginPlay()
 
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	ULRLoadingWidget* LoadingWidget = UIManager->GetOrCreateWidget<ULRLoadingWidget>(LoadingWidgetClass);
-	if (LoadingWidget)
+	if (LoadingWidget && !LoadingWidget->IsOpen())
 	{
 		UIManager->OpenUI<ULRLoadingWidget>(LoadingWidgetClass);
 	}

@@ -46,5 +46,5 @@ private:
 
 	float Progress = 0.f;
 	float ElapsedTime = 0.f;
-	const float TotalDuration = 7.f;
+	const float TotalDuration = 5.f;
 };

@@ -38,6 +38,7 @@ void ULRLoadingWidget::RefreshUI()
 	{
 		Bar_Loading->SetPercent(Progress);
 	}
+	GetWorld()->GetTimerManager().ClearTimer(LoadingTimerHandle);
 }
 
 void ULRLoadingWidget::UpdateProgressBar()
@@ -51,10 +52,9 @@ void ULRLoadingWidget::UpdateProgressBar()
 		Progress += Increment;
 		ElapsedTime += 0.01f;
 
-		if (ElapsedTime > TotalDuration)
+		if (ElapsedTime >= TotalDuration)
 		{
-			Progress = 1.f;
-			GetWorld()->GetTimerManager().ClearTimer(LoadingTimerHandle);
+			FinishLoading();
 		}
 
 		Bar_Loading->SetPercent(Progress);
@@ -63,6 +63,7 @@ void ULRLoadingWidget::UpdateProgressBar()
 
 void ULRLoadingWidget::FinishLoading()
 {
+	LR_SCREEN_INFO(TEXT("Loading Finished"));
 	GetWorld()->GetTimerManager().ClearTimer(LoadingTimerHandle);
 
 	Progress = 1.f;
