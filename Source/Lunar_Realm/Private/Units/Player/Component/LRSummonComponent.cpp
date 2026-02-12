@@ -2,10 +2,14 @@
 
 
 #include "Units/Player/Component/LRSummonComponent.h"
+#include "Engine/GameInstance.h"
+#include "Subsystems/GameDataSubsystem.h"
 #include "Units/Member/LRMemberCharacter.h"
 #include "Structures/Core/LRPlayerCore.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
+#include "Subsystems/PoolingSubsystem.h"
+#include "System/LoggingSystem.h"
 
 ULRSummonComponent::ULRSummonComponent()
 {
@@ -22,12 +26,13 @@ void ULRSummonComponent::BeginPlay()
 	if (FoundActor)
 	{
 		TargetCore = Cast<ALRPlayerCore>(FoundActor);
-		UE_LOG(LogTemp, Log, TEXT("플레이어 코어 찾음: %s"), *TargetCore->GetName());
+		LR_INFO(TEXT("플레이어 코어 연결 성공: %s"), *TargetCore->GetName());
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("플레이어코어가 없어 소환할 수 없음"));
+		LR_ERROR(TEXT("맵에 플레이어 코어가 없어 소환할 수 없음"));
 	}
+
 }
 
 void ULRSummonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -36,54 +41,72 @@ void ULRSummonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 
 }
 
-void ULRSummonComponent::LoadDeckData(const TArray<int32>& UnitIDs)
+void ULRSummonComponent::LoadDeckData(const TArray<FName>& InUnitIDs)
 {
-	SummonDeck.Empty();
-	for (int32 ID : UnitIDs)
-	{
-		UE_LOG(LogTemp, Log, TEXT("덱 로드중 ID: %d"), ID);
-
-		//[TODO] DataManager를 써서 ID
-		// 예: TSubclassOf<ALRSubCharacter> UnitClass = DataManager->GetUnitClass(ID);
-		// if (UnitClass) SummonDeck.Add(UnitClass);
-
-		UE_LOG(LogTemp, Warning, TEXT("덱 로드완료, 총 유닛 수: %d"), UnitIDs.Num());
-	}
+	SummonDeck = InUnitIDs;
+	LR_INFO(TEXT("덱 로드완료, 총 유닛 수: %d"), SummonDeck.Num());
 }
 
-void ULRSummonComponent::TrySummonUnit(int32 SlotIndex)
+void ULRSummonComponent::TrySummonUnit(int32 InSlotIndex)
 {
-	if (SummonDeck.IsValidIndex(SlotIndex) == false)
+	if (!IsSummonValid(InSlotIndex))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("슬롯 %d가 비어있음"), SlotIndex);
 		return;
 	}
 
-	TSubclassOf<ALRMemberCharacter> UnitClass = SummonDeck[SlotIndex];
-	if (!UnitClass)
+	FName TargetUnitID = SummonDeck[InSlotIndex];
+
+	ProcessSummon(TargetUnitID);
+}
+
+bool ULRSummonComponent::IsSummonValid(int32 InSlotIndex) const
+{
+	if (!TargetCore)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("슬롯 %d에 유닛 클래스가 없음"), SlotIndex);
-		return;
+		LR_ERROR(TEXT("소환 실패 : TargetCore가 연결되지 않음"));
+		return false;
 	}
-	if (TargetCore == nullptr)
+	if (!SummonDeck.IsValidIndex(InSlotIndex))
 	{
-		UE_LOG(LogTemp, Error, TEXT("Summon Failed: No TargetCore Linked! (Did BeginPlay find the Core?)"));
-		return;
+		LR_WARN(TEXT("소환 실패: 슬롯 %d가 유효하지 않음."), InSlotIndex);
+		return false;
 	}
+
+	if (!BaseMemberClass)
+	{
+		LR_ERROR(TEXT("소환 실패: 컴포넌트의 BaseMemberClass가 비어있음."));
+		return false;
+	}
+	return true;
+}
+
+void ULRSummonComponent::ProcessSummon(FName InTargetUnitID)
+{
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	UPoolingSubsystem* PoolSys = World->GetSubsystem<UPoolingSubsystem>();
+	if (!PoolSys) return;
 
 	FVector SpawnLocation = TargetCore->GetRandomSpawnLocation();
 	SpawnLocation.Z = TargetCore->GetActorLocation().Z;
-	FRotator SpawnRotation = FRotator::ZeroRotator;
+	FTransform SpawnTransform(FRotator::ZeroRotator, SpawnLocation);
 
-	if(UWorld* World = GetWorld())
+	ALRMemberCharacter* NewUnit = PoolSys->Spawn<ALRMemberCharacter>(BaseMemberClass, SpawnTransform);
+
+	if (NewUnit)
 	{
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		NewUnit->InitCharacterData(InTargetUnitID);
 
-		World->SpawnActor<ALRMemberCharacter>(UnitClass, SpawnLocation, SpawnRotation, SpawnParams);
-
-		UE_LOG(LogTemp, Log, TEXT("Summon Success! Slot: %d"), SlotIndex);
+		LR_INFO(TEXT("유닛 소환 성공 ID: %s"), *InTargetUnitID.ToString());
 	}
+	else
+	{
+		LR_ERROR(TEXT("소환 실패: 풀링 시스템에서 유닛을 반환하지 못함."));
+	}
+
+
+
 }
 
 
