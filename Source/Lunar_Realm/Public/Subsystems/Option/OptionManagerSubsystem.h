@@ -26,15 +26,17 @@ public:
 	virtual void Deinitialize() override;
 
 public:
+	// ============================================
+	// 지정된 슬롯에서 옵션 데이터 로드 및 저장
+	// ============================================
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
 	void LoadOptions();
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
 	void SaveOptions();
 
-	//////////////////////////////////////////////
-	// Option Data Getter
-	//////////////////////////////////////////////
-
+	// ============================================
+	// 옵션 데이터 접근 및 업데이트
+	// ============================================
 	UFUNCTION(BlueprintCallable)
 	ULROptionSaveGame* GetCurrentOptionSaveGame() { return CurrentOptionSaveGame; }
 
@@ -42,11 +44,10 @@ public:
 	void UpdateCurrentOptionSaveGame();
 
 private:
-	/**
-	* 저장된 옵션 데이터가 없을 경우 새로 생성.
-	*/
+	// 저장된 옵션 데이터가 없을 경우 새로 생성.
 	void CreateNewOptionSaveData();
 	
+	// 각 옵션 서브시스템에 옵션 데이터 초기화 적용
 	void InitializeOptions();
 
 private:

@@ -9,7 +9,3 @@ void ULROptionSaveGame::ApplyDefaults()
 	GraphicOptions.ApplyDefaults();
 }
 
-void ULROptionSaveGame::ApplyOverallOptions()
-{
-
-}

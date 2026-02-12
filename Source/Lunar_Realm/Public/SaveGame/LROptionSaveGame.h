@@ -25,7 +25,6 @@ class LUNAR_REALM_API ULROptionSaveGame : public USaveGame
 	
 public:
 	void ApplyDefaults();
-	void ApplyOverallOptions();
 
 	void SetSoundOptions(const FSoundOptionData& NewSoundOptions) { SoundOptions = NewSoundOptions; }
 	void SetGraphicsOptions(const FGraphicOptionData& NewGraphicOptions) { GraphicOptions = NewGraphicOptions; }
