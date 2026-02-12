@@ -3,19 +3,28 @@
 
 #include "UI/Intro/LRIntroWidget.h"
 
+#include "TimerManager.h"
 #include "Components/Image.h"
 
-#include "UI/Intro/LRTitleWidget.h"
-
-ULRIntroWidget::ULRIntroWidget()
+void ULRIntroWidget::NativeDestruct()
 {
-	UILayer = EUILayer::PERSISTENT;
-	ZOrder = 0;
+	OnIntroAnimFinishedDel.Clear();
+
+	Super::NativeDestruct();
 }
 
-void ULRIntroWidget::NativeConstruct()
+void ULRIntroWidget::OpenUI()
 {
-	Super::NativeConstruct();
+	Super::OpenUI();
+
+	RefreshUI();
+
+	PlayIntroAnimation();
+}
+
+void ULRIntroWidget::RefreshUI()
+{
+	Super::RefreshUI();
 
 	Img_1->SetVisibility(ESlateVisibility::Hidden);
 	Img_2->SetVisibility(ESlateVisibility::Hidden);
@@ -37,6 +46,11 @@ void ULRIntroWidget::PlayIntroAnimation()
 
 		PlayAnimation(FadeAnim);
 	}
+	else
+	{
+		LR_INFO(TEXT("FadeAnim is nullptr in ULRIntroWidget::PlayIntroAnimation"));
+		OnFinishedIntroAnim();
+	}
 }
 
 void ULRIntroWidget::OnFinishedIntroAnim()
@@ -46,21 +60,9 @@ void ULRIntroWidget::OnFinishedIntroAnim()
 		TimerHandle,
 		[this]()
 		{
-			OpenTitleWidget();
+			OnIntroAnimFinishedDel.Broadcast();
 		},
 		0.5f,
 		false
 	);
-}
-
-void ULRIntroWidget::OpenTitleWidget()
-{
-	if (TitleWidgetClass)
-	{
-		UUserWidget* TitleWidget = CreateWidget<UUserWidget>(GetWorld(), TitleWidgetClass);
-		if (TitleWidget)
-		{
-			TitleWidget->AddToViewport();
-		}
-	}
 }
