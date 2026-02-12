@@ -22,7 +22,7 @@ class UBlackboardComponent;
  */
 namespace LRBBKeys
 {
-	inline const FName TargetActor = TEXT("TargetActor");			 // Object (AActor* - 베이스 클래스)
+	inline const FName TargetActor = TEXT("TargetActor");			 // Object (AActor* -> 베이스 클래스)
 	inline const FName TargetCore = TEXT("TargetCore");				 // Object (AActor*)
 	inline const FName HasNearbyHostile = TEXT("HasNearbyHostile");  // Bool
 }
@@ -83,7 +83,7 @@ protected:
 
 	// === 설정값 ===
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|AI|BehaviorTree")
-	TObjectPtr<UBehaviorTree> BehaviorTreeAsset;
+	UBehaviorTree* BehaviorTreeAsset = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|AI|Detection")
 	float DetectionRadius = 800.0f;
