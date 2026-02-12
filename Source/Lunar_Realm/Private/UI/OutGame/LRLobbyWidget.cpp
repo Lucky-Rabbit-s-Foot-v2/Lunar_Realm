@@ -3,6 +3,9 @@
 
 #include "UI/OutGame/LRLobbyWidget.h"
 
+#include "UI/OutGame/LRLobbyFigureWidget.h"
+#include "UI/Common/LRCurrencyWidget.h"
+
 void ULRLobbyWidget::NativeConstruct()
 {
 	Super::NativeConstruct();

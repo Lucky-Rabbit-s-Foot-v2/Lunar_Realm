@@ -12,7 +12,7 @@ void ALRLobbyHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-
+	OpenLobbyWidget();
 }
 
 void ALRLobbyHUD::OpenLobbyWidget()
