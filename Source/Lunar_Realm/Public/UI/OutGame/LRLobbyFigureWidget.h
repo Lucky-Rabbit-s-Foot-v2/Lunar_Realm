@@ -17,8 +17,8 @@
  //=============================================================================
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFigureClicked, FName, CharacterID);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFigureHovered, FName, CharacterID);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFigureUnhovered);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFigureLongPressed, FName, CharacterID);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFigureLongReleased);
 
 UCLASS()
 class LUNAR_REALM_API ULRLobbyFigureWidget : public UBaseWidget
@@ -35,16 +35,19 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "LR|UI|Events")
 	FOnFigureClicked OnFigureClickedDel;
 	UPROPERTY(BlueprintAssignable, Category = "LR|UI|Events")
-	FOnFigureHovered OnFigureHoveredDel;
+	FOnFigureLongPressed OnFigureLongPressedDel;
 	UPROPERTY(BlueprintAssignable, Category = "LR|UI|Events")
-	FOnFigureUnhovered OnFigureUnhoveredDel;
+	FOnFigureLongReleased OnFigureLongReleasedDel;
 
 	UFUNCTION()
-	void OnFigureButtonClicked();
+	void OnFigurePressed();
 	UFUNCTION()
-	void OnFigureButtonHovered();
-	UFUNCTION()
-	void OnFigureButtonUnhovered();
+	void OnFigureClicked();
+
+private:
+	void OnFigureLongPressed();
+	void OnFigureReleased();
+	void OnFigureLongReleased();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -56,5 +59,7 @@ protected:
 	TSubclassOf<class ULRLobbyFigureInfoWidget> FigureInfoWidgetClass;
 
 private:
+	FTimerHandle LongPressTimerHandle;
 	FName CurrentCharacterID;
+	bool bIsLongPressTriggered = false;
 };
