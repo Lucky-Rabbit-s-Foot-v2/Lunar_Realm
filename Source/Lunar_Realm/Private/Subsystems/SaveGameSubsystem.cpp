@@ -131,12 +131,19 @@ FName USaveGameSubsystem::GetLeaderCharacterID() const
 	return CurrentSaveGame->GetLeaderCharacterID();
 }
 
-void USaveGameSubsystem::SetLeaderEquipmentSlot(int32 Slots, FName EquipmentIDs)
+void USaveGameSubsystem::SetLeaderEquipmentSlot(int32 Slots, FGuid EquipmentIDs)
 {
 	if (!ensureMsgf(CurrentSaveGame, TEXT("CurrentSaveGame is NULL")))
 	{
 		return;
 	}
+	
+	if (Slots < 0 || Slots >= 3)
+	{
+		LR_ERROR(TEXT("Invalid SlotIndex : %d"), Slots);
+		return;
+	}
+	
 	
 	CurrentSaveGame->SetEquipmentSlot(Slots, EquipmentIDs);
 	SaveGame(); //자동저장
@@ -144,24 +151,29 @@ void USaveGameSubsystem::SetLeaderEquipmentSlot(int32 Slots, FName EquipmentIDs)
 	LR_INFO(TEXT("Character Slot %d set to ID %s"), Slots, *EquipmentIDs.ToString());
 }
 
-FName USaveGameSubsystem::GetLeaderEquipmentID(int32 SlotIdx) const
+FGuid USaveGameSubsystem::GetLeaderEquipmentID(int32 SlotIdx) const
 {
 	if (!ensureMsgf(CurrentSaveGame, TEXT("CurrentSaveGame is NULL")))
 	{
-		return NAME_None;
+		return FGuid();
+	}
+	
+	if (SlotIdx < 0 || SlotIdx >= CurrentSaveGame->GetLeadersEquippedGuids().Num())
+	{
+		return FGuid();
 	}
 	
 	return CurrentSaveGame->GetEquipmentID(SlotIdx);
 }
 
-TArray<FName> USaveGameSubsystem::GetAllLeaderEquipmentIDs() const
+TArray<FGuid> USaveGameSubsystem::GetAllLeaderEquipmentIDs() const
 {
 	if (!ensureMsgf(CurrentSaveGame, TEXT("CurrentSaveGame is NULL")))
 	{
-		return TArray<FName>();
+		return TArray<FGuid>();
 	}
 	
-	return CurrentSaveGame->GetAllEquippedIDs();
+	return CurrentSaveGame->GetLeadersEquippedGuids();
 }
 
 int32 USaveGameSubsystem::GetCurrency(ELRCurrencyType Type) const

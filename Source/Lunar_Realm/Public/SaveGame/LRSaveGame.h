@@ -14,21 +14,27 @@
 /** 
  * ULRSaveGame 구성 요소
  * - 직렬화 구현을 위해 런타임 인스턴스 정보 보관
+ * - SaveGame시스템에서 관리하므로 직접적인 접근 금지!
  * - SaveGameSubsys / InventorySubsys를 통해 역직렬화 후 로드 데이터 세팅
  */
 //===================================================================================
 // (260123) KHS 제작. 제반 사항 구현.
-// (260211) PYI 제작. 재화, 가챠저장용 데이터(천장카운터, 트랜잭션), 유저 재화 기본값 추가
+// (260211) PYI 재화, 가챠저장용 데이터(천장카운터, 트랜잭션), 유저 재화 기본값 추가
+// (260211) KHS 멤버 숨김. SaveGame 시스템 사용용도 Getter/Setter추가.
 // ==================================================================================
+
+
+
 UCLASS()
 class LUNAR_REALM_API ULRSaveGame : public USaveGame
 {
 	GENERATED_BODY()
 	
+	ULRSaveGame(const FObjectInitializer& InitializerModule);
 	
 public:
 	// ========================================
-	// 로드아웃 헬퍼 함수들
+	// 로드아웃 헬퍼 함수들(SaveGameSubsystem 사용용도)
 	// ========================================
 	bool HasCharacter(FName CharacterID) const;
 	bool HasEquipment(FName EquipmentID) const;
@@ -44,34 +50,49 @@ public:
 	FName GetLeaderCharacterID() const;
 	
 	// 리더캐릭터 장비 슬롯 관리
-	void SetEquipmentSlot(int32 SlotIndex, FName EquipmentID);
-	FName GetEquipmentID(int32 SlotIndex) const;
+	void SetEquipmentSlot(int32 SlotIndex, FGuid EquipmentID);
+	FGuid GetEquipmentID(int32 SlotIndex) const;
 	
 	// 리더캐릭터 모든 장비 슬롯 가져오기
-	TArray<FName> GetAllEquippedIDs() const;
+	TArray<FGuid> GetLeadersEquippedGuids() const;
 	
+	// ========================================
+	// 도감데이터 Get/Set
+	// ========================================
+	TMap<FName, FCharacterInstance> GetOwnedCharactersList() const;
+	TArray<FEquipmentInstance> GetOwnedEquipmentsList() const;
+	void SetOwnedCharactersList(TMap<FName, FCharacterInstance> InCharactersList);
+	void SetOwnedEquipmentsList(TArray<FEquipmentInstance> InEquipmentList);
+	
+	// ========================================
+	// 재화 (260211 PYI추가)
+	// ========================================
+	// 신규 유저 기본값 세팅(테스트/첫 실행용)
+	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
+	void InitializeNewPlayerDefaults();
+	
+	
+private:
 	// ========================================
 	// 소유 도감 데이터(캐릭터/장비 인스턴스)
 	// ========================================
-	UPROPERTY(SaveGame, BlueprintReadWrite)
-	TMap<FName, FPlayerCharacterInstance> OwnedCharacters;
-    
-	UPROPERTY(SaveGame, BlueprintReadWrite)
-	TMap<FName, FPlayerEquipmentInstance> OwnedEquipments;
+	TMap<FName, FCharacterInstance> OwnedCharacters;
+	TArray<FEquipmentInstance> OwnedEquipments;
     
 	// ========================================
 	// 선택된 로드아웃 정보
 	// ========================================
 	// 선택된 캐릭터 파티 정보
-	UPROPERTY(SaveGame, BlueprintReadWrite)
 	TArray<FName> SelectedCharactersIDs; // 4명[리더, 파티원1, 파티원2, 파티원3]
-    
 	// 선택된 리더 캐릭터 장비 정보
-	UPROPERTY(SaveGame, BlueprintReadWrite)
-	TArray<FName> SelectedEquipmentIDs; // 리더 장비 3개 [무기, 헬멧, 갑옷]
+	TArray<FGuid> SelectedEquipmentIDs; // 리더 장비 3개 [무기, 헬멧, 갑옷]
     
+	const int PARTY_SLOT_SIZE = 4;
+	const int EQUIPMENT_SLOT_SIZE = 3;
+	
+public:
 	// ========================================
-	// 재화
+	// 재화 (260211 PYI추가)
 	// ========================================
 	UPROPERTY(SaveGame, BlueprintReadWrite)
 	int32 Gold = 0;
@@ -87,7 +108,7 @@ public:
 	FDateTime LastUpdatedUtc;
 
 	// ========================================
-	// 가챠 (Pity / Pending Transactions)
+	// 가챠 (Pity / Pending Transactions) (260211 PYI추가)
 	// ========================================
 	UPROPERTY(SaveGame, BlueprintReadWrite)
 	TMap<FName, int32> GachaPityCounterMap;
@@ -95,13 +116,4 @@ public:
 	UPROPERTY(SaveGame, BlueprintReadWrite)
 	TMap<FGuid, FLRGachaPendingTransaction> GachaPendingTransactions;
 
-	// 신규 유저 기본값 세팅(테스트/첫 실행용)
-	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
-	void InitializeNewPlayerDefaults()
-	{
-		Gold = 1000;
-		CrescentTicket = 1000;
-		FullMoonTicket = 1000;
-		LastUpdatedUtc = FDateTime::UtcNow();
-	}
 };

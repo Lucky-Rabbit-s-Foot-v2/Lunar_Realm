@@ -30,16 +30,8 @@ void ULRSummonComponent::BeginPlay()
 	}
 	else
 	{
-		LR_ERROR(TEXT("맵에 플레이어 코어(ALRPlayerCore)가 없어 소환할 수 없습니다!"));
+		LR_ERROR(TEXT("맵에 플레이어 코어가 없어 소환할 수 없음"));
 	}
-
-	// 테스트용
-	SummonDeck.Empty();
-	SummonDeck.Add(FName(TEXT("1"))); // 0번 슬롯: 데이지
-	SummonDeck.Add(FName(TEXT("2"))); // 1번 슬롯: 링크
-	SummonDeck.Add(FName(TEXT("3"))); // 2번 슬롯: 간달프
-
-	LR_INFO(TEXT("C++에서 덱 강제 장전 완료! 총 유닛 수: %d"), SummonDeck.Num());
 
 }
 
@@ -76,14 +68,13 @@ bool ULRSummonComponent::IsSummonValid(int32 InSlotIndex) const
 	}
 	if (!SummonDeck.IsValidIndex(InSlotIndex))
 	{
-		LR_WARN(TEXT("소환 실패: 슬롯 %d가 유효하지 않습니다."), InSlotIndex);
+		LR_WARN(TEXT("소환 실패: 슬롯 %d가 유효하지 않음."), InSlotIndex);
 		return false;
 	}
 
-	// BaseMemberClass가 블루프린트에서 설정되어 있는지 방어 코드
 	if (!BaseMemberClass)
 	{
-		LR_ERROR(TEXT("소환 실패: 컴포넌트의 BaseMemberClass가 비어있습니다! 블루프린트를 확인하세요."));
+		LR_ERROR(TEXT("소환 실패: 컴포넌트의 BaseMemberClass가 비어있음."));
 		return false;
 	}
 	return true;
@@ -111,7 +102,7 @@ void ULRSummonComponent::ProcessSummon(FName InTargetUnitID)
 	}
 	else
 	{
-		LR_ERROR(TEXT("소환 실패: 풀링 시스템에서 유닛을 반환하지 못했습니다."));
+		LR_ERROR(TEXT("소환 실패: 풀링 시스템에서 유닛을 반환하지 못함."));
 	}
 
 
