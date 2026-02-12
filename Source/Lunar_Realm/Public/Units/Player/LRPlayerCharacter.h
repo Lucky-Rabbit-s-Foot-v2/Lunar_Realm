@@ -19,6 +19,7 @@
 // (260205) BJM 전투 컴포넌트 추가.
 // (260208) BJM 타겟 락온 기능 추기
 // (260210) BJM 카메라 컴포넌트 추가로 인한 스프링암, 카메라 컴포넌트 주석처리
+// (260212) BJM 사망 처리 추가
 //=============================================================================
 
 class ULRInputConfig;
@@ -65,11 +66,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
 	TObjectPtr<UDecalComponent> TargetIndicator;
 
+protected:
 
 	void Move(const FInputActionValue& Value);
 	void Input_Summon(FGameplayTag InputTag);
 	void Input_Charge(const FInputActionValue& Value);
-
+	virtual void OnHealthChangedNative(const FOnAttributeChangeData& Data);
 
 public:
 	UPROPERTY()
@@ -91,7 +93,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GAS|Test")
 	void GrantTestAbility(TSubclassOf<class UGameplayAbility> AbilityClass);
 
+public:
+	virtual void Die();
+
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	TObjectPtr<UAnimMontage> DeathMontage;
+
+	bool bIsDead = false;
 
 
 };

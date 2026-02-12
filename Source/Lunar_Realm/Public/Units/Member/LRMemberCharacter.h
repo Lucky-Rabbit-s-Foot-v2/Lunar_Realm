@@ -18,6 +18,7 @@ class ULRPlayerAttributeSet;
 //=============================================================================
 // (260204) BJM 제작. 소환캐릭터.
 // (260211) BJM 오브젝트 풀링시스템 적용, DataStruct 적용
+// (260212) BJM 사망, 피아식별, 공격함수, 히트박스, 데미지전달 구현
 //=============================================================================
 
 UCLASS()
@@ -57,5 +58,22 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
 	TObjectPtr<ULRPlayerAttributeSet> MemberAttributeSet;
 
+public:
+	virtual void Die();
+
+protected:
+	// PoolingSystem->ReturnToPool 가져오기 위한 함수
+	UFUNCTION()
+	void ReturnSelf();
+
+protected:
+	UPROPERTY()
+	TObjectPtr<UAnimMontage> LoadedDeathMontage;
+
+	UPROPERTY()
+	TObjectPtr<UAnimMontage> LoadedAttackMontage;
+
+	FTimerHandle DeadTimerHandle;
+	bool bIsDead = false;
 
 };
