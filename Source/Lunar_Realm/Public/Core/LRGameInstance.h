@@ -47,7 +47,6 @@ public:
 	void SetNextLevelName(ELevelName LevelName);
 
 private:
-	void ShowLoadingWidget();
 	void OpenNextLevelLatent();
 
 protected:

@@ -6,6 +6,7 @@
 #include "UI/Intro/LRLoadingWidget.h"
 #include "Core/LRGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "TimerManager.h"
 
 void ALRTransitionGameMode::BeginPlay()
 {

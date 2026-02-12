@@ -10,7 +10,6 @@
 
 void ULRGameInstance::OpenNextLevel()
 {
-	ShowLoadingWidget();
 	OpenNextLevelLatent();
 }
 
@@ -30,18 +29,6 @@ void ULRGameInstance::SetNextLevelName(ELevelName LevelName)
 	default:
 		LR_SCREEN_INFO(TEXT("Invalid LevelName enum value"));
 		break;
-	}
-}
-
-void ULRGameInstance::ShowLoadingWidget()
-{
-	if (LoadingWidgetClass)
-	{
-		LoadingWidgetInstance = CreateWidget<ULRLoadingWidget>(GetWorld(), LoadingWidgetClass);
-		if (LoadingWidgetInstance)
-		{
-			LoadingWidgetInstance->AddToViewport(1000);
-		}
 	}
 }
 

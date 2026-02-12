@@ -21,16 +21,20 @@ class LUNAR_REALM_API ULRLoadingWidget : public UBaseWidget
 	GENERATED_BODY()
 	
 public:
-	ULRLoadingWidget();
+	ULRLoadingWidget()
+	{
+		UILayer = EUILayer::POPUP;
+	}
 
 protected:
-	virtual void NativeConstruct() override;
+	virtual void OpenUI() override;
+	virtual void CloseUI() override;
+	virtual void RefreshUI() override;
 
 public:
 	void FinishLoading();
 
 private:
-	void InitializeLoadingBar();
 	void UpdateProgressBar();
 
 protected:

@@ -6,29 +6,32 @@
 #include "Components/ProgressBar.h"
 #include "TimerManager.h"
 
-ULRLoadingWidget::ULRLoadingWidget()
+void ULRLoadingWidget::OpenUI()
 {
-	UILayer = EUILayer::POPUP;
-	ZOrder = 1000;
-}
-
-void ULRLoadingWidget::NativeConstruct()
-{
-	Super::NativeConstruct();
-
-	InitializeLoadingBar();
+	Super::OpenUI();
+	
+	RefreshUI();
 
 	GetWorld()->GetTimerManager().SetTimer(
-		LoadingTimerHandle, 
-		this, 
-		&ULRLoadingWidget::UpdateProgressBar, 
-		0.01f, 
+		LoadingTimerHandle,
+		this,
+		&ULRLoadingWidget::UpdateProgressBar,
+		0.01f,
 		true
 	);
 }
 
-void ULRLoadingWidget::InitializeLoadingBar()
+void ULRLoadingWidget::CloseUI()
 {
+	Super::CloseUI();
+
+	GetWorld()->GetTimerManager().ClearTimer(LoadingTimerHandle);
+}
+
+void ULRLoadingWidget::RefreshUI()
+{
+	Super::RefreshUI();
+	
 	ElapsedTime = 0.f;
 	Progress = 0.f;
 	if (Bar_Loading)
