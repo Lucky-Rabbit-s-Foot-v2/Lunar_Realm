@@ -68,9 +68,15 @@ class LUNAR_REALM_API UStageManagerSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 	
 public:
+	// 스테이지 맵 이동 전에 호출할 것. 정적 데이터 로드 및 캐싱 수행.
 	UFUNCTION(BlueprintCallable, Category = "LR|Stage")
 	void LoadStage(FName StageID);
 
+	// ========================================
+	// 현재 스테이지 데이터 접근
+	// ========================================
+	
+	// 블루 프린트 테스트용 헬퍼 함수
 	UFUNCTION(BlueprintCallable, Category = "LR|Test")
 	FStageStaticData GetCurrentStageDataCopy() const;
 
