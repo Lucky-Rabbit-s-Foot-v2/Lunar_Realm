@@ -26,6 +26,11 @@ class LUNAR_REALM_API ULRLobbyFigureWidget : public UBaseWidget
 	GENERATED_BODY()
 	
 public:
+	ULRLobbyFigureWidget()
+	{
+		UILayer = EUILayer::POPUP;
+	}
+
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
@@ -42,11 +47,11 @@ public:
 	UFUNCTION()
 	void OnFigurePressed();
 	UFUNCTION()
-	void OnFigureClicked();
+	void OnFigureReleased();
 
 private:
+	void OnFigureClicked();
 	void OnFigureLongPressed();
-	void OnFigureReleased();
 	void OnFigureLongReleased();
 
 protected:

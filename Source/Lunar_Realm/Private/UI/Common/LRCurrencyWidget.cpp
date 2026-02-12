@@ -9,6 +9,9 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 
+#include "GameFramework/PlayerController.h"
+#include "UI/HUD/LRLobbyHUD.h"
+
 void ULRCurrencyWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -16,6 +19,14 @@ void ULRCurrencyWidget::NativeConstruct()
 	if (Btn_Add)
 	{
 		Btn_Add->OnClicked.AddDynamic(this, &ULRCurrencyWidget::OnCurrencyAddClicked);
+	}
+
+	if (APlayerController* PC = GetOwningPlayer())
+	{
+		if (ALRLobbyHUD* LobbyHUD = Cast<ALRLobbyHUD>(PC->GetHUD()))
+		{
+			OnCurrencyAddClickedDel.AddDynamic(LobbyHUD, &ALRLobbyHUD::OpenShopWidgetByCurrency);
+		}
 	}
 }
 
@@ -38,6 +49,6 @@ void ULRCurrencyWidget::RefreshUI()
 
 void ULRCurrencyWidget::OnCurrencyAddClicked()
 {
-	LR_SCREEN_INFO(TEXT("Currency Add Button Clicked: %d"), static_cast<uint8>(CurrencyType));
+	// TODO: 재화 충전 UI 오픈
 	OnCurrencyAddClickedDel.Broadcast();
 }

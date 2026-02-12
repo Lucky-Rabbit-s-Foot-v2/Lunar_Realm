@@ -24,6 +24,11 @@ class LUNAR_REALM_API ULRCurrencyWidget : public UBaseWidget
 	GENERATED_BODY()
 	
 public:
+	ULRCurrencyWidget()
+	{
+		UILayer = EUILayer::POPUP;
+	}
+
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
