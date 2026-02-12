@@ -13,6 +13,8 @@
 // (260210) BJM 전투 로직 수정 (타겟 탐색 및 이동, 공격 로직 분리)
 //=============================================================================
 
+class ALRCharacter;
+
 UENUM(BlueprintType)
 enum class EAutoCombatState : uint8
 {
