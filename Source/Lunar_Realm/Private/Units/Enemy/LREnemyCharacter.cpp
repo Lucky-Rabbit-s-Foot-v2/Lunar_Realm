@@ -129,8 +129,7 @@ void ALREnemyCharacter::ApplyVisualData(const FEnemyStaticData& EnemyData)
 		if (LoadedMesh)
 		{
 			MeshComp->SetSkeletalMesh(LoadedMesh);
-			LR_INFO(TEXT("Enemy [%s] mesh set to [%s]"),
-				*CurrentEnemyID.ToString(), *LoadedMesh->GetName());
+			// LR_INFO(TEXT("Enemy [%s] mesh set to [%s]"), *CurrentEnemyID.ToString(), *LoadedMesh->GetName());
 		}
 		else
 		{
@@ -148,8 +147,7 @@ void ALREnemyCharacter::ApplyVisualData(const FEnemyStaticData& EnemyData)
 		if (AnimClass)
 		{
 			MeshComp->SetAnimInstanceClass(AnimClass);
-			LR_INFO(TEXT("Enemy [%s] AnimBP set to [%s]"),
-				*CurrentEnemyID.ToString(), *AnimClass->GetName());
+			LR_INFO(TEXT("Enemy [%s] AnimBP set to [%s]"), *CurrentEnemyID.ToString(), *AnimClass->GetName());	// TODO: AnimBP 넣고 테스트
 		}
 		else
 		{
