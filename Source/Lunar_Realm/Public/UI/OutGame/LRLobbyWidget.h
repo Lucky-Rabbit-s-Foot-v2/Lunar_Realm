@@ -19,4 +19,27 @@ class LUNAR_REALM_API ULRLobbyWidget : public UBaseWidget
 {
 	GENERATED_BODY()
 	
+public:
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+
+	virtual void OpenUI() override;
+	virtual void CloseUI() override;
+	virtual void RefreshUI() override;
+
+public:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRLobbyFigureWidget> MainCharacter;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRLobbyFigureWidget> Member1;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRLobbyFigureWidget> Member2;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRLobbyFigureWidget> Member3;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRLobbyFigureWidget> Member4;
 };

@@ -3,29 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/BaseHUD.h"
-#include "LRLobbyHUD.generated.h"
+#include "UI/BaseWidget.h"
+#include "LRLobbyFigureInfoWidget.generated.h"
+
 
 // =============================================================================
 /**
- * OutGame 전용 HUD
+ * 멤버 피규어 호버 시 등장할 위젯
  */
  //=============================================================================
  // (260212) PJB 제작.
  //=============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ALRLobbyHUD : public ABaseHUD
+class LUNAR_REALM_API ULRLobbyFigureInfoWidget : public UBaseWidget
 {
 	GENERATED_BODY()
 	
-public:
-	virtual void BeginPlay() override;
-
-private:
-	void OpenLobbyWidget();
-
-protected:
-	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
-	TSubclassOf<class ULRLobbyWidget> LobbyWidgetClass;
 };
