@@ -16,7 +16,7 @@
  */
 //=============================================================================
 // (260126) KHS 제작. 제반 사항 구현.
-// (260211) PYI 제작. 재화 접근 인터페이스 추가.
+// (260211) PYI 재화 접근 인터페이스 추가.
 // =============================================================================
 
 //SaveGame 저장/로드 델리게이트
@@ -41,10 +41,11 @@ public:
 	FOnSaveGameSaved OnSaveGameSavedDel;
 	
 private:
+	//내부 헬퍼
 	void CreateNewSaveGame();
 	
 public:
-	//핵심 기능
+	//핵심 
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
 	void LoadGame();
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
@@ -53,8 +54,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
 	ULRSaveGame* GetCurrentSaveGame() const {return CurrentSaveGame;}
 
-
+	//======================================
 	//세이브 캐릭터/장비 정보 관리
+	//======================================
 	//선택된 캐릭터 파티 정보 관리
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
 	void SetPartySlot(int32 Slots, FName CharacterID);
@@ -70,22 +72,17 @@ public:
 	
 	//선택된 리더 캐릭터 장비 정보 관리
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
-	void SetLeaderEquipmentSlot(int32 Slots, FName EquipmentIDs);
+	void SetLeaderEquipmentSlot(int32 Slots, FGuid EquipmentIDs);
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
-	FName GetLeaderEquipmentID(int32 SlotIdx) const;
+	FGuid GetLeaderEquipmentID(int32 SlotIdx) const;
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
-	TArray<FName> GetAllLeaderEquipmentIDs() const;
+	TArray<FGuid> GetAllLeaderEquipmentIDs() const;
 	
-private:
-	UPROPERTY()
-	TObjectPtr<ULRSaveGame> CurrentSaveGame;
-	
-	const FString SaveSlotName = TEXT("PlayerSaveSlot");
-	const uint32 UserIndex = 0;
-
-public:
+	//======================================
+	// 세이브 재화 정보 관리 (260211 PYI추가)
+	//======================================
 	// 재화 접근 인터페이스
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame|Currency")
 	int32 GetCurrency(ELRCurrencyType Type) const;
@@ -96,7 +93,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame|Currency")
 	bool TrySpendCurrency(ELRCurrencyType Type, int32 Cost);
 
-	// 저장
+	// 저장 
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
 	void UpdateLastSavedTimeAndSave();
+	
+private:
+	UPROPERTY()
+	TObjectPtr<ULRSaveGame> CurrentSaveGame;
+	
+	const FString SaveSlotName = TEXT("PlayerSaveSlot");
+	const uint32 UserIndex = 0;
+
 };

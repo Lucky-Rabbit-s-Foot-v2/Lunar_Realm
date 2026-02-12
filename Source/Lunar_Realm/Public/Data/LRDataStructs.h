@@ -87,7 +87,7 @@ struct FCharacterStaticData : public FTableRowBase
 // (260210) KHS Int타입 참조키를 FName타입으로 변경. 분류 필드 추가
 // =============================================================================
 USTRUCT(BlueprintType)
-struct FPlayerCharacterInstance
+struct FCharacterInstance
 {
 	GENERATED_BODY()
 	
@@ -106,11 +106,11 @@ struct FPlayerCharacterInstance
 	UPROPERTY(SaveGame, BlueprintReadWrite)
 	FDateTime AcquisitionTime; //획득 타임스탬프
 	
-	FPlayerCharacterInstance() 
+	FCharacterInstance() 
 		: CharacterID(NAME_None), CurrentLevel(1), CurrentExp(0), bIsUnlocked(false), AcquisitionTime(FDateTime::MinValue())
 	{	}
     
-	FPlayerCharacterInstance(FName InID, int32 InLevel = 1)
+	FCharacterInstance(FName InID, int32 InLevel = 1)
 		: CharacterID(InID), CurrentLevel(InLevel), CurrentExp(0), bIsUnlocked(true), AcquisitionTime(FDateTime::Now())
 	{}
 };
@@ -212,7 +212,7 @@ struct FEquipmentBonus : public FTableRowBase
 /** 
  * FPlayerEquipmentInstance 구성 요소
  * - 런타임중 사용하는 실제 인스턴스 공유 데이터
- * - SaveGame 로드 -> InventorySubsys -> 실제 런타임 인스턴스
+ * - SaveGame 로드 -> CollectionSubsys -> 실제 런타임 인스턴스
  * - 아웃게임 UI(도감, 장비 장착), 인게임 PlayerState (장비 정보) 등에서 사용
  * - 장비 ID, 장비 레벨, 장비 해금상태
  */
@@ -221,13 +221,15 @@ struct FEquipmentBonus : public FTableRowBase
 // (260210) KHS Int타입 참조키를 FName타입으로 변경. 
 // =============================================================================
 USTRUCT(BlueprintType)
-struct FPlayerEquipmentInstance
+struct FEquipmentInstance
 {
 	GENERATED_BODY()
-    
 	
 	UPROPERTY(SaveGame, BlueprintReadWrite)
 	FName EquipmentID;
+	
+	UPROPERTY(SaveGame, BlueprintReadWrite)
+	FGuid InstanceID; //개별 인스턴스 구분용
     
 	UPROPERTY(SaveGame, BlueprintReadWrite)
 	int32 CurrentLevel;
@@ -236,17 +238,20 @@ struct FPlayerEquipmentInstance
 	int32 CurrentExp;
 	
 	UPROPERTY(SaveGame, BlueprintReadWrite)
+	int32 MaxExp; //TODO 이후 수정
+	
+	UPROPERTY(SaveGame, BlueprintReadWrite)
 	bool bIsUnlocked;
     
 	UPROPERTY(SaveGame, BlueprintReadWrite)
 	FDateTime AcquisitionTime;
 	
-	FPlayerEquipmentInstance() 
-		: EquipmentID(NAME_None), CurrentLevel(1), CurrentExp(0), bIsUnlocked(false), AcquisitionTime(FDateTime::MinValue())
+	FEquipmentInstance() 
+		: EquipmentID(NAME_None), InstanceID(FGuid::NewGuid()), CurrentLevel(1), CurrentExp(0), MaxExp(100), bIsUnlocked(false), AcquisitionTime(FDateTime::MinValue())
 	{}
     
-	FPlayerEquipmentInstance(FName InID, int32 InLevel = 1)
-		: EquipmentID(InID), CurrentLevel(InLevel), CurrentExp(0), bIsUnlocked(true), AcquisitionTime(FDateTime::Now())
+	FEquipmentInstance(FName InID, int32 InLevel = 1)
+		: EquipmentID(InID), InstanceID(FGuid::NewGuid()), CurrentLevel(InLevel), CurrentExp(0), MaxExp(100), bIsUnlocked(true), AcquisitionTime(FDateTime::Now())
 	{}
 	
 	

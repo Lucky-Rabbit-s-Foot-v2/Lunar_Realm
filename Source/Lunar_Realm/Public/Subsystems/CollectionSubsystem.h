@@ -20,15 +20,15 @@
 // =============================================================================
 
 
-struct FPlayerCharacterInstance;
-struct FPlayerEquipmentInstance;
+struct FCharacterInstance;
+struct FEquipmentInstance;
 class ULRSaveGame;
 
 // 델리게이트 선언
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCharacterUpdated, FName, CharacterID, int32, NewLevel);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnEquipmentUpdated, FName, EquipmentID, int32, NewLevel);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCharacterUnlocked, FName, CharacterID, const FPlayerCharacterInstance&, CharacterData);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnEquipmentUnlocked, FName, EquipmentID, const FPlayerEquipmentInstance&, EquipmentData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnEquipmentUpdated, FGuid, EquipmentGUID, int32, NewLevel);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCharacterUnlocked, FName, CharacterID, const FCharacterInstance&, CharacterData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnEquipmentUnlocked, FName, EquipmentID, const FEquipmentInstance&, EquipmentData);
 
 
 /**
@@ -68,7 +68,7 @@ public:
 	bool HasCharacter(FName CharacterID) const;
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|Collection|Character")
-	FPlayerCharacterInstance GetCharacterInstance(FName CharacterID) const;
+	FCharacterInstance GetCharacterInstance(FName CharacterID) const;
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|Collection|Character")
 	void AddCharacter(FName CharacterID, int32 StartLevel = 1);
@@ -80,7 +80,13 @@ public:
 	void AddCharacterExp(FName CharacterID, int32 ExpAmount);
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|Collection|Character")
-	FORCEINLINE TMap<FName, FPlayerCharacterInstance> GetAllCharacters() const {return OwnedCharactersMap;}
+	TArray<FName> GetAllCharacterIDs() const;
+	
+	UFUNCTION(BlueprintCallable, Category = "LR|Collection|Character")
+	TArray<FName> GetUnlockedCharacterIDs() const;
+	
+	UFUNCTION(BlueprintCallable, Category = "LR|Collection|Character")
+	FORCEINLINE TMap<FName, FCharacterInstance> GetAllCharactersInstance() const {return OwnedCharactersMap;}
 	
 	//================================================================
 	//장비 관리 항목
@@ -89,27 +95,32 @@ public:
 	bool HasEquipment(FName EquipmentID) const;
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|Collection|Equipment")
-	FPlayerEquipmentInstance GetEquipmentInstance(FName EquipmentID) const;
+	FEquipmentInstance GetEquipmentInstance(FGuid InstanceID) const;
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|Collection|Equipment")
-	void AddEquipment(FName EquipmentID, int32 StartLevel = 1);
+	TArray<FEquipmentInstance> GetEquipmentInstancesByKey(FName EquipmentID) const;
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|Collection|Equipment")
-	void LevelUpEquipment(FName EquipmentID);
+	FGuid AddEquipment(FName EquipmentID, int32 StartLevel = 1);
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|Collection|Equipment")
-	void AddEquipmentExp(FName EquipmentID, int32 ExpAmount);
-	
+	void LevelUpEquipment(FGuid InstanceID);
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|Collection|Equipment")
-	FORCEINLINE TMap<FName, FPlayerEquipmentInstance> GetAllEquipments() const {return OwnedEquipmentsMap;}
+	void AddEquipmentExp(FGuid EquipmentID, int32 ExpAmount);
+	
+	UFUNCTION(BlueprintCallable, Category = "LR|Collection|Equipment")
+	int32 GetEquipmentCounts(FName EquipmentID) const;
+	
+	UFUNCTION(BlueprintCallable, Category = "LR|Collection|Equipment")
+	TArray<FEquipmentInstance> GetAllEquipments() const;
 	
 	
 private:
 	//도감 데이터
 	UPROPERTY()
-	TMap<FName, FPlayerCharacterInstance> OwnedCharactersMap;
+	TMap<FName, FCharacterInstance> OwnedCharactersMap;
 	UPROPERTY()
-	TMap<FName, FPlayerEquipmentInstance> OwnedEquipmentsMap;
+	TArray<FEquipmentInstance> OwnedEquipmentsArray;
 	
 };

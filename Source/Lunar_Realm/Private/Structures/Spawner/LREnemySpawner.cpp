@@ -57,6 +57,7 @@ void ALREnemySpawner::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+// TODO: 리팩토링 필요
 bool ALREnemySpawner::InitializeFromStageData()
 {
 	UGameInstance* GI = GetGameInstance();
@@ -67,11 +68,19 @@ bool ALREnemySpawner::InitializeFromStageData()
 		return false;
 	}
 
+	// TODO: 컨벤션 맞춰서 수정 필요
 	if (const ULRGameInstance* LRGameInstance = Cast<ULRGameInstance>(GI))
 	{
 		CurrentStageID = LRGameInstance->GetCurrentStageID();
 	}
 	// NOTE: StageID -> GameInstance의 CurrentStageID를 임시 사용. => 추후 준범님이 스테이지 매니저 구현하면 거기서 받아올 예정
+
+	if (CurrentStageID == NAME_None)
+	{
+		LR_WARN(TEXT("EnemySpawner(%s): CurrentStageID is NAME_None. "
+			"GameInstance->SetCurrentStageID()가 호출되었는지 확인 필요."), *GetName());
+		return false;
+	}
 
 	const FStageStaticData& StageData = DataSys->GetStageStaticData(CurrentStageID);
 
@@ -81,41 +90,10 @@ bool ALREnemySpawner::InitializeFromStageData()
 	bool bValidStageData = (StageData.DataID != NAME_None) && (StageData.SpawnEnemyIDs.Num() > 0);
 	if (!bValidStageData)
 	{
-		LR_WARN(TEXT("Invalid Stage Data"));
+		LR_WARN(TEXT("EnemySpawner(%s): Stage(%s) data invalid or has no SpawnEnemyIDs"),
+			*GetName(), *CurrentStageID.ToString());
 		return false;
-
-	//	// 현재 스테이지 데이터를 불러올 수 없으면 1스테이지로 폴백
-	//	LR_WARN(TEXT("Stage(%d) data not found or has no enemy IDs. Falling back to Stage 1."), CurrentStageID);
-	//	CurrentStageID = 1;
-	//	const FStageStaticData& FallbackData = DataSys->GetStageStaticData(1);
-	//	bValidStageData = (FallbackData.StageID != 0) && (FallbackData.SpawnEnemyIDs.Num() > 0);	// FIX(KWB) : FName으로 수정 필요한 부분
-	//	if (bValidStageData)
-	//	{
-	//		CachedEnemyIDs = FallbackData.SpawnEnemyIDs;
-	//		CachedEnemyWeights = FallbackData.SpawnWeights;
-	//		CurrentSpawnInterval = FallbackData.SpawnInterval > 0.0f ? FallbackData.SpawnInterval : DefaultSpawnInterval;
-	//		bIsBossStage = FallbackData.bIsBossStage;
-	//	}
-	//	else
-	//	{
-	//		// 1스테이지 데이터도 없으면 하드코딩 기본값으로 세팅
-	//		LR_WARN(TEXT("Stage 1 data also not found. Using hardcoded defaults for spawner."));
-	//		CachedEnemyIDs = { 31010101 };
-	//		CachedEnemyWeights = { 1.0f };
-	//		CurrentSpawnInterval = DefaultSpawnInterval;
-	//		bIsBossStage = false;
-	//	}
-	//}
-	//else if (!bValidStageData)
-	//{
-	//	// CurrentStageID == 1인데도 데이터가 없는 경우
-	//	LR_WARN(TEXT("Stage 1 data not found in DataTable. Using hardcoded defaults for spawner."));
-	//	CachedEnemyIDs = { 31010101 };
-	//	CachedEnemyWeights = { 1.0f };
-	//	CurrentSpawnInterval = DefaultSpawnInterval;
-	//	bIsBossStage = false;
 	}
-
 	else
 	{
 		CachedEnemyIDs = StageData.SpawnEnemyIDs;
@@ -124,14 +102,21 @@ bool ALREnemySpawner::InitializeFromStageData()
 		bIsBossStage = StageData.bIsBossStage;
 	}
 
-
 	if (bSpawnOnlyBossStage != bIsBossStage)
 	{
-		if (CachedEnemyIDs.Num() <= 0)
-		{
-			LR_WARN(TEXT("Stage(%s) has no enemy IDs after fallback"), *CurrentStageID.ToString());
-			return false;
-		}
+		LR_INFO(TEXT("EnemySpawner(%s): Stage type mismatch (SpawnerBossOnly=%s, StageIsBoss=%s). Skipping."),
+			*GetName(),
+			bSpawnOnlyBossStage ? TEXT("true") : TEXT("false"),
+			bIsBossStage ? TEXT("true") : TEXT("false"));
+		return false;
+	}
+
+	// 최종 유효성 검사: 캐시된 에너미 ID가 비어있으면 실패
+	if (CachedEnemyIDs.Num() <= 0)
+	{
+		LR_WARN(TEXT("EnemySpawner(%s): Stage(%s) has no enemy IDs"),
+			*GetName(), *CurrentStageID.ToString());
+		return false;
 	}
 
 	LR_INFO(TEXT("EnemySpawner initialized: Stage(%s), EnemyCount(%d), Interval(%.2f)"),
@@ -156,11 +141,11 @@ FName ALREnemySpawner::PickEnemyIDByWeight() const
 		Accumulated += Weight;
 		if (RandomValue <= Accumulated)
 		{
-			return CachedEnemyIDs[i]; // FIX
+			return CachedEnemyIDs[i];
 		}
 	}
 
-	return CachedEnemyIDs.Last();	// FIX
+	return CachedEnemyIDs.Last();
 }
 
 FTransform ALREnemySpawner::MakeRandomSpawnTransform() const
@@ -194,6 +179,7 @@ void ALREnemySpawner::SpawnEnemy()
 	ALREnemyCharacter* NewEnemy = PoolSys->Spawn<ALREnemyCharacter>(EnemyClass, SpawnTransform);
 	if (!NewEnemy)
 	{
+		LR_WARN(TEXT("EnemySpawner(%s): Failed to spawn enemy from pool"), *GetName());
 		return;
 	}
 
