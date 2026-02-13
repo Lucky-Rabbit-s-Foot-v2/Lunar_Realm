@@ -9,11 +9,19 @@
 #include "UI/Intro/LRLoadingWidget.h"
 
 #include "Subsystems/UIManagerSubsystem.h"
+#include "Subsystems/StageManagerSubsystem.h"
+
 
 void ULRGameInstance::OpenNextStage(FName StageID)
 {
 	SetNextLevelName(ELevelName::Stage);
 	SetNextStageID(StageID);
+	
+	if (UStageManagerSubsystem* StageManager = GetSubsystem<UStageManagerSubsystem>())
+	{
+		StageManager->LoadStage(StageID);
+	}
+
 	OpenNextLevelLatent();
 }
 
