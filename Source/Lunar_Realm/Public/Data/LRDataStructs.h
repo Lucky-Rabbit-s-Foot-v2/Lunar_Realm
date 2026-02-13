@@ -27,6 +27,7 @@
 // (260211) BJM 소환할 캐릭터 매쉬, 애님블루프린트 변수 추가
 // (260212) BJM 맴버 캐릭터 공격, 사망 몽타주 추가
 // (260212) KWB BehaviorTree 필드 추가
+// (260213) BJM 소환관련 cost, cooltime, icon 항목 추가
 // =============================================================================
 
 USTRUCT(BlueprintType)
@@ -82,6 +83,16 @@ struct FCharacterStaticData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|AI")
 	TObjectPtr<UBehaviorTree> BehaviorTree;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Summon")
+	float SummonCost;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Summon")
+	float SummonCooldown;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|UI")
+	TSoftObjectPtr<UTexture2D> PortraitIcon;
+
 };
 
 
@@ -406,6 +417,18 @@ struct FEnemyStaticData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
 	TSoftClassPtr<UAnimInstance> AnimBlueprintClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	TSoftObjectPtr<UAnimMontage> AttackNormalMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	TSoftObjectPtr<UAnimMontage> AttackSpecialMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	TSoftObjectPtr<UAnimMontage> AttackedMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	TSoftObjectPtr<UAnimMontage> DeathMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|AI")
 	TObjectPtr<UBehaviorTree> BehaviorTree;
