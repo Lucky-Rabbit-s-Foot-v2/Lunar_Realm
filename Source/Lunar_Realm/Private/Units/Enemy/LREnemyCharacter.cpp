@@ -5,15 +5,21 @@
 
 #include "Abilities/GameplayAbility.h"
 #include "Animation/AnimInstance.h"
+
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+
 #include "Engine/GameInstance.h"
 #include "Engine/SkeletalMesh.h"
+
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GAS/Attributes/LREnemyAttributeSet.h"
+
 #include "Subsystems/GameDataSubsystem.h"
 #include "Subsystems/PoolingSubsystem.h"
 #include "System/LoggingSystem.h"
+
+#include "Units/LRAIController.h"
 
 ALREnemyCharacter::ALREnemyCharacter()
 {
@@ -49,19 +55,47 @@ void ALREnemyCharacter::InitializeByEnemyID(FName EnemyID)
 
 	const FEnemyStaticData& EnemyData = DataSys->GetEnemyStaticData(EnemyID);
 
+	//// BT 안되서 디버그
+	//LR_INFO(TEXT("=== Debug Enemy [%s] ==="), *EnemyID.ToString());
+	//LR_INFO(TEXT("DataID: %s"), *EnemyData.DataID.ToString());
+	//LR_INFO(TEXT("MaxHealth: %.0f"), EnemyData.MaxHealth);
+	//LR_INFO(TEXT("BehaviorTree IsValid: %s"), EnemyData.BehaviorTree ? TEXT("true") : TEXT("false"));
+	//if (EnemyData.BehaviorTree)
+	//{
+	//	LR_INFO(TEXT("BehaviorTree Name: %s"), *EnemyData.BehaviorTree->GetName());
+	//}
+
 	// 어트리뷰트 초기화 (Health, Attack, Speed, AttackSpeed, AttackRange)
 	InitializeAttributes(EnemyID);
 
 	// 비주얼 데이터 적용 (SkeletalMesh, AnimBP, Scale)
 	ApplyVisualData(EnemyData);
 
-	// 문제 있을 때만 다시 열어서 체크
-	//LR_INFO(TEXT("Enemy [%s] fully initialized - HP:%.0f ATK:%.0f SPD:%.0f Scale:%.2f"),
-	//	*EnemyID.ToString(),
-	//	EnemyData.MaxHealth,
-	//	EnemyData.Attack,
-	//	EnemyData.Speed,
-	//	EnemyData.Scale);
+	// BehaviorTree 설정 및 실행
+	if (EnemyData.BehaviorTree)
+	{
+		UBehaviorTree* BT = EnemyData.BehaviorTree.Get();
+
+		if (BT)
+		{
+			if (ALRAIController* AICtrl = Cast<ALRAIController>(GetController()))
+			{
+				AICtrl->InitializeBehaviorTree(BT);
+			}
+			else
+			{
+				LR_WARN(TEXT("[%s] : No valid LRAIController"), *EnemyID.ToString());
+			}
+		}
+		else
+		{
+			LR_ERROR(TEXT("[%s] : Failed to get BT"), *EnemyID.ToString());
+		}
+	}
+	else
+	{
+		LR_WARN(TEXT("[%s] : No valid BT in DataTable"), *EnemyID.ToString());
+	}
 }
 
 void ALREnemyCharacter::BeginPlay()
@@ -129,8 +163,16 @@ void ALREnemyCharacter::ApplyVisualData(const FEnemyStaticData& EnemyData)
 		if (LoadedMesh)
 		{
 			MeshComp->SetSkeletalMesh(LoadedMesh);
-			LR_INFO(TEXT("Enemy [%s] mesh set to [%s]"),
-				*CurrentEnemyID.ToString(), *LoadedMesh->GetName());
+
+			MeshComp->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+
+			// 높이 보정: 메시 발바닥을 캡슐 바닥에 맞춘다
+			FBoxSphereBounds ImportedBounds = LoadedMesh->GetImportedBounds();
+			float MeshBottomZ = ImportedBounds.Origin.Z - ImportedBounds.BoxExtent.Z;
+			float HalfHeight = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
+
+			float RelativeZ = -HalfHeight - MeshBottomZ;
+			MeshComp->SetRelativeLocation(FVector(0.0f, 0.0f, RelativeZ));
 		}
 		else
 		{
@@ -148,8 +190,7 @@ void ALREnemyCharacter::ApplyVisualData(const FEnemyStaticData& EnemyData)
 		if (AnimClass)
 		{
 			MeshComp->SetAnimInstanceClass(AnimClass);
-			LR_INFO(TEXT("Enemy [%s] AnimBP set to [%s]"),
-				*CurrentEnemyID.ToString(), *AnimClass->GetName());
+			LR_INFO(TEXT("Enemy [%s] AnimBP set to [%s]"), *CurrentEnemyID.ToString(), *AnimClass->GetName());	// TODO: AnimBP 넣고 테스트
 		}
 		else
 		{

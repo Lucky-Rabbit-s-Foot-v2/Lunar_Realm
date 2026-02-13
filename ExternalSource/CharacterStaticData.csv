@@ -1,5 +1,5 @@
-﻿---,DataID,CharacterName,Description,Grade,AttackType,ClassType,HPMultiplier,AttackMultiplier,DefenseMultiplier,CharacterTexture,SkillIDs,CharacterMesh,AnimBlueprintClass,DeathMontage,NormalAttackMontage
-1,CHAR_MAGE_01,Daisy,Basic Mage,BASIC,RANGED,MAGICIAN,1.02,1.05,1.01,,"""()""",,,,
-2,CHAR_WARRIOR_01,Lancelot,Unique Warrior,UNIQUE,MELEE,WARRIOR,1.05,1.03,1.03,,"""()""",,,,
-3,CHAR_HERO_01,Merlin,Legend Arc Mage,LEGEND,RANGED,MAGICIAN,1.1,1.15,1.08,,"""()""",,,,
-4,CHAR_ARCHER_01,RobinHoot,Epic WindArcher,EPIC,RANGED,ARCHER,1.07,1.08,1.05,,"""()""",,,,
+﻿---,DataID,CharacterName,Description,Grade,AttackType,ClassType,HPMultiplier,AttackMultiplier,DefenseMultiplier,CharacterTexture,SkillIDs,CharacterMesh,AnimBlueprintClass,DeathMontage,NormalAttackMontage,BehaviorTree
+1,CHAR_MAGE_01,Daisy,Basic Mage,BASIC,RANGED,MAGICIAN,1.02,1.05,1.01,,"""()""",,,,,
+2,CHAR_WARRIOR_01,Lancelot,Unique Warrior,UNIQUE,MELEE,WARRIOR,1.05,1.03,1.03,,"""()""",,,,,
+3,CHAR_HERO_01,Merlin,Legend Arc Mage,LEGEND,RANGED,MAGICIAN,1.1,1.15,1.08,,"""()""",,,,,
+4,CHAR_ARCHER_01,RobinHoot,Epic WindArcher,EPIC,RANGED,ARCHER,1.07,1.08,1.05,,"""()""",,,,,

@@ -6,35 +6,39 @@
 #include "Components/ProgressBar.h"
 #include "TimerManager.h"
 
-ULRLoadingWidget::ULRLoadingWidget()
+void ULRLoadingWidget::OpenUI()
 {
-	UILayer = EUILayer::POPUP;
-	ZOrder = 1000;
-}
-
-void ULRLoadingWidget::NativeConstruct()
-{
-	Super::NativeConstruct();
-
-	InitializeLoadingBar();
+	Super::OpenUI();
+	
+	RefreshUI();
 
 	GetWorld()->GetTimerManager().SetTimer(
-		LoadingTimerHandle, 
-		this, 
-		&ULRLoadingWidget::UpdateProgressBar, 
-		0.01f, 
+		LoadingTimerHandle,
+		this,
+		&ULRLoadingWidget::UpdateProgressBar,
+		0.01f,
 		true
 	);
 }
 
-void ULRLoadingWidget::InitializeLoadingBar()
+void ULRLoadingWidget::CloseUI()
 {
+	Super::CloseUI();
+
+	GetWorld()->GetTimerManager().ClearTimer(LoadingTimerHandle);
+}
+
+void ULRLoadingWidget::RefreshUI()
+{
+	Super::RefreshUI();
+	
 	ElapsedTime = 0.f;
 	Progress = 0.f;
 	if (Bar_Loading)
 	{
 		Bar_Loading->SetPercent(Progress);
 	}
+	GetWorld()->GetTimerManager().ClearTimer(LoadingTimerHandle);
 }
 
 void ULRLoadingWidget::UpdateProgressBar()
@@ -48,10 +52,9 @@ void ULRLoadingWidget::UpdateProgressBar()
 		Progress += Increment;
 		ElapsedTime += 0.01f;
 
-		if (ElapsedTime > TotalDuration)
+		if (ElapsedTime >= TotalDuration)
 		{
-			Progress = 1.f;
-			GetWorld()->GetTimerManager().ClearTimer(LoadingTimerHandle);
+			FinishLoading();
 		}
 
 		Bar_Loading->SetPercent(Progress);
@@ -60,6 +63,7 @@ void ULRLoadingWidget::UpdateProgressBar()
 
 void ULRLoadingWidget::FinishLoading()
 {
+	LR_SCREEN_INFO(TEXT("Loading Finished"));
 	GetWorld()->GetTimerManager().ClearTimer(LoadingTimerHandle);
 
 	Progress = 1.f;
