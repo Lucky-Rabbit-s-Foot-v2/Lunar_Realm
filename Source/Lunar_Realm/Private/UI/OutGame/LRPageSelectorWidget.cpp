@@ -33,7 +33,7 @@ void ULRPageSelectorWidget::NativeConstruct()
 
 	if(ALROutGameController* LRController = GetWorld()->GetFirstPlayerController<ALROutGameController>())
 	{
-		OnStageButtonClickedDel.AddDynamic(LRController, &ALROutGameController::OpenStageWidget);
+		OnStageButtonClickedDel.AddDynamic(LRController, &ALROutGameController::OpenChapterWidget);
 		OnCollectionButtonClickedDel.AddDynamic(LRController, &ALROutGameController::OpenCollectionWidget);
 		OnPartyButtonClickedDel.AddDynamic(LRController, &ALROutGameController::OpenPartyWidget);
 		OnGachaButtonClickedDel.AddDynamic(LRController, &ALROutGameController::OpenGachaShopWidget);

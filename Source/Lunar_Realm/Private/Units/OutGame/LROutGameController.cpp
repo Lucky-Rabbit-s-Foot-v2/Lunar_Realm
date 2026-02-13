@@ -12,8 +12,8 @@
 
 #include "UI/OutGame/LRLobbyWidget.h"
 #include "UI/Gacha/LRGachaShopWidget.h"
-
-
+#include "UI/Chapter/LRChapterSelectorWidget.h"
+#include "UI/Chapter/LRStageSelectorWidget.h"
 
 void ALROutGameController::GachaSim(const FString& BannerIdStr, int32 TotalPulls, int32 Seed)
 {
@@ -100,12 +100,26 @@ void ALROutGameController::OpenPartyWidget()
 
 void ALROutGameController::OpenChapterWidget()
 {
-	// TODO : 구현 필요
+	if (ChapterSelectorWidgetClass)
+	{
+		OpenWidget<ULRChapterSelectorWidget>(ChapterSelectorWidgetClass);
+	}
+	else
+	{
+		LR_FATAL(TEXT("ChapterSelectorWidgetClass is not set in LROutGameController"));
+	}
 }
 
 void ALROutGameController::OpenStageWidget()
 {
-	// TODO : 구현 필요
+	if (StageSelectorWidgetClass)
+	{
+		OpenWidget<ULRStageSelectorWidget>(StageSelectorWidgetClass);
+	}
+	else
+	{
+		LR_FATAL(TEXT("ChapterSelectorWidgetClass is not set in LROutGameController"));
+	}
 }
 
 void ALROutGameController::OpenSettingsWidget()

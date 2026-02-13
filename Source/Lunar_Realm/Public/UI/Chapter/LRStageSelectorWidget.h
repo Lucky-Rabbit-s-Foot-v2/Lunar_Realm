@@ -23,8 +23,30 @@ class LUNAR_REALM_API ULRStageSelectorWidget : public UBaseWidget
 public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
+	
 	virtual void OpenUI() override;
 	virtual void CloseUI() override;
 	virtual void RefreshUI() override;
 
+	UFUNCTION(BlueprintCallable, Category = "LR|UI")
+	void OnBackButtonClicked();
+
+protected:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UStageWidget> Stage1;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UStageWidget> Stage2;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UStageWidget> Stage3;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UStageWidget> Stage4;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UStageWidget> Stage5;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UButton> Btn_Back;
 };

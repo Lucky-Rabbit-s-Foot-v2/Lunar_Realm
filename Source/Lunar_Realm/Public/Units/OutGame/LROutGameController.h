@@ -68,4 +68,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
 	TSubclassOf<class ULRGachaShopWidget> GachaShopWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
+	TSubclassOf<class ULRChapterSelectorWidget> ChapterSelectorWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
+	TSubclassOf<class ULRStageSelectorWidget> StageSelectorWidgetClass;
 };

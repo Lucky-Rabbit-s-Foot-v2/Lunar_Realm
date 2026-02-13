@@ -24,9 +24,24 @@ class LUNAR_REALM_API ULRChapterSelectorWidget : public UBaseWidget
 public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
+	
 	virtual void OpenUI() override;
 	virtual void CloseUI() override;
 	virtual void RefreshUI() override;
 
+	UFUNCTION(BlueprintCallable, Category = "LR|UI")
+	void OnBackButtonClicked();
 
+protected:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRChapterWidget> Chapter1;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRChapterWidget> Chapter2;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRChapterWidget> Chapter3;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UButton> Btn_Back;
 };
