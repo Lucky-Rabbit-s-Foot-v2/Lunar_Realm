@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Subsystems/UIManagerSubsystem.h"
 #include "LRControllerBase.generated.h"
 
 //============================================================================
@@ -20,4 +21,11 @@ class LUNAR_REALM_API ALRControllerBase : public APlayerController
 {
 	GENERATED_BODY()
 	
+public:
+	template<typename T>
+	T* OpenWidget(TSubclassOf<T> WidgetClass)
+	{
+		UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+		return UIManager->OpenUI<T>(WidgetClass);
+	}
 };

@@ -6,6 +6,13 @@
 #include "Engine/Engine.h"
 #include "Subsystems/Gacha/LRGachaSubsystem.h"
 
+#include "Subsystems/UIManagerSubsystem.h"
+
+#include "UI/OutGame/LRLobbyWidget.h"
+#include "UI/Gacha/LRGachaShopWidget.h"
+
+
+
 void ALROutGameController::GachaSim(const FString& BannerIdStr, int32 TotalPulls, int32 Seed)
 {
 	UGameInstance* GI = GetGameInstance();
@@ -29,5 +36,60 @@ void ALROutGameController::GachaSim(const FString& BannerIdStr, int32 TotalPulls
 	UE_LOG(LogTemp, Warning, TEXT("[GachaSimCompare] Banner=%s Seed=%d Pulls=%d"), *BannerID.ToString(), Seed, TotalPulls);
 	UE_LOG(LogTemp, Warning, TEXT("  NoPity  : %s"), *NoPity.ToString());
 	UE_LOG(LogTemp, Warning, TEXT("  WithPity: %s"), *WithPity.ToString());
+}
+
+void ALROutGameController::OpenLobbyWidget()
+{
+	OpenWidget<ULRLobbyWidget>(LobbyWidgetClass);
+}
+
+void ALROutGameController::OpenShopWidget()
+{
+	OpenWidget<UBaseWidget>(ShopWidgetClass);
+}
+
+void ALROutGameController::OpenShopWidgetByCurrency()
+{
+	OpenWidget<UBaseWidget>(ShopWidgetClass);
+}
+
+void ALROutGameController::OpenGachaShopWidget()
+{
+	OpenWidget<ULRGachaShopWidget>(GachaShopWidgetClass);
+}
+
+void ALROutGameController::OpenCollectionWidget()
+{
+	// TODO : 구현 필요
+}
+
+void ALROutGameController::OpenPartyWidget()
+{
+	// TODO : 구현 필요
+}
+
+void ALROutGameController::OpenChapterWidget()
+{
+	// TODO : 구현 필요
+}
+
+void ALROutGameController::OpenStageWidget()
+{
+	// TODO : 구현 필요
+}
+
+void ALROutGameController::OpenSettingsWidget()
+{
+	// TODO : 구현 필요
+}
+
+void ALROutGameController::OpenFigureInfo(FName CharacterID)
+{
+	// TODO : 구현 필요
+}
+
+void ALROutGameController::CloseFigureInfo()
+{
+	// TODO : 구현 필요
 }
 
