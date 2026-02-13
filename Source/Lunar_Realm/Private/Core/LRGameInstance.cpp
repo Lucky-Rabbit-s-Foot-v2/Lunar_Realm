@@ -8,6 +8,23 @@
 #include "System/LoggingSystem.h"
 #include "UI/Intro/LRLoadingWidget.h"
 
+#include "Subsystems/UIManagerSubsystem.h"
+#include "Subsystems/StageManagerSubsystem.h"
+
+
+void ULRGameInstance::OpenNextStage(FName StageID)
+{
+	SetNextLevelName(ELevelName::Stage);
+	SetNextStageID(StageID);
+	
+	if (UStageManagerSubsystem* StageManager = GetSubsystem<UStageManagerSubsystem>())
+	{
+		StageManager->LoadStage(StageID);
+	}
+
+	OpenNextLevelLatent();
+}
+
 void ULRGameInstance::OpenNextLevel()
 {
 	OpenNextLevelLatent();
@@ -34,6 +51,9 @@ void ULRGameInstance::SetNextLevelName(ELevelName LevelName)
 
 void ULRGameInstance::OpenNextLevelLatent()
 {
+	UUIManagerSubsystem* UIManager = GetSubsystem<UUIManagerSubsystem>();
+	UIManager->CloseAllPopupUI();
+
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(
 		TimerHandle,

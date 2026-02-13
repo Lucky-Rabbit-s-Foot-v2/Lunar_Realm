@@ -124,7 +124,6 @@ void ALRPlayerCharacter::Tick(float DeltaTime)
 		}
 		else
 		{
-			// 캐릭터가 아니면 그냥 대충 90cm 정도 내림
 			TargetLoc.Z -= 90.0f;
 		}
 
