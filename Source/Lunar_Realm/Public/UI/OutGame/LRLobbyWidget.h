@@ -43,14 +43,4 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRLobbyFigureWidget> Member4;
 
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRCurrencyWidget> GoldView;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRCurrencyWidget> NormalTicketView;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRCurrencyWidget> EnhanceTicketView;
-
-
 };
