@@ -21,4 +21,6 @@ class LUNAR_REALM_API ALRMemberAIController : public ALRAIController
 	
 public:
 	ALRMemberAIController();
+
+	void RestartAI();
 };
