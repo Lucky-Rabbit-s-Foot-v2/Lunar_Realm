@@ -2,6 +2,8 @@
 
 
 #include "Units/OutGame/LROutGameController.h"
+
+#include "System/LoggingSystem.h"
 #include "Engine/GameInstance.h"
 #include "Engine/Engine.h"
 #include "Subsystems/Gacha/LRGachaSubsystem.h"
@@ -40,22 +42,50 @@ void ALROutGameController::GachaSim(const FString& BannerIdStr, int32 TotalPulls
 
 void ALROutGameController::OpenLobbyWidget()
 {
-	OpenWidget<ULRLobbyWidget>(LobbyWidgetClass);
+	if (LobbyWidgetClass)
+	{
+		OpenWidget<ULRLobbyWidget>(LobbyWidgetClass);
+	}
+	else
+	{
+		LR_FATAL(TEXT("LobbyWidgetClass is not set in LROutGameController"));
+	}
 }
 
 void ALROutGameController::OpenShopWidget()
 {
-	OpenWidget<UBaseWidget>(ShopWidgetClass);
+	if (ShopWidgetClass)
+	{
+		OpenWidget<UBaseWidget>(ShopWidgetClass);
+	}
+	else
+	{
+		LR_FATAL(TEXT("ShopWidgetClass is not set in LROutGameController"));
+	}
 }
 
 void ALROutGameController::OpenShopWidgetByCurrency()
 {
-	OpenWidget<UBaseWidget>(ShopWidgetClass);
+	if (ShopWidgetClass)
+	{
+		OpenWidget<UBaseWidget>(ShopWidgetClass);
+	}
+	else
+	{
+		LR_FATAL(TEXT("ShopWidgetClass is not set in LROutGameController"));
+	}
 }
 
 void ALROutGameController::OpenGachaShopWidget()
 {
-	OpenWidget<ULRGachaShopWidget>(GachaShopWidgetClass);
+	if (GachaShopWidgetClass)
+	{
+		OpenWidget<ULRGachaShopWidget>(GachaShopWidgetClass);
+	}
+	else
+	{
+		LR_FATAL(TEXT("GachaShopWidgetClass is not set in LROutGameController"));
+	}
 }
 
 void ALROutGameController::OpenCollectionWidget()
