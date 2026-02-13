@@ -17,6 +17,10 @@
 #include "Engine/World.h"
 #include "TimerManager.h"
 
+#include "Units/LRAIController.h"      
+#include "Units/Member/LRMemberAIController.h"
+#include "BehaviorTree/BehaviorTree.h"  
+
 ALRMemberCharacter::ALRMemberCharacter()
 {
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
@@ -73,6 +77,18 @@ void ALRMemberCharacter::OnPoolActivate_Implementation()
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 	SetActorTickEnabled(true);
+	bIsDead = false;
+
+	if (UCapsuleComponent* Capsule = GetCapsuleComponent())
+	{
+		Capsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	}
+
+	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+	{
+		MoveComp->SetMovementMode(MOVE_Walking);
+		MoveComp->SetActive(true);
+	}
 
 	ResetAttributes();
 	ResetAIController();
@@ -89,6 +105,7 @@ void ALRMemberCharacter::OnPoolDeactivate_Implementation()
 	if (AController* AICon = GetController())
 	{
 		AICon->StopMovement();
+		AICon->UnPossess();
 	}
 }
 
@@ -173,6 +190,33 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 		LoadedAttackMontage = nullptr;
 	}
 
+	// Behavior Tree 실행 로직
+	if (CharData.BehaviorTree)
+	{
+		// 컨트롤러가 없으면 강제로 만듦
+		if (GetController() == nullptr)
+		{
+			SpawnDefaultController();
+		}
+
+		// ALRAIController로 캐스팅해서 BT 실행
+		if (ALRAIController* AIC = Cast<ALRAIController>(GetController()))
+		{
+			AIC->InitializeBehaviorTree(CharData.BehaviorTree);
+
+			// AIC->RestartAI(); 
+
+			LR_INFO(TEXT("[%s] BT 실행 성공: %s"), *InCharacterID.ToString(), *CharData.BehaviorTree->GetName());
+		}
+		else
+		{
+			LR_WARN(TEXT("[%s] Controller가 ALRAIController가 아님"), *InCharacterID.ToString());
+		}
+	}
+	else
+	{
+		LR_WARN(TEXT("[%s] DT에 BehaviorTree가 없음."), *InCharacterID.ToString());
+	}
 
 	// (참고: 필요하면 여기서 CharData의 스탯을 이용해 체력/공격력 세팅을 추가할 수도 있음)
 	LR_INFO(TEXT("[%s] 캐릭터 데이터 세팅 완료"), *InCharacterID.ToString());
