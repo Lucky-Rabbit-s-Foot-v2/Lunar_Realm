@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -17,6 +17,7 @@
  */
 //=============================================================================
 // (260123) KHS 제작. 제반 사항 구현.
+// (260213) PJB 수정. 공용 델리게이트 해제 추가.
 // =============================================================================
 
 /**
@@ -40,6 +41,9 @@ class LUNAR_REALM_API UBaseWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+	/** 델리게이트 해제를 위해 선언 */
+	virtual void NativeDestruct() override;
+
 	/** UI를 활성화하고 화면에 표시 */
 	virtual void OpenUI();
     

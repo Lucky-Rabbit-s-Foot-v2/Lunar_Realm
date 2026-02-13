@@ -36,7 +36,10 @@ class LUNAR_REALM_API ULRGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 	
-public:
+public:	
+	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
+	void OpenNextStage(FName StageID);
+
 	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
 	void OpenNextLevel();
 
@@ -46,11 +49,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
 	void SetNextLevelName(ELevelName LevelName);
 
+	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
+	FName GetNextStageID() const { return NextStageID; }
+
+	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
+	void SetNextStageID(FName StageID) { NextStageID = StageID; }
+
 private:
 	void OpenNextLevelLatent();
 
 protected:
 	FName NextLevelName = EName::None;
+	FName NextStageID = EName::None;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
 	TSubclassOf<class ULRLoadingWidget> LoadingWidgetClass;

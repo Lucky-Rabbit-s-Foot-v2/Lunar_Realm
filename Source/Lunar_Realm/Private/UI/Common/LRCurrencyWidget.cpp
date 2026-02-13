@@ -9,8 +9,7 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 
-#include "GameFramework/PlayerController.h"
-#include "UI/HUD/LRLobbyHUD.h"
+#include "Units/OutGame/LROutGameController.h"
 
 void ULRCurrencyWidget::NativeConstruct()
 {
@@ -21,17 +20,21 @@ void ULRCurrencyWidget::NativeConstruct()
 		Btn_Add->OnClicked.AddDynamic(this, &ULRCurrencyWidget::OnCurrencyAddClicked);
 	}
 
-	if (APlayerController* PC = GetOwningPlayer())
+	if (ALROutGameController* LRController = GetWorld()->GetFirstPlayerController<ALROutGameController>())
 	{
-		if (ALRLobbyHUD* LobbyHUD = Cast<ALRLobbyHUD>(PC->GetHUD()))
-		{
-			OnCurrencyAddClickedDel.AddDynamic(LobbyHUD, &ALRLobbyHUD::OpenShopWidgetByCurrency);
-		}
+		OnCurrencyAddClickedDel.AddDynamic(LRController, &ALROutGameController::OpenShopWidgetByCurrency);
 	}
 }
 
 void ULRCurrencyWidget::NativeDestruct()
 {
+	OnCurrencyAddClickedDel.Clear();
+
+	if (Btn_Add)
+	{
+		Btn_Add->OnClicked.Clear();
+	}
+
 	Super::NativeDestruct();
 }
 
@@ -49,6 +52,5 @@ void ULRCurrencyWidget::RefreshUI()
 
 void ULRCurrencyWidget::OnCurrencyAddClicked()
 {
-	// TODO: 재화 충전 UI 오픈
 	OnCurrencyAddClickedDel.Broadcast();
 }
