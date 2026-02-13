@@ -74,6 +74,56 @@ void ALRMemberCharacter::OnHealthChangedNative(const FOnAttributeChangeData& Dat
 
 void ALRMemberCharacter::OnPoolActivate_Implementation()
 {
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		if (UAnimInstance* AnimInst = MeshComp->GetAnimInstance())
+		{
+			// 현재 재생 중인 모든 몽타주(사망 모션 등)를 즉시 정지
+			AnimInst->StopAllMontages(0.0f);
+		}
+
+		// 메시가 캡슐 밖으로 나갔을 수도 있으니 위치/회전 원상복구 (기본값)
+		// (종민님 프로젝트 세팅에 맞는 값으로 설정하세요. 보통은 아래와 같습니다)
+		MeshComp->SetRelativeLocation(FVector(0.0f, 0.0f, -GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()));
+		MeshComp->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+	}
+
+	// 2. [핵심] 물리 및 이동 상태 리셋 (죽은 위치로 튕겨감 방지)
+	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+	{
+		MoveComp->StopMovementImmediately(); // 이동 정지
+		MoveComp->Velocity = FVector::ZeroVector; // 속도 0
+		MoveComp->SetMovementMode(MOVE_Walking); // 걷기 모드로 강제 전환
+		MoveComp->SetActive(true);
+		MoveComp->bWantsToCrouch = false; // 혹시 웅크린 상태였다면 해제
+	}
+
+	// 3. 액터 상태 활성화
+	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
+	SetActorTickEnabled(true);
+	bIsDead = false; // 사망 플래그 해제
+
+	// 4. 캡슐 충돌 켜기 (물리 연산 포함)
+	if (UCapsuleComponent* Capsule = GetCapsuleComponent())
+	{
+		Capsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		// 죽었을 때 NoCollision이었던 것을 Pawn으로 복구
+		Capsule->SetCollisionProfileName(TEXT("Pawn"));
+	}
+
+	// 5. 스탯 및 AI 초기화
+	ResetAttributes();
+	ResetAIController();
+
+	/*if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+	{
+		MoveComp->StopMovementImmediately();
+		MoveComp->Velocity = FVector::ZeroVector;
+		MoveComp->SetMovementMode(MOVE_Walking);
+		MoveComp->SetActive(true);
+	}
+
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 	SetActorTickEnabled(true);
@@ -84,20 +134,16 @@ void ALRMemberCharacter::OnPoolActivate_Implementation()
 		Capsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	}
 
-	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
-	{
-		MoveComp->SetMovementMode(MOVE_Walking);
-		MoveComp->SetActive(true);
-	}
 
 	ResetAttributes();
-	ResetAIController();
+	ResetAIController();*/
 
 	LR_INFO(TEXT("Member 풀에서 소환 및 초기화 완료 : %s"), *GetName());
 }
 
 void ALRMemberCharacter::OnPoolDeactivate_Implementation()
 {
+
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
 	SetActorTickEnabled(false);

@@ -244,6 +244,11 @@ FTransform ULRSummonComponent::CalculateSpawnTransform() const
 	FVector SpawnLocation = TargetCore->GetRandomSpawnLocation();
 	SpawnLocation.Z = TargetCore->GetActorLocation().Z;
 
+	float RandomOffset = 50.0f;
+	SpawnLocation.X += FMath::FRandRange(-RandomOffset, RandomOffset);
+	SpawnLocation.Y += FMath::FRandRange(-RandomOffset, RandomOffset);
+	SpawnLocation.Z += 10.0f;
+
 	FRotator SpawnRotation = FRotator(0.0f, 90.0f, 0.0f);
 
 	return FTransform(SpawnRotation, SpawnLocation);
