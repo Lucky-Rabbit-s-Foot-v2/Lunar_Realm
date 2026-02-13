@@ -30,7 +30,4 @@ protected:
 
 private:
 	FName TargetLevelName;
-
-	UPROPERTY()
-	TObjectPtr<class ULRLoadingWidget> LoadingWidgetInstance = nullptr;
 };

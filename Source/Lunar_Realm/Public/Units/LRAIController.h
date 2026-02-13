@@ -47,6 +47,7 @@ namespace LRBBKeys
  //============================================================================
  // (260204) KWB 제작.
  // (260211) KWB 제반 사항 구현. (공통 AI 로직 통합. Enemy/Member 공용)
+ // (260212) KWB 비헤이비어트리 설정을 데이터 드리븐 구조로 전환하기 위한 SetAndRunBehaviorTree 함수 추가. OnPossess()에서 BT 검사 및 실행 로직 제거.
  //============================================================================
 UCLASS()	
 class LUNAR_REALM_API ALRAIController : public ADetourCrowdAIController
@@ -65,6 +66,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "LR|AI")
 	bool TryAttackTarget(AActor* Target);
+
+	UFUNCTION(BlueprintCallable, Category = "LR|AI")
+	void InitializeBehaviorTree(UBehaviorTree* NewBT);
 
 	UFUNCTION(BlueprintPure, Category = "LR|AI")
 	float GetAttackRange() const { return AttackRange; }

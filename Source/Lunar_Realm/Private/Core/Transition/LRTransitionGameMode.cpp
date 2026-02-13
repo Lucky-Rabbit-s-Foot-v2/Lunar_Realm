@@ -6,16 +6,12 @@
 #include "UI/Intro/LRLoadingWidget.h"
 #include "Core/LRGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "TimerManager.h"
+#include "Subsystems/UIManagerSubsystem.h"
 
 void ALRTransitionGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (LoadingWidgetClass)
-	{
-		LoadingWidgetInstance = CreateWidget<ULRLoadingWidget>(GetWorld(), LoadingWidgetClass);
-		LoadingWidgetInstance->AddToViewport(1000);
-	}
 
 	if (ULRGameInstance* GI = Cast<ULRGameInstance>(GetGameInstance()))
 	{
@@ -36,9 +32,15 @@ void ALRTransitionGameMode::BeginPlay()
 
 void ALRTransitionGameMode::OnLevelPreloaded()
 {
-	if (LoadingWidgetInstance)
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	if (LoadingWidgetClass)
 	{
+		ULRLoadingWidget* LoadingWidgetInstance = UIManager->GetOrCreateWidget<ULRLoadingWidget>(LoadingWidgetClass);
 		LoadingWidgetInstance->FinishLoading();
+	}
+	else
+	{
+		LR_WARN(TEXT("LoadingWidgetClass is not set in LRTransitionGameMode"));
 	}
 
 	FTimerHandle TimerHandle;

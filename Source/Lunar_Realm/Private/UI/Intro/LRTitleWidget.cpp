@@ -10,29 +10,34 @@
 
 ULRTitleWidget::ULRTitleWidget()
 {
-	UILayer = EUILayer::PERSISTENT;
-	ZOrder = 1;
+	UILayer = EUILayer::POPUP;
 }
 
 void ULRTitleWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	if (ULRGameInstance* GI = Cast<ULRGameInstance>(UGameplayStatics::GetGameInstance(GetWorld())))
+	{
+		OnChangeLevelRequestedDel.AddDynamic(GI, &ULRGameInstance::OpenNextLevel);
+	}
+
 	if (Btn_Start)
 	{
-		Btn_Start->OnClicked.Clear();
 		Btn_Start->OnClicked.AddDynamic(this, &ULRTitleWidget::OnClickedStartButton);
 	}
 }
 
 void ULRTitleWidget::NativeDestruct()
 {
-	Super::NativeDestruct();
+	OnChangeLevelRequestedDel.Clear();
 
 	if(Btn_Start)
 	{
 		Btn_Start->OnClicked.Clear();
 	}
+
+	Super::NativeDestruct();
 }
 
 void ULRTitleWidget::OnClickedStartButton()
@@ -43,6 +48,6 @@ void ULRTitleWidget::OnClickedStartButton()
 	if (GI)
 	{
 		GI->SetNextLevelName(ELevelName::Lobby);
-		GI->OpenNextLevel();
+		OnChangeLevelRequestedDel.Broadcast();
 	}
 }
