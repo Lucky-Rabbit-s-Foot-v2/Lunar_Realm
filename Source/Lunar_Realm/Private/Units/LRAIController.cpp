@@ -45,33 +45,6 @@ void ALRAIController::OnPossess(APawn* InPawn)
 		LR_ERROR(TEXT("[%s] TargetCoreTag is not set."), *GetName());
 		return;
 	}
-
-	// BT 유효성 검사
-	if (!BehaviorTreeAsset)
-	{
-		LR_ERROR(TEXT("[%s] BehaviorTreeAsset is NULL."), *GetName());
-		return;
-	}
-
-	// BT 실행
-	if (!RunBehaviorTree(BehaviorTreeAsset))
-	{
-		LR_ERROR(TEXT("[%s] RunBehaviorTree() failed."), *GetName());
-		return;
-	}
-
-	// BB 초기값: 코어 캐싱
-	if (UBlackboardComponent* BB = GetBlackboardComponent())
-	{
-		AActor* CoreActor = FindTargetCore();
-		BB->SetValueAsObject(LRBBKeys::TargetCore, CoreActor);
-
-		if (!CoreActor)
-		{
-			LR_WARN(TEXT("[%s] Target Core not found. 레벨에 [%s] 태그를 가진 코어가 필요합니다."),
-				*GetName(), *TargetCoreTag.ToString());
-		}
-	}
 }
 
 
@@ -252,6 +225,37 @@ bool ALRAIController::TryAttackTarget(AActor* Target)
 	}
 
 	return false;
+}
+
+void ALRAIController::InitializeBehaviorTree(UBehaviorTree* NewBT)
+{
+	if (!NewBT)
+	{
+		LR_ERROR(TEXT("[%s] IntializeBehaviorTree: NewBT is NULL."), *GetName());
+		return;
+	}
+
+	BehaviorTreeAsset = NewBT;
+
+	// BT 실행
+	if (!RunBehaviorTree(BehaviorTreeAsset))
+	{
+		LR_ERROR(TEXT("[%s] IntializeBehaviorTree() failed."), *GetName());
+		return;
+	}
+
+	// BB 초기값: 코어 캐싱
+	if (UBlackboardComponent* BB = GetBlackboardComponent())
+	{
+		AActor* CoreActor = FindTargetCore();
+		BB->SetValueAsObject(LRBBKeys::TargetCore, CoreActor);
+
+		if (!CoreActor)
+		{
+			LR_WARN(TEXT("[%s] Target Core not found. 레벨에 [%s] 태그를 가진 코어가 필요합니다."),
+				*GetName(), *TargetCoreTag.ToString());
+		}
+	}
 }
 
 
