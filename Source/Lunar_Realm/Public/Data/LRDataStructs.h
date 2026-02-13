@@ -418,6 +418,18 @@ struct FEnemyStaticData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
 	TSoftClassPtr<UAnimInstance> AnimBlueprintClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	TSoftObjectPtr<UAnimMontage> AttackNormalMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	TSoftObjectPtr<UAnimMontage> AttackSpecialMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	TSoftObjectPtr<UAnimMontage> AttackedMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	TSoftObjectPtr<UAnimMontage> DeathMontage;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|AI")
 	TObjectPtr<UBehaviorTree> BehaviorTree;
 
