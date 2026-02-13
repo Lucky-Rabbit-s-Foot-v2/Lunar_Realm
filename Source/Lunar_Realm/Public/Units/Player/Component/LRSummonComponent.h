@@ -7,10 +7,13 @@
 #include "Data/LRDataStructs.h"
 #include "LRSummonComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUnitSummonedDelegate, int32, SlotIndex, float, CooldownTime);
+
 class ALRPlayerCore;
 class ALRMemberCharacter;
 class ULRPlayerAttributeSet;
 class ALRPlayerState;
+
 
 //=============================================================================
 // (260204) BJM 제작. 소환컴포넌트.
@@ -76,7 +79,12 @@ private:
 	void UpdateLastSummonTime(FName InUnitID);
 	FTransform CalculateSpawnTransform() const;
 
+public:
+	UPROPERTY(BlueprintAssignable, Category = "Summon|Event")
+	FOnUnitSummonedDelegate OnUnitSummoned;
 
+	UFUNCTION(BlueprintCallable, Category = "Summon")
+	float GetRemainingCooldown(FName InUnitID) const;
 
 protected:
 

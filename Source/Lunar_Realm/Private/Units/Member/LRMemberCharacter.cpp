@@ -154,7 +154,7 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 			LR_INFO(TEXT("[%s] ABP 적용 성공"), *InCharacterID.ToString());
 		}
 		else
-		{
+		{ 
 			LR_WARN(TEXT("[%s] ABP 로드 실패"), *InCharacterID.ToString());
 		}
 	}

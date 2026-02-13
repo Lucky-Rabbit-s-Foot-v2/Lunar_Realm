@@ -86,6 +86,11 @@ void ULRSummonComponent::TrySummonUnit(int32 InSlotIndex)
 	UpdateLastSummonTime(UnitID);
 	ProcessSummon(*CharData);
 
+	if (OnUnitSummoned.IsBound())
+	{
+		OnUnitSummoned.Broadcast(InSlotIndex, CharData->SummonCooldown);
+	}
+
 }
 
 
@@ -242,6 +247,19 @@ FTransform ULRSummonComponent::CalculateSpawnTransform() const
 	FRotator SpawnRotation = FRotator(0.0f, 90.0f, 0.0f);
 
 	return FTransform(SpawnRotation, SpawnLocation);
+}
+
+float ULRSummonComponent::GetRemainingCooldown(FName InUnitID) const
+{
+	if (LastSummonTimeMap.Contains(InUnitID))
+	{
+		double LastTime = LastSummonTimeMap[InUnitID];
+		double CurrentTime = GetWorld()->GetTimeSeconds();
+		double Elapsed = CurrentTime - LastTime;
+
+		return 0.0f;
+	}
+	return 0.0f;
 }
 
 
