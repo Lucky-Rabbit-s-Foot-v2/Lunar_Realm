@@ -1,0 +1,56 @@
+﻿// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "UI/BaseWidget.h"
+#include "LRLobbyWidget.generated.h"
+
+// =============================================================================
+/**
+ * 로비 UI 위젯
+ */
+ //=============================================================================
+ // (260212) PJB 제작.
+ //=============================================================================
+
+UCLASS()
+class LUNAR_REALM_API ULRLobbyWidget : public UBaseWidget
+{
+	GENERATED_BODY()
+	
+public:
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+
+	virtual void OpenUI() override;
+	virtual void CloseUI() override;
+	virtual void RefreshUI() override;
+
+public:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRLobbyFigureWidget> MainCharacter;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRLobbyFigureWidget> Member1;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRLobbyFigureWidget> Member2;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRLobbyFigureWidget> Member3;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRLobbyFigureWidget> Member4;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRCurrencyWidget> GoldView;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRCurrencyWidget> NormalTicketView;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRCurrencyWidget> EnhanceTicketView;
+
+
+};

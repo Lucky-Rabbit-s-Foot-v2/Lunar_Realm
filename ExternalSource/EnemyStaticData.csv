@@ -1,9 +1,9 @@
-﻿,DataID,CharacterName,Description,Grade,AttackType,EnemyType,DropAether,MaxHealth,Attack,Speed,AttackSpeed,AttackRange,Scale,EnemyMesh,CharacterTexture,AnimBlueprintClass,SkillIDs
-1,ENEMY_NORMAL_SLIME_01,Normal Slime,일반 슬라임,BASIC,MELEE,SLIME,1,80,8,180,1,200,1,,,,()
-2,ENEMY_NORMAL_SLIME_02,Normal Slime,원거리 슬라임,BASIC,RANGED,SLIME,2,90,9,190,1,600,1,,,,()
-3,ENEMY_NORMAL_BEAST_01,Normal Beast,일반 수인,BASIC,MELEE,BEAST,1,100,10,100,1,200,1,,,,()
-4,ENEMY_NORMAL_BEAST_02,Normal Beast,원거리 수인,BASIC,RANGED,BEAST,2,100,10,100,1,600,1,,,,()
-5,ENEMY_NORMAL_BAT_01,Normal Bat,근거리 동물,ELITE,MELEE,BAT,1,100,10,100,1,200,1,,,,()
-6,ENEMY_NORMAL_BAT_02,Normal Bat,원거리 동물,ELITE,RANGED,BAT,2,100,10,100,1,600,1,,,,()
-7,ENEMY_NORMAL_GHOST_01,Normal Ghost,근거리 유령,ELITE,MELEE,GHOST,1,100,10,100,1,200,1,,,,()
-8,ENEMY_NORMAL_GHOST_02,Normal Ghost,원거리 유령,ELITE,RANGED,GHOST,2,100,10,100,1,600,1,,,,()
+﻿,DataID,CharacterName,Description,Grade,AttackType,EnemyType,DropAether,MaxHealth,Attack,Speed,AttackSpeed,AttackRange,Scale,EnemyMesh,CharacterTexture,AnimBlueprintClass,AttackNormalMontage,AttackSpecialMontage,AttackedMontage,DeathMontage,BehaviorTree,SkillIDs
+1,ENEMY_NORMAL_SLIME_01,Normal Slime,근거리 슬라임,BASIC,MELEE,SLIME,1,80,8,180,1,200,1,,,,,,,,,()
+2,ENEMY_NORMAL_SLIME_02,Normal Slime,원거리 슬라임,BASIC,RANGED,SLIME,2,90,9,190,1,600,1,,,,,,,,,()
+3,ENEMY_NORMAL_BEAST_01,Normal Beast,근거리 수인,BASIC,MELEE,BEAST,1,100,10,100,1,200,1,,,,,,,,,()
+4,ENEMY_NORMAL_BEAST_02,Normal Beast,원거리 수인,BASIC,RANGED,BEAST,2,100,10,100,1,600,1,,,,,,,,,()
+5,ENEMY_NORMAL_BAT_01,Normal Bat,근거리 동물,ELITE,MELEE,BAT,1,100,10,100,1,200,1,,,,,,,,,()
+6,ENEMY_NORMAL_BAT_02,Normal Bat,원거리 동물,ELITE,RANGED,BAT,2,100,10,100,1,600,1,,,,,,,,,()
+7,ENEMY_NORMAL_GHOST_01,Normal Ghost,근거리 유령,ELITE,MELEE,GHOST,1,100,10,100,1,200,1,,,,,,,,,()
+8,ENEMY_NORMAL_GHOST_02,Normal Ghost,원거리 유령,ELITE,RANGED,GHOST,2,100,10,100,1,600,1,,,,,,,,,()

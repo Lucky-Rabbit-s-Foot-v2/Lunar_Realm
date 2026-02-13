@@ -5,12 +5,17 @@
 #include "Animation/AnimInstance.h"
 #include "Engine/GameInstance.h"
 #include "Subsystems/GameDataSubsystem.h"
+#include "Subsystems/PoolingSubsystem.h"
 #include "AbilitySystemComponent.h"
 #include "GAS/Attributes/LRPlayerAttributeSet.h"
 #include "AIController.h" 
 #include "System/LoggingSystem.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
+#include "Engine/World.h"
+#include "TimerManager.h"
 
 ALRMemberCharacter::ALRMemberCharacter()
 {
@@ -49,6 +54,17 @@ void ALRMemberCharacter::BeginPlay()
 
 void ALRMemberCharacter::OnHealthChangedNative(const FOnAttributeChangeData& Data)
 {
+	float NewHealth = Data.NewValue;
+
+	if (bIsDead)
+	{
+		return;
+	}
+	if (NewHealth <= 0.0f)
+	{
+		Die();
+	}
+
 	OnHealthChanged(Data.NewValue);
 }
 
@@ -92,6 +108,7 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 		return;
 	}
 
+	// 캐릭터 매쉬 로드 및 캐싱
 	if (!CharData.CharacterMesh.IsNull())
 	{
 		USkeletalMesh* LoadedMesh = CharData.CharacterMesh.LoadSynchronous();
@@ -110,6 +127,7 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 		LR_WARN(TEXT("[%s] 데이터 테이블에 CharacterMesh가 빔!"), *InCharacterID.ToString());
 	}
 
+	// 애님 블루프린트 로드 및 캐싱
 	if (!CharData.AnimBlueprintClass.IsNull())
 	{
 		TSubclassOf<UAnimInstance> LoadedAnim = CharData.AnimBlueprintClass.LoadSynchronous();
@@ -127,6 +145,34 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 	{
 		LR_WARN(TEXT("[%s] DT에 AnimBlueprintClass가 비어있음"), *InCharacterID.ToString());
 	}
+
+	// 사망 몽타주 로드 및 캐싱
+	if (!CharData.DeathMontage.IsNull())
+	{
+		LoadedDeathMontage = CharData.DeathMontage.LoadSynchronous();
+		if (LoadedDeathMontage)
+		{
+			LR_INFO(TEXT("[%s] 사망 몽타주 로드 성공"), *InCharacterID.ToString());
+		}
+	}
+	else
+	{
+		LoadedDeathMontage = nullptr;
+		LR_WARN(TEXT("[%s] DT에 사망 몽타주가 비어있습니다. (기본값 사용 주의)"), *InCharacterID.ToString());
+	}
+
+	// TODO : 공격 몽타주 추가
+	// 공격 몽타주 로드 및 캐싱
+	if (!CharData.NormalAttackMontage.IsNull())
+	{
+		LoadedAttackMontage = CharData.NormalAttackMontage.LoadSynchronous();
+		LR_INFO(TEXT("[%s] 공격 몽타주 로드 성공"), *InCharacterID.ToString());
+	}
+	else
+	{
+		LoadedAttackMontage = nullptr;
+	}
+
 
 	// (참고: 필요하면 여기서 CharData의 스탯을 이용해 체력/공격력 세팅을 추가할 수도 있음)
 	LR_INFO(TEXT("[%s] 캐릭터 데이터 세팅 완료"), *InCharacterID.ToString());
@@ -153,5 +199,66 @@ void ALRMemberCharacter::ResetAIController()
 	if (Controller == nullptr && AIControllerClass)
 	{
 		SpawnDefaultController();
+	}
+}
+
+void ALRMemberCharacter::Die()
+{
+	if (bIsDead)
+	{
+		return;
+	}
+	bIsDead = true;
+
+	LR_INFO(TEXT("맴버 사망 : %s"), *GetName());
+
+	if (Controller)
+	{
+		Controller->StopMovement();
+		Controller->UnPossess();
+	}
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	GetCharacterMovement()->StopMovementImmediately();
+	GetCharacterMovement()->DisableMovement();
+
+	float ReturnDelay = 3.0f;
+	if (LoadedDeathMontage)
+	{
+		float Duration = PlayAnimMontage(LoadedDeathMontage);
+
+		if (Duration > 0.0f)
+		{
+			ReturnDelay = Duration + 0.5f;
+		}
+	}
+	else
+	{
+		LR_WARN(TEXT("재생할 사망 몽타주(LoadedDeathMontage)가 없습니다! DT를 확인하세요."));
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, this, &ALRMemberCharacter::ReturnSelf, ReturnDelay, false);
+}
+
+
+void ALRMemberCharacter::ReturnSelf()
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+	UPoolingSubsystem* PoolSys = World->GetSubsystem<UPoolingSubsystem>();
+	if (PoolSys)
+	{
+		PoolSys->ReturnToPool(this);
+		LR_INFO(TEXT("%s 풀 반환 완료"), *GetName());
+	}
+	else
+	{
+		Destroy();
+		LR_INFO(TEXT("%s 풀 반환 실패"), *GetName());
 	}
 }

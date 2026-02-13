@@ -13,8 +13,10 @@
  */
  //=============================================================================
  // (260206) PJB 제작. 인트로 위젯 기반 구성.
+ // (260212) PJB 수정. UI Manager 연동.
  // =============================================================================
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnIntroAnimFinished);
 
 UCLASS()
 class LUNAR_REALM_API ULRIntroWidget : public UBaseWidget
@@ -22,21 +24,25 @@ class LUNAR_REALM_API ULRIntroWidget : public UBaseWidget
 	GENERATED_BODY()
 	
 public:
-	ULRIntroWidget();
+	ULRIntroWidget()
+	{
+		UILayer = EUILayer::POPUP;
+	}
 
-protected:
-	virtual void NativeConstruct() override;
-	
-public:
+	virtual void NativeDestruct() override;
+
+	virtual void OpenUI() override;
+	virtual void RefreshUI() override;
+
+	UPROPERTY(BlueprintAssignable, Category = "LR|UI")
+	FOnIntroAnimFinished OnIntroAnimFinishedDel;
+
+private:
 	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
 	void PlayIntroAnimation();
 
-protected:
 	UFUNCTION()
 	void OnFinishedIntroAnim();
-
-private:
-	void OpenTitleWidget();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -50,8 +56,5 @@ protected:
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	TObjectPtr<class UWidgetAnimation> FadeAnim;
-
-	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
-	TSubclassOf<class ULRTitleWidget> TitleWidgetClass;
 
 };

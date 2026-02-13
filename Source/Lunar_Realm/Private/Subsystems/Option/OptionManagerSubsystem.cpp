@@ -36,11 +36,13 @@ void UOptionManagerSubsystem::UpdateCurrentOptionSaveGame()
 	if (UGraphicSubsystem* GraphicSubsys = GetGameInstance()->GetSubsystem<UGraphicSubsystem>())
 	{
 		CurrentOptionSaveGame->SetGraphicsOptions(GraphicSubsys->GetCurrentOptions());
+		GraphicSubsys->ApplyOptions();
 	}
 
 	if (USoundSubsystem* SoundSubsys = GetGameInstance()->GetSubsystem<USoundSubsystem>())
 	{
 		CurrentOptionSaveGame->SetSoundOptions(SoundSubsys->GetCurrentOptions());
+		SoundSubsys->ApplyOptions();
 	}
 
 	SaveOptions();

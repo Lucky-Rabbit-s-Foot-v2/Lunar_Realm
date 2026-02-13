@@ -2,6 +2,7 @@
 
 
 #include "Units/Enemy/LREnemyAIController.h"
+#include "BehaviorTree/BehaviorTree.h"
 #include "GAS/Tags/LRGameplayTags.h"
 
 
