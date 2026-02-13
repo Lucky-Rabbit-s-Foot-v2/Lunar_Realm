@@ -30,6 +30,39 @@ ALREnemyCharacter::ALREnemyCharacter()
 
 void ALREnemyCharacter::OnDie()
 {
+	// TEMP
+	 // 1. AI 비활성화
+	if (AAIController* AIController = Cast<AAIController>(GetController()))
+	{
+		AIController->BrainComponent->StopLogic(TEXT("Dead"));
+	}
+
+	// 2. 충돌 비활성화 (추가 공격 방지)
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// 3. 입력 및 움직임 비활성화
+	DisableInput(nullptr);
+	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+
+	// 4. 스켈레탈 메시 해제
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		// 메시를 null로 설정하여 완전히 해제
+		MeshComp->SetSkeletalMesh(nullptr);
+
+		// 또는 시각적으로만 숨기려면:
+		// MeshComp->SetVisibility(false);
+		// MeshComp->SetHiddenInGame(true);
+
+		// 물리 비활성화
+		MeshComp->SetSimulatePhysics(false);
+		MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		// 물리 안보이기
+		MeshComp->SetVisibility(false);
+	}
+
 	UPoolingSubsystem* PoolSys = GetWorld() ? GetWorld()->GetSubsystem<UPoolingSubsystem>() : nullptr;
 	if (!PoolSys)
 	{
@@ -38,6 +71,7 @@ void ALREnemyCharacter::OnDie()
 	}
 
 	PoolSys->ReturnToPool(this);
+	LR_DEBUG(TEXT("%s : 에너미 사망 -> 풀로 돌아감"), *GetName());
 }
 
 void ALREnemyCharacter::InitializeByEnemyID(FName EnemyID)
@@ -223,9 +257,18 @@ void ALREnemyCharacter::GrantEnemyAbilities()
 
 	TArray<FName> SkillIDs = DataSys->GetEnemySkillIDs(CurrentEnemyID);
 
+	// TEMP
+	//LR_INFO(TEXT("[%s] GrantEnemyAbilities - SkillIDs Count: %d"), *CurrentEnemyID.ToString(), SkillIDs.Num());
+
 	for (FName SkillID : SkillIDs)
 	{
+		// TEMP
+		//LR_INFO(TEXT("  Processing SkillID: %s"), *SkillID.ToString());
+
 		const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillID);
+
+		// TEMP
+		//LR_INFO(TEXT("  Granted Abilities Count: %d"), SkillData.GrantedAbilities.Num());
 
 		for (const TSoftClassPtr<UGameplayAbility>& SoftAbilityClass : SkillData.GrantedAbilities)
 		{
@@ -243,15 +286,29 @@ void ALREnemyCharacter::GrantEnemyAbilities()
 				continue;
 			}
 
+			// TEMP
+			//LR_INFO(TEXT("  Loading Ability: %s"), *AbilityClass->GetName());
+
 			FGameplayAbilitySpec Spec(AbilityClass, 1, INDEX_NONE, this);
 			FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
 
 			if (Handle.IsValid())
 			{
 				GrantedAbilityHandles.Add(Handle);
+
+				// TEMP
+				//LR_INFO(TEXT("  ✓ Successfully granted ability: %s"), *AbilityClass->GetName());
+			}
+			else
+			{
+				// TEMP
+				LR_ERROR(TEXT("  ✗ Failed to grant ability: %s"), *AbilityClass->GetName());
 			}
 		}
 	}
+
+	// TEMP
+	//LR_INFO(TEXT("[%s] Total Granted Abilities: %d"), *CurrentEnemyID.ToString(), GrantedAbilityHandles.Num());
 }
 
 void ALREnemyCharacter::ClearGrantedEnemyAbilities()
