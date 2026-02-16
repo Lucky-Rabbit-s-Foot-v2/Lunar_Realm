@@ -93,11 +93,9 @@ private:
 	FTransform CalculateSpawnTransform() const;
 
 public:
-	//UPROPERTY(BlueprintAssignable, Category = "Summon|Event")
-	//FOnUnitSummonedDelegate OnUnitSummoned;
 
-	//UFUNCTION(BlueprintCallable, Category = "Summon")
-	//float GetRemainingCooldown(FName InUnitID) const;
+	UFUNCTION(BlueprintCallable, Category = "Summon")
+	const TArray<FName>& GetSummonDeck() const { return SummonDeck; }
 
 protected:
 
