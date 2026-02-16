@@ -74,30 +74,47 @@ void ALRMemberCharacter::OnHealthChangedNative(const FOnAttributeChangeData& Dat
 
 void ALRMemberCharacter::OnPoolActivate_Implementation()
 {
-	SetActorHiddenInGame(false);
-	SetActorEnableCollision(true);
-	SetActorTickEnabled(true);
-	bIsDead = false;
-
-	if (UCapsuleComponent* Capsule = GetCapsuleComponent())
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
 	{
-		Capsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		if (UAnimInstance* AnimInst = MeshComp->GetAnimInstance())
+		{
+			AnimInst->StopAllMontages(0.0f);
+		}
+
+		MeshComp->SetRelativeLocation(FVector(0.0f, 0.0f, -GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()));
+		MeshComp->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 	}
 
 	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
 	{
+		MoveComp->StopMovementImmediately();
+		MoveComp->Velocity = FVector::ZeroVector;
 		MoveComp->SetMovementMode(MOVE_Walking);
 		MoveComp->SetActive(true);
+		MoveComp->bWantsToCrouch = false;
+	}
+
+	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
+	SetActorTickEnabled(true);
+	bIsDead = false; 
+
+	if (UCapsuleComponent* Capsule = GetCapsuleComponent())
+	{
+		Capsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		Capsule->SetCollisionProfileName(TEXT("Pawn"));
 	}
 
 	ResetAttributes();
 	ResetAIController();
+
 
 	LR_INFO(TEXT("Member 풀에서 소환 및 초기화 완료 : %s"), *GetName());
 }
 
 void ALRMemberCharacter::OnPoolDeactivate_Implementation()
 {
+
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
 	SetActorTickEnabled(false);

@@ -42,6 +42,26 @@ void ULRSummonComponent::LoadDeckData(const TArray<FName>& InUnitIDs)
 	SummonDeck = InUnitIDs;
 	LR_INFO(TEXT("덱 로드완료, 총 유닛 수: %d"), SummonDeck.Num());
 }
+float ULRSummonComponent::GetRemainingCooldown(FName InUnitID) const
+{
+	if (!LastSummonTimeMap.Contains(InUnitID))
+	{
+		return 0.0f;
+	}
+
+	const FCharacterStaticData* CharData = GetCharacterData(InUnitID);
+	if (!CharData)
+	{
+		return 0.0f;
+	}
+
+	double LastTime = LastSummonTimeMap[InUnitID];
+	double CurrentTime = GetWorld()->GetTimeSeconds();
+	double Elapsed = CurrentTime - LastTime;
+	double Remaining = CharData->SummonCooldown - Elapsed;
+
+	return (Remaining > 0.0) ? (float)Remaining : 0.0f;
+}
 
 // ============================================================================
 // 소환 메인 로직
@@ -49,54 +69,67 @@ void ULRSummonComponent::LoadDeckData(const TArray<FName>& InUnitIDs)
 
 void ULRSummonComponent::TrySummonUnit(int32 InSlotIndex)
 {
-	if (!TargetCore)
+	FName UnitID;
+	const FCharacterStaticData* CharData = nullptr;
+
+	if (IsValidSummonRequest(InSlotIndex, UnitID, CharData))
 	{
-		FindPlayerCore();
+		ExecuteSummon(*CharData, InSlotIndex);
 	}
-
-	// 유효성 검사
-	if (!IsSlotValid(InSlotIndex))
-	{
-		return;
-	}
-
-	FName UnitID = SummonDeck[InSlotIndex];
-
-	// 데이터 조회
-	const FCharacterStaticData* CharData = GetCharacterData(UnitID);
-	if (!CharData)
-	{
-		return;
-	}
-	// 쿨타임 확인
-	if (IsOnCooldown(UnitID, CharData->SummonCooldown))
-	{
-		return;
-	}
-
-	// 비용 확인
-	if (!CanAffordSummon(CharData->SummonCost))
-	{
-		LR_WARN(TEXT("에테르 부족"));
-		return;
-	}
-
-	// 실행
-	DeductSummonCost(CharData->SummonCost);
-	UpdateLastSummonTime(UnitID);
-	ProcessSummon(*CharData);
-
-	if (OnUnitSummoned.IsBound())
-	{
-		OnUnitSummoned.Broadcast(InSlotIndex, CharData->SummonCooldown);
-	}
-
 }
 
 
 // ============================================================================
 // 내부 로직
 // ============================================================================
+
+bool ULRSummonComponent::IsValidSummonRequest(int32 InSlotIndex, FName& OutUnitID, const FCharacterStaticData*& OutCharData)
+{
+	if (!TargetCore)
+	{
+		FindPlayerCore();
+		if (!TargetCore) return false;
+	}
+
+	if (!SummonDeck.IsValidIndex(InSlotIndex))
+	{
+		LR_WARN(TEXT("유효하지 않은 슬롯 인덱스: %d"), InSlotIndex);
+		return false;
+	}
+
+	OutUnitID = SummonDeck[InSlotIndex];
+	OutCharData = GetCharacterData(OutUnitID);
+
+	if (!OutCharData)
+	{
+		LR_ERROR(TEXT("데이터 테이블에서 유닛 정보를 찾을 수 없음: %s"), *OutUnitID.ToString());
+		return false;
+	}
+
+	if (IsOnCooldown(OutUnitID, OutCharData->SummonCooldown))
+	{
+		return false;
+	}
+
+	if (!CanAffordSummon(OutCharData->SummonCost))
+	{
+		LR_WARN(TEXT("에테르 부족! 필요: %.0f"), OutCharData->SummonCost);
+		return false;
+	}
+
+	return true;
+}
+
+// 실제 소환 절차(비용 차감 -> 시간 갱신 -> 스폰 -> UI 알림)
+void ULRSummonComponent::ExecuteSummon(const FCharacterStaticData& InCharData, int32 InSlotIndex)
+{
+	DeductSummonCost(InCharData.SummonCost);
+	UpdateLastSummonTime(InCharData.DataID);
+
+	ProcessSummon(InCharData);
+
+	NotifySummonSuccess(InSlotIndex, InCharData.SummonCooldown);
+}
 
 void ULRSummonComponent::ProcessSummon(const FCharacterStaticData& InCharData)
 {
@@ -136,6 +169,13 @@ void ULRSummonComponent::ProcessSummon(const FCharacterStaticData& InCharData)
 // 핼퍼 함수
 // ============================================================================
 
+void ULRSummonComponent::NotifySummonSuccess(int32 InSlotIndex, float InCooldownTime)
+{
+	if (OnUnitSummoned.IsBound())
+	{
+		OnUnitSummoned.Broadcast(InSlotIndex, InCooldownTime);
+	}
+}
 void ULRSummonComponent::FindPlayerCore()
 {
 	AActor* FoundActor = UGameplayStatics::GetActorOfClass(GetWorld(), ALRPlayerCore::StaticClass());
@@ -174,25 +214,6 @@ ULRPlayerAttributeSet* ULRSummonComponent::GetAttributeSet() const
 	return PS ? Cast<ULRPlayerAttributeSet>(PS->GetAttributeSet()) : nullptr;
 }
 
-bool ULRSummonComponent::IsSlotValid(int32 InSlotIndex) const
-{
-	if (!TargetCore)
-	{
-		LR_ERROR(TEXT("Core 미연결 상태에서 소환 시도"));
-		return false;
-	}
-	if (!BaseMemberClass)
-	{
-		LR_ERROR(TEXT("BaseMemberClass 비어있음"));
-		return false;
-	}
-	if (!SummonDeck.IsValidIndex(InSlotIndex))
-	{
-		LR_WARN(TEXT("유효하지 않은 슬롯 인덱스: %d"), InSlotIndex);
-		return false;
-	}
-	return true;
-}
 
 bool ULRSummonComponent::IsOnCooldown(FName InUnitID, float InCoolDownTime) const
 {
@@ -237,6 +258,7 @@ void ULRSummonComponent::UpdateLastSummonTime(FName InUnitID)
 	LastSummonTimeMap.Add(InUnitID, GetWorld()->GetTimeSeconds());
 }
 
+
 FTransform ULRSummonComponent::CalculateSpawnTransform() const
 {
 	if (!TargetCore) return FTransform::Identity;
@@ -244,22 +266,14 @@ FTransform ULRSummonComponent::CalculateSpawnTransform() const
 	FVector SpawnLocation = TargetCore->GetRandomSpawnLocation();
 	SpawnLocation.Z = TargetCore->GetActorLocation().Z;
 
+	float RandomOffset = 50.0f;
+	SpawnLocation.X += FMath::FRandRange(-RandomOffset, RandomOffset);
+	SpawnLocation.Y += FMath::FRandRange(-RandomOffset, RandomOffset);
+	SpawnLocation.Z += 10.0f;
+
 	FRotator SpawnRotation = FRotator(0.0f, 90.0f, 0.0f);
 
 	return FTransform(SpawnRotation, SpawnLocation);
-}
-
-float ULRSummonComponent::GetRemainingCooldown(FName InUnitID) const
-{
-	if (LastSummonTimeMap.Contains(InUnitID))
-	{
-		double LastTime = LastSummonTimeMap[InUnitID];
-		double CurrentTime = GetWorld()->GetTimeSeconds();
-		double Elapsed = CurrentTime - LastTime;
-
-		return 0.0f;
-	}
-	return 0.0f;
 }
 
 
