@@ -76,49 +76,6 @@ void ULRSummonComponent::TrySummonUnit(int32 InSlotIndex)
 	{
 		ExecuteSummon(*CharData, InSlotIndex);
 	}
-
-	//if (!TargetCore)
-	//{
-	//	FindPlayerCore();
-	//}
-
-	//// 유효성 검사
-	//if (!IsSlotValid(InSlotIndex))
-	//{
-	//	return;
-	//}
-
-	//FName UnitID = SummonDeck[InSlotIndex];
-
-	//// 데이터 조회
-	//const FCharacterStaticData* CharData = GetCharacterData(UnitID);
-	//if (!CharData)
-	//{
-	//	return;
-	//}
-	//// 쿨타임 확인
-	//if (IsOnCooldown(UnitID, CharData->SummonCooldown))
-	//{
-	//	return;
-	//}
-
-	//// 비용 확인
-	//if (!CanAffordSummon(CharData->SummonCost))
-	//{
-	//	LR_WARN(TEXT("에테르 부족"));
-	//	return;
-	//}
-
-	//// 실행
-	//DeductSummonCost(CharData->SummonCost);
-	//UpdateLastSummonTime(UnitID);
-	//ProcessSummon(*CharData);
-
-	//if (OnUnitSummoned.IsBound())
-	//{
-	//	OnUnitSummoned.Broadcast(InSlotIndex, CharData->SummonCooldown);
-	//}
-
 }
 
 
@@ -257,26 +214,6 @@ ULRPlayerAttributeSet* ULRSummonComponent::GetAttributeSet() const
 	return PS ? Cast<ULRPlayerAttributeSet>(PS->GetAttributeSet()) : nullptr;
 }
 
-//bool ULRSummonComponent::IsSlotValid(int32 InSlotIndex) const
-//{
-//	if (!TargetCore)
-//	{
-//		LR_ERROR(TEXT("Core 미연결 상태에서 소환 시도"));
-//		return false;
-//	}
-//	if (!BaseMemberClass)
-//	{
-//		LR_ERROR(TEXT("BaseMemberClass 비어있음"));
-//		return false;
-//	}
-//	if (!SummonDeck.IsValidIndex(InSlotIndex))
-//	{
-//		LR_WARN(TEXT("유효하지 않은 슬롯 인덱스: %d"), InSlotIndex);
-//		return false;
-//	}
-//	return true;
-//}
-
 
 bool ULRSummonComponent::IsOnCooldown(FName InUnitID, float InCoolDownTime) const
 {
@@ -339,18 +276,5 @@ FTransform ULRSummonComponent::CalculateSpawnTransform() const
 	return FTransform(SpawnRotation, SpawnLocation);
 }
 
-//float ULRSummonComponent::GetRemainingCooldown(FName InUnitID) const
-//{
-//	if (LastSummonTimeMap.Contains(InUnitID))
-//	{
-//		double LastTime = LastSummonTimeMap[InUnitID];
-//		double CurrentTime = GetWorld()->GetTimeSeconds();
-//		double Elapsed = CurrentTime - LastTime;
-//
-//		return 0.0f;
-//	}
-//	return 0.0f;
-//}
-//
 
 
