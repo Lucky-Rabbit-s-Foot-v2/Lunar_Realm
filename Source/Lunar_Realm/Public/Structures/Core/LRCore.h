@@ -6,10 +6,15 @@
 #include "GameFramework/Actor.h"
 #include "GameplayTagAssetInterface.h"
 #include "GameplayTagContainer.h"
+
+#include "AbilitySystemInterface.h"
+#include "AbilitySystemComponent.h"
+
 #include "LRCore.generated.h"
 
 class UBoxComponent;
 class UStaticMeshComponent;
+class ULRCoreAttributeSet;
 
 /**
  * LRCore 구성 요소
@@ -20,6 +25,7 @@ class UStaticMeshComponent;
  */
  //============================================================================
  // (260204) KWB 제작. 현재 기본틀만 구성
+ // (260217) BJM CoreAttribute 적용
  //============================================================================
 
 UCLASS()
@@ -39,11 +45,13 @@ public:
 	FORCEINLINE UBoxComponent* GetHitCollision() const { return HitCollision; }
 	FORCEINLINE UStaticMeshComponent* GetVisualMesh() const { return VisualMesh; }
 
-	// TEMP
-	int32 GetHealth() { return Health; }
 
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void OnHealthChanged(const FOnAttributeChangeData& InData);
+
+	virtual void OnCoreDestroyed();
 
 	UFUNCTION()
 	void OnHitCollisionBeginOverlap(
@@ -65,7 +73,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Tags")
 	FGameplayTagContainer OwnedTags;
 
-	// TEMP
-	UPROPERTY(EditAnywhere, Category = "TEMP")
-	int32 Health = 100;
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
+	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+
+	UPROPERTY()
+	TObjectPtr<ULRCoreAttributeSet> AttributeSet;
+
+	bool bIsDestroyed;
 };

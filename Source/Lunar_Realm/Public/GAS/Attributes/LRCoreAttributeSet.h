@@ -25,11 +25,11 @@ class LUNAR_REALM_API ULRCoreAttributeSet : public ULRAttributeSet
 public:
 	ULRCoreAttributeSet();
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_Health)
+	UPROPERTY(BlueprintReadOnly, Category = "Stats")
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(ULRCoreAttributeSet, Health);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_MaxHealth)
+	UPROPERTY(BlueprintReadOnly, Category = "Stats")
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(ULRCoreAttributeSet, MaxHealth);
 
