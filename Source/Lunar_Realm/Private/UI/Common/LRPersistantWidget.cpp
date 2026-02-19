@@ -3,27 +3,25 @@
 
 #include "UI/Common/LRPersistantWidget.h"
 
-void ULRPersistantWidget::NativeConstruct()
-{
-	Super::NativeConstruct();
-}
+#include "Engine/GameInstance.h"
 
-void ULRPersistantWidget::NativeDestruct()
+#include "Subsystems/UIManagerSubsystem.h"
+#include "UI/Common/LRPopupWidget.h"
+
+void ULRPersistantWidget::InitializeUI()
 {
-	Super::NativeDestruct();
+	Super::InitializeUI();
+	UILayer = EUILayer::PERSISTENT;
 }
 
 void ULRPersistantWidget::OpenUI()
 {
 	Super::OpenUI();
-}
 
-void ULRPersistantWidget::CloseUI()
-{
-	Super::CloseUI();
-}
-
-void ULRPersistantWidget::RefreshUI()
-{
-	Super::RefreshUI();
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	ULRPopupWidget* DefaultPopupWidget = UIManager->GetOrCreateWidget<ULRPopupWidget>(DefaultPopupClass);
+	if (DefaultPopupWidget && !DefaultPopupWidget->IsOpen())
+	{
+		UIManager->OpenUI<ULRPopupWidget>(DefaultPopupClass);
+	}
 }
