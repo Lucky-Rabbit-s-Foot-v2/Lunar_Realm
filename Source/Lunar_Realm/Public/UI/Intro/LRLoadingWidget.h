@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/BaseWidget.h"
+#include "UI/Common/LRPopupWidget.h"
 #include "LRLoadingWidget.generated.h"
 
 // =============================================================================
@@ -16,15 +16,9 @@
  // =============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRLoadingWidget : public UBaseWidget
+class LUNAR_REALM_API ULRLoadingWidget : public ULRPopupWidget
 {
 	GENERATED_BODY()
-	
-public:
-	ULRLoadingWidget()
-	{
-		UILayer = EUILayer::POPUP;
-	}
 
 protected:
 	virtual void OpenUI() override;

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/BaseWidget.h"
+#include "UI/Common/LRPopupWidget.h"
 #include "LRShopWidget.generated.h"
 
 
@@ -17,16 +17,11 @@
  //============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRShopWidget : public UBaseWidget
+class LUNAR_REALM_API ULRShopWidget : public ULRPopupWidget
 {
 	GENERATED_BODY()
 	
 public:
-	ULRShopWidget()
-	{
-		UILayer = EUILayer::POPUP;
-	}
-
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 	

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/BaseWidget.h"
+#include "UI/Common/LRPopupWidget.h"
 #include "StageWidget.generated.h"
 
 
@@ -19,17 +19,13 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStageOpenClicked, FName, StageID);
 
 UCLASS()
-class LUNAR_REALM_API UStageWidget : public UBaseWidget
+class LUNAR_REALM_API UStageWidget : public ULRPopupWidget
 {
 	GENERATED_BODY()
 	
 public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
-
-	virtual void OpenUI() override;
-	virtual void CloseUI() override;
-	virtual void RefreshUI() override;
 
 	UPROPERTY(BlueprintAssignable, Category = "LR|Event")
 	FOnStageOpenClicked OnStageOpenClickedDel;

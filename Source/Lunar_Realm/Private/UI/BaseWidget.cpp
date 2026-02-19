@@ -26,6 +26,8 @@ void UBaseWidget::InitializeUI()
 
 void UBaseWidget::OpenUI()
 {
+	RefreshUI();
+
 	bIsOpen = true;
 	SetVisibility(ESlateVisibility::Visible);
 	// 자식 클래스에서 오버라이드하여 추가 로직 구현

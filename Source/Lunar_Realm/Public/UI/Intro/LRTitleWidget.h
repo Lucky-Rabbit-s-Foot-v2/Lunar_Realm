@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/BaseWidget.h"
+#include "UI/Common/LRPopupWidget.h"
 #include "LRTitleWidget.generated.h"
 
 // =============================================================================
@@ -17,13 +17,10 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnChangeLevelRequested);
 
 UCLASS()
-class LUNAR_REALM_API ULRTitleWidget : public UBaseWidget
+class LUNAR_REALM_API ULRTitleWidget : public ULRPopupWidget
 {
 	GENERATED_BODY()
 	
-public:
-	ULRTitleWidget();
-
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;

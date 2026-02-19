@@ -38,18 +38,6 @@ void ULRCurrencyWidget::NativeDestruct()
 	Super::NativeDestruct();
 }
 
-void ULRCurrencyWidget::OpenUI()
-{
-	Super::OpenUI();
-
-	Super::RefreshUI();
-}
-
-void ULRCurrencyWidget::RefreshUI()
-{
-	Super::RefreshUI();
-}
-
 void ULRCurrencyWidget::OnCurrencyAddClicked()
 {
 	OnCurrencyAddClickedDel.Broadcast();

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/BaseWidget.h"
+#include "UI/Common/LRPopupWidget.h"
 #include "LRLobbyWidget.generated.h"
 
 // =============================================================================
@@ -15,18 +15,10 @@
  //=============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRLobbyWidget : public UBaseWidget
+class LUNAR_REALM_API ULRLobbyWidget : public ULRPopupWidget
 {
 	GENERATED_BODY()
 	
-public:
-	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
-
-	virtual void OpenUI() override;
-	virtual void CloseUI() override;
-	virtual void RefreshUI() override;
-
 public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRLobbyFigureWidget> MainCharacter;

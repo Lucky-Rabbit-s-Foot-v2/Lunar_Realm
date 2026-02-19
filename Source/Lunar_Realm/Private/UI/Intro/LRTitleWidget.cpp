@@ -8,11 +8,6 @@
 #include "Components/Button.h"
 #include "Core/LRGameInstance.h"
 
-ULRTitleWidget::ULRTitleWidget()
-{
-	UILayer = EUILayer::POPUP;
-}
-
 void ULRTitleWidget::NativeConstruct()
 {
 	Super::NativeConstruct();

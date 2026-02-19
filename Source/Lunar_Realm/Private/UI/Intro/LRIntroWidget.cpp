@@ -17,8 +17,6 @@ void ULRIntroWidget::OpenUI()
 {
 	Super::OpenUI();
 
-	RefreshUI();
-
 	PlayIntroAnimation();
 }
 
