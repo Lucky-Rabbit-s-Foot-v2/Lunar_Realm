@@ -73,8 +73,8 @@ bool ALREnemySpawner::InitializeFromStageData()
 	{
 		CurrentStageID = LRGameInstance->GetCurrentStageID();
 	}
-	// NOTE: StageID -> GameInstance의 CurrentStageID를 임시 사용. => 추후 준범님이 스테이지 매니저 구현하면 거기서 받아올 예정
 
+	// NOTE: StageID -> GameInstance의 CurrentStageID를 임시 사용. => 추후 준범님이 스테이지 매니저 구현하면 거기서 받아올 예정
 	if (CurrentStageID == NAME_None)
 	{
 		LR_WARN(TEXT("EnemySpawner(%s): CurrentStageID is NAME_None. "
@@ -84,9 +84,7 @@ bool ALREnemySpawner::InitializeFromStageData()
 
 	const FStageStaticData& StageData = DataSys->GetStageStaticData(CurrentStageID);
 
-	// 스테이지 데이터 검사[1 스테이지 데이터로 폴백, 1 스테이지 데이터 없을 시 하드 코딩된 데이터 사용]
 	// TODO: StageManager에서 데이터 가져오는 로직으로 수정
-
 	bool bValidStageData = (StageData.DataID != NAME_None) && (StageData.SpawnEnemyIDs.Num() > 0);
 	if (!bValidStageData)
 	{
@@ -119,8 +117,8 @@ bool ALREnemySpawner::InitializeFromStageData()
 		return false;
 	}
 
-	LR_INFO(TEXT("EnemySpawner initialized: Stage(%s), EnemyCount(%d), Interval(%.2f)"),
-		*CurrentStageID.ToString(), CachedEnemyIDs.Num(), CurrentSpawnInterval);
+	//LR_INFO(TEXT("EnemySpawner initialized: Stage(%s), EnemyCount(%d), Interval(%.2f)"),
+	//	*CurrentStageID.ToString(), CachedEnemyIDs.Num(), CurrentSpawnInterval);
 	
 	return true;
 }
@@ -172,6 +170,7 @@ void ALREnemySpawner::SpawnEnemy()
 	const FName TargetEnemyID = PickEnemyIDByWeight();
 	if (TargetEnemyID == NAME_None)
 	{
+		LR_WARN(TEXT("Failed to pick EnemyID By Random!"));
 		return;
 	}
 
