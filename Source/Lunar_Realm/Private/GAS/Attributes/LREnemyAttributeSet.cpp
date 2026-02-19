@@ -38,7 +38,7 @@ void ULREnemyAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 	{
 		if (GetHealth() <= 0.0f)
 		{
-			// LR_DEBUG(TEXT("%s "));
+			
 		}
 	}
 }

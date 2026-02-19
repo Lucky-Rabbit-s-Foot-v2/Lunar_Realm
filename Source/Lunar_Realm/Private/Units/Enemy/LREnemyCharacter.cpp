@@ -321,6 +321,9 @@ void ALREnemyCharacter::ClearGrantedEnemyAbilities()
 
 void ALREnemyCharacter::OnPoolActivate_Implementation()
 {
+	// TEMP
+	LR_INFO(TEXT("[%s] OnPoolActivate called"), *GetName());
+
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 	SetActorTickEnabled(true);
@@ -350,6 +353,10 @@ void ALREnemyCharacter::OnPoolActivate_Implementation()
 	{
 		SpawnDefaultController();
 	}
+
+	// TEMP 
+	LR_INFO(TEXT("[%s] OnPoolActivate completed, Location: %s"),
+		*GetName(), *GetActorLocation().ToString());
 }
 
 void ALREnemyCharacter::OnPoolDeactivate_Implementation()
