@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -187,7 +187,8 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
     }
     
     UBaseWidget* BaseWidget = Widget;
-    
+	BaseWidget->InitializeUI();
+
     // Persistent 타입 UI일 때
     if (BaseWidget->UILayer == EUILayer::PERSISTENT)
     {
