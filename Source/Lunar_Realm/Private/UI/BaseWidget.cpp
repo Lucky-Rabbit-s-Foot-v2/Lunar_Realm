@@ -3,6 +3,13 @@
 
 #include "UI/BaseWidget.h"
 
+void UBaseWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	InitializeUI();
+}
+
 void UBaseWidget::NativeDestruct()
 {
 	if (OnCloseUIRequested.IsBound())
@@ -10,6 +17,11 @@ void UBaseWidget::NativeDestruct()
 		OnCloseUIRequested.Clear();
 	}
 	Super::NativeDestruct();
+}
+
+void UBaseWidget::InitializeUI()
+{
+	// 자식 클래스에서 오버라이드하여 초기화 로직 구현
 }
 
 void UBaseWidget::OpenUI()

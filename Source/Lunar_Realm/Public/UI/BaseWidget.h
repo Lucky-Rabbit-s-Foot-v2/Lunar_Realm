@@ -18,6 +18,7 @@
 //=============================================================================
 // (260123) KHS 제작. 제반 사항 구현.
 // (260213) PJB 수정. 공용 델리게이트 해제 추가.
+// (260213) PJB 수정. 초기화 함수 추가.
 // =============================================================================
 
 /**
@@ -41,8 +42,14 @@ class LUNAR_REALM_API UBaseWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+	/** 초기화를 위해 선언 */
+	virtual void NativeConstruct() override;
+
 	/** 델리게이트 해제를 위해 선언 */
 	virtual void NativeDestruct() override;
+
+	/** UI를 처음 생성할 때 초기화*/
+	virtual void InitializeUI();
 
 	/** UI를 활성화하고 화면에 표시 */
 	virtual void OpenUI();
