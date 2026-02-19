@@ -8,8 +8,14 @@
 #include "LRGA_InstantAttack.generated.h"
 
 /**
- * 
+ *  기본 평타 공격 어빌리티
  */
+
+//=============================================================================
+// (260209) KWB 제작. Attack Ability 생성.
+// (260219) KHS GA동작방식 변경. 생성자 수정.
+//=============================================================================
+
 UCLASS()
 class LUNAR_REALM_API ULRGA_InstantAttack : public ULRGameplayAbilityBase
 {
@@ -19,11 +25,9 @@ public:
 	ULRGA_InstantAttack();
 
 protected:
-	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-		const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayAbilityActivationInfo ActivationInfo,
-		const FGameplayEventData* TriggerEventData) override;
-
+	//260219 KHS 베이스GA동작방식 변경으로 상속함수 변경
+	virtual void OnAbilityActivated(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 

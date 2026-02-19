@@ -6,22 +6,30 @@
 #include "Units/LRCharacter.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
+#include "GAS/Tags/LRGameplayTags.h"
 
 
 ULRGA_BasicAttack::ULRGA_BasicAttack()
 {
 	//AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Combat.BasicShoot")));
-	FGameplayTagContainer Tags;
-	Tags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Combat.BasicShoot")));
-	SetAssetTags(Tags);
+	// FGameplayTagContainer Tags;
+	// Tags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Combat.BasicShoot")));
+	// SetAssetTags(Tags);
 
+	AbilityTags.AddTag(LRTags::Ability_Combat_BasicShoot);
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	
+	//(260219) KHS 이벤트 태그를 전달하여 발동되도록 트리거 등록
+	FAbilityTriggerData TriggerData;
+	TriggerData.TriggerTag = LRTags::Ability_Combat_BasicShoot;
+	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
+	AbilityTriggers.Add(TriggerData);
 }
 
-void ULRGA_BasicAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
-{
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+{
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
@@ -69,4 +77,7 @@ void ULRGA_BasicAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	}
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+	
+	
+	
 }

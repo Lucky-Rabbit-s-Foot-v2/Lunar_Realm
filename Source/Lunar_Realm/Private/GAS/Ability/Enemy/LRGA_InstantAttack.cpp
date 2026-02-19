@@ -12,14 +12,19 @@ ULRGA_InstantAttack::ULRGA_InstantAttack()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
-	// 
 	AbilityTags.AddTag(LRTags::Ability_Combat_BasicShoot);
+	
+	//(260219) KHS 이벤트 태그를 전달하여 발동되도록 트리거 등록
+	FAbilityTriggerData TriggerData;
+	TriggerData.TriggerTag = LRTags::Ability_Combat_BasicShoot;
+	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
+	AbilityTriggers.Add(TriggerData);
 }
 
-void ULRGA_InstantAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
-{
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+{
 	// 1. 타겟 찾기 (Controller에서!)
 	AActor* TargetActor = nullptr;
 

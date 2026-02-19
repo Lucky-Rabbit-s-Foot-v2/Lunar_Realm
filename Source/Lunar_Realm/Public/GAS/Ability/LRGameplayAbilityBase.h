@@ -28,8 +28,26 @@ class LUNAR_REALM_API ULRGameplayAbilityBase : public UGameplayAbility
 	
 public:
 	ULRGameplayAbilityBase();
-	
+
 protected:
+	/*
+	 * final로 막아놓고 캐싱 처리
+	 */
+	virtual void ActivateAbility(
+		const FGameplayAbilitySpecHandle Handle, 
+		const FGameplayAbilityActorInfo* ActorInfo, 
+		const FGameplayAbilityActivationInfo ActivationInfo, 
+		const FGameplayEventData* TriggerEventData) override final;
+	
+	
+	/*
+	 * 자식 GA들이 오버라이딩할 함수
+	 */
+	virtual void OnAbilityActivated(
+	const FGameplayAbilitySpecHandle Handle, 
+	const FGameplayAbilityActorInfo* ActorInfo, 
+	const FGameplayAbilityActivationInfo ActivationInfo);
+	
 	/*
 	 * GA가 보유한 캐릭터 정보 반환
 	 * @param : ActorInfo
@@ -43,6 +61,12 @@ protected:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "LR|Ability")
 	UAbilitySystemComponent* GetOwnerASC() const;
+	
+protected:
+	UPROPERTY()
+	TObjectPtr<const ALRCharacter> CachedInstigator;
+	UPROPERTY()
+	TObjectPtr<const ALRCharacter> CachedTarget;
 	
 	
 };
