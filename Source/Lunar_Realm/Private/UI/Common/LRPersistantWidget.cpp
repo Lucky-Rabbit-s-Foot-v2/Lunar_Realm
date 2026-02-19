@@ -1,20 +1,20 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Common/LRPersistantWidget.h"
+#include "UI/Common/LRPersistentWidget.h"
 
 #include "Engine/GameInstance.h"
 
 #include "Subsystems/UIManagerSubsystem.h"
 #include "UI/Common/LRPopupWidget.h"
 
-void ULRPersistantWidget::InitializeUI()
+void ULRPersistentWidget::InitializeUI()
 {
 	Super::InitializeUI();
 	UILayer = EUILayer::PERSISTENT;
 }
 
-void ULRPersistantWidget::OpenUI()
+void ULRPersistentWidget::OpenUI()
 {
 	Super::OpenUI();
 

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/BaseWidget.h"
-#include "LRPersistantWidget.generated.h"
+#include "LRPersistentWidget.generated.h"
 
 
 //============================================================================
@@ -16,7 +16,7 @@
  //============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRPersistantWidget : public UBaseWidget
+class LUNAR_REALM_API ULRPersistentWidget : public UBaseWidget
 {
 	GENERATED_BODY()
 	
