@@ -10,19 +10,29 @@ void ALRIntroController::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	OpenIntroWidget();
+	SetCurrentPersistentType(EPersistentType::INTRO);
 }
 
 void ALRIntroController::OpenIntroWidget()
 {
-	ULRIntroWidget* IntroWidget = OpenWidget(IntroWidgetClass);
-	if (IntroWidget)
+	if (IntroWidgetClass)
 	{
-		IntroWidget->OnIntroAnimFinishedDel.AddDynamic(this, &ALRIntroController::OpenTitleWidget);
+		OpenWidget(IntroWidgetClass);
+	}
+	else
+	{
+		LR_FATAL(TEXT("IntroWidgetClass is not set in LRIntroController"));
 	}
 }
 
 void ALRIntroController::OpenTitleWidget()
 {
-	OpenWidget(TitleWidgetClass);
+	if (TitleWidgetClass)
+	{
+		OpenWidget(TitleWidgetClass);
+	}
+	else
+	{
+		LR_FATAL(TEXT("TitleWidgetClass is not set in LRIntroController"));
+	}
 }

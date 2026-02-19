@@ -15,6 +15,19 @@
  // (260219) PJB 제작. 제반 사항 구현
  //============================================================================
 
+UENUM(BlueprintType)
+enum class EPersistentType : uint8
+{
+	INTRO UMETA(DisplayName = "Intro"),
+	TRANSITION UMETA(DisplayName = "Transition"),
+	LOBBY UMETA(DisplayName = "Lobby"),
+	COLLECTION UMETA(DisplayName = "Collection"),
+	PARTY UMETA(DisplayName = "Party"),
+	GACHA UMETA(DisplayName = "Gacha"),
+	STAGESELECTION UMETA(DisplayName = "StageSelection"),
+	STAGE UMETA(DisplayName = "Stage"),
+};
+
 UCLASS()
 class LUNAR_REALM_API ULRPersistentWidget : public UBaseWidget
 {

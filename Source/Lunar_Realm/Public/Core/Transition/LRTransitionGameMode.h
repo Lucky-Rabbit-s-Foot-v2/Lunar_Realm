@@ -22,15 +22,9 @@ class LUNAR_REALM_API ALRTransitionGameMode : public ALRGameModeBase
 	
 protected:
 	virtual void BeginPlay() override;
-
-	void OpenLoadingWidget();
-
+	
 	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
 	void OnLevelPreloaded();
-
-	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
-	TSubclassOf<class ULRLoadingWidget> LoadingWidgetClass = nullptr;
-
 private:
 	FName TargetLevelName;
 };

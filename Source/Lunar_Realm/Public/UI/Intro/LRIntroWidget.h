@@ -24,6 +24,8 @@ class LUNAR_REALM_API ULRIntroWidget : public ULRPopupWidget
 	GENERATED_BODY()
 	
 public:
+	virtual void NativeConstruct() override;
+	void BindToController();
 	virtual void NativeDestruct() override;
 
 	virtual void OpenUI() override;

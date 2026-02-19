@@ -6,6 +6,25 @@
 #include "TimerManager.h"
 #include "Components/Image.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "Units/OutGame/LRIntroController.h"
+
+void ULRIntroWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	BindToController();
+}
+
+void ULRIntroWidget::BindToController()
+{
+	if (ALRIntroController* Controller = Cast<ALRIntroController>(GetWorld()->GetFirstPlayerController()))
+	{
+		OnIntroAnimFinishedDel.Clear();
+		OnIntroAnimFinishedDel.AddDynamic(Controller, &ALRIntroController::OpenTitleWidget);
+	}
+}
+
 void ULRIntroWidget::NativeDestruct()
 {
 	OnIntroAnimFinishedDel.Clear();

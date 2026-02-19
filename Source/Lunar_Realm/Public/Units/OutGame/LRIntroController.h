@@ -13,6 +13,7 @@
  */
  //=============================================================================
  // (260219) PJB 제작. IntroHUD 에서 코드 이관
+ // (260219) PJB 수정. 세션 추가
  //=============================================================================
 
 UCLASS()
@@ -30,6 +31,9 @@ public:
 	void OpenTitleWidget();
 
 protected:
+	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
+	TSubclassOf<class ULRPersistentWidget> PersistentWidgetClass;
+
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
 	TSubclassOf<class ULRIntroWidget> IntroWidgetClass;
 
