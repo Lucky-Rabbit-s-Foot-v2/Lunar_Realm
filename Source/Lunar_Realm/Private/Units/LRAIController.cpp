@@ -204,27 +204,45 @@ bool ALRAIController::TryAttackTarget(AActor* Target)
 	{
 		return false;
 	}
-
-	if (const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(MyPawn))
+	
+	//260219 KHS 태그 기반이 아닌 이벤트 데이터 방식 GA발동 방식으로 변경
+	ALRCharacter* OwnerCharacter = Cast<ALRCharacter>(MyPawn);
+	if (!OwnerCharacter)
 	{
-		if (UAbilitySystemComponent* ASC = ASCInterface->GetAbilitySystemComponent())
-		{
-			FGameplayTagContainer AttackTags;
-			AttackTags.AddTag(LRTags::Ability_Combat_BasicShoot);
-
-			if (ASC->TryActivateAbilitiesByTag(AttackTags))
-			{
-				LastAttackTime = CurrentTime;
-				return true;
-			}
-
-			LR_WARN(TEXT("[%s] No attack ability on [%s]."),
-				*GetName(), *MyPawn->GetName());
-			LastAttackTime = CurrentTime;
-		}
+		return false;
 	}
+	
+	FGameplayEventData EventData;
+	EventData.Instigator = OwnerCharacter;
+	EventData.Target = Target;
+	
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+		OwnerCharacter, 
+		LRTags::Ability_Combat_BasicShoot,
+		EventData);
+	
+	return true;
 
-	return false;
+	// if (const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(MyPawn))
+	// {
+	// 	if (UAbilitySystemComponent* ASC = ASCInterface->GetAbilitySystemComponent())
+	// 	{
+	// 		FGameplayTagContainer AttackTags;
+	// 		AttackTags.AddTag(LRTags::Ability_Combat_BasicShoot);
+	//
+	// 		if (ASC->TryActivateAbilitiesByTag(AttackTags))
+	// 		{
+	// 			LastAttackTime = CurrentTime;
+	// 			return true;
+	// 		}
+	//
+	// 		LR_WARN(TEXT("[%s] No attack ability on [%s]."),
+	// 			*GetName(), *MyPawn->GetName());
+	// 		LastAttackTime = CurrentTime;
+	// 	}
+	// }
+	//
+	// return false;
 }
 
 void ALRAIController::InitializeBehaviorTree(UBehaviorTree* NewBT)

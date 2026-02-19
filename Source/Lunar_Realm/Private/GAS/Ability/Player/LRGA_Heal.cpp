@@ -4,21 +4,29 @@
 #include "GAS/Ability/Player/LRGA_Heal.h"
 #include "AbilitySystemComponent.h"
 #include "GAS/Attributes/LRPlayerAttributeSet.h"
+#include "GAS/Tags/LRGameplayTags.h"
 
 
 ULRGA_Heal::ULRGA_Heal()
 {
 	//AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Heal")));
-	FGameplayTagContainer Tags;
-	Tags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Heal")));
-	SetAssetTags(Tags);
+	// FGameplayTagContainer Tags;
+	// Tags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Heal")));
+	// SetAssetTags(Tags);
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	
+	AbilityTags.AddTag(LRTags::Ability_Skill_Heal);
+	
+	//(260219) KHS 이벤트 태그를 전달하여 발동되도록 트리거 등록
+	FAbilityTriggerData TriggerData;
+	TriggerData.TriggerTag = LRTags::Ability_Skill_Heal;
+	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
+	AbilityTriggers.Add(TriggerData);
 }
 
-void ULRGA_Heal::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void ULRGA_Heal::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
