@@ -84,7 +84,7 @@ protected:
 public:
 	/** UI 레이어 타입 (Persistent: 지속형, Popup: 팝업형) */
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	EUILayer UILayer = EUILayer::PERSISTENT;
+	EUILayer UILayer = EUILayer::POPUP;
     
 	/** 뷰포트 내 표시 순서 (높을수록 위에 렌더링) */
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
