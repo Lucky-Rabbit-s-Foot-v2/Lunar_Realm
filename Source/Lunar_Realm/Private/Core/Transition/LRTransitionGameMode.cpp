@@ -13,6 +13,8 @@ void ALRTransitionGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
+	OpenLoadingWidget();
+
 	if (ULRGameInstance* GI = Cast<ULRGameInstance>(GetGameInstance()))
 	{
 		TargetLevelName = GI->GetNextLevelName();
@@ -27,6 +29,16 @@ void ALRTransitionGameMode::BeginPlay()
 
 			UGameplayStatics::LoadStreamLevel(this, TargetLevelName, false, false, LatentInfo);
 		}
+	}
+}
+
+void ALRTransitionGameMode::OpenLoadingWidget()
+{
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	ULRLoadingWidget* LoadingWidget = UIManager->GetOrCreateWidget<ULRLoadingWidget>(LoadingWidgetClass);
+	if (LoadingWidget && !LoadingWidget->IsOpen())
+	{
+		UIManager->OpenUI<ULRLoadingWidget>(LoadingWidgetClass);
 	}
 }
 
