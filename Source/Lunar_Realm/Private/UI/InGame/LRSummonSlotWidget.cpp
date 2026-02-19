@@ -108,7 +108,7 @@ void ULRSummonSlotWidget::OnSummonButtonClicked()
 {
 	LR_INFO(TEXT("[UI] 버튼 클릭 SlotIndex: %d, SummonComp: %s"),
 		SlotIndex,
-		SummonComp ? TEXT("Valid") : TEXT("NULL");
+		SummonComp ? TEXT("Valid") : TEXT("NULL"));
 	if (SummonComp && SlotIndex >= 0)
 	{
 		SummonComp->TrySummonUnit(SlotIndex);
