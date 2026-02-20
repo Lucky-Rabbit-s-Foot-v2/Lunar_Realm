@@ -20,6 +20,7 @@
 #include "Units/LRAIController.h"      
 #include "Units/Member/LRMemberAIController.h"
 #include "BehaviorTree/BehaviorTree.h"  
+#include "GAS/Ability/LRGameplayAbilityBase.h"
 
 ALRMemberCharacter::ALRMemberCharacter()
 {
@@ -234,6 +235,24 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 	{
 		LR_WARN(TEXT("[%s] DT에 BehaviorTree가 없음."), *InCharacterID.ToString());
 	}
+
+	// GA 로직
+	if (AbilitySystemComponent && HasAuthority())
+	{
+		for (TSubclassOf<ULRGameplayAbilityBase> AbilityClass : CharData.DefaultAbilities)
+		{
+			if (AbilityClass)
+			{
+				AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, INDEX_NONE, this));
+				LR_INFO(TEXT("[%s] 스킬 부여 완료: %s"), *InCharacterID.ToString(), *AbilityClass->GetName());
+			}
+		}
+	}
+	else
+	{
+		LR_WARN(TEXT("[%s] ASC가 없어서 스킬을 부여할 수 없습니다!"), *InCharacterID.ToString());
+	}
+
 
 	// (참고: 필요하면 여기서 CharData의 스탯을 이용해 체력/공격력 세팅을 추가할 수도 있음)
 	LR_INFO(TEXT("[%s] 캐릭터 데이터 세팅 완료"), *InCharacterID.ToString());
