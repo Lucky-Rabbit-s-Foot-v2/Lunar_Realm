@@ -27,8 +27,34 @@ ALREnemySpawner::ALREnemySpawner()
 // Called when the game starts or when spawned
 void ALREnemySpawner::BeginPlay()
 {
+	//Super::BeginPlay();
+	//
+	//if (!InitializeFromStageData())
+	//{
+	//	LR_WARN(TEXT("EnemySpawner(%s) failed to initialize from stage data"), *GetName());
+	//	return;
+	//}
+
+	//if (!EnemyClass)
+	//{
+	//	LR_WARN(TEXT("EnemySpawner(%s) has no EnemyClass"), *GetName());
+	//	return;
+	//}
+
+	//UPoolingSubsystem* PoolSys = GetWorld() ? GetWorld()->GetSubsystem<UPoolingSubsystem>() : nullptr;
+	//if (PoolSys)
+	//{
+	//	PoolSys->InitializePool(EnemyClass, PrewarmCount);
+	//}
+
+	//GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy,
+	//	FMath::Max(CurrentSpawnInterval, 0.05f), true);
+
 	Super::BeginPlay();
-	
+
+	double StartTime = GetWorld()->GetTimeSeconds();
+	LR_INFO(TEXT("=== Spawner BeginPlay START: WorldTime = %.3f ==="), StartTime);
+
 	if (!InitializeFromStageData())
 	{
 		LR_WARN(TEXT("EnemySpawner(%s) failed to initialize from stage data"), *GetName());
@@ -44,11 +70,27 @@ void ALREnemySpawner::BeginPlay()
 	UPoolingSubsystem* PoolSys = GetWorld() ? GetWorld()->GetSubsystem<UPoolingSubsystem>() : nullptr;
 	if (PoolSys)
 	{
+		double BeforePoolTime = GetWorld()->GetTimeSeconds();
+		LR_INFO(TEXT("Before InitializePool: WorldTime = %.3f"), BeforePoolTime);
+
 		PoolSys->InitializePool(EnemyClass, PrewarmCount);
+
+		double AfterPoolTime = GetWorld()->GetTimeSeconds();
+		LR_INFO(TEXT("After InitializePool: WorldTime = %.3f, Elapsed = %.3f"),
+			AfterPoolTime, AfterPoolTime - BeforePoolTime);
 	}
 
+	double BeforeTimerTime = GetWorld()->GetTimeSeconds();
 	GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy,
 		FMath::Max(CurrentSpawnInterval, 0.05f), true);
+
+	double AfterTimerTime = GetWorld()->GetTimeSeconds();
+	float RemainingTime = GetWorldTimerManager().GetTimerRemaining(SpawnTimerHandle);
+
+	LR_INFO(TEXT("Timer Set: WorldTime = %.3f, Interval = %.3f, FirstExecution = %.3f"),
+		AfterTimerTime, CurrentSpawnInterval, AfterTimerTime + RemainingTime);
+	LR_INFO(TEXT("=== Spawner BeginPlay END: Total Elapsed = %.3f ==="),
+		AfterTimerTime - StartTime);
 }
 
 // Called every frame
@@ -161,9 +203,39 @@ FTransform ALREnemySpawner::MakeRandomSpawnTransform() const
 
 void ALREnemySpawner::SpawnEnemy()
 {
+	//double CurrentTime = GetWorld()->GetTimeSeconds();
+	//LR_INFO(TEXT(">>> SpawnEnemy called at WorldTime = %.3f <<<"), CurrentTime);
+
+	//UPoolingSubsystem* PoolSys = GetWorld() ? GetWorld()->GetSubsystem<UPoolingSubsystem>() : nullptr;
+	//if (!PoolSys || !EnemyClass)
+	//{
+	//	return;
+	//}
+
+	//const FName TargetEnemyID = PickEnemyIDByWeight();
+	//if (TargetEnemyID == NAME_None)
+	//{
+	//	LR_WARN(TEXT("Failed to pick EnemyID By Random!"));
+	//	return;
+	//}
+
+	//FTransform SpawnTransform = MakeRandomSpawnTransform();
+	//ALREnemyCharacter* NewEnemy = PoolSys->Spawn<ALREnemyCharacter>(EnemyClass, SpawnTransform);
+	//if (!NewEnemy)
+	//{
+	//	LR_WARN(TEXT("EnemySpawner(%s): Failed to spawn enemy from pool"), *GetName());
+	//	return;
+	//}
+
+	//NewEnemy->InitializeByEnemyID(TargetEnemyID);
+
+	double CurrentTime = GetWorld()->GetTimeSeconds();
+	LR_INFO(TEXT(">>> SpawnEnemy called at WorldTime = %.3f <<<"), CurrentTime);
+
 	UPoolingSubsystem* PoolSys = GetWorld() ? GetWorld()->GetSubsystem<UPoolingSubsystem>() : nullptr;
 	if (!PoolSys || !EnemyClass)
 	{
+		LR_ERROR(TEXT("SpawnEnemy failed: PoolSys or EnemyClass is null"));
 		return;
 	}
 
@@ -175,13 +247,21 @@ void ALREnemySpawner::SpawnEnemy()
 	}
 
 	FTransform SpawnTransform = MakeRandomSpawnTransform();
+	LR_INFO(TEXT("SpawnTransform: Location = %s"), *SpawnTransform.GetLocation().ToString());
+
 	ALREnemyCharacter* NewEnemy = PoolSys->Spawn<ALREnemyCharacter>(EnemyClass, SpawnTransform);
+
 	if (!NewEnemy)
 	{
-		LR_WARN(TEXT("EnemySpawner(%s): Failed to spawn enemy from pool"), *GetName());
+		LR_ERROR(TEXT("EnemySpawner(%s): Failed to spawn enemy from pool (returned null)"), *GetName());
 		return;
 	}
 
+	LR_INFO(TEXT("Enemy spawned successfully: %s at location %s"),
+		*NewEnemy->GetName(), *NewEnemy->GetActorLocation().ToString());
+
 	NewEnemy->InitializeByEnemyID(TargetEnemyID);
+
+	LR_INFO(TEXT("Enemy initialized with ID: %s"), *TargetEnemyID.ToString());
 }
 
