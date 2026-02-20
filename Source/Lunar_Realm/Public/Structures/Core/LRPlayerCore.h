@@ -8,6 +8,7 @@
 
 //=============================================================================
 // (260205) BJM 제작. Player Core 클래스 추가.
+// (260217) BJM 패배조건 추가
 // =============================================================================
 
 class UBoxComponent;
@@ -24,6 +25,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Summon")
 	FVector GetRandomSpawnLocation() const;
+
+protected:
+	virtual void OnCoreDestroyed() override;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Summon")
