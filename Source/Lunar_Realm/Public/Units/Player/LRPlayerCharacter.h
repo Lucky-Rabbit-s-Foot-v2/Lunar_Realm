@@ -111,5 +111,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "LR|Respawn")
 	float RespawnTime = 10.0f;
 
+public:
+	float GetCameraOffsetY() const { return CameraOffsetY; }
+
+protected:
+	float CameraOffsetY = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera Setting")
+	float DeadCameraSpeed = 1000.0f;
 
 };

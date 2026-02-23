@@ -183,6 +183,24 @@ void ALRPlayerCharacter::Move(const FInputActionValue& Value)
 
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
+	if (bIsDead)
+	{
+		CameraOffsetY += MovementVector.X * DeadCameraSpeed * GetWorld()->GetDeltaSeconds();
+
+		float CurrentY = GetActorLocation().Y;
+
+		// TODO : 추후 맵 확정될때 CameraManager의 MinY, MaxY랑 값 맞춰줘야함
+		float MapMinY = -1000.0f;
+		float MapMaxY = 1000.0f;
+
+		float LimitMin = MapMinY - CurrentY;
+		float LimitMax = MapMaxY - CurrentY;
+
+		CameraOffsetY = FMath::Clamp(CameraOffsetY, LimitMin, LimitMax);
+
+		return;
+	}
+
 	if (Controller != nullptr)
 	{
 		const FVector ForwardDirection = FVector::ForwardVector;
@@ -293,8 +311,6 @@ void ALRPlayerCharacter::RespawnPlayer()
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-	// 혹시 안 움직이면 주석 해제
-	// GetCharacterMovement()->SetActive(true);
 
 	if (USkeletalMeshComponent* MeshComp = GetMesh())
 	{
@@ -312,6 +328,8 @@ void ALRPlayerCharacter::RespawnPlayer()
 	}
 
 	LR_INFO(TEXT("플레이어 코어에서 부활 완료!"));
+
+	CameraOffsetY = 0.0f;
 
 	// TODO: 무적 & 깜빡임 효과
 }
