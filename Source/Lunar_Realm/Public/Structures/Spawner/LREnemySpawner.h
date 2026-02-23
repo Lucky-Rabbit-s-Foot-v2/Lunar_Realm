@@ -20,6 +20,7 @@ class UBoxComponent;
  // (260205) KWB 제작. 제반 사항 구현.
  // (260208) Stage 데이터 드리븐, 가중치 설정, 보스 스테이지 필터링.
  // (260210) KWB 키값 타입 int32 -> FName 으로 변경 반영
+ // (260219) KWB 스폰 인터벌 버그 픽스, 주석 수정 [On Going]
  //============================================================================
 UCLASS()
 class LUNAR_REALM_API ALREnemySpawner : public AActor

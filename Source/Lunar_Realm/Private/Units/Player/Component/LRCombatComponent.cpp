@@ -306,19 +306,29 @@ void ULRCombatComponent::AttemptAction(float DeltaTime)
 		return;
 	}
 
-	FGameplayTag AttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Combat.BasicShoot"));
-	FGameplayTagContainer TagContainer;
-	TagContainer.AddTag(AttackTag);
-
-	if (ASC->TryActivateAbilitiesByTag(TagContainer))
-	{
-		UE_LOG(LogTemp, Log, TEXT("공격 성공 / 타겟 : %s"), *CurrentTarget->GetName());
-		CurrentAttackCooldown = 1.0f;
-	}
-	else
-	{
-		// UE_LOG(LogTemp, Warning, TEXT("공격 실패: 어빌리티 활성화 거부됨."));
-	}
+	//260219 KHS. Instigator / Target담아서 능력 발동하도록 수정
+	FGameplayEventData EventData;
+	EventData.Instigator = OwnerCharacter;
+	EventData.Target = CurrentTarget;
+	
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+		OwnerCharacter, LRTags::Ability_Combat_BasicShoot, EventData);
+	
+	UE_LOG(LogTemp, Log, TEXT("공격 성공 / 타겟 : %s"), *CurrentTarget->GetName());
+	CurrentAttackCooldown = 1.0f;
+	
+	// FGameplayTag AttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Combat.BasicShoot"));
+	// FGameplayTagContainer TagContainer;
+	// TagContainer.AddTag(AttackTag);
+	// if (ASC->TryActivateAbilitiesByTag(TagContainer))
+	// {
+	// 	UE_LOG(LogTemp, Log, TEXT("공격 성공 / 타겟 : %s"), *CurrentTarget->GetName());
+	// 	CurrentAttackCooldown = 1.0f;
+	// }
+	// else
+	// {
+	// 	// UE_LOG(LogTemp, Warning, TEXT("공격 실패: 어빌리티 활성화 거부됨."));
+	// }
 }
 
 void ULRCombatComponent::MoveToTarget(float DeltaTime)

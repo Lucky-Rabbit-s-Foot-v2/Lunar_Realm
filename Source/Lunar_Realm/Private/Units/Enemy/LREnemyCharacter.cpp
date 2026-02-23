@@ -89,16 +89,6 @@ void ALREnemyCharacter::InitializeByEnemyID(FName EnemyID)
 
 	const FEnemyStaticData& EnemyData = DataSys->GetEnemyStaticData(EnemyID);
 
-	//// BT 안되서 디버그
-	//LR_INFO(TEXT("=== Debug Enemy [%s] ==="), *EnemyID.ToString());
-	//LR_INFO(TEXT("DataID: %s"), *EnemyData.DataID.ToString());
-	//LR_INFO(TEXT("MaxHealth: %.0f"), EnemyData.MaxHealth);
-	//LR_INFO(TEXT("BehaviorTree IsValid: %s"), EnemyData.BehaviorTree ? TEXT("true") : TEXT("false"));
-	//if (EnemyData.BehaviorTree)
-	//{
-	//	LR_INFO(TEXT("BehaviorTree Name: %s"), *EnemyData.BehaviorTree->GetName());
-	//}
-
 	// 어트리뷰트 초기화 (Health, Attack, Speed, AttackSpeed, AttackRange)
 	InitializeAttributes(EnemyID);
 
@@ -331,6 +321,9 @@ void ALREnemyCharacter::ClearGrantedEnemyAbilities()
 
 void ALREnemyCharacter::OnPoolActivate_Implementation()
 {
+	// TEMP
+	LR_INFO(TEXT("[%s] OnPoolActivate called"), *GetName());
+
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 	SetActorTickEnabled(true);
@@ -360,6 +353,10 @@ void ALREnemyCharacter::OnPoolActivate_Implementation()
 	{
 		SpawnDefaultController();
 	}
+
+	// TEMP 
+	LR_INFO(TEXT("[%s] OnPoolActivate completed, Location: %s"),
+		*GetName(), *GetActorLocation().ToString());
 }
 
 void ALREnemyCharacter::OnPoolDeactivate_Implementation()
