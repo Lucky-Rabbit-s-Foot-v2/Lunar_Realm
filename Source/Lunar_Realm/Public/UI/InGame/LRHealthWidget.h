@@ -24,8 +24,6 @@ class LUNAR_REALM_API ULRHealthWidget : public ULRPopupWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
-
 	UFUNCTION(BlueprintCallable, Category = "GAS")
 	void BindToASC(UAbilitySystemComponent* ASC);
 
