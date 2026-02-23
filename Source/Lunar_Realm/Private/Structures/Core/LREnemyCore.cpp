@@ -9,7 +9,7 @@
 
 ALREnemyCore::ALREnemyCore()
 {
-	OwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("EnemyEnemy.Structure.Core")));
+	OwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Enemy.Structure.Core")));
 }
 
 void ALREnemyCore::BeginPlay()
