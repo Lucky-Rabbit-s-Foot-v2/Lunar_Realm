@@ -56,7 +56,7 @@ void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
 	//}
 
 	// 타겟 정보
-	const ALRCharacter* TargetActor = CachedTarget;
+	const AActor* TargetActor = CachedTarget;
 	if (!TargetActor)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[GA_Attack] 실패: CachedTarget이 NULL임! (이벤트 데이터 누락 또는 캐스팅 실패)"));
