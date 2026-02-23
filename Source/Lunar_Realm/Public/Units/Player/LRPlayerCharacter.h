@@ -109,7 +109,7 @@ protected:
 	FTimerHandle RespawnTimerHandle;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "LR|Respawn")
-	float RespawnTime = 10.0f;
+	float RespawnTime = 5.0f;
 
 public:
 	float GetCameraOffsetY() const { return CameraOffsetY; }
@@ -119,5 +119,21 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Setting")
 	float DeadCameraSpeed = 1000.0f;
+
+public:
+public:
+	bool IsInvincible() const { return bIsInvincible; }
+
+protected:
+	bool bIsInvincible = false;
+
+	FTimerHandle BlinkTimerHandle;
+	FTimerHandle InvincibilityTimerHandle;
+
+	UFUNCTION()
+	void  OnBlinkTimer();
+
+	UFUNCTION()
+	void EndInvincibility();
 
 };

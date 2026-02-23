@@ -327,9 +327,36 @@ void ALRPlayerCharacter::RespawnPlayer()
 		ASC->SetNumericAttributeBase(ULRPlayerAttributeSet::GetHealthAttribute(), MaxHP);
 	}
 
-	LR_INFO(TEXT("플레이어 코어에서 부활 완료!"));
+	LR_INFO(TEXT("플레이어 코어에서 부활 완료"));
 
 	CameraOffsetY = 0.0f;
 
+	bIsInvincible = true;
+
+	GetWorld()->GetTimerManager().SetTimer(BlinkTimerHandle, this, &ALRPlayerCharacter::OnBlinkTimer, 0.15f, true);
+	GetWorld()->GetTimerManager().SetTimer(InvincibilityTimerHandle, this, &ALRPlayerCharacter::EndInvincibility, 2.0f, false);
+
 	// TODO: 무적 & 깜빡임 효과
+}
+
+void ALRPlayerCharacter::OnBlinkTimer()
+{
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		MeshComp->SetHiddenInGame(!MeshComp->bHiddenInGame);
+	}
+}
+
+void ALRPlayerCharacter::EndInvincibility()
+{
+	bIsInvincible = false;
+
+	GetWorld()->GetTimerManager().ClearTimer(BlinkTimerHandle);
+
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		MeshComp->SetHiddenInGame(false);
+	}
+
+	LR_INFO(TEXT("무적 및 깜빡임 종료"));
 }
