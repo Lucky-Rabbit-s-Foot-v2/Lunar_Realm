@@ -13,6 +13,7 @@
 //=============================================================================
 // (260203) BJM 제작. 플레이어 컨트롤러
 // (260210) BJM 카메라매니저 연동
+// (260223) PJB Stage UI 연동
 //=============================================================================
 
 class UTouchInterface;
@@ -28,7 +29,12 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	void InitializeStageUI();
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Mobile")
 	TObjectPtr<UTouchInterface> MobileTouchInterface;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<class ULRPersistentWidget> PersistentWidgetClass;
 };

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/BaseWidget.h"
+#include "UI/Common/LRPopupWidget.h"
 #include "GameplayEffectTypes.h"
 #include "LRHealthWidget.generated.h"
 
@@ -19,11 +19,12 @@ class UProgressBar;
 class UAbilitySystemComponent;
 
 UCLASS()
-class LUNAR_REALM_API ULRHealthWidget : public UBaseWidget
+class LUNAR_REALM_API ULRHealthWidget : public ULRPopupWidget
 {
 	GENERATED_BODY()
 	
 public:
+	virtual void NativeConstruct() override;
 
 	UFUNCTION(BlueprintCallable, Category = "GAS")
 	void BindToASC(UAbilitySystemComponent* ASC);

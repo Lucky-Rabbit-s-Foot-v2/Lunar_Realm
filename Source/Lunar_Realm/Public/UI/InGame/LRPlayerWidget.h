@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/BaseWidget.h"
+#include "UI/Common/LRPopupWidget.h"
 #include "LRPlayerWidget.generated.h"
 
 /**
@@ -16,7 +16,7 @@
 //=============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRPlayerWidget : public UBaseWidget
+class LUNAR_REALM_API ULRPlayerWidget : public ULRPopupWidget
 {
 	GENERATED_BODY()
 	
