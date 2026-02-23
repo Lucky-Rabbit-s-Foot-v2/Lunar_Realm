@@ -66,6 +66,9 @@ public:
 	/** 이 UI 위에 다른 팝업이 열렸을 때 호출 */
 	virtual void OnFocusLost();
     
+	/** PlayerController와 위젯을 바인딩하여 UI 이벤트 처리 */
+	virtual void BindToController(class ALRControllerBase* Controller);
+
 	/** UI가 현재 열려있는지 확인 */
 	FORCEINLINE bool IsOpen() const { return bIsOpen; }
     

@@ -25,11 +25,12 @@ class LUNAR_REALM_API ULRIntroWidget : public ULRPopupWidget
 	
 public:
 	virtual void NativeConstruct() override;
-	void BindToController();
 	virtual void NativeDestruct() override;
 
 	virtual void OpenUI() override;
 	virtual void RefreshUI() override;
+	
+	virtual void BindToController(class ALRControllerBase* Controller);
 
 	UPROPERTY(BlueprintAssignable, Category = "LR|UI")
 	FOnIntroAnimFinished OnIntroAnimFinishedDel;

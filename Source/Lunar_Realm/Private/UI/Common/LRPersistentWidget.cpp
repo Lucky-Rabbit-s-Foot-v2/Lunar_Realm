@@ -19,8 +19,8 @@ void ULRPersistentWidget::OpenUI()
 	Super::OpenUI();
 
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	ULRPopupWidget* DefaultPopupWidget = UIManager->GetOrCreateWidget<ULRPopupWidget>(DefaultPopupClass);
-	if (DefaultPopupWidget && !DefaultPopupWidget->IsOpen())
+	
+	if (DefaultPopupClass)
 	{
 		UIManager->OpenUI<ULRPopupWidget>(DefaultPopupClass);
 	}

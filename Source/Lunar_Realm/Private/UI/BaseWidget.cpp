@@ -2,11 +2,13 @@
 
 
 #include "UI/BaseWidget.h"
+#include "Units/LRControllerBase.h"
 
 void UBaseWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	BindToController(Cast<ALRControllerBase>(GetOwningPlayer()));
 	InitializeUI();
 }
 
@@ -53,4 +55,9 @@ void UBaseWidget::OnFocusGained()
 void UBaseWidget::OnFocusLost()
 {
 	// 자식 클래스에서 오버라이드 (예: 애니메이션 정지, 입력 비활성화 등)
+}
+
+void UBaseWidget::BindToController(ALRControllerBase* Controller)
+{
+	// 자식 클래스에서 오버라이드하여 컨트롤러와의 바인딩 로직 구현
 }

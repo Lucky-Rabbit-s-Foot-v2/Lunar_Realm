@@ -183,6 +183,8 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
     // 이미 열려있으면 기존 인스턴스 사용
     if (Widget->IsOpen())
     {
+		// 이미 열려있지만 OpenUI 호출하여 필요한 경우 UI 갱신
+		Widget->OpenUI(); 
         return Widget;
     }
     

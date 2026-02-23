@@ -2,9 +2,14 @@
 
 
 #include "UI/Common/LRPopupWidget.h"
+#include "Units/LRControllerBase.h"
 
 void ULRPopupWidget::InitializeUI()
 {
 	Super::InitializeUI();
 	UILayer = EUILayer::POPUP;
+}
+
+void ULRPopupWidget::BindToPlayerController(ALRControllerBase* PC)
+{
 }

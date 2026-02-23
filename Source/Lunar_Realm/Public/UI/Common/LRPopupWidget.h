@@ -21,4 +21,6 @@ class LUNAR_REALM_API ULRPopupWidget : public UBaseWidget
 	
 public:
 	virtual void InitializeUI() override;
+
+	virtual void BindToPlayerController(class ALRControllerBase* PC);
 };
