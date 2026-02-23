@@ -17,6 +17,12 @@ void ALRControllerBase::OpenPersistentWidget()
 	}
 }
 
+UBaseWidget* ALRControllerBase::GetPersistentWidget()
+{
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	return UIManager->GetOrCreateWidget(PersistentWidgetClasses[CurrentPersistentType]);
+}
+
 void ALRControllerBase::SetCurrentPersistentType(EPersistentType InPersistentType)
 {
 	if (PersistentWidgetClasses.Contains(InPersistentType))

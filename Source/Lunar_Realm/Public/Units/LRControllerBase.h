@@ -29,6 +29,9 @@ public:
 	void OpenPersistentWidget();
 
 	UFUNCTION(BlueprintCallable)
+	UBaseWidget* GetPersistentWidget();
+
+	UFUNCTION(BlueprintCallable)
 	void SetCurrentPersistentType(EPersistentType InPersistentType);
 
 	template<typename T>

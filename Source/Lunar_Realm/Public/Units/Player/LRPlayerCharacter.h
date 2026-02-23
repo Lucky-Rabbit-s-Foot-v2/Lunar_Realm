@@ -45,6 +45,13 @@ public:
 
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
+	void ToggleAutoMode();
+	void UsePotion();
+
+	/** 소환 슬롯 테스트를 위한 함수 : 정적 데이터 입력 */
+	UFUNCTION(BlueprintImplementableEvent, Category = "LR|Test")
+	void TestSummonSlot();
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	class USpringArmComponent* SpringArmComponent;

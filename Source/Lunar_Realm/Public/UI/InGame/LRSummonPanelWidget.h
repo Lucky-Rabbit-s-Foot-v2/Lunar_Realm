@@ -22,7 +22,8 @@ class LUNAR_REALM_API ULRSummonPanelWidget : public ULRPopupWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
+	virtual void InitializeUI() override;
+	virtual void RefreshUI() override;
 
 	UFUNCTION(BlueprintCallable)
 	void InitPanel();

@@ -6,7 +6,6 @@
 #include "GameFramework/PlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/LocalPlayer.h"
-#include "UI/HUD/LRStageHUD.h"
 
 #include "Units/Player/LRPlayerState.h"
 #include "AbilitySystemComponent.h"
@@ -55,6 +54,8 @@ void ALRPlayerCharacter::BeginPlay()
 		}
 	}
 
+	// TODO: 테스트용으로 임시 배치.
+	TestSummonSlot();
 }
 
 void ALRPlayerCharacter::PossessedBy(AController* NewController)
@@ -77,24 +78,6 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 		}
 
 		UE_LOG(LogTemp, Log, TEXT("GAS Initialized completely in %s"), *GetName());
-	}
-	if (APlayerController* PC = Cast<APlayerController>(NewController))
-	{
-		AHUD* RawHUD = PC->GetHUD();
-		if (RawHUD)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("HUD Found: %s"), *RawHUD->GetName());
-		}
-
-		if (ALRStageHUD* LRHUD = Cast<ALRStageHUD>(RawHUD))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("HUD Cast SUCCESS! Initializing Overlay..."));
-			LRHUD->InitOverlay(PC, PS, AbilitySystemComponent, AttributeSet);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("HUD Cast FAILED! Is BP_StageHUD parent class 'ALRHUD'?"));
-		}
 	}
 }
 
@@ -166,6 +149,19 @@ void ALRPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 UAbilitySystemComponent* ALRPlayerCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
+}
+
+void ALRPlayerCharacter::ToggleAutoMode()
+{
+	if (CombatComponent)
+	{
+		CombatComponent->ToggleAutoMode();
+	}
+}
+
+void ALRPlayerCharacter::UsePotion()
+{
+	AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Heal"))));
 }
 
 void ALRPlayerCharacter::Move(const FInputActionValue& Value)

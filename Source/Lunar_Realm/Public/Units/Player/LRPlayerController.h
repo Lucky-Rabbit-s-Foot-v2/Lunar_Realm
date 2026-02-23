@@ -26,10 +26,16 @@ class LUNAR_REALM_API ALRPlayerController : public ALRControllerBase
 public:
 	ALRPlayerController();
 
+	UFUNCTION()
+	void ToggleAutoMode();
+
+	UFUNCTION()
+	void UsePotion();
+
+	class UAbilitySystemComponent* GetAbilitySystemComponent();
+
 protected:
 	virtual void BeginPlay() override;
-
-	void InitializeStageUI();
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Mobile")

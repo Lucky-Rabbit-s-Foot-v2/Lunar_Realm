@@ -13,15 +13,14 @@ void ULRIntroWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	BindToController();
 }
 
-void ULRIntroWidget::BindToController()
+void ULRIntroWidget::BindToController(ALRControllerBase* Controller)
 {
-	if (ALRIntroController* Controller = Cast<ALRIntroController>(GetWorld()->GetFirstPlayerController()))
+	if (ALRIntroController* IntroController = Cast<ALRIntroController>(Controller))
 	{
 		OnIntroAnimFinishedDel.Clear();
-		OnIntroAnimFinishedDel.AddDynamic(Controller, &ALRIntroController::OpenTitleWidget);
+		OnIntroAnimFinishedDel.AddDynamic(IntroController, &ALRIntroController::OpenTitleWidget);
 	}
 }
 
