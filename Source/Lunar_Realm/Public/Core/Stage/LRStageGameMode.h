@@ -21,6 +21,10 @@ class LUNAR_REALM_API ALRStageGameMode : public ALRGameModeBase
 	GENERATED_BODY()
 	
 public:
+	UFUNCTION(BlueprintCallable, Category = "GameLogic")
+	void OnGameOver(bool bInPlayerWon);
 
+protected:
+	bool bIsGameOver = false;
 
 };

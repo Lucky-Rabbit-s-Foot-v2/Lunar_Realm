@@ -2,8 +2,11 @@
 
 
 #include "Structures/Core/LRPlayerCore.h"
+#include "Core/Stage/LRStageGameMode.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "System/LoggingSystem.h"
 
 ALRPlayerCore::ALRPlayerCore()
 {
@@ -32,5 +35,11 @@ void ALRPlayerCore::OnCoreDestroyed()
 
 	// TODO: GameMode에서 플레이어 패배 알림 호출
 	LR_WARN(TEXT("플레이어 코어가 파괴되었습니다! 게임 오버(패배)!"));
+
+	if (ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(UGameplayStatics::GetGameMode(this)))
+	{
+		StageGM->OnGameOver(false);
+	}
+
 }
 
