@@ -15,6 +15,27 @@ ULRGameplayAbilityBase::ULRGameplayAbilityBase()
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 }
 
+void ULRGameplayAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	const FGameplayEventData* TriggerEventData)
+{
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
+	if (TriggerEventData)
+	{
+		CachedInstigator = Cast<ALRCharacter>(TriggerEventData->Instigator.Get());
+		CachedTarget = Cast<ALRCharacter>(TriggerEventData->Target.Get());
+	}
+	
+	OnAbilityActivated(Handle, ActorInfo, ActivationInfo);
+}
+
+void ULRGameplayAbilityBase::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+{
+	//자식 GA들의 실질적인 로직 구성.
+}
+
 ALRCharacter* ULRGameplayAbilityBase::GetCharacterFromActorInfo(const FGameplayAbilityActorInfo& ActorInfo) const
 {
 	return Cast<ALRCharacter>(ActorInfo.AvatarActor.Get());

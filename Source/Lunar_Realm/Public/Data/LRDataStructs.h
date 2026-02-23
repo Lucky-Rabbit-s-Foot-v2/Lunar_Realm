@@ -28,6 +28,7 @@
 // (260212) BJM 맴버 캐릭터 공격, 사망 몽타주 추가
 // (260212) KWB BehaviorTree 필드 추가
 // (260213) BJM 소환관련 cost, cooltime, icon 항목 추가
+// (260220) BJM GA항목 추가
 // =============================================================================
 
 USTRUCT(BlueprintType)
@@ -92,6 +93,11 @@ struct FCharacterStaticData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|UI")
 	TSoftObjectPtr<UTexture2D> PortraitIcon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Skills")
+	TArray<TSubclassOf<class ULRGameplayAbilityBase>> DefaultAbilities;
+
+
 
 };
 

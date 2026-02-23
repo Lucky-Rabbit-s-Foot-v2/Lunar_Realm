@@ -7,6 +7,8 @@
 
 ALRPlayerCore::ALRPlayerCore()
 {
+	OwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Player.Structure.Core")));
+
 	SpawnArea = CreateDefaultSubobject<UBoxComponent>(TEXT("SpawnArea"));
 	SpawnArea->SetupAttachment(RootComponent);
 	SpawnArea->SetBoxExtent(FVector(100.0f, 300.0f, 100.0f));
@@ -22,5 +24,13 @@ FVector ALRPlayerCore::GetRandomSpawnLocation() const
 	FVector RandomPointInLocal = UKismetMathLibrary::RandomPointInBoundingBox(FVector::ZeroVector, BoxExtent);
 
 	return SpawnArea->GetComponentTransform().TransformPosition(RandomPointInLocal);
+}
+
+void ALRPlayerCore::OnCoreDestroyed()
+{
+	Super::OnCoreDestroyed();
+
+	// TODO: GameMode에서 플레이어 패배 알림 호출
+	LR_WARN(TEXT("플레이어 코어가 파괴되었습니다! 게임 오버(패배)!"));
 }
 

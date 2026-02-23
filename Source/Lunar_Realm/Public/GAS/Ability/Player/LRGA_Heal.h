@@ -12,6 +12,7 @@
 
  //=============================================================================
  // (260209) BJM 제작. Heal Ability 생성.
+// (260219) KHS GA동작방식 변경. 생성자 수정.
  //=============================================================================
 
 UCLASS()
@@ -22,8 +23,8 @@ class LUNAR_REALM_API ULRGA_Heal : public ULRGameplayAbilityBase
 public:
 	ULRGA_Heal();
 
-	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
-
+	//260219 KHS 베이스GA동작방식 변경으로 상속함수 변경
+	virtual void OnAbilityActivated(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 
 protected:

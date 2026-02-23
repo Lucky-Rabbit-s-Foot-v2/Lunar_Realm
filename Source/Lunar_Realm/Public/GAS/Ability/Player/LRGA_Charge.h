@@ -12,6 +12,7 @@
 
 //=============================================================================
 // (260209) BJM 제작. Aether Charge Ability 생성.
+// (260219) KHS GA동작방식 변경. 생성자 수정.
 //=============================================================================
 
 UCLASS()
@@ -21,12 +22,8 @@ class LUNAR_REALM_API ULRGA_Charge : public ULRGameplayAbilityBase
 
 public:
 	ULRGA_Charge();
-
-	virtual void ActivateAbility(
-		const FGameplayAbilitySpecHandle Handle,
-		const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayAbilityActivationInfo ActivationInfo,
-		const FGameplayEventData* TriggerEventData) override;
+	//260219 KHS 베이스GA동작방식 변경으로 상속함수 변경
+	virtual void OnAbilityActivated(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
