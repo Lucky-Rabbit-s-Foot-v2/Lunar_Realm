@@ -17,6 +17,7 @@
 //=============================================================================
 // (260209) BJM 제작. GameplayAbility 기본 클래스 생성.
 // (260209) KHS 기본 헬퍼, 공통 설정 추가
+// (260223) BJM CachedTarget 타입 LRCharacter -> AActor로 변경
 //=============================================================================
 
 class ALRCharacter;
@@ -66,7 +67,7 @@ protected:
 	UPROPERTY()
 	TObjectPtr<const ALRCharacter> CachedInstigator;
 	UPROPERTY()
-	TObjectPtr<const ALRCharacter> CachedTarget;
+	TObjectPtr<const AActor> CachedTarget;
 	
 	
 };
