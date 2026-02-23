@@ -20,6 +20,7 @@
 // (260208) BJM 타겟 락온 기능 추기
 // (260210) BJM 카메라 컴포넌트 추가로 인한 스프링암, 카메라 컴포넌트 주석처리
 // (260212) BJM 사망 처리 추가
+// (260223) BJM 사망 후 조작 적용
 //=============================================================================
 
 class ULRInputConfig;
@@ -101,6 +102,14 @@ protected:
 	TObjectPtr<UAnimMontage> DeathMontage;
 
 	bool bIsDead = false;
+
+	UFUNCTION()
+	void RespawnPlayer();
+
+	FTimerHandle RespawnTimerHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "LR|Respawn")
+	float RespawnTime = 10.0f;
 
 
 };

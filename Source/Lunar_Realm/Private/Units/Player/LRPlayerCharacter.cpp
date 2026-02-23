@@ -16,10 +16,16 @@
 
 #include "Input/LRInputComponent.h"
 #include "Input/LRInputConfig.h"   
-#include "GameplayTagsManager.h"
 #include "GAS/Tags/LRGameplayTags.h"
+#include "GAS/Attributes/LRPlayerAttributeSet.h"
 
+#include "GameplayTagsManager.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Animation/AnimInstance.h"
+#include "Structures/Core/LRPlayerCore.h"
+#include "Kismet/GameplayStatics.h"
+#include "TimerManager.h"
 
 
 
@@ -258,12 +264,7 @@ void ALRPlayerCharacter::Die()
 	if (bIsDead) return;
 	bIsDead = true;
 
-	LR_INFO(TEXT("플레이어 사망! 게임 오버 대기 상태 진입."));
-
-	if (APlayerController* PC = Cast<APlayerController>(GetController()))
-	{
-		DisableInput(PC);
-	}
+	LR_INFO(TEXT("플레이어 사망"));
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -274,4 +275,43 @@ void ALRPlayerCharacter::Die()
 	{
 		PlayAnimMontage(DeathMontage);
 	}
+
+	GetWorld()->GetTimerManager().SetTimer(RespawnTimerHandle, this, &ALRPlayerCharacter::RespawnPlayer, RespawnTime, false);
+
+}
+
+void ALRPlayerCharacter::RespawnPlayer()
+{
+	bIsDead = false;
+
+	AActor* FoundCore = UGameplayStatics::GetActorOfClass(GetWorld(), ALRPlayerCore::StaticClass());
+	if (ALRPlayerCore* PlayerCore = Cast<ALRPlayerCore>(FoundCore))
+	{
+		FVector SpawnLoc = PlayerCore->GetRandomSpawnLocation();
+		SetActorLocation(SpawnLoc);
+	}
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	// 혹시 안 움직이면 주석 해제
+	// GetCharacterMovement()->SetActive(true);
+
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		if (UAnimInstance* AnimInst = MeshComp->GetAnimInstance())
+		{
+			AnimInst->StopAllMontages(0.0f);
+		}
+	}
+
+
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
+	{
+		float MaxHP = ASC->GetNumericAttribute(ULRPlayerAttributeSet::GetMaxHealthAttribute());
+		ASC->SetNumericAttributeBase(ULRPlayerAttributeSet::GetHealthAttribute(), MaxHP);
+	}
+
+	LR_INFO(TEXT("플레이어 코어에서 부활 완료!"));
+
+	// TODO: 무적 & 깜빡임 효과
 }
