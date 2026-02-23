@@ -6,15 +6,16 @@
 #include "Structures/Core/LRCore.h"
 #include "LRPlayerCore.generated.h"
 
+/**
+ * 
+ */
+
 //=============================================================================
 // (260205) BJM 제작. Player Core 클래스 추가.
 // (260217) BJM 패배조건 추가
 // =============================================================================
 
 class UBoxComponent;
-/**
- * 
- */
 UCLASS()
 class LUNAR_REALM_API ALRPlayerCore : public ALRCore
 {
