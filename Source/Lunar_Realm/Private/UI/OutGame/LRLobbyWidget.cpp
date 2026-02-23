@@ -4,4 +4,11 @@
 #include "UI/OutGame/LRLobbyWidget.h"
 
 #include "UI/OutGame/LRLobbyFigureWidget.h"
-#include "UI/Common/LRCurrencyWidget.h"
+#include "UI/OutGame/LRCurrencyWidget.h"
+
+void ULRLobbyWidget::RefreshUI()
+{
+	Super::RefreshUI();
+
+	Currency->RefreshUI();
+}

@@ -20,6 +20,15 @@ class LUNAR_REALM_API ULRLobbyWidget : public ULRPopupWidget
 	GENERATED_BODY()
 	
 public:
+	virtual void RefreshUI() override;
+
+protected:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UButton> Btn_Setting;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UButton> Btn_Message;
+
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRLobbyFigureWidget> MainCharacter;
 
@@ -35,4 +44,9 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRLobbyFigureWidget> Member4;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRCurrencyWidget> Currency;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UBaseWidget> Banner;
 };
