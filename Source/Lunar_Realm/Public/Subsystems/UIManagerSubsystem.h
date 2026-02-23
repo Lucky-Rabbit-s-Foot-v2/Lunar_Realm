@@ -28,7 +28,7 @@ UCLASS()
 class LUNAR_REALM_API UUIManagerSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
-	public:
+public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 	private:
