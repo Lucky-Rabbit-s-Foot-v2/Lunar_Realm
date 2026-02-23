@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "GAS/Ability/LRGameplayAbilityBase.h"
@@ -24,7 +24,7 @@ void ULRGameplayAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 	if (TriggerEventData)
 	{
 		CachedInstigator = Cast<ALRCharacter>(TriggerEventData->Instigator.Get());
-		CachedTarget = Cast<ALRCharacter>(TriggerEventData->Target.Get());
+		CachedTarget = TriggerEventData->Target.Get();
 	}
 	
 	OnAbilityActivated(Handle, ActorInfo, ActivationInfo);
