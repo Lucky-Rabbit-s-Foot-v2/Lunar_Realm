@@ -217,11 +217,11 @@ enum class ELRGachaTxnState : uint8
 UENUM(BlueprintType)
 enum class ESkillType : uint8
 {
-	Linear      UMETA(DisplayName = "직선형"),
-	Homing      UMETA(DisplayName = "유도형"),
-	Arc         UMETA(DisplayName = "궤도형"),
-	Pierce      UMETA(DisplayName = "관통형"),
-	Explode     UMETA(DisplayName = "폭발형")
+	LINEAR      UMETA(DisplayName = "직선형"),
+	HOMING      UMETA(DisplayName = "유도형"),
+	ARC         UMETA(DisplayName = "궤도형"),
+	PIERCE      UMETA(DisplayName = "관통형"),
+	EXPLODE     UMETA(DisplayName = "폭발형")
 };
 
 UENUM(BlueprintType)
@@ -243,6 +243,6 @@ enum class ESkillParamType : uint8
 UENUM(BlueprintType)
 enum class EBuffType : uint8
 {
-	Buff    UMETA(DisplayName = "버프"),
-	Debuff  UMETA(DisplayName = "디버프")
+	BUFF    UMETA(DisplayName = "버프"),
+	DEBUFF  UMETA(DisplayName = "디버프")
 };

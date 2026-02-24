@@ -19,7 +19,7 @@ void ULREnemyAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribut
 
 	if (Attribute == GetHealthAttribute())
 	{
-		NewValue = FMath::Clamp(NewValue, 0.0f, MaxHealth);
+		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxHealth());
 	}
 
 	if (Attribute == GetAttackAttribute())
@@ -39,7 +39,7 @@ void ULREnemyAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
-		SetHealth(FMath::Clamp(GetHealth(), 0.0f, MaxHealth));
+		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
 
 		if (GetHealth() <= 0.0f)
 		{

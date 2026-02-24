@@ -33,7 +33,7 @@ void ULRGameplayAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 void ULRGameplayAbilityBase::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	//자식 GA들의 실질적인 로직 구성.
+	//자식 GA들의 실질적인 로직 구성.(Super 필요없음)
 }
 
 ALRCharacter* ULRGameplayAbilityBase::GetCharacterFromActorInfo(const FGameplayAbilityActorInfo& ActorInfo) const
