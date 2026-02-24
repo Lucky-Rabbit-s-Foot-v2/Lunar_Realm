@@ -6,12 +6,25 @@
 #include "UI/Core/LRBaseWidget.h"
 #include "LRBackgoundWidget.generated.h"
 
+
+//============================================================================
 /**
- * 
+ * 전체 화면 UI
+ * - 로딩 화면, 로비 화면 등
  */
+ //============================================================================
+ // (260224) PJB 제작. 제반 사항 구현
+ //============================================================================
+
 UCLASS()
 class LUNAR_REALM_API ULRBackgoundWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
 	
+public:
+	ULRBackgoundWidget(const FObjectInitializer& ObjectInitializer);
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "LR|UI|Background")
+	bool bDisableWorldRenderingWhenOpened = false;
 };

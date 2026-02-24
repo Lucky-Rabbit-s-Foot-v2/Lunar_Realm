@@ -9,7 +9,8 @@
 
 //============================================================================
 /**
- * UI Layer 의 배경이 될 위젯
+ * 게임 중 항상 떠 있는 UI
+ * - 체력 바, 스킬 버튼 등
  */
  //============================================================================
  // (260219) PJB 제작. 제반 사항 구현
@@ -34,6 +35,8 @@ class LUNAR_REALM_API ULRPersistentWidget : public ULRBaseWidget
 	GENERATED_BODY()
 	
 public:
+	ULRPersistentWidget(const FObjectInitializer& ObjectInitializer);
+
 	virtual void InitializeUI() override;
 	virtual void OpenUI() override;
 

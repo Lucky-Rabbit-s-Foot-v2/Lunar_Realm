@@ -4,6 +4,17 @@
 #include "UI/Core/LRBaseWidget.h"
 #include "Units/LRControllerBase.h"
 
+ULRBaseWidget::ULRBaseWidget(const FObjectInitializer& ObjectInitializer)
+	:Super(ObjectInitializer)
+{
+	UILayer = EUILayer::NONE;
+	ZOrder = 0;
+
+	bIsOpen = false;
+	bIsModal = false;
+	bIsFocusable = false;
+}
+
 void ULRBaseWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -14,6 +25,7 @@ void ULRBaseWidget::NativeConstruct()
 
 void ULRBaseWidget::NativeDestruct()
 {
+	// 공용 델리게이트 해제
 	if (OnCloseUIRequested.IsBound())
 	{
 		OnCloseUIRequested.Clear();
@@ -63,7 +75,7 @@ void ULRBaseWidget::BindToController(ALRControllerBase* Controller)
 	// 자식 클래스에서 오버라이드하여 컨트롤러와의 바인딩 로직 구현
 }
 
-void ULRBaseWidget::RequestCloseUI()
+void ULRBaseWidget::OnCloseRequested()
 {
 	if (OnCloseUIRequested.IsBound())
 	{

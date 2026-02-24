@@ -19,7 +19,7 @@
 // (260123) KHS 제작. 제반 사항 구현.
 // (260213) PJB 수정. 공용 델리게이트 해제 추가.
 // (260213) PJB 수정. 초기화 함수 추가.
-// (260224) PJB 수정. UI 레이어 확장, Modal 여부 추가
+// (260224) PJB 수정. UI 레이어 확장
 // =============================================================================
 
 /**
@@ -35,7 +35,7 @@ enum class EUILayer : uint8
 	BACKGROUND		UMETA(DisplayName = "Background"),
 	PERSISTENT		UMETA(DisplayName = "Persistent"),
 	POPUP			UMETA(DisplayName = "Popup"),
-	TOOPTIP			UMETA(DisplayName = "Tooltip"),
+	TOOLTIP			UMETA(DisplayName = "Tooltip"),
 	SYSTEM			UMETA(DisplayName = "System"),
 };
 
@@ -45,6 +45,8 @@ class LUNAR_REALM_API ULRBaseWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+	ULRBaseWidget(const FObjectInitializer& ObjectInitializer);
+
 	/** 초기화를 위해 선언 */
 	virtual void NativeConstruct() override;
 
@@ -73,13 +75,10 @@ public:
 	virtual void BindToController(class ALRControllerBase* Controller);
 
 	UFUNCTION(BlueprintCallable, Category = "LR|UI Events")
-	virtual void RequestCloseUI();
+	virtual void OnCloseRequested();
 
 	/** UI가 현재 열려있는지 확인 */
 	FORCEINLINE bool IsOpen() const { return bIsOpen; }
-
-	/** 이 UI가 Modal인지 여부 반환 */
-	FORCEINLINE bool IsModal() const { return bIsModal; }
 
 	/**
 	 * 위젯이 스스로 닫기를 요청할 때 발생하는 델리게이트
@@ -88,21 +87,23 @@ public:
 	 */
 	UPROPERTY(BlueprintAssignable, Category = "LR|UI Events")
 	FOnCloseUIRequested OnCloseUIRequested;
-    
-protected:
-	/** UI 열림/닫힘 상태 */
-	bool bIsOpen = false;
-    
-	/** Popup일 경우 뒷 배경의 입력을 막을 것 인지 여부*/
-	UPROPERTY(EditDefaultsOnly, Category = "LR|UI Setting")
-	bool bIsModal = true;
-
+        
 public:
 	/** UI 레이어 타입 (Persistent: 지속형, Popup: 팝업형) */
-	UPROPERTY(EditDefaultsOnly, Category = "LR|UI Setting")
+	UPROPERTY(EditDefaultsOnly, Category = "LR|UI Settings")
 	EUILayer UILayer = EUILayer::NONE;
     
 	/** 뷰포트 내 표시 순서 (높을수록 위에 렌더링) */
-	UPROPERTY(EditDefaultsOnly, Category = "LR|UI Setting")
+	UPROPERTY(EditDefaultsOnly, Category = "LR|UI Settings")
 	int32 ZOrder = 0;
+
+protected:
+	/** UI 열림/닫힘 상태 */
+	bool bIsOpen = false;
+
+	/** 뒷 UI 조작 제한 설정 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|UI Settings")
+	bool bIsModal = false;
+
+	/** bIsFocusable : 키보드/패드 입력을 받을 수 있도록 설정 */
 };

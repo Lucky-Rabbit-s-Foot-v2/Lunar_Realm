@@ -8,6 +8,13 @@
 #include "Subsystems/UIManagerSubsystem.h"
 #include "UI/Core/LRPopupWidget.h"
 
+ULRPersistentWidget::ULRPersistentWidget(const FObjectInitializer& ObjectInitializer)
+	:Super(ObjectInitializer)
+{
+	UILayer = EUILayer::PERSISTENT;
+	ZOrder = 50;
+}
+
 void ULRPersistentWidget::InitializeUI()
 {
 	Super::InitializeUI();
