@@ -10,6 +10,9 @@ FEquipmentStaticData UGameDataSubsystem::EmptyEquipmentStaticData;
 FEquipmentBonus UGameDataSubsystem::EmptyEquipmentBonus;
 FSetEffectData UGameDataSubsystem::EmptySetEffectData;
 FSkillStaticData UGameDataSubsystem::EmptySkillStaticData;
+FSkillEffectData UGameDataSubsystem::EmptySkillEffectData;
+FSkillEffectParameterList UGameDataSubsystem::EmptySkillEffectParameterList;
+FBuffEffectData UGameDataSubsystem::EmptyBuffEffectData;
 FEnemyStaticData UGameDataSubsystem::EmptyEnemyStaticData;
 FStageStaticData UGameDataSubsystem::EmptyStageStaticData;
 
@@ -102,6 +105,9 @@ void UGameDataSubsystem::LoadDataTables()
 	LoadedEquipmentStatBonus = Config->EquipmentStatBonusTable.LoadSynchronous(); //장비 보너스
 	LoadedSetEffectBonus = Config->EquipmentSetEffectTable.LoadSynchronous(); //세트장비 효과
 	LoadedSkillStaticData = Config->SkillStaticDataTable.LoadSynchronous(); //스킬 데이터
+	LoadedSkillEffectData = Config->SkillEffectDataTable.LoadSynchronous(); //스킬 GA 사용데이터
+	LoadedSkillEffectParameterData = Config->SkillEffectParameterDataTable.LoadSynchronous(); //GA 사용 추가파라미터 데이터
+	LoadedBuffEffectData = Config->BuffEffectDataTable.LoadSynchronous(); //스킬 효과 버프/디버프 데이터
 	LoadedStageStaticData = Config->StageStaticDataTable.LoadSynchronous(); //스테이지 데이터
 	
 	if (LoadedCharacterStaticData)
@@ -113,14 +119,6 @@ void UGameDataSubsystem::LoadDataTables()
 		LR_ERROR(TEXT("CharacterStaticData is NULL"));
 	}
 	
-	//로직 변경으로 시스템에서 직접 로드 방식은 미사용
-	// LoadDataTable(BaseStatsCurveTable, LoadedBaseStatsCurve, TEXT("BaseStatsCurveTable"));
-	// LoadDataTable(CharacterStaticDataTable, LoadedCharacterStaticData, TEXT("CharacterStaticData"));
-	// LoadDataTable(EquipmentStaticDataTable, LoadedEquipmentStaticData, TEXT("EquipmentStaticData"));
-	// LoadDataTable(EquipmentStatBonusTable, LoadedEquipmentStatBonus, TEXT("EquipmentStatBonus"));
-	// LoadDataTable(EquipmentSetEffectTable, LoadedSetEffectBonus, TEXT("SetEffectData"));
-	// LoadDataTable(SkillStaticDataTable, LoadedSkillStaticData, TEXT("SkillStaticData"));
-	// LoadDataTable(EnemyStaticDataTable, LoadedEnemyStaticData, TEXT("EnemyStaticData"));
 }
 
 void UGameDataSubsystem::CacheAllData()
@@ -143,7 +141,13 @@ void UGameDataSubsystem::CacheAllData()
 	
 	//스킬 데이터 캐싱
 	CacheDataTable<FSkillStaticData, FName>(
-		LoadedSkillStaticData, CachedSkillStaticData, &FSkillStaticData::DataID, TEXT("SkillStaticData"));
+		LoadedSkillStaticData, CachedSkillStaticData, &FSkillStaticData::SkillID, TEXT("SkillStaticData"));
+	
+	//GA 클래스 사용 데이터 캐싱
+	CacheDataTable<FSkillEffectData, FName>(
+		LoadedSkillEffectData, CachedSkillEffectData, &FSkillEffectData::SkillEffectID, TEXT("SkillEffectData"));
+	CacheDataTable<FBuffEffectData, FName>(
+		LoadedBuffEffectData, CachedBuffEffectData, &FBuffEffectData::BuffEffectID, TEXT("BuffEffectData"));
 	
 	//에너미 데이터 캐싱
 	CacheDataTable<FEnemyStaticData, FName>(
@@ -152,6 +156,29 @@ void UGameDataSubsystem::CacheAllData()
 	//스테이지 데이터 캐싱
 	CacheDataTable<FStageStaticData, FName>(
 		LoadedStageStaticData, CachedStageStaticData, &FStageStaticData::DataID, TEXT("StageStaticData"));
+	
+	
+	//스킬 추가 파라미터는 1:N매칭이라 별도 처리
+	if (LoadedSkillEffectParameterData)
+	{
+		CachedSkillEffectParameterData.Empty();
+		for (FName RowName : LoadedSkillEffectParameterData->GetRowNames())
+		{
+			FSkillEffectParameterData* Row = LoadedSkillEffectParameterData->FindRow<FSkillEffectParameterData>(RowName, TEXT(""));
+			if (Row)
+			{
+				// 로그 체크용도
+				// LR_INFO(TEXT("[ParamCache] SkillEffectID=%s, ParamType=%s, Value=%.1f"),
+				// *Row->SkillEffectID.ToString(),
+				// *Row->ParamType.ToString(),
+				// Row->Value);
+				
+				CachedSkillEffectParameterData
+						.FindOrAdd(Row->SkillEffectID)
+						.Params.Add(*Row);
+			}
+		}
+	}
 }
 
 FName UGameDataSubsystem::StatTypeToName(ELRStatusType StatusType)
@@ -185,6 +212,70 @@ FName UGameDataSubsystem::SetTypeToName(ELRSetItemType SetType)
 			return FName(TEXT("BASIC"));
 		}
 	}
+}
+
+ESkillType UGameDataSubsystem::ParseSkillType(FName TypeName)
+{
+	static const TMap<FName, ESkillType> SkillTypeToNameMap = 
+	{
+		{"Linear", ESkillType::LINEAR},
+		{"Homing", ESkillType::HOMING},
+		{"Arc", ESkillType::ARC},
+		{"Pierce", ESkillType::PIERCE},
+		{"Explode", ESkillType::EXPLODE}
+	};
+	
+	const ESkillType* found = SkillTypeToNameMap.Find(TypeName);
+	if (!found)
+	{
+		LR_WARN(TEXT("Unknown SkillType! : %s"), *TypeName.ToString());
+		return ESkillType::LINEAR;
+	}
+	
+	return *found;
+}
+
+ESkillParamType UGameDataSubsystem::ParseSkillParamType(FName TypeName)
+{
+	static const TMap<FName, ESkillParamType> ParamMap =
+	{
+		{ "Lifetime",           ESkillParamType::Lifetime           },
+		{ "EffectTime",         ESkillParamType::EffectTime         },
+		{ "ExplosionRadius",    ESkillParamType::ExplosionRadius    },
+		{ "PierceCount",        ESkillParamType::PierceCount        },
+		{ "PierceDamageDecay",  ESkillParamType::PierceDamageDecay  },
+		{ "HomingTurnSpeed",    ESkillParamType::HomingTurnSpeed    },
+		{ "HomingLockRange",    ESkillParamType::HomingLockRange    },
+		{ "ArcLaunchAngle",     ESkillParamType::ArcLaunchAngle    },
+		{ "SlowdownMultiplier", ESkillParamType::SlowdownMultiplier },
+		{ "DOTDamage",          ESkillParamType::DOTDamage          },
+		{ "DOTInterval",        ESkillParamType::DOTInterval        }
+	};
+	const ESkillParamType* found = ParamMap.Find(TypeName);
+	if (!found)
+	{
+		LR_WARN(TEXT("Unknown ParameterType! : %s"), *TypeName.ToString());
+		return ESkillParamType::Lifetime;
+	}
+	return *found;
+}
+
+EBuffType UGameDataSubsystem::ParseBuffType(FName TypeName)
+{
+	static const TMap<FName, EBuffType> BuffTypeToNameMap =
+	{
+		{"BUFF", EBuffType::BUFF},
+		{"DEBUFF", EBuffType::DEBUFF}
+	};
+	
+	const EBuffType* found = BuffTypeToNameMap.Find(TypeName);
+	if (!found)
+	{
+		LR_WARN(TEXT("Unknown BuffType! : %s"), *TypeName.ToString());
+		return EBuffType::BUFF;
+	}
+	
+	return *found;
 }
 
 // ========================================
@@ -408,6 +499,25 @@ TArray<FName> UGameDataSubsystem::GetEquipmentSkillIDs(FName EquipmentID)
 	FEquipmentStaticData data = GetEquipmentStaticData(EquipmentID);
 	
 	return data.SkillIDs;
+}
+
+// ========================================
+// GA 데이터 조회
+// ========================================
+
+const FSkillEffectData& UGameDataSubsystem::GetSkillEffectData(FName SkillEffectID) const
+{
+	return GetCachedData(CachedSkillEffectData, SkillEffectID, EmptySkillEffectData, TEXT("SkillEffectData"));
+}
+
+const FSkillEffectParameterList& UGameDataSubsystem::GetSkillEffectParameters(FName SkillEffectID) const
+{
+	return GetCachedData(CachedSkillEffectParameterData, SkillEffectID, EmptySkillEffectParameterList, TEXT("SkillEffectParameterData"));
+}
+
+const FBuffEffectData& UGameDataSubsystem::GetBuffEffectData(FName BuffEffectID) const
+{
+	return GetCachedData(CachedBuffEffectData, BuffEffectID, EmptyBuffEffectData, TEXT("BuffEffectData"));
 }
 
 const FEnemyStaticData& UGameDataSubsystem::GetEnemyStaticData(FName EnemyID) const
