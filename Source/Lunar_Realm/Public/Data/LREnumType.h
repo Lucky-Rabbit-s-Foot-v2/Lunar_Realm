@@ -12,6 +12,7 @@
  */
 //=============================================================================
 // (260205) KHS 제작. 제반 사항 구현.
+// (260224) KHS 스킬관련 Enum (투사체타입/스킬파라미터타입/버프타입) 추가.
 // =============================================================================
 
 //ID 타입 식별용
@@ -207,4 +208,41 @@ enum class ELRGachaTxnState : uint8
 	PendingReveal,
 	Committed,
 	Canceled
+};
+
+// ============================================================
+// 스킬 관련 Enum
+// (260224) KHS 추가
+// ============================================================
+UENUM(BlueprintType)
+enum class ESkillType : uint8
+{
+	Linear      UMETA(DisplayName = "직선형"),
+	Homing      UMETA(DisplayName = "유도형"),
+	Arc         UMETA(DisplayName = "궤도형"),
+	Pierce      UMETA(DisplayName = "관통형"),
+	Explode     UMETA(DisplayName = "폭발형")
+};
+
+UENUM(BlueprintType)
+enum class ESkillParamType : uint8
+{
+	Lifetime            UMETA(DisplayName = "투사체 생명주기"),
+	EffectTime          UMETA(DisplayName = "스킬효과 지속시간"),
+	ExplosionRadius     UMETA(DisplayName = "폭발범위"),
+	PierceCount         UMETA(DisplayName = "관통형 횟수"),
+	PierceDamageDecay   UMETA(DisplayName = "관통형 데미지 감소율"),
+	HomingTurnSpeed     UMETA(DisplayName = "유도체 회전속도"),
+	HomingLockRange     UMETA(DisplayName = "유도체 감지범위"),
+	ArcLaunchAngle      UMETA(DisplayName = "궤도형 발사 각도"),
+	SlowdownMultiplier  UMETA(DisplayName = "둔화 이속감소율"),
+	DOTDamage           UMETA(DisplayName = "도트데미지"),
+	DOTInterval         UMETA(DisplayName = "도트뎀 주기")
+};
+
+UENUM(BlueprintType)
+enum class EBuffType : uint8
+{
+	Buff    UMETA(DisplayName = "버프"),
+	Debuff  UMETA(DisplayName = "디버프")
 };
