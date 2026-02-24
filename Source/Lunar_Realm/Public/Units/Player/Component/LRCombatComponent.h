@@ -12,6 +12,7 @@
 // (260209) BJM 자동전투 최적화 적용 (Tick 로직 분리 및 캐싱)
 // (260210) BJM 전투 로직 수정 (타겟 탐색 및 이동, 공격 로직 분리)
 // (260224) BJM 적 처치시 중앙에서 비빔 / 자동모드시 코어 타겟 버그 수정
+// (260224) BJM 헬퍼 함수 분리 및 구조 정리
 //=============================================================================
 
 class ALRCharacter;
@@ -33,9 +34,13 @@ public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+
+	// ============================================================================
+	// 퍼블릭 인터페이스 (Public Interface)
+	// ============================================================================
 public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void SetAutoMode(bool bEnableAuto);
+	void SetAutoMode(bool bInEnableAuto);
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void UpdateWeaponInfo(FName InWeaponID);
@@ -46,16 +51,31 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool IsAutoMode() const { return CombatState == EAutoCombatState::Auto; }
 
+	// ============================================================================
+	// 전투 메인 로직 (Combat Main Logic)
+	// ============================================================================
 protected:
-
 	void OnCombatLogicTimer();
-
+	void ProcessCombatLogic(ALRCharacter* InOwnerCharacter, float InDeltaTime);
+	void AttemptAction(float InDeltaTime);
+	void MoveToTarget(float InDeltaTime);
 	void FindBestTarget();
 
-	void AttemptAction(float DeltaTime);
+	// ============================================================================
+	// 헬퍼 함수 (Helper Functions)
+	// ============================================================================
+private:
+	void UpdateTargetIndicator(ALRCharacter* InOwnerCharacter);
+	void CheckAndClearDeadTarget();
+	bool IsTargetDead(AActor* InTargetActor) const;
 
-	void MoveToTarget(float DeltaTime);
+	ALRCharacter* GetOwnerCharacter() const;
+	bool IsTargetInRange() const;
+	FGameplayTag GetEnemyRootTag() const;
 
+	// ============================================================================
+	// 멤버 변수 (Properties)
+	// ============================================================================
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	EAutoCombatState CombatState = EAutoCombatState::Manual;
@@ -67,29 +87,12 @@ protected:
 	TObjectPtr<AActor> CachedEnemyBase;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
-	float AttackRange = 150.0f;
+	float AttackRange = 250.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float SearchRadius = 1000.0f;
 
 	float CurrentAttackCooldown = 1.0f;
-
 	FTimerHandle CombatLogicTimerHandle;
-
-private:
-	// 타겟이 죽었는지 확인하는 함수
-	bool IsTargetDead(AActor* TargetActor) const;
-
-	// 타겟 인디케이터 업데이트 함수
-	void UpdateTargetIndicator(ALRCharacter* OwnerCharacter);
-
-	// 실제 전투 처리 메인 로직
-	void ProcessCombatLogic(ALRCharacter* OwnerCharacter, float DeltaTime);
-
-	// 공격 실행 시도 함수
-	void AttemptAttack(ALRCharacter* OwnerCharacter);
-
-	// 타겟 유효성을 검사 및 초기화 뒤 이동을 멈춤 함수
-	void CheckAndClearDeadTarget();
 
 };
