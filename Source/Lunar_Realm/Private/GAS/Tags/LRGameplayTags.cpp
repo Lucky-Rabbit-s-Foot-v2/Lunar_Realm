@@ -8,13 +8,21 @@ namespace LRTags
 	//어빌리티 태그
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Combat_BasicShoot, "Ability.Combat.BasicShoot");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Combat_BasicShoot_Cooldown, "Ability.Combat.BasicShoot.Cooldown");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Fireball, "Ability.Skill.Fireball");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Fireball_Cooldown, "Ability.Skill.Fireball.Cooldown");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Movement_Dash, "Ability.Movement.Dash");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Movement_Dash_Cooldown, "Ability.Movement.Dash.Cooldown");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Aether_Charge, "Ability.Aether.Charge");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Heal, "Ability.Skill.Heal");
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Skill_Heal, "Cooldown.Skill.Heal");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Fireball, "Ability.Skill.Fireball");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Fireball_Cooldown, "Ability.Skill.Fireball.Cooldown");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_IceBall, "Ability.Skill.IceBall");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_IceBall_Cooldown, "Ability.Skill.IceBall.Cooldown");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Lightning, "Ability.Skill.Lightning");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Lightning_Cooldown, "Ability.Skill.Lightning.Cooldown");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Arrow, "Ability.Skill.Arrow");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Arrow_Cooldown, "Ability.Skill.Arrow.Cooldown");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Pierce, "Ability.Skill.Pierce");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Pierce_Cooldown, "Ability.Skill.Pierce.Cooldown");
 	
 	//상태 태그
 	UE_DEFINE_GAMEPLAY_TAG(State_Debuff_Burning, "State.Debuff.Burning");

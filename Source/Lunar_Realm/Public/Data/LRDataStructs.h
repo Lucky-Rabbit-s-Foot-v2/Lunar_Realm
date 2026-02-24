@@ -342,8 +342,24 @@ struct FSkillStaticData : public FTableRowBase
 	GENERATED_BODY()
     
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName DataID; //SKILL_FIREBALL
+	FName SkillID; //SKILL_FIREBALL
     
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName SkillEffectID; //DT_SkillEffect(FK)
+	
+	// 실제 GA 클래스
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<TSoftClassPtr<UGameplayAbility>> GrantedAbilities;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UGameplayEffect> CoolTimeGE;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UGameplayEffect> CostGE;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTag SkillTag; //스킬 태그
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString SkillName;
     
@@ -353,9 +369,7 @@ struct FSkillStaticData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<UTexture2D> SkillIcon;
     
-	// 실제 GA 클래스
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<TSoftClassPtr<UGameplayAbility>> GrantedAbilities;
+	
 };
 
 
@@ -376,13 +390,13 @@ struct FSkillEffectData : public FTableRowBase
 	FName SkillEffectID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName StatusEffectID;
+	FName BuffEffectID;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName SkillType; // ParseSkillType()으로 변환
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 ObjectCount; //스킬로 생성된 오브젝트 갯수
+	int32 BasicCount; //스킬로 생성된 오브젝트 갯수
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Damage;
@@ -421,14 +435,14 @@ struct FSkillEffectParameterData : public FTableRowBase
 
 // =============================================================================
 /** 
- * FStatusEffectData 구성 요소
+ * FBuffEffectData 구성 요소
  * - 스킬로 인한 버프/디버프 효과 정적데이터
  */
 //=============================================================================
 // (260224) KHS 제작. 제반 사항 구현.
 // =============================================================================
 USTRUCT(BlueprintType)
-struct FBUffEffectData : public FTableRowBase
+struct FBuffEffectData : public FTableRowBase
 {
 	GENERATED_BODY()
 
