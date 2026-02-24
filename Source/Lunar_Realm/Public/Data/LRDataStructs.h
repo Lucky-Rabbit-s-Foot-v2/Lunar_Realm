@@ -444,6 +444,40 @@ struct FSkillEffectParameterList
 
 // =============================================================================
 /** 
+ * FSkillObjectInitData 구성 요소
+ * - GA->소환 오브젝트로 전달하는 초기값 데이터
+ */
+//=============================================================================
+// (260224) KHS 제작. 제반 사항 구현.
+// =============================================================================
+USTRUCT(BlueprintType)
+struct FSkillObjectInitData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY()
+	TSubclassOf<UGameplayEffect> DamageEffectClass; // 데미지 GE
+	
+	UPROPERTY()
+	TSubclassOf<UGameplayEffect> StatusEffectClass; // 상태이상 GE (없으면 nullptr)
+	
+	UPROPERTY()
+	TWeakObjectPtr<UAbilitySystemComponent> InstigatorASC; // 발사자 ASC
+
+	//공통 프로퍼티
+	UPROPERTY()
+	float Damage;
+
+	UPROPERTY()
+	float Speed;
+
+	UPROPERTY()
+	float Lifetime;
+};
+
+
+// =============================================================================
+/** 
  * FBuffEffectData 구성 요소
  * - 스킬로 인한 버프/디버프 효과 정적데이터
  */
