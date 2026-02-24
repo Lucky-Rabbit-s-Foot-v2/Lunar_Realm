@@ -146,14 +146,16 @@ namespace LRTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Team_Enemy_Structure_Core);  
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Team_Enemy_Structure_Obstacle); 
 
-	// (입력 태그 Input.* 은 기존에 추가한 것 유지)
+	// (입력 태그 Input.*)
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Summon_1);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Summon_2);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Summon_3);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Summon_4);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Command_Toggle);
 	
-	
-	
-	
+// ===============================================
+// Notify 태그_BJM
+// (양식) Notify.*
+// ===============================================
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Notify_Combat_BasicHit);
 }

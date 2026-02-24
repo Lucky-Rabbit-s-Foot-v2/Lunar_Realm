@@ -520,6 +520,27 @@ const FBuffEffectData& UGameDataSubsystem::GetBuffEffectData(FName BuffEffectID)
 	return GetCachedData(CachedBuffEffectData, BuffEffectID, EmptyBuffEffectData, TEXT("BuffEffectData"));
 }
 
+float UGameDataSubsystem::GetSkillParamValue(FName SkillEffectID, ESkillParamType ParamType, float DefaultValue) const
+{
+	const FSkillEffectParameterList* paramList = CachedSkillEffectParameterData.Find(SkillEffectID);
+	if (!paramList)
+	{
+		LR_WARN(TEXT("CANNOT find Parameter on ID : %s"), *SkillEffectID.ToString());
+		return DefaultValue;
+	}
+	
+	for (const auto& param : paramList->Params)
+	{
+		if (ParseSkillParamType(param.ParamType) == ParamType)
+		{
+			return param.Value;
+		}
+	}
+	
+	LR_WARN(TEXT("CANNOT find Parameter Type on ID : %s"), *SkillEffectID.ToString());
+	return DefaultValue;
+}
+
 const FEnemyStaticData& UGameDataSubsystem::GetEnemyStaticData(FName EnemyID) const
 {
 	return GetCachedData(CachedEnemyStaticData, EnemyID, EmptyEnemyStaticData, TEXT("EnemyStaticData"));
