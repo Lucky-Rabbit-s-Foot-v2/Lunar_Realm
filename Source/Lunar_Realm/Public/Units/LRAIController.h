@@ -1,12 +1,9 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-/* TEMP */
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "DetourCrowdAIController.h"
 #include "GameplayTagContainer.h"
+#include "Interfaces/LRPoolableInterface.h"
 #include "LRAIController.generated.h"
 
 class ALRCore;
@@ -48,9 +45,10 @@ namespace LRBBKeys
  // (260204) KWB 제작.
  // (260211) KWB 제반 사항 구현. (공통 AI 로직 통합. Enemy/Member 공용)
  // (260212) KWB 비헤이비어트리 설정을 데이터 드리븐 구조로 전환하기 위한 SetAndRunBehaviorTree 함수 추가. OnPossess()에서 BT 검사 및 실행 로직 제거.
+ // (260224) KWB 컨트롤러 풀링 시스템 적용을 위한 인터페이스 구현 추가
  //============================================================================
 UCLASS()	
-class LUNAR_REALM_API ALRAIController : public ADetourCrowdAIController
+class LUNAR_REALM_API ALRAIController : public ADetourCrowdAIController, public ILRPoolableInterface
 {
 	GENERATED_BODY()
 	
@@ -75,6 +73,10 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "LR|AI")
 	float GetDetectionRadius() const { return DetectionRadius; }
+
+	// 인터페이스 구현
+	virtual void OnPoolActivate_Implementation() override;
+	virtual void OnPoolDeactivate_Implementation() override;
 
 protected:
 	virtual void OnPossess(APawn* InPawn) override;

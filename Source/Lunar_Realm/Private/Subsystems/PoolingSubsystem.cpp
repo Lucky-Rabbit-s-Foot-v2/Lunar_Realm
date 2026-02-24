@@ -38,11 +38,14 @@ AActor* UPoolingSubsystem::SpawnPooledActor(TSubclassOf<AActor> ClassToSpawn, co
 
 	if (PooledActor)
 	{
-		ActiveActors.Add(PooledActor);
+		PooledActor->SetActorTransform(SpawnTransform);
+
 		if (PooledActor->Implements<ULRPoolableInterface>())
 		{
 			ILRPoolableInterface::Execute_OnPoolActivate(PooledActor);
 		}
+		
+		ActiveActors.Add(PooledActor);
 	}
 
 	return PooledActor;

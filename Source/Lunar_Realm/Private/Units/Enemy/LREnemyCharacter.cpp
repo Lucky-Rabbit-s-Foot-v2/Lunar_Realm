@@ -20,6 +20,7 @@
 #include "System/LoggingSystem.h"
 
 #include "Units/LRAIController.h"
+#include "Units/Enemy/LREnemyAIController.h"
 
 ALREnemyCharacter::ALREnemyCharacter()
 {
@@ -34,7 +35,10 @@ void ALREnemyCharacter::OnDie()
 	 // 1. AI 비활성화
 	if (AAIController* AIController = Cast<AAIController>(GetController()))
 	{
-		AIController->BrainComponent->StopLogic(TEXT("Dead"));
+		if (AIController->BrainComponent)
+		{
+			AIController->BrainComponent->StopLogic(TEXT("Dead"));
+		}
 	}
 
 	// 2. 충돌 비활성화 (추가 공격 방지)
@@ -321,8 +325,38 @@ void ALREnemyCharacter::ClearGrantedEnemyAbilities()
 
 void ALREnemyCharacter::OnPoolActivate_Implementation()
 {
-	// TEMP
+	// TEMP : 컨트롤러 테스트 => 풀링 시스템 & 스포너 디버깅 끝나면 삭제 필요
+	LR_INFO(TEXT("[%s] OnPoolActivate START"), *GetName());
 	LR_INFO(TEXT("[%s] OnPoolActivate called"), *GetName());
+	LR_INFO(TEXT("[%s] OnPoolActivate - Controller before: %s"),
+		*GetName(),
+		GetController() ? *GetController()->GetName() : TEXT("NULL"));
+
+	if (!GetController())
+	{
+		UPoolingSubsystem* PoolingSystem = GetWorld()->GetSubsystem<UPoolingSubsystem>();
+		if (PoolingSystem)
+		{
+			AController* PooledController = Cast<AController>(
+				PoolingSystem->SpawnPooledActor(
+					ALREnemyAIController::StaticClass(),
+					FTransform::Identity
+				)
+			);
+
+			if (PooledController)
+			{
+				PooledController->Possess(this);
+
+				LR_INFO(TEXT("[%s] OnPoolActivate - Controller from pool: %s"),
+					*GetName(), *PooledController->GetName());
+			}
+		}
+
+		LR_INFO(TEXT("[%s] OnPoolActivate - Controller created: %s"),
+			*GetName(),
+			GetController() ? *GetController()->GetName() : TEXT("NULL"));
+	}
 
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
@@ -346,23 +380,33 @@ void ALREnemyCharacter::OnPoolActivate_Implementation()
 		MoveComp->SetActive(true);
 	}
 
-	// AI 컨트롤러 재빙의
-	// SpawnDefaultController()를 호출하면 AIControllerClass에 설정된 컨트롤러가 빙의됨
-	// TODO: 테스트 후 다시 확인
-	if (!GetController())
+	if (AbilitySystemComponent)
 	{
-		SpawnDefaultController();
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	}
 
 	// TEMP 
+	LR_INFO(TEXT("[%s] OnPoolActivate END, Location: X=%.3f Y=%.3f Z=%.3f"),
+		*GetName(),
+		GetActorLocation().X,
+		GetActorLocation().Y,
+		GetActorLocation().Z);
+
 	LR_INFO(TEXT("[%s] OnPoolActivate completed, Location: %s"),
 		*GetName(), *GetActorLocation().ToString());
+	LR_INFO(TEXT("[%s] OnPoolActivate END"), *GetName());
 }
 
 void ALREnemyCharacter::OnPoolDeactivate_Implementation()
 {
 	if (AController* Ctrl = GetController())
 	{
+		UPoolingSubsystem* PoolingSystem = GetWorld()->GetSubsystem<UPoolingSubsystem>();
+		if (PoolingSystem)
+		{
+			PoolingSystem->ReturnToPool(Ctrl);
+		}
+
 		Ctrl->UnPossess();
 	}
 
@@ -370,6 +414,7 @@ void ALREnemyCharacter::OnPoolDeactivate_Implementation()
 	{
 		MoveComp->StopMovementImmediately();
 		MoveComp->DisableMovement();
+		MoveComp->SetComponentTickEnabled(false);
 	}
 
 	SetActorEnableCollision(false);

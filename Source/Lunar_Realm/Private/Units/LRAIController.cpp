@@ -25,6 +25,37 @@ ALRAIController::ALRAIController()
 }
 
 
+void ALRAIController::OnPoolActivate_Implementation()
+{
+	SetActorTickEnabled(true);
+}
+
+void ALRAIController::OnPoolDeactivate_Implementation()
+{
+	// 1. BehaviorTree 중단
+	if (UBehaviorTreeComponent* BTComp = FindComponentByClass<UBehaviorTreeComponent>())
+	{
+		BTComp->StopTree(EBTStopMode::Safe);
+	}
+
+	// 2. Blackboard 정리
+	if (UBlackboardComponent* BB = GetBlackboardComponent())
+	{
+		BB->ClearValue(LRBBKeys::TargetActor);
+		BB->ClearValue(LRBBKeys::HasNearbyHostile);
+		// TargetCore는 유지 (어차피 다시 같은 값)
+	}
+
+	// 3. Pawn 연결 해제
+	if (GetPawn())
+	{
+		UnPossess();
+	}
+
+	// 4. 비활성화
+	SetActorTickEnabled(false);
+}
+
 void ALRAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
