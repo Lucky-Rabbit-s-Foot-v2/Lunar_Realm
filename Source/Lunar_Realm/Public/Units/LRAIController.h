@@ -93,7 +93,7 @@ protected:
 	float DetectionRadius = 800.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|AI|Combat")
-	float AttackRange = 150.0f;
+	float AttackRange = 200.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|AI|Combat")
 	float AttackCooldown = 1.5f;

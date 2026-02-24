@@ -20,7 +20,7 @@ ALRCore::ALRCore()
 	HitCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("HitCollision"));
 	SetRootComponent(HitCollision);
 
-	HitCollision->SetBoxExtent(FVector(100.0f, 100.0f, 100.0f));
+	HitCollision->SetBoxExtent(FVector(80.0f, 80.0f, 100.0f));
 	HitCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	HitCollision->SetGenerateOverlapEvents(true);
 

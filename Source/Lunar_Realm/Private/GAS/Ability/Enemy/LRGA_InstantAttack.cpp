@@ -62,6 +62,13 @@ void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 		return;
 	}
 
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	{
+		// 쿨다운 등 Commit 체크 => 실패시 종료
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+
 	// 3. 타겟의 ASC 가져오기
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 	if (!TargetASC || !DamageEffectClass)
