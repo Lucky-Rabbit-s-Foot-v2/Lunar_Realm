@@ -33,6 +33,7 @@ enum class EUILayer : uint8
 {
 	NONE			UMETA(DisplayName = "None (Child Widget)"),
 	BACKGROUND		UMETA(DisplayName = "Background"),
+	PAGE			UMETA(DisplayName = "Page"),
 	PERSISTENT		UMETA(DisplayName = "Persistent"),
 	POPUP			UMETA(DisplayName = "Popup"),
 	TOOLTIP			UMETA(DisplayName = "Tooltip"),
@@ -55,6 +56,9 @@ public:
 
 	/** UI를 처음 생성할 때 초기화*/
 	virtual void InitializeUI();
+
+	/** UI 를 제거할 때 */
+	virtual void DeinitializeUI();
 
 	/** UI를 활성화하고 화면에 표시 */
 	virtual void OpenUI();
@@ -86,7 +90,7 @@ public:
 	 * - 여러 곳에서 구독 가능 (PlayerController, 통계 시스템 등)
 	 */
 	UPROPERTY(BlueprintAssignable, Category = "LR|UI Events")
-	FOnCloseUIRequested OnCloseUIRequested;
+	FOnCloseUIRequested OnCloseUIRequestedDel;
         
 public:
 	/** UI 레이어 타입 (Persistent: 지속형, Popup: 팝업형) */
@@ -97,13 +101,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI Settings")
 	int32 ZOrder = 0;
 
-protected:
-	/** UI 열림/닫힘 상태 */
-	bool bIsOpen = false;
-
 	/** 뒷 UI 조작 제한 설정 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|UI Settings")
 	bool bIsModal = false;
+
+protected:
+	/** UI 열림/닫힘 상태 */
+	bool bIsOpen = false;
 
 	/** bIsFocusable : 키보드/패드 입력을 받을 수 있도록 설정 */
 };

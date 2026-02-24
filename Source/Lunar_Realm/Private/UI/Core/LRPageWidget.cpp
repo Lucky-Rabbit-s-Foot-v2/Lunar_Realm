@@ -1,12 +1,12 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Core/LRSystemWidget.h"
+#include "UI/Core/LRPageWidget.h"
 
-ULRSystemWidget::ULRSystemWidget(const FObjectInitializer& ObjectInitializer)
+ULRPageWidget::ULRPageWidget(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
-	UILayer = EUILayer::SYSTEM;
+	UILayer = EUILayer::PAGE;
 	bIsModal = true;
 	SetIsFocusable(true);
 }

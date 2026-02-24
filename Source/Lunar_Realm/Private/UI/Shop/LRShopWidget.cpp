@@ -17,7 +17,7 @@ void ULRShopWidget::NativeConstruct()
 
 	if (ALRControllerBase* LRController = Cast<ALRControllerBase>(GetOwningPlayer()))
 	{
-		OnCloseUIRequested.AddDynamic(LRController, &ALRControllerBase::CloseWidget);
+		OnCloseUIRequestedDel.AddDynamic(LRController, &ALRControllerBase::CloseWidget);
 	}
 }
 
@@ -32,5 +32,5 @@ void ULRShopWidget::NativeDestruct()
 
 void ULRShopWidget::CloseButtonClicked()
 {
-	OnCloseUIRequested.Broadcast(this);
+	OnCloseUIRequestedDel.Broadcast(this);
 }

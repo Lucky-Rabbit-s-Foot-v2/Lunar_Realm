@@ -10,6 +10,5 @@ ULRBackgoundWidget::ULRBackgoundWidget(const FObjectInitializer& ObjectInitializ
 	:Super(ObjectInitializer)
 {
 	UILayer = EUILayer::BACKGROUND;
-	ZOrder = 0;
 	bDisableWorldRenderingWhenOpened = false;
 }

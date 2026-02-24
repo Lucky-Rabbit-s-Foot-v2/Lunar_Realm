@@ -12,12 +12,18 @@ ULRBaseWidget::ULRBaseWidget(const FObjectInitializer& ObjectInitializer)
 
 	bIsOpen = false;
 	bIsModal = false;
-	bIsFocusable = false;
+	SetIsFocusable(false);
 }
 
 void ULRBaseWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	if (!OnCloseUIRequestedDel.IsAlreadyBound(UIManager, &UUIManagerSubsystem::CloseUI))
+	{
+		OnCloseUIRequestedDel.AddDynamic(UIManager, &UUIManagerSubsystem::CloseUI);
+	}
 
 	BindToController(Cast<ALRControllerBase>(GetOwningPlayer()));
 	InitializeUI();
@@ -26,9 +32,9 @@ void ULRBaseWidget::NativeConstruct()
 void ULRBaseWidget::NativeDestruct()
 {
 	// 공용 델리게이트 해제
-	if (OnCloseUIRequested.IsBound())
+	if (OnCloseUIRequestedDel.IsBound())
 	{
-		OnCloseUIRequested.Clear();
+		OnCloseUIRequestedDel.Clear();
 	}
 	Super::NativeDestruct();
 }
@@ -36,6 +42,11 @@ void ULRBaseWidget::NativeDestruct()
 void ULRBaseWidget::InitializeUI()
 {
 	// 자식 클래스에서 오버라이드하여 초기화 로직 구현
+}
+
+void ULRBaseWidget::DeinitializeUI()
+{
+	// 자식 클래스에서 오버라이드하여 정리 로직 구현
 }
 
 void ULRBaseWidget::OpenUI()
@@ -77,8 +88,8 @@ void ULRBaseWidget::BindToController(ALRControllerBase* Controller)
 
 void ULRBaseWidget::OnCloseRequested()
 {
-	if (OnCloseUIRequested.IsBound())
+	if (OnCloseUIRequestedDel.IsBound())
 	{
-		OnCloseUIRequested.Broadcast(this);
+		OnCloseUIRequestedDel.Broadcast(this);
 	}
 }

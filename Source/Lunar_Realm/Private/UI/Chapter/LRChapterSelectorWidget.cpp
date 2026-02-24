@@ -18,11 +18,11 @@ void ULRChapterSelectorWidget::NativeConstruct()
 
 	if (ALRControllerBase* PC = Cast<ALRControllerBase>(GetWorld()->GetFirstPlayerController()))
 	{
-		OnCloseUIRequested.AddDynamic(PC, &ALRControllerBase::CloseWidget);
+		OnCloseUIRequestedDel.AddDynamic(PC, &ALRControllerBase::CloseWidget);
 	}
 }
 
 void ULRChapterSelectorWidget::OnBackButtonClicked()
 {
-	OnCloseUIRequested.Broadcast(this);
+	OnCloseUIRequestedDel.Broadcast(this);
 }

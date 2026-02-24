@@ -12,7 +12,6 @@ ULRPersistentWidget::ULRPersistentWidget(const FObjectInitializer& ObjectInitial
 	:Super(ObjectInitializer)
 {
 	UILayer = EUILayer::PERSISTENT;
-	ZOrder = 50;
 }
 
 void ULRPersistentWidget::InitializeUI()

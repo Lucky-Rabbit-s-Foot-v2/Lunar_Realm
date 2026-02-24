@@ -8,9 +8,8 @@ ULRPopupWidget::ULRPopupWidget(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
 	UILayer = EUILayer::POPUP;
-	ZOrder = 100;
 	bIsModal = true;
-	bIsFocusable = true;
+	SetIsFocusable(true);
 }
 
 FReply ULRPopupWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)

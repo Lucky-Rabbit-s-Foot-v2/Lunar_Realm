@@ -7,5 +7,4 @@ ULRToolTipWidget::ULRToolTipWidget(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
 	UILayer = EUILayer::TOOLTIP;
-	ZOrder = 500;
 }
