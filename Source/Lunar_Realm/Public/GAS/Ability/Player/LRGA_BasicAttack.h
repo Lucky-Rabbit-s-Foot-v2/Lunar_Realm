@@ -14,6 +14,7 @@
 // (260209) BJM 제작. Attack Ability 생성.
 // (260219) KHS GA동작방식 변경. 생성자 수정.
 // (260219) BJM GA동작방식 수정
+// (260224) BJM 애님 노티파이 추가
 //=============================================================================
 
 UCLASS()
@@ -34,5 +35,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 
+protected:
+	// 몽타주에서 날아온 타격 이벤트를 받았을 때 실행될 함수
+	UFUNCTION()
+	void OnHitEventReceived(FGameplayEventData InPayload);
 
+	// 몽타주 재생이 완전히 끝났을 때 어빌리티를 종료할 함수
+	UFUNCTION()
+	void OnMontageEnded();
 };

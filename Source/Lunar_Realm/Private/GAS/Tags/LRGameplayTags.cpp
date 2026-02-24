@@ -58,8 +58,8 @@ namespace LRTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Command_Toggle, "Input.Command.Toggle");
 
 	
-	
-	
+	// 노티파이 태그
+	UE_DEFINE_GAMEPLAY_TAG(Notify_Combat_BasicHit, "Notify.Combat.BasicHit");
 	
 	
 }

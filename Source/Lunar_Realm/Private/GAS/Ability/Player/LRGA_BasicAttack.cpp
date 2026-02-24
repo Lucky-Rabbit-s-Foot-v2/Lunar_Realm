@@ -6,6 +6,8 @@
 #include "Units/LRCharacter.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "GAS/Tags/LRGameplayTags.h"
 
 
@@ -52,11 +54,6 @@ void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
 		return;
 	}
 
-	//ULRCombatComponent* CombatComp = OwnerChar->FindComponentByClass<ULRCombatComponent>();
-	//if (CombatComp)
-	//{
-	//	TargetActor = CombatComp->GetCurrentTarget();
-	//}
 
 	// 타겟 정보
 	const AActor* TargetActor = CachedTarget;
@@ -67,7 +64,67 @@ void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
 		return;
 	}
 
-	// 데미지 적용
+	//// 데미지 적용
+	//if (DamageEffectClass && GetOwnerASC())
+	//{
+	//	FGameplayEffectContextHandle Context = GetOwnerASC()->MakeEffectContext();
+	//	FGameplayEffectSpecHandle SpecHandle = GetOwnerASC()->MakeOutgoingSpec(DamageEffectClass, 1.0f, Context);
+
+	//	if (SpecHandle.IsValid())
+	//	{
+	//		UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor);
+	//		if (TargetASC)
+	//		{
+	//			TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+	//			UE_LOG(LogTemp, Warning, TEXT("[GA_Attack] 데미지 GE 적용 성공! 타겟: %s"), *TargetActor->GetName());
+	//		}
+	//		else
+	//		{
+	//			UE_LOG(LogTemp, Error, TEXT("[GA_Attack] 타겟의 ASC를 찾을 수 없습니다! 타겟: %s"), *TargetActor->GetName());
+	//		}
+	//	}
+	//}
+	//else
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("[GA_Attack] DamageEffectClass가 None이거나 내 ASC가 없습니다!"));
+	//}
+
+	if (!CachedTarget)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[GA] CachedTarget이 NULL입니다! 캐스팅 실패!"));
+	}
+
+	// 몽타주 적용
+	if (AttackMontage)
+	{
+		//OwnerChar->PlayAnimMontage(AttackMontage);
+
+		UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, AttackMontage);
+
+		MontageTask->OnBlendOut.AddDynamic(this, &ULRGA_BasicAttack::OnMontageEnded);
+		MontageTask->OnCompleted.AddDynamic(this, &ULRGA_BasicAttack::OnMontageEnded);
+		MontageTask->OnInterrupted.AddDynamic(this, &ULRGA_BasicAttack::OnMontageEnded);
+		MontageTask->OnCancelled.AddDynamic(this, &ULRGA_BasicAttack::OnMontageEnded);
+
+		MontageTask->ReadyForActivation();
+
+	}
+
+	UAbilityTask_WaitGameplayEvent* EventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, LRTags::Notify_Combat_BasicHit);
+	EventTask->EventReceived.AddDynamic(this, &ULRGA_BasicAttack::OnHitEventReceived);
+	EventTask->ReadyForActivation();
+
+	//EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+	
+	
+	
+}
+
+void ULRGA_BasicAttack::OnHitEventReceived(FGameplayEventData InPayload)
+{
+	const AActor* TargetActor = CachedTarget;
+	if (!TargetActor) return;
+
 	if (DamageEffectClass && GetOwnerASC())
 	{
 		FGameplayEffectContextHandle Context = GetOwnerASC()->MakeEffectContext();
@@ -79,46 +136,17 @@ void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
 			if (TargetASC)
 			{
 				TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-				UE_LOG(LogTemp, Warning, TEXT("[GA_Attack] 데미지 GE 적용 성공! 타겟: %s"), *TargetActor->GetName());
-			}
-			else
-			{
-				UE_LOG(LogTemp, Error, TEXT("[GA_Attack] 타겟의 ASC를 찾을 수 없습니다! 타겟: %s"), *TargetActor->GetName());
+				UE_LOG(LogTemp, Warning, TEXT("노티파이 타이밍에 데미지 성공 타겟: %s"), *TargetActor->GetName());
 			}
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("[GA_Attack] DamageEffectClass가 None이거나 내 ASC가 없습니다!"));
+		UE_LOG(LogTemp, Error, TEXT("DamageEffectClass가 None이거나 내 ASC가 없음"));
 	}
-	//if (DamageEffectClass && GetAbilitySystemComponentFromActorInfo())
-	//{
-	//	FGameplayEffectContextHandle Context = GetAbilitySystemComponentFromActorInfo()->MakeEffectContext();
-	//	FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponentFromActorInfo()->MakeOutgoingSpec(DamageEffectClass, 1.0f, Context);
+}
 
-	//	if (SpecHandle.IsValid())
-	//	{
-	//		UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor);
-	//		if (TargetASC)
-	//		{
-	//			TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-	//		}
-	//	}
-	//}
-
-	if (!CachedTarget)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[GA] CachedTarget이 NULL입니다! 캐스팅 실패!"));
-	}
-
-	// 몽타주 적용
-	if (AttackMontage)
-	{
-		OwnerChar->PlayAnimMontage(AttackMontage);
-	}
-
-	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-	
-	
-	
+void ULRGA_BasicAttack::OnMontageEnded()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
