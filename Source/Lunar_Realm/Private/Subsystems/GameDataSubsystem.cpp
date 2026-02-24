@@ -143,7 +143,7 @@ void UGameDataSubsystem::CacheAllData()
 	
 	//스킬 데이터 캐싱
 	CacheDataTable<FSkillStaticData, FName>(
-		LoadedSkillStaticData, CachedSkillStaticData, &FSkillStaticData::DataID, TEXT("SkillStaticData"));
+		LoadedSkillStaticData, CachedSkillStaticData, &FSkillStaticData::SkillID, TEXT("SkillStaticData"));
 	
 	//에너미 데이터 캐싱
 	CacheDataTable<FEnemyStaticData, FName>(
