@@ -15,7 +15,9 @@ ULRGA_Heal::ULRGA_Heal()
 	// SetAssetTags(Tags);
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	
-	AbilityTags.AddTag(LRTags::Ability_Skill_Heal);
+	FGameplayTagContainer TempTags = GetAssetTags();
+	TempTags.AddTag(LRTags::Ability_Skill_Heal);
+	SetAssetTags(TempTags);
 	
 	//(260219) KHS 이벤트 태그를 전달하여 발동되도록 트리거 등록
 	FAbilityTriggerData TriggerData;

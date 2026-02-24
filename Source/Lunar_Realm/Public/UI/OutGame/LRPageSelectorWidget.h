@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/BaseWidget.h"
+#include "UI/Common/LRPopupWidget.h"
 #include "LRPageSelectorWidget.generated.h"
 
 
@@ -21,17 +21,13 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPartyButtonClicked);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGachaButtonClicked);
 
 UCLASS()
-class LUNAR_REALM_API ULRPageSelectorWidget : public UBaseWidget
+class LUNAR_REALM_API ULRPageSelectorWidget : public ULRPopupWidget
 {
 	GENERATED_BODY()
 	
 public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
-
-	virtual void OpenUI() override;
-	virtual void CloseUI() override;
-	virtual void RefreshUI() override;
 
 	UPROPERTY(BlueprintAssignable, Category = "LR|UI")
 	FOnStageButtonClicked OnStageButtonClickedDel;

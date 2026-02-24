@@ -20,6 +20,7 @@
 // (260208) BJM 타겟 락온 기능 추기
 // (260210) BJM 카메라 컴포넌트 추가로 인한 스프링암, 카메라 컴포넌트 주석처리
 // (260212) BJM 사망 처리 추가
+// (260223) BJM 사망 후 조작 적용
 //=============================================================================
 
 class ULRInputConfig;
@@ -44,6 +45,13 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	void ToggleAutoMode();
+	void UsePotion();
+
+	/** 소환 슬롯 테스트를 위한 함수 : 정적 데이터 입력 */
+	UFUNCTION(BlueprintImplementableEvent, Category = "LR|Test")
+	void TestSummonSlot();
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
@@ -102,5 +110,37 @@ protected:
 
 	bool bIsDead = false;
 
+	UFUNCTION()
+	void RespawnPlayer();
+
+	FTimerHandle RespawnTimerHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "LR|Respawn")
+	float RespawnTime = 5.0f;
+
+public:
+	float GetCameraOffsetY() const { return CameraOffsetY; }
+
+protected:
+	float CameraOffsetY = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera Setting")
+	float DeadCameraSpeed = 1000.0f;
+
+public:
+public:
+	bool IsInvincible() const { return bIsInvincible; }
+
+protected:
+	bool bIsInvincible = false;
+
+	FTimerHandle BlinkTimerHandle;
+	FTimerHandle InvincibilityTimerHandle;
+
+	UFUNCTION()
+	void  OnBlinkTimer();
+
+	UFUNCTION()
+	void EndInvincibility();
 
 };

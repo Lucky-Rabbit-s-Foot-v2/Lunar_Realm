@@ -23,26 +23,6 @@ void ULRStageSelectorWidget::NativeConstruct()
 	}
 }
 
-void ULRStageSelectorWidget::NativeDestruct()
-{
-	Super::NativeDestruct();
-}
-
-void ULRStageSelectorWidget::OpenUI()
-{
-	Super::OpenUI();
-}
-
-void ULRStageSelectorWidget::CloseUI()
-{
-	Super::CloseUI();
-}
-
-void ULRStageSelectorWidget::RefreshUI()
-{
-	Super::RefreshUI();
-}
-
 void ULRStageSelectorWidget::OnBackButtonClicked()
 {
 	OnCloseUIRequested.Broadcast(this);

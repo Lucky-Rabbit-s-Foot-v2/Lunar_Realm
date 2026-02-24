@@ -36,21 +36,6 @@ void UStageWidget::NativeDestruct()
 	Super::NativeDestruct();
 }
 
-void UStageWidget::OpenUI()
-{
-	Super::OpenUI();
-}
-
-void UStageWidget::CloseUI()
-{
-	Super::CloseUI();
-}
-
-void UStageWidget::RefreshUI()
-{
-	Super::RefreshUI();
-}
-
 void UStageWidget::OnOpenButtonClicked()
 {
 	OnStageOpenClickedDel.Broadcast(StageID);

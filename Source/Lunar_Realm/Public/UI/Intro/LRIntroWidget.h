@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/BaseWidget.h"
+#include "UI/Common/LRPopupWidget.h"
 #include "LRIntroWidget.generated.h"
 
 // =============================================================================
@@ -19,20 +19,18 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnIntroAnimFinished);
 
 UCLASS()
-class LUNAR_REALM_API ULRIntroWidget : public UBaseWidget
+class LUNAR_REALM_API ULRIntroWidget : public ULRPopupWidget
 {
 	GENERATED_BODY()
 	
 public:
-	ULRIntroWidget()
-	{
-		UILayer = EUILayer::POPUP;
-	}
-
+	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
 	virtual void OpenUI() override;
 	virtual void RefreshUI() override;
+	
+	virtual void BindToController(class ALRControllerBase* Controller);
 
 	UPROPERTY(BlueprintAssignable, Category = "LR|UI")
 	FOnIntroAnimFinished OnIntroAnimFinishedDel;

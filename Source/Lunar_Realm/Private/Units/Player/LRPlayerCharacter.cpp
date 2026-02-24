@@ -6,7 +6,6 @@
 #include "GameFramework/PlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/LocalPlayer.h"
-#include "UI/HUD/LRStageHUD.h"
 
 #include "Units/Player/LRPlayerState.h"
 #include "AbilitySystemComponent.h"
@@ -16,10 +15,16 @@
 
 #include "Input/LRInputComponent.h"
 #include "Input/LRInputConfig.h"   
-#include "GameplayTagsManager.h"
 #include "GAS/Tags/LRGameplayTags.h"
+#include "GAS/Attributes/LRPlayerAttributeSet.h"
 
+#include "GameplayTagsManager.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Animation/AnimInstance.h"
+#include "Structures/Core/LRPlayerCore.h"
+#include "Kismet/GameplayStatics.h"
+#include "TimerManager.h"
 
 
 
@@ -55,6 +60,8 @@ void ALRPlayerCharacter::BeginPlay()
 		}
 	}
 
+	// TODO: 테스트용으로 임시 배치.
+	TestSummonSlot();
 }
 
 void ALRPlayerCharacter::PossessedBy(AController* NewController)
@@ -77,24 +84,6 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 		}
 
 		UE_LOG(LogTemp, Log, TEXT("GAS Initialized completely in %s"), *GetName());
-	}
-	if (APlayerController* PC = Cast<APlayerController>(NewController))
-	{
-		AHUD* RawHUD = PC->GetHUD();
-		if (RawHUD)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("HUD Found: %s"), *RawHUD->GetName());
-		}
-
-		if (ALRStageHUD* LRHUD = Cast<ALRStageHUD>(RawHUD))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("HUD Cast SUCCESS! Initializing Overlay..."));
-			LRHUD->InitOverlay(PC, PS, AbilitySystemComponent, AttributeSet);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("HUD Cast FAILED! Is BP_StageHUD parent class 'ALRHUD'?"));
-		}
 	}
 }
 
@@ -168,6 +157,19 @@ UAbilitySystemComponent* ALRPlayerCharacter::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+void ALRPlayerCharacter::ToggleAutoMode()
+{
+	if (CombatComponent)
+	{
+		CombatComponent->ToggleAutoMode();
+	}
+}
+
+void ALRPlayerCharacter::UsePotion()
+{
+	AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Heal"))));
+}
+
 void ALRPlayerCharacter::Move(const FInputActionValue& Value)
 {
 	if (CombatComponent && CombatComponent->IsAutoMode())
@@ -176,6 +178,24 @@ void ALRPlayerCharacter::Move(const FInputActionValue& Value)
 	}
 
 	FVector2D MovementVector = Value.Get<FVector2D>();
+
+	if (bIsDead)
+	{
+		CameraOffsetY += MovementVector.X * DeadCameraSpeed * GetWorld()->GetDeltaSeconds();
+
+		float CurrentY = GetActorLocation().Y;
+
+		// TODO : 추후 맵 확정될때 CameraManager의 MinY, MaxY랑 값 맞춰줘야함
+		float MapMinY = -1000.0f;
+		float MapMaxY = 1000.0f;
+
+		float LimitMin = MapMinY - CurrentY;
+		float LimitMax = MapMaxY - CurrentY;
+
+		CameraOffsetY = FMath::Clamp(CameraOffsetY, LimitMin, LimitMax);
+
+		return;
+	}
 
 	if (Controller != nullptr)
 	{
@@ -258,12 +278,7 @@ void ALRPlayerCharacter::Die()
 	if (bIsDead) return;
 	bIsDead = true;
 
-	LR_INFO(TEXT("플레이어 사망! 게임 오버 대기 상태 진입."));
-
-	if (APlayerController* PC = Cast<APlayerController>(GetController()))
-	{
-		DisableInput(PC);
-	}
+	LR_INFO(TEXT("플레이어 사망"));
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -274,4 +289,70 @@ void ALRPlayerCharacter::Die()
 	{
 		PlayAnimMontage(DeathMontage);
 	}
+
+	GetWorld()->GetTimerManager().SetTimer(RespawnTimerHandle, this, &ALRPlayerCharacter::RespawnPlayer, RespawnTime, false);
+
+}
+
+void ALRPlayerCharacter::RespawnPlayer()
+{
+	bIsDead = false;
+
+	AActor* FoundCore = UGameplayStatics::GetActorOfClass(GetWorld(), ALRPlayerCore::StaticClass());
+	if (ALRPlayerCore* PlayerCore = Cast<ALRPlayerCore>(FoundCore))
+	{
+		FVector SpawnLoc = PlayerCore->GetRandomSpawnLocation();
+		SetActorLocation(SpawnLoc);
+	}
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		if (UAnimInstance* AnimInst = MeshComp->GetAnimInstance())
+		{
+			AnimInst->StopAllMontages(0.0f);
+		}
+	}
+
+
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
+	{
+		float MaxHP = ASC->GetNumericAttribute(ULRPlayerAttributeSet::GetMaxHealthAttribute());
+		ASC->SetNumericAttributeBase(ULRPlayerAttributeSet::GetHealthAttribute(), MaxHP);
+	}
+
+	LR_INFO(TEXT("플레이어 코어에서 부활 완료"));
+
+	CameraOffsetY = 0.0f;
+
+	bIsInvincible = true;
+
+	GetWorld()->GetTimerManager().SetTimer(BlinkTimerHandle, this, &ALRPlayerCharacter::OnBlinkTimer, 0.15f, true);
+	GetWorld()->GetTimerManager().SetTimer(InvincibilityTimerHandle, this, &ALRPlayerCharacter::EndInvincibility, 2.0f, false);
+
+	// TODO: 무적 & 깜빡임 효과
+}
+
+void ALRPlayerCharacter::OnBlinkTimer()
+{
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		MeshComp->SetHiddenInGame(!MeshComp->bHiddenInGame);
+	}
+}
+
+void ALRPlayerCharacter::EndInvincibility()
+{
+	bIsInvincible = false;
+
+	GetWorld()->GetTimerManager().ClearTimer(BlinkTimerHandle);
+
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		MeshComp->SetHiddenInGame(false);
+	}
+
+	LR_INFO(TEXT("무적 및 깜빡임 종료"));
 }

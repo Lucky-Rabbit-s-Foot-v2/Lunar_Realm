@@ -35,20 +35,6 @@ void ULRLobbyFigureWidget::NativeDestruct()
 	Super::NativeDestruct();
 }
 
-void ULRLobbyFigureWidget::OpenUI()
-{
-	Super::OpenUI();
-
-	RefreshUI();
-}
-
-void ULRLobbyFigureWidget::RefreshUI()
-{
-	Super::RefreshUI();
-
-	// TODO: 멤버가 바뀌면 Img_Figure 갱신
-}
-
 void ULRLobbyFigureWidget::OnFigurePressed()
 {
 	bIsLongPressTriggered = false;

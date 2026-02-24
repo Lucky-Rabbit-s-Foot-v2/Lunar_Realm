@@ -22,26 +22,6 @@ void ULRChapterSelectorWidget::NativeConstruct()
 	}
 }
 
-void ULRChapterSelectorWidget::NativeDestruct()
-{
-	Super::NativeDestruct();
-}
-
-void ULRChapterSelectorWidget::OpenUI()
-{
-	Super::OpenUI();
-}
-
-void ULRChapterSelectorWidget::CloseUI()
-{
-	Super::CloseUI();
-}
-
-void ULRChapterSelectorWidget::RefreshUI()
-{
-	Super::RefreshUI();
-}
-
 void ULRChapterSelectorWidget::OnBackButtonClicked()
 {
 	OnCloseUIRequested.Broadcast(this);

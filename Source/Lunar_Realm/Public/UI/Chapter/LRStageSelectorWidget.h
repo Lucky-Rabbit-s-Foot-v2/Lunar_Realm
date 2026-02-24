@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/BaseWidget.h"
+#include "UI/Common/LRPopupWidget.h"
 #include "LRStageSelectorWidget.generated.h"
 
 //============================================================================
@@ -16,18 +16,13 @@
  //============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRStageSelectorWidget : public UBaseWidget
+class LUNAR_REALM_API ULRStageSelectorWidget : public ULRPopupWidget
 {
 	GENERATED_BODY()
 	
 public:
 	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
 	
-	virtual void OpenUI() override;
-	virtual void CloseUI() override;
-	virtual void RefreshUI() override;
-
 	UFUNCTION(BlueprintCallable, Category = "LR|UI")
 	void OnBackButtonClicked();
 

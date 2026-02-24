@@ -3,10 +3,13 @@
 
 #include "Structures/Core/LREnemyCore.h"
 #include "System/LoggingSystem.h"
+#include "Core/Stage/LRStageGameMode.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 ALREnemyCore::ALREnemyCore()
 {
-	OwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("EnemyEnemy.Structure.Core")));
+	OwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Enemy.Structure.Core")));
 }
 
 void ALREnemyCore::BeginPlay()
@@ -22,4 +25,9 @@ void ALREnemyCore::OnCoreDestroyed()
 
 	// TODO: GameMode에서 플레이어 승리 알림 호출
 	LR_WARN(TEXT("적 코어 파괴 플레이어 승리"));
+	
+	if (ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(UGameplayStatics::GetGameMode(this)))
+	{
+		StageGM->OnGameOver(false);
+	}
 }

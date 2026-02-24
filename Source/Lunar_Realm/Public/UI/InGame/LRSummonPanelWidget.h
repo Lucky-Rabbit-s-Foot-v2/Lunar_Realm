@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/BaseWidget.h"
+#include "UI/Common/LRPopupWidget.h"
 #include "LRSummonPanelWidget.generated.h"
 
 class ULRSummonSlotWidget;
@@ -17,12 +17,13 @@ class UHorizontalBox;
  // =============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRSummonPanelWidget : public UBaseWidget
+class LUNAR_REALM_API ULRSummonPanelWidget : public ULRPopupWidget
 {
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
+	virtual void InitializeUI() override;
+	virtual void RefreshUI() override;
 
 	UFUNCTION(BlueprintCallable)
 	void InitPanel();

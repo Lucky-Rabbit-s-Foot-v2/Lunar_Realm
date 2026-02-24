@@ -2,6 +2,7 @@
 
 
 #include "GAS/Attributes/LRPlayerAttributeSet.h"
+#include "Units/Player/LRPlayerCharacter.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
 
@@ -20,6 +21,17 @@ void ULRPlayerAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 
 	if (Attribute == GetHealthAttribute())
 	{
+		if (NewValue < GetHealth())
+		{
+			if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetOwningAbilitySystemComponent()->GetAvatarActor()))
+			{
+				if (PC->IsInvincible())
+				{
+					NewValue = GetHealth();
+					LR_INFO(TEXT("무적 상태 데미지 무시"));
+				}
+			}
+		}
 		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxHealth());
 	}
 }
