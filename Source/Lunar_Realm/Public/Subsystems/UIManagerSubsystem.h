@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-#include "UI/BaseWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 #include "UIManagerSubsystem.generated.h"
 
 /**
@@ -33,7 +33,7 @@ public:
 	virtual void Deinitialize() override;
 	private:
     /** UI 레이어에 따라 적절한 ZOrder 계산 (Persistent: 낮음, Popup: 높음) */
-    int32 CalculateZOrder(UBaseWidget* Widget) const;
+    int32 CalculateZOrder(ULRBaseWidget* Widget) const;
     
     /** 현재 Popup 스택 상태에 따라 입력 모드 변경 (UIOnly ↔ GameOnly) */
     void NotifyInputModeChange();
@@ -43,7 +43,7 @@ public:
      * - 템플릿 CloseUI와 오버로드 CloseUI가 모두 사용
      * - 중복 로직 방지 및 유지보수성 향상
      */
-    void CloseUIInternal(UBaseWidget* Widget);
+    void CloseUIInternal(ULRBaseWidget* Widget);
     
 public:
     /**
@@ -83,7 +83,7 @@ public:
      * - 주로 위젯의 닫기 요청 델리게이트 핸들러에서 사용
      * @param Widget 닫고자 하는 위젯 인스턴스
      */
-    void CloseUI(UBaseWidget* Widget);
+    void CloseUI(ULRBaseWidget* Widget);
     
     /** 
      * 스택 최상위 Popup만 닫기
@@ -117,14 +117,14 @@ public:
 private:
     /** 현재 열려있는 Persistent UI들의 맵 (클래스 -> 인스턴스) */
     UPROPERTY()
-    TMap<TSubclassOf<UBaseWidget>, UBaseWidget*> PersistentUIMap;
+    TMap<TSubclassOf<ULRBaseWidget>, ULRBaseWidget*> PersistentUIMap;
     
     /** 
      * 열려있는 Popup UI들의 스택 (Last = 최상위/포커스 중)
      * 나중에 추가된 것이 위에 표시되고 먼저 입력 받음
      */
     UPROPERTY()
-    TArray<UBaseWidget*> PopupUIStack;
+    TArray<ULRBaseWidget*> PopupUIStack;
     
     /** 
      * 생성된 모든 위젯의 캐시 (클래스 -> 인스턴스)
@@ -132,7 +132,7 @@ private:
      * 상태 유지: UI를 닫아도 데이터 보존
      */
     UPROPERTY()
-    TMap<TSubclassOf<UBaseWidget>, UBaseWidget*> CachedWidgets;
+    TMap<TSubclassOf<ULRBaseWidget>, ULRBaseWidget*> CachedWidgets;
 };
 
 
@@ -143,7 +143,7 @@ private:
 template<typename T>
 T* UUIManagerSubsystem::GetOrCreateWidget(TSubclassOf<T> WidgetClassFactory)
 {
-    TSubclassOf<UBaseWidget> TargetClassFactory = WidgetClassFactory;
+    TSubclassOf<ULRBaseWidget> TargetClassFactory = WidgetClassFactory;
     
     // 캐싱된 UI가 있으면 반환(클래스 설계도로 실제 인스턴스 키 있는지 검사)
     if (CachedWidgets.Contains(TargetClassFactory))
@@ -189,13 +189,13 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
         return Widget;
     }
     
-    UBaseWidget* BaseWidget = Widget;
+	ULRBaseWidget* BaseWidget = Widget;
 	BaseWidget->InitializeUI();
 
     // Persistent 타입 UI일 때
     if (BaseWidget->UILayer == EUILayer::PERSISTENT)
     {
-        TSubclassOf<UBaseWidget> BaseClassFactory = TargetClassFactory;
+        TSubclassOf<ULRBaseWidget> BaseClassFactory = TargetClassFactory;
         if (!PersistentUIMap.Contains(BaseClassFactory))
         {
             PersistentUIMap.Add(BaseClassFactory, BaseWidget);
@@ -235,7 +235,7 @@ void UUIManagerSubsystem::CloseUI(TSubclassOf<T> targetClassFactory)
 		return;
 	}
 	
-	TSubclassOf<UBaseWidget> baseClassFactory = targetClassFactory;
+	TSubclassOf<ULRBaseWidget> baseClassFactory = targetClassFactory;
 	
 	// 캐싱중인 UI라면 리턴
 	if (!CachedWidgets.Contains(baseClassFactory))
@@ -243,7 +243,7 @@ void UUIManagerSubsystem::CloseUI(TSubclassOf<T> targetClassFactory)
 		return;
 	}
 	
-	UBaseWidget* widget = CachedWidgets[baseClassFactory];
+	ULRBaseWidget* widget = CachedWidgets[baseClassFactory];
 	
 	//실제 닫기 로직은 내부 헬퍼함수 호출
 	CloseUIInternal(widget);

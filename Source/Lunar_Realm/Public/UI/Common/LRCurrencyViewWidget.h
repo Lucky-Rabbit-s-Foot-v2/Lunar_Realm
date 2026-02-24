@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Data/LREnumType.h"
-#include "UI/Common/LRPopupWidget.h"
+#include "UI/Core/LRPopupWidget.h"
 #include "LRCurrencyViewWidget.generated.h"
 
 

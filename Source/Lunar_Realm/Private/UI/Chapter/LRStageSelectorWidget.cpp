@@ -4,7 +4,7 @@
 #include "UI/Chapter/LRStageSelectorWidget.h"
 
 #include "Components/Button.h"
-#include "UI/Chapter/StageWidget.h"
+#include "UI/Chapter/LRStageWidget.h"
 
 #include "Units/LRControllerBase.h"
 

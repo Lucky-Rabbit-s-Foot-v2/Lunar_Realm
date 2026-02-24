@@ -7,7 +7,7 @@
 #include "Data/LRDataStructs.h"
 #include "Data/LREnumType.h"
 
-#include "UI/BaseWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 
 #include "LRGachaRevealWidget.generated.h"
 
@@ -19,7 +19,7 @@
  */
 
 UCLASS()
-class LUNAR_REALM_API ULRGachaRevealWidget : public UBaseWidget
+class LUNAR_REALM_API ULRGachaRevealWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
 	

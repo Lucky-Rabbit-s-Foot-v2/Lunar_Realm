@@ -6,7 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Engine/GameInstance.h"
 #include "Subsystems/UIManagerSubsystem.h"
-#include "UI/Common/LRPersistentWidget.h"
+#include "UI/Core/LRPersistentWidget.h"
 #include "LRControllerBase.generated.h"
 
 //============================================================================
@@ -29,7 +29,7 @@ public:
 	void OpenPersistentWidget();
 
 	UFUNCTION(BlueprintCallable)
-	UBaseWidget* GetPersistentWidget();
+	ULRBaseWidget* GetPersistentWidget();
 
 	UFUNCTION(BlueprintCallable)
 	void SetCurrentPersistentType(EPersistentType InPersistentType);
@@ -38,7 +38,7 @@ public:
 	T* OpenWidget(TSubclassOf<T> WidgetClass);
 
 	UFUNCTION(BlueprintCallable)
-	void CloseWidget(UBaseWidget* Widget);
+	void CloseWidget(ULRBaseWidget* Widget);
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI|Persistent")

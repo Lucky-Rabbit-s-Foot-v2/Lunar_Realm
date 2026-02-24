@@ -4,39 +4,32 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRPopupWidget.h"
-#include "LRChapterSelectorWidget.generated.h"
+#include "LRShopWidget.generated.h"
 
 
 //============================================================================
 /**
- * 챕터 선택 UI 위젯
- * - 여러 챕터 표시하고 선택 가능
+ * 상점 페이지 UI 위젯
+ * - 기본적으로 존재하는 UI는 없으며, 추후 기획에 따라 구현 예정
  */
  //============================================================================
- // (260213) PJB 제작. 제반 사항 구현
+ // (260213) PJB 제작.
  //============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRChapterSelectorWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRShopWidget : public ULRPopupWidget
 {
 	GENERATED_BODY()
 	
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 	
+private:
 	UFUNCTION(BlueprintCallable, Category = "LR|UI")
-	void OnBackButtonClicked();
+	void CloseButtonClicked();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRChapterWidget> Chapter1;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRChapterWidget> Chapter2;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRChapterWidget> Chapter3;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Back;
+	TObjectPtr<class UButton> Btn_Close;
 };

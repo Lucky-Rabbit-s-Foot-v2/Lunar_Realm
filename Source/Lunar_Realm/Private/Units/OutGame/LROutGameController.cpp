@@ -10,7 +10,7 @@
 
 #include "Subsystems/UIManagerSubsystem.h"
 
-#include "UI/OutGame/LRLobbyWidget.h"
+#include "UI/Lobby/LRLobbyWidget.h"
 #include "UI/Gacha/LRGachaShopWidget.h"
 #include "UI/Chapter/LRChapterSelectorWidget.h"
 #include "UI/Chapter/LRStageSelectorWidget.h"
@@ -63,7 +63,7 @@ void ALROutGameController::OpenShopWidget()
 {
 	if (ShopWidgetClass)
 	{
-		OpenWidget<UBaseWidget>(ShopWidgetClass);
+		OpenWidget<ULRBaseWidget>(ShopWidgetClass);
 	}
 	else
 	{
@@ -75,7 +75,7 @@ void ALROutGameController::OpenShopWidgetByCurrency()
 {
 	if (ShopWidgetClass)
 	{
-		OpenWidget<UBaseWidget>(ShopWidgetClass);
+		OpenWidget<ULRBaseWidget>(ShopWidgetClass);
 	}
 	else
 	{

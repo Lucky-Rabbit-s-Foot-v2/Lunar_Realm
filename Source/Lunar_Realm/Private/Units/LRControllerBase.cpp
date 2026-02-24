@@ -17,7 +17,7 @@ void ALRControllerBase::OpenPersistentWidget()
 	}
 }
 
-UBaseWidget* ALRControllerBase::GetPersistentWidget()
+ULRBaseWidget* ALRControllerBase::GetPersistentWidget()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	return UIManager->GetOrCreateWidget(PersistentWidgetClasses[CurrentPersistentType]);
@@ -36,7 +36,7 @@ void ALRControllerBase::SetCurrentPersistentType(EPersistentType InPersistentTyp
 	OpenPersistentWidget();
 }
 
-void ALRControllerBase::CloseWidget(UBaseWidget* Widget)
+void ALRControllerBase::CloseWidget(ULRBaseWidget* Widget)
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	UIManager->CloseUI(Widget);

@@ -31,7 +31,7 @@ void UUIManagerSubsystem::Deinitialize()
 	Super::Deinitialize();
 }
 
-int32 UUIManagerSubsystem::CalculateZOrder(UBaseWidget* Widget) const
+int32 UUIManagerSubsystem::CalculateZOrder(ULRBaseWidget* Widget) const
 {
 	if (!Widget)
 	{
@@ -69,7 +69,7 @@ void UUIManagerSubsystem::NotifyInputModeChange()
 	PC->SetShowMouseCursor(true);
 }
 
-void UUIManagerSubsystem::CloseUIInternal(UBaseWidget* Widget)
+void UUIManagerSubsystem::CloseUIInternal(ULRBaseWidget* Widget)
 {
 	if (!Widget || !Widget->IsOpen())
 	{
@@ -81,7 +81,7 @@ void UUIManagerSubsystem::CloseUIInternal(UBaseWidget* Widget)
 		Widget->CloseUI();
 		Widget->RemoveFromParent();
         
-		TSubclassOf<UBaseWidget> WidgetClass = Widget->GetClass();
+		TSubclassOf<ULRBaseWidget> WidgetClass = Widget->GetClass();
 		PersistentUIMap.Remove(WidgetClass);
 	}
 	else // Popup
@@ -99,7 +99,7 @@ void UUIManagerSubsystem::CloseUIInternal(UBaseWidget* Widget)
 	}
 }
 
-void UUIManagerSubsystem::CloseUI(UBaseWidget* Widget)
+void UUIManagerSubsystem::CloseUI(ULRBaseWidget* Widget)
 {
 	CloseUIInternal(Widget);
 }
@@ -111,7 +111,7 @@ void UUIManagerSubsystem::CloseTopPopupUI()
 		return;
 	}
     
-	UBaseWidget* TopWidget = PopupUIStack.Pop();
+	ULRBaseWidget* TopWidget = PopupUIStack.Pop();
 	TopWidget->CloseUI();
 	TopWidget->RemoveFromParent();
     

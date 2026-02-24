@@ -5,8 +5,8 @@
 #include "GameFramework/TouchInterface.h"
 #include "Units/Player/LRPlayerCharacter.h"
 
-#include "UI/Common/LRPersistentWidget.h"
-#include "UI/Common/LRPopupWidget.h"
+#include "UI/Core/LRPersistentWidget.h"
+#include "UI/Core/LRPopupWidget.h"
 
 #include "Subsystems/UIManagerSubsystem.h"
 #include "TimerManager.h"

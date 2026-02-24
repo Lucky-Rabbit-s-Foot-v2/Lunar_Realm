@@ -4,44 +4,55 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRPopupWidget.h"
-#include "LRStageSelectorWidget.generated.h"
+#include "LRStageWidget.generated.h"
+
 
 //============================================================================
 /**
- * 스테이지 선택 UI 위젯
- * - 여러 스테이지 표시하고 선택 가능
+ * 각 스테이지 UI 위젯
+ * - 스테이지 정보 들고 있어야 함.
  */
  //============================================================================
  // (260213) PJB 제작. 제반 사항 구현
  //============================================================================
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStageOpenClicked, FName, StageID);
+
 UCLASS()
-class LUNAR_REALM_API ULRStageSelectorWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRStageWidget : public ULRPopupWidget
 {
 	GENERATED_BODY()
 	
 public:
 	virtual void NativeConstruct() override;
-	
+	virtual void NativeDestruct() override;
+
+	UPROPERTY(BlueprintAssignable, Category = "LR|Event")
+	FOnStageOpenClicked OnStageOpenClickedDel;
+
+private:
 	UFUNCTION(BlueprintCallable, Category = "LR|UI")
-	void OnBackButtonClicked();
+	void OnOpenButtonClicked();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRStageWidget> Stage1;
+	TObjectPtr<class UButton> Btn_Open;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRStageWidget> Stage2;
+	TObjectPtr<class UTextBlock> Txt_Name;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRStageWidget> Stage3;
+	TObjectPtr<class UImage> Img_Star1;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRStageWidget> Stage4;
+	TObjectPtr<class UImage> Img_Star2;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRStageWidget> Stage5;
+	TObjectPtr<class UImage> Img_Star3;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Back;
+	TObjectPtr<class UImage> Img_Base;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Chapter")
+	FName StageID;
 };

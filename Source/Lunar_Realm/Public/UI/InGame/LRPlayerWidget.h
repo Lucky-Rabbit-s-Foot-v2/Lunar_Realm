@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Common/LRPersistentWidget.h"
+#include "UI/Core/LRPersistentWidget.h"
 #include "LRPlayerWidget.generated.h"
 
 /**

@@ -4,7 +4,7 @@
 #include "Units/OutGame/LRTransitionController.h"
 
 #include "Subsystems/UIManagerSubsystem.h"
-#include "UI/Common/LRPersistentWidget.h"
+#include "UI/Core/LRPersistentWidget.h"
 #include "UI/Intro/LRLoadingWidget.h"
 
 

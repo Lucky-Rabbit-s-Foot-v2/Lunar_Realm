@@ -66,7 +66,7 @@ protected:
 	TSubclassOf<class ULRLobbyWidget> LobbyWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
-	TSubclassOf<class UBaseWidget> ShopWidgetClass;
+	TSubclassOf<class ULRBaseWidget> ShopWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
 	TSubclassOf<class ULRGachaShopWidget> GachaShopWidgetClass;

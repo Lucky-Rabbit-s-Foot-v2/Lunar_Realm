@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Common/LRPopupWidget.h"
+#include "UI/Core/LRPopupWidget.h"
 #include "LRSummonPanelWidget.generated.h"
 
 class ULRSummonSlotWidget;
