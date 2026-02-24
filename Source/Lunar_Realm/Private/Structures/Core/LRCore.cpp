@@ -2,6 +2,7 @@
 
 
 #include "Structures/Core/LRCore.h"
+#include "GAS/Attributes/LRCoreAttributeSet.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "System/LoggingSystem.h"
@@ -12,17 +13,21 @@ ALRCore::ALRCore()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
+
+	AttributeSet = CreateDefaultSubobject<ULRCoreAttributeSet>(TEXT("AttributeSet"));
+
 	HitCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("HitCollision"));
 	SetRootComponent(HitCollision);
 
-	HitCollision->SetBoxExtent(FVector(100.0f, 100.0f, 100.0f));
+	HitCollision->SetBoxExtent(FVector(80.0f, 80.0f, 100.0f));
 	HitCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	HitCollision->SetGenerateOverlapEvents(true);
 
-	HitCollision->SetCollisionObjectType(ECC_WorldStatic);
+	HitCollision->SetCollisionObjectType(ECC_WorldDynamic);
 
 	HitCollision->SetCollisionResponseToAllChannels(ECR_Ignore);
-	HitCollision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	HitCollision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 
 	VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VisualMesh"));
 	VisualMesh->SetupAttachment(HitCollision);
@@ -35,6 +40,15 @@ ALRCore::ALRCore()
 
 void ALRCore::BeginPlay()
 {
+	Super::BeginPlay();
+
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+			AttributeSet->GetHealthAttribute()).AddUObject(this, &ALRCore::OnHealthChanged);
+
+		LR_INFO(TEXT("[%s] GAS 초기화 완료. 현재 체력: %.f"), *GetName(), AttributeSet->GetHealth());
+	}
 }
 
 void ALRCore::OnHitCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -46,3 +60,35 @@ void ALRCore::OnHitCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponen
 	}
 }
 
+void ALRCore::OnHealthChanged(const FOnAttributeChangeData& InData)
+{
+	float NewHealth = InData.NewValue;
+	LR_INFO(TEXT("[%s] 체력 변경 : %.1f"), *GetName(), NewHealth);
+
+	if (NewHealth <= 0.0f)
+	{
+		OnCoreDestroyed();
+	}
+}
+
+void ALRCore::OnCoreDestroyed()
+{
+	if (bIsDestroyed) return;
+	bIsDestroyed = true;
+
+	LR_WARN(TEXT("[%s] 코어 파괴"), *GetName());
+
+	if (HitCollision)
+	{
+		HitCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		HitCollision->SetGenerateOverlapEvents(false);
+	}
+
+	if (VisualMesh)
+	{
+		VisualMesh->SetHiddenInGame(true);
+	}
+
+	SetLifeSpan(2.0f);
+
+}

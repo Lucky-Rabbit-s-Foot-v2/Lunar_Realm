@@ -12,6 +12,7 @@
  */
 //=============================================================================
 // (260205) PJB 제작.
+// (260219) PJB 수정. HUD 제거, 로딩 화면 소스 코드 이관.
 //=============================================================================
 
 UCLASS()
@@ -21,13 +22,9 @@ class LUNAR_REALM_API ALRTransitionGameMode : public ALRGameModeBase
 	
 protected:
 	virtual void BeginPlay() override;
-
+	
 	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
 	void OnLevelPreloaded();
-
-	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
-	TSubclassOf<class ULRLoadingWidget> LoadingWidgetClass = nullptr;
-
 private:
 	FName TargetLevelName;
 };

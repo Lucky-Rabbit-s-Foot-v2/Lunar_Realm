@@ -63,7 +63,6 @@ void ULRLoadingWidget::UpdateProgressBar()
 
 void ULRLoadingWidget::FinishLoading()
 {
-	LR_SCREEN_INFO(TEXT("Loading Finished"));
 	GetWorld()->GetTimerManager().ClearTimer(LoadingTimerHandle);
 
 	Progress = 1.f;

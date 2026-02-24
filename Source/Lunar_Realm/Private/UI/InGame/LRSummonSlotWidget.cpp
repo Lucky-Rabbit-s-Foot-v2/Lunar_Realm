@@ -106,16 +106,16 @@ void ULRSummonSlotWidget::OnSummonedEvent(int32 InSlotIndex, float InCooldownTim
 
 void ULRSummonSlotWidget::OnSummonButtonClicked()
 {
-	//LR_INFO(TEXT("[UI] 버튼 클릭 SlotIndex: %d, SummonComp: %s"),
+	LR_INFO(TEXT("[UI] 버튼 클릭 SlotIndex: %d, SummonComp: %s"),
 		SlotIndex,
-		SummonComp ? TEXT("Valid") : TEXT("NULL");
+		SummonComp ? TEXT("Valid") : TEXT("NULL"));
 	if (SummonComp && SlotIndex >= 0)
 	{
 		SummonComp->TrySummonUnit(SlotIndex);
 	}
 	else
 	{
-		LR_ERROR(TEXT("[UI] 클릭 무시됨 초기화(Init)가 안 됐거나 컴포넌트가 없음."));
+		LR_ERROR(TEXT("[UI] 클릭 무시됨 초기화가 안 됐거나 컴포넌트가 없음."));
 	}
 }
 

@@ -8,11 +8,12 @@
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
 #include "Subsystems/UIManagerSubsystem.h"
+#include "Units/OutGame/LRTransitionController.h"
 
 void ALRTransitionGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	if (ULRGameInstance* GI = Cast<ULRGameInstance>(GetGameInstance()))
 	{
 		TargetLevelName = GI->GetNextLevelName();
@@ -32,15 +33,14 @@ void ALRTransitionGameMode::BeginPlay()
 
 void ALRTransitionGameMode::OnLevelPreloaded()
 {
-	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	if (LoadingWidgetClass)
+	ALRTransitionController* Controller = Cast<ALRTransitionController>(UGameplayStatics::GetPlayerController(this, 0));
+	if (Controller)
 	{
-		ULRLoadingWidget* LoadingWidgetInstance = UIManager->GetOrCreateWidget<ULRLoadingWidget>(LoadingWidgetClass);
-		LoadingWidgetInstance->FinishLoading();
+		Controller->FinishLoading();
 	}
 	else
 	{
-		LR_WARN(TEXT("LoadingWidgetClass is not set in LRTransitionGameMode"));
+		LR_WARN(TEXT("PlayerController is not of type ALRTransitionController in LRTransitionGameMode"));
 	}
 
 	FTimerHandle TimerHandle;

@@ -18,6 +18,7 @@
 //=============================================================================
 // (260123) KHS 제작. 제반 사항 구현.
 // (260213) PJB 수정. 공용 델리게이트 해제 추가.
+// (260213) PJB 수정. 초기화 함수 추가.
 // =============================================================================
 
 /**
@@ -41,8 +42,14 @@ class LUNAR_REALM_API UBaseWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+	/** 초기화를 위해 선언 */
+	virtual void NativeConstruct() override;
+
 	/** 델리게이트 해제를 위해 선언 */
 	virtual void NativeDestruct() override;
+
+	/** UI를 처음 생성할 때 초기화*/
+	virtual void InitializeUI();
 
 	/** UI를 활성화하고 화면에 표시 */
 	virtual void OpenUI();
@@ -59,6 +66,9 @@ public:
 	/** 이 UI 위에 다른 팝업이 열렸을 때 호출 */
 	virtual void OnFocusLost();
     
+	/** PlayerController와 위젯을 바인딩하여 UI 이벤트 처리 */
+	virtual void BindToController(class ALRControllerBase* Controller);
+
 	/** UI가 현재 열려있는지 확인 */
 	FORCEINLINE bool IsOpen() const { return bIsOpen; }
     
@@ -77,7 +87,7 @@ protected:
 public:
 	/** UI 레이어 타입 (Persistent: 지속형, Popup: 팝업형) */
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	EUILayer UILayer = EUILayer::PERSISTENT;
+	EUILayer UILayer = EUILayer::POPUP;
     
 	/** 뷰포트 내 표시 순서 (높을수록 위에 렌더링) */
 	UPROPERTY(EditDefaultsOnly, Category = "UI")

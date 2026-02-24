@@ -7,10 +7,9 @@
 #include "Units/Player/Component/LRSummonComponent.h"
 #include "GameFramework/Pawn.h"
 
-void ULRSummonPanelWidget::NativeConstruct()
+void ULRSummonPanelWidget::InitializeUI()
 {
-	Super::NativeConstruct();
-
+	Super::InitializeUI();
 	SlotArray.Empty();
 	if (SummonSlot_0) SlotArray.Add(SummonSlot_0);
 	if (SummonSlot_1) SlotArray.Add(SummonSlot_1);
@@ -18,14 +17,25 @@ void ULRSummonPanelWidget::NativeConstruct()
 	if (SummonSlot_3) SlotArray.Add(SummonSlot_3);
 }
 
+void ULRSummonPanelWidget::RefreshUI()
+{
+	Super::RefreshUI();
+
+	InitPanel();
+}
+
 void ULRSummonPanelWidget::InitPanel()
 {
 	APawn* OwningPawn = GetOwningPlayerPawn();
-	if (!OwningPawn) return;
-
+	if (!OwningPawn) 
+	{
+		return;
+	}
 	ULRSummonComponent* SummonComp = OwningPawn->GetComponentByClass<ULRSummonComponent>();
-	if (!SummonComp) return;
-
+	if (!SummonComp)
+	{
+		return;
+	}
 	const TArray<FName>& MyDeck = SummonComp->GetSummonDeck();
 
 	for (int32 i = 0; i < SlotArray.Num(); i++)
@@ -47,7 +57,7 @@ void ULRSummonPanelWidget::InitPanel()
 
 void ULRSummonPanelWidget::OpenUI()
 {
-	bIsOpen = true;
+	Super::OpenUI();
 
 	SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 }

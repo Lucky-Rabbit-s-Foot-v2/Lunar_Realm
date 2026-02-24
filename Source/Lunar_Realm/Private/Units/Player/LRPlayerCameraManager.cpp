@@ -2,6 +2,7 @@
 
 
 #include "Units/Player/LRPlayerCameraManager.h"
+#include "Units/Player/LRPlayerCharacter.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
 
@@ -21,10 +22,16 @@ void ALRPlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTi
 	}
 
 	FVector TargetLoc = OutVT.Target->GetActorLocation();
+	float CurrentCameraOffset = 0.0f;
+
+	if (ALRPlayerCharacter* PlayerChar = Cast<ALRPlayerCharacter>(OutVT.Target))
+	{
+		CurrentCameraOffset = PlayerChar->GetCameraOffsetY();
+	}
 
 	float NewX = FixedX;
 
-	float NewY = FMath::Clamp(TargetLoc.Y, MinY, MaxY);
+	float NewY = FMath::Clamp(TargetLoc.Y + CurrentCameraOffset, MinY, MaxY);
 
 	float NewZ = FixedZ;
 

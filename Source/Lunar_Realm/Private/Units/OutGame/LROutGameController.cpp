@@ -15,6 +15,13 @@
 #include "UI/Chapter/LRChapterSelectorWidget.h"
 #include "UI/Chapter/LRStageSelectorWidget.h"
 
+void ALROutGameController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	OpenLobbyWidget();
+}
+
 void ALROutGameController::GachaSim(const FString& BannerIdStr, int32 TotalPulls, int32 Seed)
 {
 	UGameInstance* GI = GetGameInstance();

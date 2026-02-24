@@ -4,29 +4,11 @@
 #include "UI/OutGame/LRLobbyWidget.h"
 
 #include "UI/OutGame/LRLobbyFigureWidget.h"
-#include "UI/Common/LRCurrencyWidget.h"
-
-void ULRLobbyWidget::NativeConstruct()
-{
-	Super::NativeConstruct();
-}
-
-void ULRLobbyWidget::NativeDestruct()
-{
-	Super::NativeDestruct();
-}
-
-void ULRLobbyWidget::OpenUI()
-{
-	Super::OpenUI();
-}
-
-void ULRLobbyWidget::CloseUI()
-{
-	Super::CloseUI();
-}
+#include "UI/OutGame/LRCurrencyWidget.h"
 
 void ULRLobbyWidget::RefreshUI()
 {
 	Super::RefreshUI();
+
+	Currency->RefreshUI();
 }

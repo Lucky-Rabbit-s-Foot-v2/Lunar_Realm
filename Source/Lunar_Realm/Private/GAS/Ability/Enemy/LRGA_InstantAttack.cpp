@@ -12,7 +12,9 @@ ULRGA_InstantAttack::ULRGA_InstantAttack()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
-	AbilityTags.AddTag(LRTags::Ability_Combat_BasicShoot);
+	FGameplayTagContainer TempTags = GetAssetTags();
+	TempTags.AddTag(LRTags::Ability_Combat_BasicShoot);
+	SetAssetTags(TempTags);
 	
 	//(260219) KHS 이벤트 태그를 전달하여 발동되도록 트리거 등록
 	FAbilityTriggerData TriggerData;
@@ -56,6 +58,13 @@ void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 		TargetActor->GetActorLocation());
 	if (Distance > AttackRange)
 	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	{
+		// 쿨다운 등 Commit 체크 => 실패시 종료
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}

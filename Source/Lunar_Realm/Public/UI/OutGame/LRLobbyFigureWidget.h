@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/BaseWidget.h"
+#include "UI/Common/LRPopupWidget.h"
 #include "LRLobbyFigureWidget.generated.h"
 
 
@@ -21,21 +21,13 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFigureLongPressed, FName, Charact
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFigureLongReleased);
 
 UCLASS()
-class LUNAR_REALM_API ULRLobbyFigureWidget : public UBaseWidget
+class LUNAR_REALM_API ULRLobbyFigureWidget : public ULRPopupWidget
 {
 	GENERATED_BODY()
 	
 public:
-	ULRLobbyFigureWidget()
-	{
-		UILayer = EUILayer::POPUP;
-	}
-
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
-
-	virtual void OpenUI() override;
-	virtual void RefreshUI() override;
 
 	UPROPERTY(BlueprintAssignable, Category = "LR|UI|Events")
 	FOnFigureClicked OnFigureClickedDel;

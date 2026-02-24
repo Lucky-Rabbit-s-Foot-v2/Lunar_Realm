@@ -8,11 +8,6 @@
 #include "Components/Button.h"
 #include "Core/LRGameInstance.h"
 
-ULRTitleWidget::ULRTitleWidget()
-{
-	UILayer = EUILayer::POPUP;
-}
-
 void ULRTitleWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -42,8 +37,6 @@ void ULRTitleWidget::NativeDestruct()
 
 void ULRTitleWidget::OnClickedStartButton()
 {
-	LR_SCREEN_INFO(TEXT("Start Button Clicked"));
-
 	ULRGameInstance* GI = Cast<ULRGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (GI)
 	{

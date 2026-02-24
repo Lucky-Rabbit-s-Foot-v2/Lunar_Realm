@@ -15,7 +15,9 @@ ULRGA_Charge::ULRGA_Charge()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	
 	//(260219) KHS 이벤트 태그를 전달하여 발동되도록 트리거 등록
-	AbilityTags.AddTag(LRTags::Ability_Aether_Charge);
+	FGameplayTagContainer TempTags = GetAssetTags();
+	TempTags.AddTag(LRTags::Ability_Aether_Charge);
+	SetAssetTags(TempTags);
 	
 	FAbilityTriggerData TriggerData;
 	TriggerData.TriggerTag = LRTags::Ability_Aether_Charge;
