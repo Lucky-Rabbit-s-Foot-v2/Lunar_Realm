@@ -72,10 +72,15 @@ void ULRCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 		return;
 	}
 
+
 	UpdateTargetIndicator(OwnerCharacter);
 
 	if (CurrentTarget)
 	{
+		if (CurrentTarget->GetActorLocation().Z < -2000.0f)
+		{
+			return;
+		}
 		ProcessCombatLogic(OwnerCharacter, DeltaTime);
 	}
 }
@@ -150,6 +155,7 @@ void ULRCombatComponent::ProcessCombatLogic(ALRCharacter* OwnerCharacter, float 
 	}
 }
 
+
 void ULRCombatComponent::SetAutoMode(bool bEnableAuto)
 {
 	CombatState = bEnableAuto ? EAutoCombatState::Auto : EAutoCombatState::Manual;
@@ -177,7 +183,7 @@ void ULRCombatComponent::UpdateWeaponInfo(FName InWeaponID)
 
 	ELRItemType ItemType = EquipData.ItemType;
 
-	if (ItemType == ELRItemType::MELEE) AttackRange = 150.0f;
+	if (ItemType == ELRItemType::MELEE) AttackRange = 200.0f;
 	else if (ItemType == ELRItemType::RANGED) AttackRange = 800.0f;
 	else AttackRange = 100.0f;
 
@@ -195,9 +201,12 @@ void ULRCombatComponent::OnCombatLogicTimer()
 		}
 	}
 
-	bool bIsManualMode = (CombatState == EAutoCombatState::Manual);
+	CheckAndClearDeadTarget();
 
-	if (!CurrentTarget || bIsManualMode)
+	bool bIsManualMode = (CombatState == EAutoCombatState::Manual);
+	bool bIsTargetingCore = (CurrentTarget == CachedEnemyBase);
+
+	if (!CurrentTarget || bIsManualMode || bIsTargetingCore)
 	{
 		FindBestTarget();
 	}
@@ -316,19 +325,6 @@ void ULRCombatComponent::AttemptAction(float DeltaTime)
 	
 	UE_LOG(LogTemp, Log, TEXT("공격 성공 / 타겟 : %s"), *CurrentTarget->GetName());
 	CurrentAttackCooldown = 1.0f;
-	
-	// FGameplayTag AttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Combat.BasicShoot"));
-	// FGameplayTagContainer TagContainer;
-	// TagContainer.AddTag(AttackTag);
-	// if (ASC->TryActivateAbilitiesByTag(TagContainer))
-	// {
-	// 	UE_LOG(LogTemp, Log, TEXT("공격 성공 / 타겟 : %s"), *CurrentTarget->GetName());
-	// 	CurrentAttackCooldown = 1.0f;
-	// }
-	// else
-	// {
-	// 	// UE_LOG(LogTemp, Warning, TEXT("공격 실패: 어빌리티 활성화 거부됨."));
-	// }
 }
 
 void ULRCombatComponent::MoveToTarget(float DeltaTime)
@@ -344,4 +340,35 @@ void ULRCombatComponent::MoveToTarget(float DeltaTime)
 
 	FVector Direction = (TargetLoc - MyLoc).GetSafeNormal();
 	OwnerChar->AddMovementInput(Direction, 1.0f);
+}
+
+void ULRCombatComponent::CheckAndClearDeadTarget()
+{
+
+	if (!CurrentTarget) return;
+
+	bool bShouldDrop = false;
+
+	if (!IsValid(CurrentTarget))
+	{
+		bShouldDrop = true;
+	}
+	else if (CurrentTarget->GetActorLocation().Z < -2000.0f)
+	{
+		bShouldDrop = true;
+	}
+	else if (IsTargetDead(CurrentTarget))
+	{
+		bShouldDrop = true;
+	}
+
+	if (bShouldDrop)
+	{
+		CurrentTarget = nullptr;
+		ALRCharacter* OwnerCharacter = Cast<ALRCharacter>(GetOwner());
+		if (OwnerCharacter && OwnerCharacter->GetController())
+		{
+			OwnerCharacter->GetController()->StopMovement();
+		}
+	}
 }
