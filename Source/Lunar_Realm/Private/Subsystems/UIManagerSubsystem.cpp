@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Subsystems/UIManagerSubsystem.h"
@@ -57,21 +57,16 @@ void UUIManagerSubsystem::NotifyInputModeChange()
 	{
 		return;
 	}
-    
-	if (HasOpenPopupUI())
+	
+	FInputModeGameAndUI InputMode;
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	InputMode.SetHideCursorDuringCapture(false);
+	if (PopupUIStack.Num() > 0)
 	{
-		// Popup이 있을 때는 UI Only 모드
-		FInputModeUIOnly InputMode;
 		InputMode.SetWidgetToFocus(PopupUIStack.Last()->TakeWidget());
-		PC->SetInputMode(InputMode);
-		PC->SetShowMouseCursor(true);
 	}
-	else
-	{
-		// Popup이 없을 때는 Game Only 모드
-		PC->SetInputMode(FInputModeGameOnly());
-		PC->SetShowMouseCursor(false);
-	}
+	PC->SetInputMode(InputMode);
+	PC->SetShowMouseCursor(true);
 }
 
 void UUIManagerSubsystem::CloseUIInternal(UBaseWidget* Widget)

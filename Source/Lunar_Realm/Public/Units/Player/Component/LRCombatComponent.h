@@ -42,6 +42,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void SetAutoMode(bool bInEnableAuto);
 
+	UFUNCTION(BlueprintCallable)
+	void ToggleAutoMode() { SetAutoMode(!IsAutoMode()); }
+
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void UpdateWeaponInfo(FName InWeaponID);
 

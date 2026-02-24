@@ -42,25 +42,12 @@ void ULRPageSelectorWidget::NativeConstruct()
 
 void ULRPageSelectorWidget::NativeDestruct()
 {
+	OnGachaButtonClickedDel.Clear();
+	OnPartyButtonClickedDel.Clear();
+	OnCollectionButtonClickedDel.Clear();
+	OnStageButtonClickedDel.Clear();
+
 	Super::NativeDestruct();
-}
-
-void ULRPageSelectorWidget::OpenUI()
-{
-	Super::OpenUI();
-
-	RefreshUI();
-
-}
-
-void ULRPageSelectorWidget::CloseUI()
-{
-	Super::CloseUI();
-}
-
-void ULRPageSelectorWidget::RefreshUI()
-{
-	Super::RefreshUI();
 }
 
 void ULRPageSelectorWidget::OnStageButtonClicked()

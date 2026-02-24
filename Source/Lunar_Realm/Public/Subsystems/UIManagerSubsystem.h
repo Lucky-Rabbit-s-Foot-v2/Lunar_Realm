@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -21,13 +21,14 @@
  */
 //=============================================================================
 // (260123) KHS 제작. 제반 사항 구현.
+// (260223) PJB 수정. Persistent UI와 Popup UI 로직 개선, 입력 모드 변경 로직 추가.
 // =============================================================================
 
 UCLASS()
 class LUNAR_REALM_API UUIManagerSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
-	public:
+public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 	private:
@@ -183,11 +184,14 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
     // 이미 열려있으면 기존 인스턴스 사용
     if (Widget->IsOpen())
     {
+		// 이미 열려있지만 OpenUI 호출하여 필요한 경우 UI 갱신
+		Widget->OpenUI(); 
         return Widget;
     }
     
     UBaseWidget* BaseWidget = Widget;
-    
+	BaseWidget->InitializeUI();
+
     // Persistent 타입 UI일 때
     if (BaseWidget->UILayer == EUILayer::PERSISTENT)
     {

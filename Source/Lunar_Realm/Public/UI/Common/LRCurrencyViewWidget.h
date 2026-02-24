@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Data/LREnumType.h"
-#include "UI/BaseWidget.h"
-#include "LRCurrencyWidget.generated.h"
+#include "UI/Common/LRPopupWidget.h"
+#include "LRCurrencyViewWidget.generated.h"
 
 
 // =============================================================================
@@ -19,24 +19,18 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCurrencyAddClicked);
 
 UCLASS()
-class LUNAR_REALM_API ULRCurrencyWidget : public UBaseWidget
+class LUNAR_REALM_API ULRCurrencyViewWidget : public ULRPopupWidget
 {
 	GENERATED_BODY()
 	
 public:
-	ULRCurrencyWidget()
-	{
-		UILayer = EUILayer::POPUP;
-	}
-
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
+	virtual void RefreshUI() override;
+
 	UPROPERTY(BlueprintAssignable, Category = "LR|Currency")
 	FOnCurrencyAddClicked OnCurrencyAddClickedDel;
-
-	virtual void OpenUI() override;
-	virtual void RefreshUI() override;
 
 private:
 	UFUNCTION()
