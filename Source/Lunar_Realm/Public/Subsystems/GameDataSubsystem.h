@@ -103,6 +103,8 @@ public:
 	const FSkillEffectParameterList& GetSkillEffectParameters(FName SkillEffectID) const;
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Abilites")
 	const FBuffEffectData& GetBuffEffectData(FName BuffEffectID) const;
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Abilites")
+	float GetSkillParamValue(FName SkillEffectID, ESkillParamType ParamType, float DefaultValue = 0.f) const;
 	
 	// ========================================
 	// 에너미 정적 데이터 조회
