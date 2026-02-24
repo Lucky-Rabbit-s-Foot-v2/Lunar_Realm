@@ -432,6 +432,15 @@ struct FSkillEffectParameterData : public FTableRowBase
 	float Value;
 };
 
+USTRUCT(BlueprintType)
+struct FSkillEffectParameterList
+{
+	GENERATED_BODY()
+
+	//스킬마다 필요 파라미터수가 달라서 Array로 래핑
+	UPROPERTY()
+	TArray<FSkillEffectParameterData> Params;
+};
 
 // =============================================================================
 /** 
