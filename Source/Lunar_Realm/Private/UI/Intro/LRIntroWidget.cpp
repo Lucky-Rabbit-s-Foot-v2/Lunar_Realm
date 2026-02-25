@@ -3,33 +3,14 @@
 
 #include "UI/Intro/LRIntroWidget.h"
 
+#include "Engine/GameInstance.h"
 #include "TimerManager.h"
 #include "Components/Image.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "Subsystems/UIManagerSubsystem.h"
 #include "Units/OutGame/LRIntroController.h"
-
-void ULRIntroWidget::NativeConstruct()
-{
-	Super::NativeConstruct();
-
-}
-
-void ULRIntroWidget::BindToController(ALRControllerBase* Controller)
-{
-	if (ALRIntroController* IntroController = Cast<ALRIntroController>(Controller))
-	{
-		OnIntroAnimFinishedDel.Clear();
-		OnIntroAnimFinishedDel.AddDynamic(IntroController, &ALRIntroController::OpenTitleWidget);
-	}
-}
-
-void ULRIntroWidget::NativeDestruct()
-{
-	OnIntroAnimFinishedDel.Clear();
-
-	Super::NativeDestruct();
-}
+#include "UI/Intro/LRTitleWidget.h"
 
 void ULRIntroWidget::OpenUI()
 {
@@ -49,6 +30,12 @@ void ULRIntroWidget::RefreshUI()
 	Img_1->SetIsEnabled(false);
 	Img_2->SetIsEnabled(false);
 	Img_3->SetIsEnabled(false);
+}
+
+void ULRIntroWidget::OpenTitleScreen()
+{
+	UUIManagerSubsystem* UIManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	UIManager->OpenUI<ULRTitleWidget>(TitleWidgetClass);
 }
 
 void ULRIntroWidget::PlayIntroAnimation()
@@ -76,7 +63,7 @@ void ULRIntroWidget::OnFinishedIntroAnim()
 		TimerHandle,
 		[this]()
 		{
-			OnIntroAnimFinishedDel.Broadcast();
+			OpenTitleScreen();
 		},
 		0.5f,
 		false

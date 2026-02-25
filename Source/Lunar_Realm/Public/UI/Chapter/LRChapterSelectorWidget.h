@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Common/LRPopupWidget.h"
+#include "UI/Core/LRPageWidget.h"
 #include "LRChapterSelectorWidget.generated.h"
 
 
@@ -17,13 +17,14 @@
  //============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRChapterSelectorWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRChapterSelectorWidget : public ULRPageWidget
 {
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
-	
+	virtual void BindProperties() override;	
+	virtual void UnbindProperties() override;
+
 	UFUNCTION(BlueprintCallable, Category = "LR|UI")
 	void OnBackButtonClicked();
 

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Common/LRPopupWidget.h"
+#include "UI/Core/LRChildWidget.h"
 #include "Data/LRDataStructs.h"
 #include "LRSummonSlotWidget.generated.h"
 
@@ -23,13 +23,16 @@ class UTextBlock;
 class ULRSummonComponent;
 
 UCLASS()
-class LUNAR_REALM_API ULRSummonSlotWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRSummonSlotWidget : public ULRChildWidget
 {
 	GENERATED_BODY()
 	
 public:
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Summon")
 	void InitSlot(int32 InSlotIndex, FName InUnitID);

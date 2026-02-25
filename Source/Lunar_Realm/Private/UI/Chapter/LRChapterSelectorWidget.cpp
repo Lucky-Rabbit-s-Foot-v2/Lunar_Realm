@@ -5,24 +5,29 @@
 
 #include "Components/Button.h"
 
-#include "Units/LRControllerBase.h"
+#include "Engine/GameInstance.h"
 
-void ULRChapterSelectorWidget::NativeConstruct()
+#include "Subsystems/UIManagerSubsystem.h"
+#include "Subsystems/Settings/UIManagerSettings.h"
+
+#include "UI/Lobby/LRLobbyWidget.h"
+
+void ULRChapterSelectorWidget::BindProperties()
 {
-	Super::NativeConstruct();
+	Super::BindProperties();
+	
+	if (Btn_Back) Btn_Back->OnClicked.AddDynamic(this, &ULRChapterSelectorWidget::OnBackButtonClicked);
+}
 
-	if (Btn_Back)
-	{
-		Btn_Back->OnClicked.AddDynamic(this, &ULRChapterSelectorWidget::OnBackButtonClicked);
-	}
-
-	if (ALRControllerBase* PC = Cast<ALRControllerBase>(GetWorld()->GetFirstPlayerController()))
-	{
-		OnCloseUIRequested.AddDynamic(PC, &ALRControllerBase::CloseWidget);
-	}
+void ULRChapterSelectorWidget::UnbindProperties()
+{
+	if (Btn_Back) Btn_Back->OnClicked.Clear();
+	
+	Super::UnbindProperties();
 }
 
 void ULRChapterSelectorWidget::OnBackButtonClicked()
 {
-	OnCloseUIRequested.Broadcast(this);
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	UIManager->SwitchPageUIByID(EUIID::LOBBY);
 }

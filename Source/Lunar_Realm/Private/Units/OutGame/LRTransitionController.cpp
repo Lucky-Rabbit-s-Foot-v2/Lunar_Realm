@@ -4,15 +4,14 @@
 #include "Units/OutGame/LRTransitionController.h"
 
 #include "Subsystems/UIManagerSubsystem.h"
-#include "UI/Common/LRPersistentWidget.h"
+#include "Subsystems/Settings/UIManagerSettings.h"
+#include "UI/Core/LRPersistentWidget.h"
 #include "UI/Intro/LRLoadingWidget.h"
 
-
-void ALRTransitionController::BeginPlay()
+void ALRTransitionController::OpenFirstWidget()
 {
-	Super::BeginPlay();
-
-	SetCurrentPersistentType(EPersistentType::TRANSITION);
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	UIManager->OpenUIByID(EUIID::LOADING);
 }
 
 void ALRTransitionController::FinishLoading()

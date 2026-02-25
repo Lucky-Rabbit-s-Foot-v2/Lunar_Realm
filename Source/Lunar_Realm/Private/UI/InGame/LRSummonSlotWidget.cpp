@@ -20,18 +20,7 @@ void ULRSummonSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (Btn_Summon)
-	{
-		//LR_INFO(TEXT("버튼 바인딩 성공"));
-		Btn_Summon->OnClicked.AddDynamic(this, &ULRSummonSlotWidget::OnSummonButtonClicked);
-	}
-	else
-	{
-		LR_ERROR(TEXT("Btn_Summon이 NULL"));
-	}
-
-	APawn* OwningPawn = GetOwningPlayerPawn();
-	if (OwningPawn)
+	if (APawn* OwningPawn = GetOwningPlayerPawn())
 	{
 		SummonComp = OwningPawn->GetComponentByClass<ULRSummonComponent>();
 		if (SummonComp)
@@ -39,7 +28,6 @@ void ULRSummonSlotWidget::NativeConstruct()
 			SummonComp->OnUnitSummoned.AddDynamic(this, &ULRSummonSlotWidget::OnSummonedEvent);
 		}
 	}
-
 }
 
 void ULRSummonSlotWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -51,6 +39,20 @@ void ULRSummonSlotWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaT
 
 	// 버튼 활성/비활성(비용 체크)
 	UpdateButtonState();
+}
+
+void ULRSummonSlotWidget::BindProperties()
+{
+	Super::BindProperties();
+
+	if (Btn_Summon) Btn_Summon->OnClicked.AddDynamic(this, &ULRSummonSlotWidget::OnSummonButtonClicked);
+}
+
+void ULRSummonSlotWidget::UnbindProperties()
+{
+	Btn_Summon->OnClicked.Clear();
+
+	Super::UnbindProperties();
 }
 
 void ULRSummonSlotWidget::InitSlot(int32 InSlotIndex, FName InUnitID)
