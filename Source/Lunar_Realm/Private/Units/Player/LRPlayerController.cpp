@@ -2,6 +2,7 @@
 
 #include "Units/Player/LRPlayerController.h"
 #include "Units/Player/LRPlayerCameraManager.h"
+#include "Units/Player/LRPlayerState.h"
 #include "GameFramework/TouchInterface.h"
 #include "Units/Player/LRPlayerCharacter.h"
 
@@ -55,6 +56,32 @@ void ALRPlayerController::UsePotion()
 	if (MyCharacter)
 	{
 		MyCharacter->UsePotion();
+	}
+}
+
+void ALRPlayerController::UseSkill1()
+{
+	ALRPlayerCharacter* MyCharacter = Cast<ALRPlayerCharacter>(GetPawn());
+	if (MyCharacter)
+	{
+		ALRPlayerState* MyState = MyCharacter->GetPlayerState<ALRPlayerState>();
+		if (MyState)
+		{
+			MyState->ActivateSkill1();
+		}
+	}
+}
+
+void ALRPlayerController::UseSkill2()
+{
+	ALRPlayerCharacter* MyCharacter = Cast<ALRPlayerCharacter>(GetPawn());
+	if (MyCharacter)
+	{
+		ALRPlayerState* MyState = MyCharacter->GetPlayerState<ALRPlayerState>();
+		if (MyState)
+		{
+			MyState->ActivateSkill2();
+		}
 	}
 }
 

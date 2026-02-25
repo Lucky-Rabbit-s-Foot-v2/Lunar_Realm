@@ -1,7 +1,6 @@
-﻿,DataID,SkillName,Description,SkillIcon,GrantedAbilities
-1,SKILL_ABILITY_01,Basic Shoot,Basic Gun Shoot,,"""()"""
-2,SKILL_ABILITY_02,Basic Missile,Basic Magic Missile,,"""()"""
-3,SKILL_ABILITY_03,Basic Attack,Basic Sword Attack,,"""()"""
-4,SKILL_ACTIVE_BUFF_01,Auro of Power,Health Buff,,"""()"""
-5,SKILL_ACTIVE_ATTACK_01,Power Shoot,Big Bomb Skill,,"""()"""
-6,SKILL_ACTIVE_ATTACK_02,Fire Ball,Fireball Skill,,"""()"""
+,SkillID,SkillEffectID,GrantedAbilities,CoolTimeGE,CostGE,SkillTag,SkillName,Description,SkillIcon
+1,SKILL_FIREBALL,EFFECT_FIREBALL,"""()""",,,,Fireball,Fireball,
+2,SKILL_ICEBALL,EFFECT_ICEBALL,"""()""",,,,Iceball,Iceball,
+3,SKILL_LIGHTNING,EFFECT_LIGHTNING,"""()""",,,,Lightning,Lightning,
+4,SKILL_ARROW,EFFECT_ARROW,"""()""",,,,Arrow,Arrow,
+5,SKILL_PIERCE,EFFECT_PIERCE,"""()""",,,,Pierce,Pierce,

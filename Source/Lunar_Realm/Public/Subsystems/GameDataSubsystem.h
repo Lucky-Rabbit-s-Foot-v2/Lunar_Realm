@@ -26,6 +26,7 @@
 // (260206) KHS 데이터 테이블 소프트 레퍼런스들은 LRGameDataConfig통해 비동기 로드방식으로 변경
 // (260208) KWB 스테이지 데이터 관련 항목 추가 : EnemySpawner에서 필요
 // (260208) KWB 에너미 스킬 데이터 조회 함수 추가
+// (260224) KHS GA필요 데이터 추가.
 // =============================================================================
 
 UCLASS()
@@ -94,6 +95,18 @@ public:
 	TArray<FName> GetEquipmentSkillIDs(FName EquipmentID);
 	
 	// ========================================
+	// GA 데이터 조회
+	// ========================================
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Abilites")
+	const FSkillEffectData& GetSkillEffectData(FName SkillEffectID) const;
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Abilites")
+	const FSkillEffectParameterList& GetSkillEffectParameters(FName SkillEffectID) const;
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Abilites")
+	const FBuffEffectData& GetBuffEffectData(FName BuffEffectID) const;
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Abilites")
+	float GetSkillParamValue(FName SkillEffectID, ESkillParamType ParamType, float DefaultValue = 0.f) const;
+	
+	// ========================================
 	// 에너미 정적 데이터 조회
 	// ========================================
 	// 에너미 정적 데이터 가져오기 (이름, 설명, 텍스처 등)
@@ -136,6 +149,12 @@ private:
 	//Enum->FName 변환 헬퍼(세트 아이템 체크용
 	static FName SetTypeToName(ELRSetItemType SetType);
 	
+	//FName->Enum 변환 헬퍼(DT 접근용)
+	static ESkillType ParseSkillType(FName TypeName);
+	static ESkillParamType ParseSkillParamType(FName TypeName);
+	static EBuffType ParseBuffType(FName TypeName);
+	
+	
 	//데이터 테이블 로드 헬퍼 탬플릿
 	template<typename T, typename E>
 	void LoadDataTable(TSoftObjectPtr<E>& SoftTablePtr, T*& OutLoadedTable, const FString& TableName);
@@ -168,6 +187,12 @@ private:
 	UPROPERTY()
 	UDataTable* LoadedSkillStaticData;
 	UPROPERTY()
+	UDataTable* LoadedSkillEffectData;
+	UPROPERTY()
+	UDataTable* LoadedSkillEffectParameterData;
+	UPROPERTY()
+	UDataTable* LoadedBuffEffectData;
+	UPROPERTY()
 	UDataTable* LoadedEnemyStaticData;
 	UPROPERTY()
 	UDataTable* LoadedStageStaticData;
@@ -189,6 +214,15 @@ private:
 	TMap<FName, FSetEffectData> CachedSetEffectData;
 	//캐릭터/장비 스킬데이터 캐시
 	TMap<FName, FSkillStaticData> CachedSkillStaticData;
+	//스킬 GA 데이터 캐시
+	UPROPERTY()
+	TMap<FName, FSkillEffectData> CachedSkillEffectData;
+	//스킬 GA 추가 파라미터 캐시
+	UPROPERTY()
+	TMap<FName, FSkillEffectParameterList> CachedSkillEffectParameterData;
+	//스킬 효과 버프/디버프 데이터 캐시
+	UPROPERTY()
+	TMap<FName, FBuffEffectData> CachedBuffEffectData;
 	//에너미 정적 데이터 캐시
 	TMap<FName, FEnemyStaticData> CachedEnemyStaticData;
 	//스테이지 정적 데이터 캐시
@@ -200,9 +234,11 @@ private:
 	static FEquipmentBonus EmptyEquipmentBonus;
 	static FSetEffectData EmptySetEffectData;
 	static FSkillStaticData EmptySkillStaticData;
+	static FSkillEffectData EmptySkillEffectData;
+	static FSkillEffectParameterList EmptySkillEffectParameterList;
+	static FBuffEffectData EmptyBuffEffectData;
 	static FEnemyStaticData EmptyEnemyStaticData;
 	static FStageStaticData EmptyStageStaticData;
-	
 	
 };
 

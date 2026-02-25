@@ -18,8 +18,9 @@
 
 //=============================================================================
 // (260203) BJM 제작. 플레이어 스테이트.
-// (260205_BJM) DataSubsystem연동 및 장비 장착/해제 기능 추가.
-// (260206_BJM) 수정된 ID 테이블 반영.
+// (260205) BJM DataSubsystem연동 및 장비 장착/해제 기능 추가.
+// (260206) BJM 수정된 ID 테이블 반영.
+// (260225) BJM player 기본공격 GA 부여 수정 및 스킬 연동
 //=============================================================================
 
 class UAbilitySystemComponent;
@@ -53,6 +54,10 @@ protected:
 	void InitializeAttributes();		// 스탯 계산
 	void GrantCharacterAbilities();		// 캐릭터 스킬 부여
 	void GrantEquipmentAbilities(EEquipmentSlotType Slot, FName EquipmentID);	// 장비 스킬 부여
+
+public:
+	void ActivateSkill1();
+	void ActivateSkill2();
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "GAS")

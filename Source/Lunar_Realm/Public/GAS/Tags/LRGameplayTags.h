@@ -43,10 +43,6 @@ namespace LRTags
 	//기본 공격 쿨타임 GA태그(선택적 사용)
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Combat_BasicShoot_Cooldown);
 	
-	//Fireball GA태그
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Fireball);
-	//Fireball 쿨다운 상태 태그
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Fireball_Cooldown);
 	
 	//Dash GA태그
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Movement_Dash);
@@ -59,7 +55,17 @@ namespace LRTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Heal);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Skill_Heal);
 	
-	
+	//스킬 GA/GE 태그
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Fireball); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Fireball_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_IceBall); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_IceBall_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Lightning); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Lightning_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Arrow); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Arrow_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Pierce); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Pierce_Cooldown); //GE
 	
 	//===============================================
 	// 상태 태그(State.*)
@@ -140,14 +146,16 @@ namespace LRTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Team_Enemy_Structure_Core);  
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Team_Enemy_Structure_Obstacle); 
 
-	// (입력 태그 Input.* 은 기존에 추가한 것 유지)
+	// (입력 태그 Input.*)
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Summon_1);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Summon_2);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Summon_3);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Summon_4);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Command_Toggle);
 	
-	
-	
-	
+// ===============================================
+// Notify 태그_BJM
+// (양식) Notify.*
+// ===============================================
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Notify_Combat_BasicHit);
 }

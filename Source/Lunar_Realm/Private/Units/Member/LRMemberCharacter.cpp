@@ -239,7 +239,7 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 	// GA 로직
 	if (AbilitySystemComponent && HasAuthority())
 	{
-		for (TSubclassOf<ULRGameplayAbilityBase> AbilityClass : CharData.DefaultAbilities)
+		for (TSubclassOf<ULRGameplayAbilityBase> AbilityClass : CharData.MemberAbilities)
 		{
 			if (AbilityClass)
 			{
