@@ -17,9 +17,6 @@
 // (260225) BJM SkillPanel 생성으로 인한 코드 정리
 //=============================================================================
 
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkill1Clicked);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkill2Clicked);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPotionClicked);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnChangeClicked);
 
 class ULRSkillPanelWidget;
@@ -40,9 +37,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void TestSummonPanelRefresh();
 
-	//FOnSkill1Clicked OnSkill1ClickedDel;
-	//FOnSkill2Clicked OnSkill2ClickedDel;
-	//FOnPotionClicked OnPotionClickedDel;
 	FOnChangeClicked OnChangeClickedDel;
 
 	UFUNCTION(BlueprintCallable, Category = "LR|UI")
@@ -51,28 +45,11 @@ public:
 	virtual void BindToController(class ALRControllerBase* Controller) override;
 
 private:
-	//UFUNCTION(BlueprintCallable)
-	//void OnSkill1Clicked();
-
-	//UFUNCTION(BlueprintCallable)
-	//void OnSkill2Clicked();
-	//
-	//UFUNCTION(BlueprintCallable)
-	//void OnPotionClicked();
 	
 	UFUNCTION(BlueprintCallable)
 	void OnChangeClicked();
 
 protected:
-	//UPROPERTY(meta = (BindWidget))
-	//TObjectPtr<class UButton> Btn_Skill1;
-
-	//UPROPERTY(meta = (BindWidget))
-	//TObjectPtr<class UButton> Btn_Skill2;
-
-	//UPROPERTY(meta = (BindWidget))
-	//TObjectPtr<class UButton> Btn_Potion;
-
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Change;
 
