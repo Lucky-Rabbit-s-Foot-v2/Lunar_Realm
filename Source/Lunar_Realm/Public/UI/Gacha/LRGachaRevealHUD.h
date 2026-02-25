@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/BaseHUD.h"
+#include "GameFramework/HUD.h"
 #include "LRGachaRevealHUD.generated.h"
 
 class ULRGachaRevealWidget;
@@ -17,7 +17,7 @@ class ULRGachaRevealWidget;
  *  - 이상 상태(서브시스템 null, Pending 없음 등) 시 로비로 되돌리기
  */
 UCLASS()
-class LUNAR_REALM_API ALRGachaRevealHUD : public ABaseHUD
+class LUNAR_REALM_API ALRGachaRevealHUD : public AHUD
 {
 	GENERATED_BODY()
 

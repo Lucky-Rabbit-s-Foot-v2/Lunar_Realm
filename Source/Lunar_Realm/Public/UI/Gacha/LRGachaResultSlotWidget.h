@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-#include "UI/BaseWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 
 #include "Data/LRDataStructs.h"
 #include "Data/LREnumType.h"
@@ -34,7 +34,7 @@ class UBorder;
  *  - NEW 아이콘, 애니메이션 등 연출 추가
  */
 UCLASS(BlueprintType, Blueprintable)
-class LUNAR_REALM_API ULRGachaResultSlotWidget : public UBaseWidget
+class LUNAR_REALM_API ULRGachaResultSlotWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
 

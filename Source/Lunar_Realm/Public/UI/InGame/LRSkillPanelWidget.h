@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/BaseWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 #include "LRSkillPanelWidget.generated.h"
 
 /**
@@ -19,7 +19,7 @@ class UButton;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillButtonClicked);
 
 UCLASS()
-class LUNAR_REALM_API ULRSkillPanelWidget : public UBaseWidget
+class LUNAR_REALM_API ULRSkillPanelWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
 	
