@@ -39,10 +39,10 @@ void ALRPlayerState::InitializePlayerData()
 {
 	// TODO: SaveGameSubsystem에서 플레이어 데이터 로드
 	// 지금은 임시 데이터 넣음
-	CharacterID = FName("10101");
+	CharacterID = FName("CHAR_ARCHER_01");
 	CharacterLevel = FName("1");
 
-	EquippedItems.Add(EEquipmentSlotType::WEAPON, FName(TEXT("20100101")));
+	EquippedItems.Add(EEquipmentSlotType::WEAPON, FName(TEXT("EQUIP_MELEE_01")));
 	EquippedItemLevels.Add(EEquipmentSlotType::WEAPON, 1);
 
 	// 스텟 계산
