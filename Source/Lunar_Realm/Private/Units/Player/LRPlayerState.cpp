@@ -195,7 +195,19 @@ void ALRPlayerState::GrantEquipmentAbilities(EEquipmentSlotType Slot, FName Equi
 	UGameDataSubsystem* DataSubsystem = GI->GetSubsystem<UGameDataSubsystem>();
 	if (!DataSubsystem || !AbilitySystemComponent) return;
 
-	// 1. 장비 ID로 스킬 ID 목록 조회
+	const FCharacterStaticData& CharData = DataSubsystem->GetCharacterStaticData(CharacterID);
+
+	// 기본공격 GA 부여
+	if (CharData.PlayerBasicAttackAbility)
+	{
+		FGameplayAbilitySpec Spec(CharData.PlayerBasicAttackAbility, 1, INDEX_NONE, this);
+		FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
+		CharacterAbilityHandles.Add(Handle);
+
+		UE_LOG(LogTemp, Warning, TEXT("[PlayerState] 플레이어 평타 자동 장착 완료: %s"), *CharData.PlayerBasicAttackAbility->GetName());
+	}
+
+	// 장비 ID로 스킬 ID 목록 조회
 	TArray<FName> SkillIDs = DataSubsystem->GetEquipmentSkillIDs(EquipmentID);
 
 	TArray<FGameplayAbilitySpecHandle> NewHandles;
