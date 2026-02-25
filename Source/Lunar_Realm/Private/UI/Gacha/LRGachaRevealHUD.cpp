@@ -9,7 +9,6 @@
 #include "Engine/GameInstance.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetSystemLibrary.h" // 로그용
 
 // 간단한 로그 매크로 (별도 로깅 시스템 없을 때)
 #define LR_LOG(Verbosity, Format, ...) \

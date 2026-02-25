@@ -8,14 +8,12 @@
 #include "GameFramework/SpringArmComponent.h"
 
 #include "Data/LRDataStructs.h"
-#include "Data/LREnumType.h"
 
 #include "Components/StaticMeshComponent.h"
 
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
 
-#include "Sound/SoundBase.h"
 #include "Materials/MaterialInterface.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/StaticMesh.h"
@@ -23,7 +21,6 @@
 #include "LRGachaOrbSceneActor.generated.h"
 
 class UNiagaraSystem;
-class USoundBase;
 class ALRGachaOrbActor;
 
 /**
@@ -76,7 +73,6 @@ public:
 	// AActor
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent);
 
 	// ===== 외부 API ========================================================
 
