@@ -250,3 +250,61 @@ void ALRPlayerState::GrantEquipmentAbilities(EEquipmentSlotType Slot, FName Equi
 	// 핸들 저장 (나중에 장비 해제할 때 제거용)
 	EquipmentAbilityHandles.Add(Slot, NewHandles);
 }
+
+void ALRPlayerState::ActivateSkill1()
+{
+	if (!AbilitySystemComponent) return;
+
+	UGameInstance* GI = GetGameInstance();
+	if (!GI) return;
+
+	UGameDataSubsystem* DataSubsystem = GI->GetSubsystem<UGameDataSubsystem>();
+	if (!DataSubsystem) return;
+
+	TArray<FName> SkillIDs = DataSubsystem->GetCharacterSkillIDs(CharacterID);
+
+	if (SkillIDs.IsValidIndex(0))
+	{
+		FName TargetSkillID = SkillIDs[0];
+		const FSkillStaticData& SkillData = DataSubsystem->GetSkillStaticData(TargetSkillID);
+
+		if (SkillData.GrantedAbilities.IsValidIndex(0))
+		{
+			TSubclassOf<UGameplayAbility> AbilityClass = SkillData.GrantedAbilities[0].LoadSynchronous();
+
+			if (AbilityClass)
+			{
+				bool bSuccess = AbilitySystemComponent->TryActivateAbilityByClass(AbilityClass);
+
+				if (bSuccess)
+				{
+					UE_LOG(LogTemp, Log, TEXT("Skill1 발동 성공: %s"), *TargetSkillID.ToString());
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Skill1 발동 실패"));
+				}
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Skill1 발동 실패: DT에 등록된 캐릭터 스킬이 없음."));
+	}
+
+	//if (CharacterAbilityHandles.IsValidIndex(0))
+	//{
+	//	AbilitySystemComponent->TryActivateAbility(CharacterAbilityHandles[0]);
+	//	UE_LOG(LogTemp, Log, TEXT("캐릭터 고유 스킬(Skill1) 발동 시도"));
+	//}
+	//else
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Skill1 발동 실패: 장착된 캐릭터 스킬이 없습니다."));
+	//}
+}
+
+void ALRPlayerState::ActivateSkill2()
+{
+	// TODO_BJM: 나중에 무기 장착 시 EquipmentAbilityHandles에서 무기 스킬(Skill2)을 꺼내서 발동하도록 구현
+	UE_LOG(LogTemp, Log, TEXT("무기 스킬(Skill2)은 아직 구현되지 않았습니다."));
+}
