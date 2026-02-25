@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRBaseWidget.h"
-#include "LRBackgoundWidget.generated.h"
+#include "LRBackgroundWidget.generated.h"
 
 
 //============================================================================
@@ -17,12 +17,12 @@
  //============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRBackgoundWidget : public ULRBaseWidget
+class LUNAR_REALM_API ULRBackgroundWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
 	
 public:
-	ULRBackgoundWidget(const FObjectInitializer& ObjectInitializer);
+	ULRBackgroundWidget(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI|Background")

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRPopupWidget.h"
+#include "UI/Core/LRChildWidget.h"
 #include "LRStageWidget.generated.h"
 
 
@@ -19,7 +19,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStageOpenClicked, FName, StageID);
 
 UCLASS()
-class LUNAR_REALM_API ULRStageWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRStageWidget : public ULRChildWidget
 {
 	GENERATED_BODY()
 	

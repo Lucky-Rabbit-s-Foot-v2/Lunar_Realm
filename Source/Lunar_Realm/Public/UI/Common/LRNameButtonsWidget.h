@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRPopupWidget.h"
+#include "UI/Core/LRChildWidget.h"
 #include "LRNameButtonsWidget.generated.h"
 
 
@@ -18,7 +18,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnButtonClicked, int32, Number);
 
 UCLASS()
-class LUNAR_REALM_API ULRNameButtonsWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRNameButtonsWidget : public ULRChildWidget
 {
 	GENERATED_BODY()
 	

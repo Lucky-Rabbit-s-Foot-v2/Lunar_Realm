@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRPopupWidget.h"
+#include "UI/Core/LRChildWidget.h"
 #include "LRSettingScrollWidget.generated.h"
 
 
@@ -16,7 +16,7 @@
  //=============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRSettingScrollWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRSettingScrollWidget : public ULRChildWidget
 {
 	GENERATED_BODY()
 	

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRPopupWidget.h"
+#include "UI/Core/LRChildWidget.h"
 #include "Data/LRDataStructs.h"
 #include "LRSummonSlotWidget.generated.h"
 
@@ -23,7 +23,7 @@ class UTextBlock;
 class ULRSummonComponent;
 
 UCLASS()
-class LUNAR_REALM_API ULRSummonSlotWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRSummonSlotWidget : public ULRChildWidget
 {
 	GENERATED_BODY()
 	

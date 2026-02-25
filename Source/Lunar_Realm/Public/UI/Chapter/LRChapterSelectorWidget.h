@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRPopupWidget.h"
+#include "UI/Core/LRPageWidget.h"
 #include "LRChapterSelectorWidget.generated.h"
 
 
@@ -17,7 +17,7 @@
  //============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRChapterSelectorWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRChapterSelectorWidget : public ULRPageWidget
 {
 	GENERATED_BODY()
 	

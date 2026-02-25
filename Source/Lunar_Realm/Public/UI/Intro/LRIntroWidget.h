@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRPopupWidget.h"
+#include "UI/Core/LRBackgroundWidget.h"
 #include "LRIntroWidget.generated.h"
 
 // =============================================================================
@@ -19,7 +19,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnIntroAnimFinished);
 
 UCLASS()
-class LUNAR_REALM_API ULRIntroWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRIntroWidget : public ULRBackgroundWidget
 {
 	GENERATED_BODY()
 	

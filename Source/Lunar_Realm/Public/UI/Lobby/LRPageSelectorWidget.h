@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRPopupWidget.h"
+#include "UI/Core/LRChildWidget.h"
 #include "LRPageSelectorWidget.generated.h"
 
 
@@ -21,7 +21,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPartyButtonClicked);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGachaButtonClicked);
 
 UCLASS()
-class LUNAR_REALM_API ULRPageSelectorWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRPageSelectorWidget : public ULRChildWidget
 {
 	GENERATED_BODY()
 	

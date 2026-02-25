@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Data/LREnumType.h"
-#include "UI/Core/LRPopupWidget.h"
+#include "UI/Core/LRChildWidget.h"
 #include "LRCurrencyViewWidget.generated.h"
 
 
@@ -19,7 +19,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCurrencyAddClicked);
 
 UCLASS()
-class LUNAR_REALM_API ULRCurrencyViewWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRCurrencyViewWidget : public ULRChildWidget
 {
 	GENERATED_BODY()
 	

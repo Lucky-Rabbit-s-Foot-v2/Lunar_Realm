@@ -3,33 +3,38 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRPersistentWidget.h"
-#include "LRCurrencyWidget.generated.h"
+#include "UI/Core/LRChildWidget.h"
+#include "LRBackButton.generated.h"
+
 
 // =============================================================================
 /**
- * 전체 재화 표시 위젯
+ * 뒤로 가기 및 창 닫기 버튼
  */
  //=============================================================================
- // (260223) PJB 제작.
+ // (260212) PJB 제작.
  //=============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRCurrencyWidget : public ULRPersistentWidget
+class LUNAR_REALM_API ULRBackButton : public ULRChildWidget
 {
 	GENERATED_BODY()
 	
-
 public:
-	virtual void RefreshUI() override;
+	virtual void NativeConstruct() override;
+
+	void SetParentWidget(ULRBaseWidget* InParentWidget) { ParentWidget = InParentWidget; }
+
+	UFUNCTION()
+	void OnBackButtonClicked();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRCurrencyViewWidget> GoldView = nullptr;
+	TObjectPtr<class UButton> Button;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRCurrencyViewWidget> CrescentView = nullptr;
+	TObjectPtr<class UTextBlock> TextBlock;
 
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRCurrencyViewWidget> FullMoonView = nullptr;
+private:
+	class ULRBaseWidget* ParentWidget;
 };

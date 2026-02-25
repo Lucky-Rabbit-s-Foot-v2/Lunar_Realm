@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRPopupWidget.h"
+#include "UI/Core/LRToolTipWidget.h"
 #include "LRLobbyFigureInfoWidget.generated.h"
 
 
@@ -16,7 +16,7 @@
  //=============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRLobbyFigureInfoWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRLobbyFigureInfoWidget : public ULRToolTipWidget
 {
 	GENERATED_BODY()
 	
