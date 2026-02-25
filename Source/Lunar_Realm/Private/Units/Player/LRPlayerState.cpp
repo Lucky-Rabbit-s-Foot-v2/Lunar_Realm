@@ -166,7 +166,7 @@ void ALRPlayerState::GrantCharacterAbilities()
 		FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
 		CharacterAbilityHandles.Add(Handle);
 
-		UE_LOG(LogTemp, Warning, TEXT("[PlayerState] 플레이어 평타 자동 장착 완료: %s"), *CharData.PlayerBasicAttackAbility->GetName());
+		LR_WARN(TEXT("[PlayerState] 플레이어 평타 자동 장착 완료: %s"), *CharData.PlayerBasicAttackAbility->GetName());
 	}
 
 	// 캐릭터 id로 스킬 id 목록 가져오기
@@ -278,33 +278,24 @@ void ALRPlayerState::ActivateSkill1()
 
 				if (bSuccess)
 				{
-					UE_LOG(LogTemp, Log, TEXT("Skill1 발동 성공: %s"), *TargetSkillID.ToString());
+					LR_WARN(TEXT("Skill1 발동 성공: %s"), *TargetSkillID.ToString());
 				}
 				else
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Skill1 발동 실패"));
+					LR_WARN(TEXT("Skill1 발동 실패"));
 				}
 			}
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Skill1 발동 실패: DT에 등록된 캐릭터 스킬이 없음."));
+		LR_WARN(TEXT("Skill1 발동 실패: DT에 등록된 캐릭터 스킬이 없음."));
 	}
 
-	//if (CharacterAbilityHandles.IsValidIndex(0))
-	//{
-	//	AbilitySystemComponent->TryActivateAbility(CharacterAbilityHandles[0]);
-	//	UE_LOG(LogTemp, Log, TEXT("캐릭터 고유 스킬(Skill1) 발동 시도"));
-	//}
-	//else
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("Skill1 발동 실패: 장착된 캐릭터 스킬이 없습니다."));
-	//}
 }
 
 void ALRPlayerState::ActivateSkill2()
 {
 	// TODO_BJM: 나중에 무기 장착 시 EquipmentAbilityHandles에서 무기 스킬(Skill2)을 꺼내서 발동하도록 구현
-	UE_LOG(LogTemp, Log, TEXT("무기 스킬(Skill2)은 아직 구현되지 않았습니다."));
+	LR_WARN(TEXT("무기 스킬(Skill2)은 아직 구현되지 않았습니다."));
 }
