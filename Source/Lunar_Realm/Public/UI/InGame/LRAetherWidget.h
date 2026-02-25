@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Common/LRPopupWidget.h"
+#include "UI/Core/LRChildWidget.h"
 #include "GameplayEffectTypes.h"
 #include "LRAetherWidget.generated.h"
 
@@ -19,13 +19,11 @@ class UTextBlock;
 class UAbilirtySystemComponent;
 
 UCLASS()
-class LUNAR_REALM_API ULRAetherWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRAetherWidget : public ULRChildWidget
 {
 	GENERATED_BODY()
 	
-
 public:
-
 	UFUNCTION(BlueprintCallable, Category = "GAS")
 	void BindToASC(UAbilitySystemComponent* ASC);
 

@@ -4,9 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GAS/Attributes/LRAttributeSet.h"
-#include "GAS/Common/LRGameAbilitySystemMacros.h"
 #include "AbilitySystemComponent.h"
-
 #include "LRCoreAttributeSet.generated.h"
 
 /**
@@ -25,12 +23,5 @@ class LUNAR_REALM_API ULRCoreAttributeSet : public ULRAttributeSet
 public:
 	ULRCoreAttributeSet();
 
-	UPROPERTY(BlueprintReadOnly, Category = "Stats")
-	FGameplayAttributeData Health;
-	ATTRIBUTE_ACCESSORS(ULRCoreAttributeSet, Health);
-
-	UPROPERTY(BlueprintReadOnly, Category = "Stats")
-	FGameplayAttributeData MaxHealth;
-	ATTRIBUTE_ACCESSORS(ULRCoreAttributeSet, MaxHealth);
 
 };

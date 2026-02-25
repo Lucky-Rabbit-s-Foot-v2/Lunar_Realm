@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Common/LRPopupWidget.h"
+#include "UI/Core/LRChildWidget.h"
 #include "LRNameBarWidget.generated.h"
 
 // =============================================================================
@@ -15,15 +15,12 @@
  // =============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRNameBarWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRNameBarWidget : public ULRChildWidget
 {
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
-
-	void SetName(const FText& Name);
+	virtual void SetName(const FText& Name);
 
 protected:
 	UPROPERTY(meta = (BindWidget))

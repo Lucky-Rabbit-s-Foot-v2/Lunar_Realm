@@ -6,16 +6,6 @@
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 
-void ULRNameBarWidget::NativeConstruct()
-{
-	Super::NativeConstruct();
-}
-
-void ULRNameBarWidget::NativeDestruct()
-{
-	Super::NativeDestruct();
-}
-
 void ULRNameBarWidget::SetName(const FText& Name)
 {
 	if (Txt_Name)

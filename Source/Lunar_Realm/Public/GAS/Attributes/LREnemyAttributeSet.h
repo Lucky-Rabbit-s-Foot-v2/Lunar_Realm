@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
-#include "GAS/Common/LRGameAbilitySystemMacros.h"
 #include "GAS/Attributes/LRAttributeSet.h"
 #include "LREnemyAttributeSet.generated.h"
 
@@ -30,23 +29,13 @@ public:
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
-
-	UPROPERTY(BlueprintReadOnly, Category = "LR|Spec")
-	FGameplayAttributeData Health;
-	ATTRIBUTE_ACCESSORS(ULREnemyAttributeSet, Health)
-
+	
 	UPROPERTY(BlueprintReadOnly, Category = "LR|Spec")
 	FGameplayAttributeData Attack;
 	ATTRIBUTE_ACCESSORS(ULREnemyAttributeSet, Attack)
 
-	UPROPERTY(BlueprintReadOnly, Category = "LR|Spec")
-	FGameplayAttributeData Speed;
-	ATTRIBUTE_ACCESSORS(ULREnemyAttributeSet, Speed)
 
 	// 속성값 한계치
-	UPROPERTY(BlueprintReadWrite, Category = "LR|Spec|Limits")
-	float MaxHealth = 100.0f;
-
 	UPROPERTY(BlueprintReadWrite, Category = "LR|Spec|Limits")
 	float MaxAttack = 500.0f;
 

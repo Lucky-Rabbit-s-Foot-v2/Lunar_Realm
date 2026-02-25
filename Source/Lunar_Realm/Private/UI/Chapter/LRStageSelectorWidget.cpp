@@ -4,26 +4,25 @@
 #include "UI/Chapter/LRStageSelectorWidget.h"
 
 #include "Components/Button.h"
-#include "UI/Chapter/StageWidget.h"
+#include "UI/Chapter/LRStageWidget.h"
 
 #include "Units/LRControllerBase.h"
 
-void ULRStageSelectorWidget::NativeConstruct()
+void ULRStageSelectorWidget::BindProperties()
 {
-	Super::NativeConstruct();
+	Super::BindProperties();
 
-	if (Btn_Back)
-	{
-		Btn_Back->OnClicked.AddDynamic(this, &ULRStageSelectorWidget::OnBackButtonClicked);
-	}
+	if (Btn_Back) Btn_Back->OnClicked.AddDynamic(this, &ULRStageSelectorWidget::OnBackButtonClicked);
+}
 
-	if(ALRControllerBase* PC = Cast<ALRControllerBase>(GetWorld()->GetFirstPlayerController()))
-	{
-		OnCloseUIRequested.AddDynamic(PC, &ALRControllerBase::CloseWidget);
-	}
+void ULRStageSelectorWidget::UnbindProperties()
+{
+	if (Btn_Back) Btn_Back->OnClicked.Clear();
+
+	Super::UnbindProperties();
 }
 
 void ULRStageSelectorWidget::OnBackButtonClicked()
 {
-	OnCloseUIRequested.Broadcast(this);
+	OnCloseUIRequestedDel.Broadcast(this);
 }

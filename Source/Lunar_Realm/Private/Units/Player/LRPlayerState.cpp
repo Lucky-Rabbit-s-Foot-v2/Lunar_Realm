@@ -39,10 +39,10 @@ void ALRPlayerState::InitializePlayerData()
 {
 	// TODO: SaveGameSubsystem에서 플레이어 데이터 로드
 	// 지금은 임시 데이터 넣음
-	CharacterID = FName("10101");
+	CharacterID = FName("CHAR_ARCHER_01");
 	CharacterLevel = FName("1");
 
-	EquippedItems.Add(EEquipmentSlotType::WEAPON, FName(TEXT("20100101")));
+	EquippedItems.Add(EEquipmentSlotType::WEAPON, FName(TEXT("EQUIP_MELEE_01")));
 	EquippedItemLevels.Add(EEquipmentSlotType::WEAPON, 1);
 
 	// 스텟 계산
@@ -158,6 +158,17 @@ void ALRPlayerState::GrantCharacterAbilities()
 	UGameDataSubsystem* DataSubsystem = GI->GetSubsystem<UGameDataSubsystem>();
 	if (!DataSubsystem || !AbilitySystemComponent) return;
 
+	const FCharacterStaticData& CharData = DataSubsystem->GetCharacterStaticData(CharacterID);
+	// 기본공격 GA 부여
+	if (CharData.PlayerBasicAttackAbility)
+	{
+		FGameplayAbilitySpec Spec(CharData.PlayerBasicAttackAbility, 1, INDEX_NONE, this);
+		FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
+		CharacterAbilityHandles.Add(Handle);
+
+		LR_WARN(TEXT("[PlayerState] 플레이어 평타 자동 장착 완료: %s"), *CharData.PlayerBasicAttackAbility->GetName());
+	}
+
 	// 캐릭터 id로 스킬 id 목록 가져오기
 	TArray<FName> SkillIDs = DataSubsystem->GetCharacterSkillIDs(CharacterID);
 
@@ -195,7 +206,19 @@ void ALRPlayerState::GrantEquipmentAbilities(EEquipmentSlotType Slot, FName Equi
 	UGameDataSubsystem* DataSubsystem = GI->GetSubsystem<UGameDataSubsystem>();
 	if (!DataSubsystem || !AbilitySystemComponent) return;
 
-	// 1. 장비 ID로 스킬 ID 목록 조회
+	//const FCharacterStaticData& CharData = DataSubsystem->GetCharacterStaticData(CharacterID);
+
+	//// 기본공격 GA 부여
+	//if (CharData.PlayerBasicAttackAbility)
+	//{
+	//	FGameplayAbilitySpec Spec(CharData.PlayerBasicAttackAbility, 1, INDEX_NONE, this);
+	//	FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
+	//	CharacterAbilityHandles.Add(Handle);
+
+	//	UE_LOG(LogTemp, Warning, TEXT("[PlayerState] 플레이어 평타 자동 장착 완료: %s"), *CharData.PlayerBasicAttackAbility->GetName());
+	//}
+
+	// 장비 ID로 스킬 ID 목록 조회
 	TArray<FName> SkillIDs = DataSubsystem->GetEquipmentSkillIDs(EquipmentID);
 
 	TArray<FGameplayAbilitySpecHandle> NewHandles;
@@ -226,4 +249,53 @@ void ALRPlayerState::GrantEquipmentAbilities(EEquipmentSlotType Slot, FName Equi
 
 	// 핸들 저장 (나중에 장비 해제할 때 제거용)
 	EquipmentAbilityHandles.Add(Slot, NewHandles);
+}
+
+void ALRPlayerState::ActivateSkill1()
+{
+	if (!AbilitySystemComponent) return;
+
+	UGameInstance* GI = GetGameInstance();
+	if (!GI) return;
+
+	UGameDataSubsystem* DataSubsystem = GI->GetSubsystem<UGameDataSubsystem>();
+	if (!DataSubsystem) return;
+
+	TArray<FName> SkillIDs = DataSubsystem->GetCharacterSkillIDs(CharacterID);
+
+	if (SkillIDs.IsValidIndex(0))
+	{
+		FName TargetSkillID = SkillIDs[0];
+		const FSkillStaticData& SkillData = DataSubsystem->GetSkillStaticData(TargetSkillID);
+
+		if (SkillData.GrantedAbilities.IsValidIndex(0))
+		{
+			TSubclassOf<UGameplayAbility> AbilityClass = SkillData.GrantedAbilities[0].LoadSynchronous();
+
+			if (AbilityClass)
+			{
+				bool bSuccess = AbilitySystemComponent->TryActivateAbilityByClass(AbilityClass);
+
+				if (bSuccess)
+				{
+					LR_WARN(TEXT("Skill1 발동 성공: %s"), *TargetSkillID.ToString());
+				}
+				else
+				{
+					LR_WARN(TEXT("Skill1 발동 실패"));
+				}
+			}
+		}
+	}
+	else
+	{
+		LR_WARN(TEXT("Skill1 발동 실패: DT에 등록된 캐릭터 스킬이 없음."));
+	}
+
+}
+
+void ALRPlayerState::ActivateSkill2()
+{
+	// TODO_BJM: 나중에 무기 장착 시 EquipmentAbilityHandles에서 무기 스킬(Skill2)을 꺼내서 발동하도록 구현
+	LR_WARN(TEXT("무기 스킬(Skill2)은 아직 구현되지 않았습니다."));
 }

@@ -58,6 +58,18 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Skill")
 	TSoftObjectPtr<UDataTable> SkillStaticDataTable;
 	
+	// 스킬효과 정적 데이터 DataTable(GA 사용) 
+	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Ability")
+	TSoftObjectPtr<UDataTable> SkillEffectDataTable;
+	
+	// 스킬효과 추가 요구 파라미터 DataTable(GA 사용) 
+	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Ability")
+	TSoftObjectPtr<UDataTable> SkillEffectParameterDataTable;
+	
+	// 스킬 결과 버프/디버프 효과 DataTable(GE 사용) 
+	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Ability")
+	TSoftObjectPtr<UDataTable> BuffEffectDataTable;
+	
 
 	// 스테이지 정적 데이터 DataTable
 	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Stage")
