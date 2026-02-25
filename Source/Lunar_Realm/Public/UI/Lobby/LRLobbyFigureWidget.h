@@ -26,8 +26,8 @@ class LUNAR_REALM_API ULRLobbyFigureWidget : public ULRChildWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
 
 	UPROPERTY(BlueprintAssignable, Category = "LR|UI|Events")
 	FOnFigureClicked OnFigureClickedDel;
@@ -38,6 +38,7 @@ public:
 
 	UFUNCTION()
 	void OnFigurePressed();
+
 	UFUNCTION()
 	void OnFigureReleased();
 

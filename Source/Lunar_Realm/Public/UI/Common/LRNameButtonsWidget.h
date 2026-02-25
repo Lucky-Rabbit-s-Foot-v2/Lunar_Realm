@@ -23,12 +23,13 @@ class LUNAR_REALM_API ULRNameButtonsWidget : public ULRChildWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
+
+	virtual void SetName(const FText& Name);
 
 	FOnButtonClicked OnButtonClickedDel;
 
-	void SetName(const FText& Name);
 private:
 	UFUNCTION(BlueprintCallable)
 	void OnLowButtonClicked();

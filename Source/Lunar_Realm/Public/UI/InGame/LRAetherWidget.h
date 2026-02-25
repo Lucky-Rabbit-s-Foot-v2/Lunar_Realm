@@ -23,9 +23,7 @@ class LUNAR_REALM_API ULRAetherWidget : public ULRChildWidget
 {
 	GENERATED_BODY()
 	
-
 public:
-
 	UFUNCTION(BlueprintCallable, Category = "GAS")
 	void BindToASC(UAbilitySystemComponent* ASC);
 

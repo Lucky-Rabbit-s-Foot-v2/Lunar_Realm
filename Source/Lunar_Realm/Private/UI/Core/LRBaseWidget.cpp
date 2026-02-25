@@ -24,13 +24,14 @@ void ULRBaseWidget::NativeConstruct()
 	{
 		OnCloseUIRequestedDel.AddDynamic(UIManager, &UUIManagerSubsystem::CloseUI);
 	}
-
+	BindProperties();
 	BindToController(Cast<ALRControllerBase>(GetOwningPlayer()));
 	InitializeUI();
 }
 
 void ULRBaseWidget::NativeDestruct()
 {
+	UnbindProperties();
 	// 공용 델리게이트 해제
 	if (OnCloseUIRequestedDel.IsBound())
 	{
@@ -84,6 +85,16 @@ void ULRBaseWidget::OnFocusLost()
 void ULRBaseWidget::BindToController(ALRControllerBase* Controller)
 {
 	// 자식 클래스에서 오버라이드하여 컨트롤러와의 바인딩 로직 구현
+}
+
+void ULRBaseWidget::BindProperties()
+{
+	// 자식 클래스에서 오버라이드하여 프로퍼티 바인딩 로직 구현
+}
+
+void ULRBaseWidget::UnbindProperties()
+{
+	// 자식 클래스에서 오버라이드하여 프로퍼티 언바인딩 로직 구현
 }
 
 void ULRBaseWidget::OnCloseRequested()

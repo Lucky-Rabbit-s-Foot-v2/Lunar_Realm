@@ -21,8 +21,8 @@ class LUNAR_REALM_API ULRPageSelectorWidget : public ULRChildWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
 
 	UFUNCTION(BlueprintCallable)
 	void OnStageButtonClicked();
@@ -52,7 +52,4 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Gacha;
 
-protected:
-	UPROPERTY(EditAnywhere, Category = "LR|UI")
-	TSubclassOf<class ULRChapterSelectorWidget> ChapterSelectorWidgetClass;
 };

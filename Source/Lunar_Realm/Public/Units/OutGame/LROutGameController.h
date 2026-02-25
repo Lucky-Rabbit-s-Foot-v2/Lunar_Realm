@@ -28,10 +28,6 @@ public:
 	UFUNCTION(Exec)
 	void GachaSim(const FString& BannerIdStr, int32 TotalPulls = 100000, int32 Seed = 12345);
 
-protected:
-	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
-	TSubclassOf<class ULRLobbyWidget> LobbyWidgetClass;
-
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
 	TSubclassOf<class ULRGachaShopWidget> GachaShopWidgetClass;
 };

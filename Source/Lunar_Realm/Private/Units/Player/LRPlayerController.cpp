@@ -5,8 +5,7 @@
 #include "GameFramework/TouchInterface.h"
 #include "Units/Player/LRPlayerCharacter.h"
 
-#include "UI/Core/LRPersistentWidget.h"
-#include "UI/Core/LRPopupWidget.h"
+#include "UI/InGame/LRPlayerWidget.h"
 
 #include "Subsystems/UIManagerSubsystem.h"
 #include "TimerManager.h"
@@ -14,6 +13,12 @@
 ALRPlayerController::ALRPlayerController()
 {
 	PlayerCameraManagerClass = ALRPlayerCameraManager::StaticClass();
+}
+
+void ALRPlayerController::OpenFirstWidget()
+{
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	UIManager->OpenUI<ULRPlayerWidget>(PlayerWidget);
 }
 
 void ALRPlayerController::BeginPlay()
@@ -26,16 +31,13 @@ void ALRPlayerController::BeginPlay()
 		{
 			ActivateTouchInterface(MobileTouchInterface);
 			SetVirtualJoystickVisibility(true);
-			UE_LOG(LogTemp, Warning, TEXT("터치 인터페이스 활성화 성공"));
+			LR_WARN(TEXT("터치 인터페이스 활성화 성공"));
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("터치 인터페이스 활성화 실패"));
+			LR_ERROR(TEXT("터치 인터페이스 활성화 실패"));
 		}
 	}
-
-	SetCurrentPersistentType(EPersistentType::STAGE);
-
 }
 
 void ALRPlayerController::ToggleAutoMode()
@@ -60,4 +62,10 @@ UAbilitySystemComponent* ALRPlayerController::GetAbilitySystemComponent()
 {
 	ALRPlayerCharacter* MyCharacter = Cast<ALRPlayerCharacter>(GetPawn());
 	return MyCharacter ? MyCharacter->GetAbilitySystemComponent() : nullptr;
+}
+
+ULRPlayerWidget* ALRPlayerController::GetPlayerWidget()
+{
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	return UIManager->GetOrCreateWidget(PlayerWidget);
 }

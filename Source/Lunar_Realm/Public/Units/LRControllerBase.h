@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Engine/GameInstance.h"
 #include "Subsystems/UIManagerSubsystem.h"
+#include "Subsystems/Settings/UIManagerSettings.h"
 #include "UI/Core/LRPersistentWidget.h"
 #include "LRControllerBase.generated.h"
 
@@ -28,34 +29,5 @@ public:
 	virtual void BeginPlay() override;
 	
 	UFUNCTION(BlueprintCallable)
-	void OpenPersistentWidget();
-
-	UFUNCTION(BlueprintCallable)
-	ULRBaseWidget* GetPersistentWidget();
-
-	UFUNCTION(BlueprintCallable)
-	void SetCurrentPersistentType(EPersistentType InPersistentType);
-
-	template<typename T>
-	T* OpenWidget(TSubclassOf<T> WidgetClass);
-
-	UFUNCTION(BlueprintCallable)
-	void CloseWidget(ULRBaseWidget* Widget);
-
-	UFUNCTION(BlueprintCallable)
 	virtual void OpenFirstWidget();
-
-private:
-	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
-	TMap<EPersistentType, TSubclassOf<class ULRPersistentWidget>> PersistentWidgetClasses;
-
-	UPROPERTY(VisibleAnywhere, Category = "LR|UI")
-	EPersistentType CurrentPersistentType;
 };
-
-template<typename T>
-T* ALRControllerBase::OpenWidget(TSubclassOf<T> WidgetClass)
-{
-	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	return UIManager->OpenUI<T>(WidgetClass);
-}

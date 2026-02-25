@@ -8,14 +8,18 @@
 
 #include "Units/LRControllerBase.h"
 
-void ULRStageSelectorWidget::NativeConstruct()
+void ULRStageSelectorWidget::BindProperties()
 {
-	Super::NativeConstruct();
+	Super::BindProperties();
 
-	if (Btn_Back)
-	{
-		Btn_Back->OnClicked.AddDynamic(this, &ULRStageSelectorWidget::OnBackButtonClicked);
-	}
+	if (Btn_Back) Btn_Back->OnClicked.AddDynamic(this, &ULRStageSelectorWidget::OnBackButtonClicked);
+}
+
+void ULRStageSelectorWidget::UnbindProperties()
+{
+	if (Btn_Back) Btn_Back->OnClicked.Clear();
+
+	Super::UnbindProperties();
 }
 
 void ULRStageSelectorWidget::OnBackButtonClicked()

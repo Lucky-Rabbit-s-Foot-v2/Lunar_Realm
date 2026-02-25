@@ -6,21 +6,28 @@
 #include "Components/Button.h"
 
 #include "Engine/GameInstance.h"
+
 #include "Subsystems/UIManagerSubsystem.h"
+#include "Subsystems/Settings/UIManagerSettings.h"
+
 #include "UI/Lobby/LRLobbyWidget.h"
 
-void ULRChapterSelectorWidget::NativeConstruct()
+void ULRChapterSelectorWidget::BindProperties()
 {
-	Super::NativeConstruct();
+	Super::BindProperties();
+	
+	if (Btn_Back) Btn_Back->OnClicked.AddDynamic(this, &ULRChapterSelectorWidget::OnBackButtonClicked);
+}
 
-	if (Btn_Back)
-	{
-		Btn_Back->OnClicked.AddDynamic(this, &ULRChapterSelectorWidget::OnBackButtonClicked);
-	}
+void ULRChapterSelectorWidget::UnbindProperties()
+{
+	if (Btn_Back) Btn_Back->OnClicked.Clear();
+	
+	Super::UnbindProperties();
 }
 
 void ULRChapterSelectorWidget::OnBackButtonClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->SwitchPageUI<ULRLobbyWidget>(LobbyWidgetClass);
+	UIManager->SwitchPageUIByID(EUIID::LOBBY);
 }

@@ -6,33 +6,23 @@
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 
-void ULRNameButtonsWidget::NativeConstruct()
+
+void ULRNameButtonsWidget::BindProperties()
 {
-	Super::NativeConstruct();
+	Super::BindProperties();
 
-	if (Btn_High)
-	{
-		Btn_Low->OnClicked.AddDynamic(this, &ULRNameButtonsWidget::OnLowButtonClicked);
-	}
-
-	if (Btn_Medium)
-	{
-		Btn_Medium->OnClicked.AddDynamic(this, &ULRNameButtonsWidget::OnMediumButtonClicked);
-	}
-
-	if (Btn_High)
-	{
-		Btn_High->OnClicked.AddDynamic(this, &ULRNameButtonsWidget::OnHighButtonClicked);
-	}
+	if (Btn_Low) Btn_Low->OnClicked.AddDynamic(this, &ULRNameButtonsWidget::OnLowButtonClicked);
+	if (Btn_Medium) Btn_Medium->OnClicked.AddDynamic(this, &ULRNameButtonsWidget::OnMediumButtonClicked);
+	if (Btn_High) Btn_High->OnClicked.AddDynamic(this, &ULRNameButtonsWidget::OnHighButtonClicked);
 }
 
-void ULRNameButtonsWidget::NativeDestruct()
+void ULRNameButtonsWidget::UnbindProperties()
 {
 	Btn_High->OnClicked.Clear();
 	Btn_Medium->OnClicked.Clear();
 	Btn_Low->OnClicked.Clear();
-	
-	Super::NativeDestruct();
+
+	Super::UnbindProperties();
 }
 
 void ULRNameButtonsWidget::SetName(const FText& Name)

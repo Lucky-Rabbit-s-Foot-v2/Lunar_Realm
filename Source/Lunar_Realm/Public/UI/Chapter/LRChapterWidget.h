@@ -24,7 +24,8 @@ class LUNAR_REALM_API ULRChapterWidget : public ULRPageWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
 	
 	UPROPERTY(BlueprintAssignable, Category = "LR|Event")
 	FOnChapterOpenClicked OnChapterOpenClickedDel;

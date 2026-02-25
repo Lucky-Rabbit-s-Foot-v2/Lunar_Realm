@@ -78,6 +78,9 @@ public:
 	/** PlayerController와 위젯을 바인딩하여 UI 이벤트 처리 */
 	virtual void BindToController(class ALRControllerBase* Controller);
 
+	virtual void BindProperties();
+	virtual void UnbindProperties();
+
 	UFUNCTION(BlueprintCallable, Category = "LR|UI Events")
 	virtual void OnCloseRequested();
 

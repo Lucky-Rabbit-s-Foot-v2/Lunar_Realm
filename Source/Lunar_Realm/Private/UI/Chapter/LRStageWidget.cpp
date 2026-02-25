@@ -14,11 +14,6 @@ void ULRStageWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (Btn_Open)
-	{
-		Btn_Open->OnClicked.AddDynamic(this, &ULRStageWidget::OnOpenButtonClicked);
-	}
-
 	if (ULRGameInstance* GI = Cast<ULRGameInstance>(GetWorld()->GetGameInstance()))
 	{
 		OnStageOpenClickedDel.AddDynamic(GI, &ULRGameInstance::OpenNextStage);
@@ -28,15 +23,25 @@ void ULRStageWidget::NativeConstruct()
 void ULRStageWidget::NativeDestruct()
 {
 	OnStageOpenClickedDel.Clear();
-	
-	if (Btn_Open)
-	{
-		Btn_Open->OnClicked.Clear();
-	}
+
 	Super::NativeDestruct();
 }
 
 void ULRStageWidget::OnOpenButtonClicked()
 {
 	OnStageOpenClickedDel.Broadcast(StageID);
+}
+
+void ULRStageWidget::BindProperties()
+{
+	Super::BindProperties();
+
+	if (Btn_Open) Btn_Open->OnClicked.AddDynamic(this, &ULRStageWidget::OnOpenButtonClicked);
+}
+
+void ULRStageWidget::UnbindProperties()
+{
+	if (Btn_Open) Btn_Open->OnClicked.Clear();
+
+	Super::UnbindProperties();
 }

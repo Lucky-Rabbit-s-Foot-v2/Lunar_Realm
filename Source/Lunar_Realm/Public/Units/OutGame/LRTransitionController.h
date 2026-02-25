@@ -14,7 +14,7 @@ class LUNAR_REALM_API ALRTransitionController : public ALRControllerBase
 {
 	GENERATED_BODY()
 	
-public:
+public:	
 	virtual void OpenFirstWidget() override;
 
 	void FinishLoading();

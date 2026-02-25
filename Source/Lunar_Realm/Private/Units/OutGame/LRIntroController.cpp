@@ -5,8 +5,11 @@
 
 #include "UI/Intro/LRIntroWidget.h"
 
+#include "Subsystems/UIManagerSubsystem.h"
+#include "Subsystems/Settings/UIManagerSettings.h"
+
 void ALRIntroController::OpenFirstWidget()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->OpenUI<ULRIntroWidget>(IntroWidgetClass);
+	UIManager->OpenUIByID(EUIID::INTRO);
 }

@@ -22,9 +22,9 @@ class LUNAR_REALM_API ULRShopWidget : public ULRPageWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
-	
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
+
 private:
 	UFUNCTION(BlueprintCallable, Category = "LR|UI")
 	void CloseButtonClicked();

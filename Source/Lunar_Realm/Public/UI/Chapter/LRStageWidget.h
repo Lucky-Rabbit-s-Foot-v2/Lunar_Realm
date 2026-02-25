@@ -27,6 +27,10 @@ public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
+
+
 	UPROPERTY(BlueprintAssignable, Category = "LR|Event")
 	FOnStageOpenClicked OnStageOpenClickedDel;
 

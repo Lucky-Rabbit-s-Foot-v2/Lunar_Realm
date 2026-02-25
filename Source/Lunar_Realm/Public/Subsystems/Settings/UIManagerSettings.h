@@ -16,15 +16,18 @@
  //=============================================================================
 
 UENUM(BlueprintType)
-enum class EUIPageID : uint8
+enum class EUIID : uint8
 {
-	None,
-	Lobby,
-	Shop,
-	Gacha,
-	Party,
-	Collection,
-	ChapterSelector
+	NONE,
+	INTRO,
+	TITLE,
+	LOADING,
+	LOBBY,
+	SHOP,
+	GACHA,
+	PARTY,
+	COLLECTION,
+	DUTY
 };
 
 UCLASS(Config = Game, defaultconfig, meta = (DisplayName = "UI Manager Settings"))
@@ -36,5 +39,5 @@ public:
 	UUIManagerSettings();
 
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "UI Routing")
-	TMap<EUIPageID, TSoftClassPtr<ULRBaseWidget>> PageClassMap;
+	TMap<EUIID, TSoftClassPtr<ULRBaseWidget>> UIClassMap;
 };

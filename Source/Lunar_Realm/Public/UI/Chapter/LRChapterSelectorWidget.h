@@ -22,8 +22,9 @@ class LUNAR_REALM_API ULRChapterSelectorWidget : public ULRPageWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
-	
+	virtual void BindProperties() override;	
+	virtual void UnbindProperties() override;
+
 	UFUNCTION(BlueprintCallable, Category = "LR|UI")
 	void OnBackButtonClicked();
 
@@ -39,7 +40,4 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Back;
-
-	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
-	TSubclassOf<class ULRLobbyWidget> LobbyWidgetClass;
 };

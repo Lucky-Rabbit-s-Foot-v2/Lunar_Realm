@@ -11,9 +11,9 @@
 #include "Components/Button.h"
 #include "Components/Image.h"
 
-void ULRLobbyFigureWidget::NativeConstruct()
+void ULRLobbyFigureWidget::BindProperties()
 {
-	Super::NativeConstruct();
+	Super::BindProperties();
 
 	if (Btn_Figure)
 	{
@@ -22,7 +22,7 @@ void ULRLobbyFigureWidget::NativeConstruct()
 	}
 }
 
-void ULRLobbyFigureWidget::NativeDestruct()
+void ULRLobbyFigureWidget::UnbindProperties()
 {
 
 	if (Btn_Figure)
@@ -32,7 +32,7 @@ void ULRLobbyFigureWidget::NativeDestruct()
 		Btn_Figure->OnUnhovered.Clear();
 	}
 
-	Super::NativeDestruct();
+	Super::UnbindProperties();
 }
 
 void ULRLobbyFigureWidget::OnFigurePressed()

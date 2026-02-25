@@ -8,27 +8,22 @@
 
 #include "UI/Lobby/LRLobbyWidget.h"
 
-void ULRShopWidget::NativeConstruct()
+void ULRShopWidget::BindProperties()
 {
-	Super::NativeConstruct();
+	if (Btn_Close) Btn_Close->OnClicked.AddDynamic(this, &ULRShopWidget::CloseButtonClicked);
 
-	if (Btn_Close)
-	{
-		Btn_Close->OnClicked.AddDynamic(this, &ULRShopWidget::CloseButtonClicked);
-	}
+	Super::BindProperties();
 }
 
-void ULRShopWidget::NativeDestruct()
+void ULRShopWidget::UnbindProperties()
 {
-	if (Btn_Close)
-	{
-		Btn_Close->OnClicked.Clear();
-	}
-	Super::NativeDestruct();
+	if (Btn_Close) Btn_Close->OnClicked.Clear();
+
+	Super::UnbindProperties();
 }
 
 void ULRShopWidget::CloseButtonClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->SwitchPageUIByID(EUIPageID::Lobby);
+	UIManager->SwitchPageUIByID(EUIID::LOBBY);
 }

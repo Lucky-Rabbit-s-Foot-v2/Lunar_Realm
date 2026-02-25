@@ -11,39 +11,25 @@
 
 #include "Units/Player/LRPlayerController.h"
 
-void ULRPlayerWidget::NativeConstruct()
+
+void ULRPlayerWidget::BindProperties()
 {
-	Super::NativeConstruct();
+	Super::BindProperties();
 
-	if (Btn_Skill1)
-	{
-		Btn_Skill1->OnClicked.AddDynamic(this, &ULRPlayerWidget::OnSkill1Clicked);
-	}
-
-	if (Btn_Skill2)
-	{
-		Btn_Skill2->OnClicked.AddDynamic(this, &ULRPlayerWidget::OnSkill2Clicked);
-	}
-
-	if (Btn_Potion)
-	{
-		Btn_Potion->OnClicked.AddDynamic(this, &ULRPlayerWidget::OnPotionClicked);
-	}
-
-	if (Btn_Change)
-	{
-		Btn_Change->OnClicked.AddDynamic(this, &ULRPlayerWidget::OnChangeClicked);
-	}
+	if (Btn_Skill1) Btn_Skill1->OnClicked.AddDynamic(this, &ULRPlayerWidget::OnSkill1Clicked);
+	if (Btn_Skill2) Btn_Skill2->OnClicked.AddDynamic(this, &ULRPlayerWidget::OnSkill2Clicked);
+	if (Btn_Potion) Btn_Potion->OnClicked.AddDynamic(this, &ULRPlayerWidget::OnPotionClicked);
+	if (Btn_Change) Btn_Change->OnClicked.AddDynamic(this, &ULRPlayerWidget::OnChangeClicked);
 }
 
-void ULRPlayerWidget::NativeDestruct()
+void ULRPlayerWidget::UnbindProperties()
 {
 	Btn_Change->OnClicked.Clear();
 	Btn_Potion->OnClicked.Clear();
 	Btn_Skill2->OnClicked.Clear();
 	Btn_Skill1->OnClicked.Clear();
 
-	Super::NativeDestruct();
+	Super::UnbindProperties();
 }
 
 void ULRPlayerWidget::InitializeUI()

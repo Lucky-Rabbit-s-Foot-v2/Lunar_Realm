@@ -31,6 +31,9 @@ public:
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
+
 	UFUNCTION(BlueprintCallable, Category = "Summon")
 	void InitSlot(int32 InSlotIndex, FName InUnitID);
 

@@ -21,7 +21,8 @@ class LUNAR_REALM_API ULRStageSelectorWidget : public ULRPopupWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|UI")
 	void OnBackButtonClicked();

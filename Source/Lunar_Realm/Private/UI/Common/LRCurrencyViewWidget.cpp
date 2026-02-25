@@ -10,30 +10,25 @@
 #include "Subsystems/SaveGameSubsystem.h"
 
 #include "Engine/GameInstance.h"
+#include "Subsystems/Settings/UIManagerSettings.h"
 #include "Subsystems/UIManagerSubsystem.h"
 
 #include "UI/Shop/LRShopWidget.h"
 
 #include "Units/OutGame/LROutGameController.h"
 
-void ULRCurrencyViewWidget::NativeConstruct()
+void ULRCurrencyViewWidget::BindProperties()
 {
-	Super::NativeConstruct();
-
-	if (Btn_Add)
-	{
-		Btn_Add->OnClicked.AddDynamic(this, &ULRCurrencyViewWidget::OnCurrencyAddClicked);
-	}
+	Super::BindProperties();
+	
+	if (Btn_Add) Btn_Add->OnClicked.AddDynamic(this, &ULRCurrencyViewWidget::OnCurrencyAddClicked);
 }
 
-void ULRCurrencyViewWidget::NativeDestruct()
+void ULRCurrencyViewWidget::UnbindProperties()
 {
-	if (Btn_Add)
-	{
-		Btn_Add->OnClicked.Clear();
-	}
+	if (Btn_Add) Btn_Add->OnClicked.Clear();
 
-	Super::NativeDestruct();
+	Super::UnbindProperties();
 }
 
 void ULRCurrencyViewWidget::RefreshUI()
@@ -54,5 +49,5 @@ void ULRCurrencyViewWidget::RefreshUI()
 void ULRCurrencyViewWidget::OnCurrencyAddClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->SwitchPageUI<ULRShopWidget>(ShopWidgetClass);
+	UIManager->SwitchPageUIByID(EUIID::SHOP);
 }

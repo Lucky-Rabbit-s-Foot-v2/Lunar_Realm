@@ -12,14 +12,18 @@
 
 #include "UI/Chapter/LRStageSelectorWidget.h"
 
-void ULRChapterWidget::NativeConstruct()
+void ULRChapterWidget::BindProperties()
 {
-	Super::NativeConstruct();
+	Super::BindProperties();
 
-	if (Btn_Open)
-	{
-		Btn_Open->OnClicked.AddDynamic(this, &ULRChapterWidget::OnOpenButtonClicked);
-	}
+	if (Btn_Open) Btn_Open->OnClicked.AddDynamic(this, &ULRChapterWidget::OnOpenButtonClicked);
+}
+
+void ULRChapterWidget::UnbindProperties()
+{
+	if (Btn_Open) Btn_Open->OnClicked.Clear();
+
+	Super::UnbindProperties();
 }
 
 void ULRChapterWidget::OnOpenButtonClicked()
