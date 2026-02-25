@@ -9,33 +9,26 @@
 
 #include "Subsystems/SaveGameSubsystem.h"
 
+#include "Engine/GameInstance.h"
+#include "Subsystems/Settings/UIManagerSettings.h"
+#include "Subsystems/UIManagerSubsystem.h"
+
+#include "UI/Shop/LRShopWidget.h"
+
 #include "Units/OutGame/LROutGameController.h"
 
-void ULRCurrencyViewWidget::NativeConstruct()
+void ULRCurrencyViewWidget::BindProperties()
 {
-	Super::NativeConstruct();
-
-	if (Btn_Add)
-	{
-		Btn_Add->OnClicked.AddDynamic(this, &ULRCurrencyViewWidget::OnCurrencyAddClicked);
-	}
-
-	if (ALROutGameController* LRController = GetWorld()->GetFirstPlayerController<ALROutGameController>())
-	{
-		OnCurrencyAddClickedDel.AddDynamic(LRController, &ALROutGameController::OpenShopWidgetByCurrency);
-	}
+	Super::BindProperties();
+	
+	if (Btn_Add) Btn_Add->OnClicked.AddDynamic(this, &ULRCurrencyViewWidget::OnCurrencyAddClicked);
 }
 
-void ULRCurrencyViewWidget::NativeDestruct()
+void ULRCurrencyViewWidget::UnbindProperties()
 {
-	OnCurrencyAddClickedDel.Clear();
+	if (Btn_Add) Btn_Add->OnClicked.Clear();
 
-	if (Btn_Add)
-	{
-		Btn_Add->OnClicked.Clear();
-	}
-
-	Super::NativeDestruct();
+	Super::UnbindProperties();
 }
 
 void ULRCurrencyViewWidget::RefreshUI()
@@ -55,5 +48,6 @@ void ULRCurrencyViewWidget::RefreshUI()
 
 void ULRCurrencyViewWidget::OnCurrencyAddClicked()
 {
-	OnCurrencyAddClickedDel.Broadcast();
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	UIManager->SwitchPageUIByID(EUIID::SHOP);
 }

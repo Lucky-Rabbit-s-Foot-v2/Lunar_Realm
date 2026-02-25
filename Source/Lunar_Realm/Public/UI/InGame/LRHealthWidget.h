@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Common/LRPopupWidget.h"
+#include "UI/Core/LRChildWidget.h"
 #include "GameplayEffectTypes.h"
 #include "LRHealthWidget.generated.h"
 
@@ -19,7 +19,7 @@ class UProgressBar;
 class UAbilitySystemComponent;
 
 UCLASS()
-class LUNAR_REALM_API ULRHealthWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRHealthWidget : public ULRChildWidget
 {
 	GENERATED_BODY()
 	

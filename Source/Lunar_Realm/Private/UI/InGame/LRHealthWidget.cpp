@@ -10,11 +10,8 @@ void ULRHealthWidget::BindToASC(UAbilitySystemComponent* ASC)
 {
 	if (!ASC)
 	{
-		UE_LOG(LogTemp, Error, TEXT("[HealthWidget] ASC가 없습니다! (NULL)"));
 		return;
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("[HealthWidget] BindToASC 실행됨! ASC 이름: %s"), *ASC->GetName());
 
 	bool bFoundHealth = false;
 	bool bFoundMaxHealth = false;
@@ -22,7 +19,6 @@ void ULRHealthWidget::BindToASC(UAbilitySystemComponent* ASC)
 	CurrentHealth = ASC->GetGameplayAttributeValue(ULRPlayerAttributeSet::GetHealthAttribute(), bFoundHealth);
 	CurrentMaxHealth = ASC->GetGameplayAttributeValue(ULRPlayerAttributeSet::GetMaxHealthAttribute(), bFoundMaxHealth);
 
-	UE_LOG(LogTemp, Log, TEXT("[HealthWidget] 초기 체력: %.1f / %.1f (찾음: %d)"), CurrentHealth, CurrentMaxHealth, bFoundHealth);
 	UpdateHealth(CurrentHealth, CurrentMaxHealth);
 
 	ASC->GetGameplayAttributeValueChangeDelegate(ULRPlayerAttributeSet::GetHealthAttribute())
@@ -44,7 +40,6 @@ void ULRHealthWidget::UpdateHealth(float InCurrentHealth, float InMaxHealth)
 void ULRHealthWidget::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
 	CurrentHealth = Data.NewValue;
-	UE_LOG(LogTemp, Log, TEXT("[HealthWidget] 체력 변경 감지! 새로운 값: %.1f"), CurrentHealth);
 	UpdateHealth(CurrentHealth, CurrentMaxHealth);
 }
 

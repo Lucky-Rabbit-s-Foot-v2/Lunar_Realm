@@ -27,6 +27,8 @@ class LUNAR_REALM_API ALRPlayerController : public ALRControllerBase
 public:
 	ALRPlayerController();
 
+	virtual void OpenFirstWidget() override;
+
 	UFUNCTION()
 	void ToggleAutoMode();
 
@@ -40,6 +42,9 @@ public:
 
 	class UAbilitySystemComponent* GetAbilitySystemComponent();
 
+	UFUNCTION(BlueprintCallable)
+	class ULRPlayerWidget* GetPlayerWidget();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -47,6 +52,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Mobile")
 	TObjectPtr<UTouchInterface> MobileTouchInterface;
 
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<class ULRPersistentWidget> PersistentWidgetClass;
+	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
+	TSubclassOf<class ULRPlayerWidget> PlayerWidget;
 };
