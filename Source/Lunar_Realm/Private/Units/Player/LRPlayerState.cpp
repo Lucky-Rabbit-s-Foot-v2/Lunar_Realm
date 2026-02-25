@@ -158,6 +158,17 @@ void ALRPlayerState::GrantCharacterAbilities()
 	UGameDataSubsystem* DataSubsystem = GI->GetSubsystem<UGameDataSubsystem>();
 	if (!DataSubsystem || !AbilitySystemComponent) return;
 
+	const FCharacterStaticData& CharData = DataSubsystem->GetCharacterStaticData(CharacterID);
+	// 기본공격 GA 부여
+	if (CharData.PlayerBasicAttackAbility)
+	{
+		FGameplayAbilitySpec Spec(CharData.PlayerBasicAttackAbility, 1, INDEX_NONE, this);
+		FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
+		CharacterAbilityHandles.Add(Handle);
+
+		UE_LOG(LogTemp, Warning, TEXT("[PlayerState] 플레이어 평타 자동 장착 완료: %s"), *CharData.PlayerBasicAttackAbility->GetName());
+	}
+
 	// 캐릭터 id로 스킬 id 목록 가져오기
 	TArray<FName> SkillIDs = DataSubsystem->GetCharacterSkillIDs(CharacterID);
 
@@ -195,17 +206,17 @@ void ALRPlayerState::GrantEquipmentAbilities(EEquipmentSlotType Slot, FName Equi
 	UGameDataSubsystem* DataSubsystem = GI->GetSubsystem<UGameDataSubsystem>();
 	if (!DataSubsystem || !AbilitySystemComponent) return;
 
-	const FCharacterStaticData& CharData = DataSubsystem->GetCharacterStaticData(CharacterID);
+	//const FCharacterStaticData& CharData = DataSubsystem->GetCharacterStaticData(CharacterID);
 
-	// 기본공격 GA 부여
-	if (CharData.PlayerBasicAttackAbility)
-	{
-		FGameplayAbilitySpec Spec(CharData.PlayerBasicAttackAbility, 1, INDEX_NONE, this);
-		FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
-		CharacterAbilityHandles.Add(Handle);
+	//// 기본공격 GA 부여
+	//if (CharData.PlayerBasicAttackAbility)
+	//{
+	//	FGameplayAbilitySpec Spec(CharData.PlayerBasicAttackAbility, 1, INDEX_NONE, this);
+	//	FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
+	//	CharacterAbilityHandles.Add(Handle);
 
-		UE_LOG(LogTemp, Warning, TEXT("[PlayerState] 플레이어 평타 자동 장착 완료: %s"), *CharData.PlayerBasicAttackAbility->GetName());
-	}
+	//	UE_LOG(LogTemp, Warning, TEXT("[PlayerState] 플레이어 평타 자동 장착 완료: %s"), *CharData.PlayerBasicAttackAbility->GetName());
+	//}
 
 	// 장비 ID로 스킬 ID 목록 조회
 	TArray<FName> SkillIDs = DataSubsystem->GetEquipmentSkillIDs(EquipmentID);
