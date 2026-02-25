@@ -51,9 +51,9 @@ void ALREnemySpawner::BeginPlay()
 		double BeforePoolTime = GetWorld()->GetTimeSeconds();
 		LR_INFO(TEXT("Before InitializePool: WorldTime = %.3f"), BeforePoolTime);
 
-		PoolSys->InitializePool(EnemyClass, PrewarmCount);
-
 		PoolSys->InitializePool(ALREnemyAIController::StaticClass(), PrewarmCount);
+
+		PoolSys->InitializePool(EnemyClass, PrewarmCount);
 
 		double AfterPoolTime = GetWorld()->GetTimeSeconds();
 		LR_INFO(TEXT("After InitializePool: WorldTime = %.3f, Elapsed = %.3f"),

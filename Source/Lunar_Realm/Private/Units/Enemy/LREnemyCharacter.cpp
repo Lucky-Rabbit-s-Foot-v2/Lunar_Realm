@@ -327,7 +327,6 @@ void ALREnemyCharacter::OnPoolActivate_Implementation()
 {
 	// TEMP : 컨트롤러 테스트 => 풀링 시스템 & 스포너 디버깅 끝나면 삭제 필요
 	LR_INFO(TEXT("[%s] OnPoolActivate START"), *GetName());
-	LR_INFO(TEXT("[%s] OnPoolActivate called"), *GetName());
 	LR_INFO(TEXT("[%s] OnPoolActivate - Controller before: %s"),
 		*GetName(),
 		GetController() ? *GetController()->GetName() : TEXT("NULL"));
@@ -385,13 +384,7 @@ void ALREnemyCharacter::OnPoolActivate_Implementation()
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	}
 
-	// TEMP 
-	LR_INFO(TEXT("[%s] OnPoolActivate END, Location: X=%.3f Y=%.3f Z=%.3f"),
-		*GetName(),
-		GetActorLocation().X,
-		GetActorLocation().Y,
-		GetActorLocation().Z);
-
+	// TEMP
 	LR_INFO(TEXT("[%s] OnPoolActivate completed, Location: %s"),
 		*GetName(), *GetActorLocation().ToString());
 	LR_INFO(TEXT("[%s] OnPoolActivate END"), *GetName());
