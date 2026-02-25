@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "UI/Core/LRBaseWidget.h"
+#include "Subsystems/Settings/UIManagerSettings.h"
 #include "UIManagerSubsystem.generated.h"
 
 /**
@@ -135,6 +136,7 @@ public:
 	template<typename T>
 	ULRBaseWidget* SwitchPageUI(TSubclassOf<T> TargetClassFactory);
 
+	ULRBaseWidget* SwitchPageUIByID(EUIPageID PageID);
 
     /** Popup UI가 하나라도 열려있는지 확인 */
     FORCEINLINE bool HasOpenPopupUI() const { return PopupUIStack.Num() > 0; }

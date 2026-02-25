@@ -9,6 +9,7 @@
 
 #include "Engine/GameInstance.h"
 #include "Subsystems/UIManagerSubsystem.h"
+#include "Subsystems/Settings/UIManagerSettings.h"
 
 #include "UI/Chapter/LRChapterSelectorWidget.h"
 
@@ -45,7 +46,7 @@ void ULRPageSelectorWidget::NativeDestruct()
 void ULRPageSelectorWidget::OnStageButtonClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->SwitchPageUI<ULRChapterSelectorWidget>(ChapterSelectorWidgetClass);
+	UIManager->SwitchPageUIByID(EUIPageID::ChapterSelector);
 }
 
 void ULRPageSelectorWidget::OnCollectionButtonClicked()

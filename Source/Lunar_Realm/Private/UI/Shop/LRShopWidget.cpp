@@ -30,5 +30,5 @@ void ULRShopWidget::NativeDestruct()
 void ULRShopWidget::CloseButtonClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->SwitchPageUI<ULRLobbyWidget>(LobbyWidgetClass);
+	UIManager->SwitchPageUIByID(EUIPageID::Lobby);
 }

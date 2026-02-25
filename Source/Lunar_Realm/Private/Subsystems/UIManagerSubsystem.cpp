@@ -137,6 +137,34 @@ void UUIManagerSubsystem::ResetAllUIStates()
 	CachedWidgets.Empty ();
 }
 
+ULRBaseWidget* UUIManagerSubsystem::SwitchPageUIByID(EUIPageID PageID)
+{
+	const UUIManagerSettings* Settings = GetDefault<UUIManagerSettings>();
+	if (!Settings)
+	{
+		return nullptr;
+	}
+
+	if(const TSoftClassPtr<ULRBaseWidget>* SoftClassPtr = Settings->PageClassMap.Find(PageID))
+	{
+		UClass* LoadedClass = SoftClassPtr->LoadSynchronous();
+		if (LoadedClass)
+		{
+			return SwitchPageUI<ULRBaseWidget>(LoadedClass);
+		}
+		else
+		{
+			LR_INFO(TEXT("Failed to load widget class for PageID %d"), static_cast<uint8>(PageID));
+		}
+	}
+	else
+	{
+		LR_INFO(TEXT("PageID %d not found in UIManagerSettings"), static_cast<uint8>(PageID));
+	}
+
+	return nullptr;
+}
+
 void UUIManagerSubsystem::UpdatePopupZOrders()
 {
 	for (int32 i = 0; i < PopupUIStack.Num(); ++i)

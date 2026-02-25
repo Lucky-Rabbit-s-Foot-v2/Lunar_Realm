@@ -19,14 +19,7 @@
 void ALROutGameController::OpenFirstWidget()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	if (UIManager)
-	{
-		UIManager->SwitchPageUI<ULRLobbyWidget>(LobbyWidgetClass);
-	}
-	else
-	{
-		LR_FATAL(TEXT("UIManagerSubsystem not found in GameInstance"));
-	}
+	UIManager->SwitchPageUIByID(EUIPageID::Lobby);
 }
 
 void ALROutGameController::GachaSim(const FString& BannerIdStr, int32 TotalPulls, int32 Seed)
