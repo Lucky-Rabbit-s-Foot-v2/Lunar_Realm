@@ -61,9 +61,6 @@ void ULRGachaRevealWidget::StartRevealWithTransaction(
 
 	// 실제 연출 플로우는 기존 StartReveal 재사용
 	StartReveal(InBannerID, InResults);
-
-	// UI/입력 모드 꼬임 방지를 위해 다음 틱에서 Game+UI 모드 세팅
-	ForceUIInputNextTick();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
