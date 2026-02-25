@@ -10,6 +10,7 @@
 #include "Subsystems/PoolingSubsystem.h"
 #include "System/LoggingSystem.h"
 #include "Units/Enemy/LREnemyCharacter.h"
+#include "Units/Enemy/LREnemyAIController.h"
 #include "TimerManager.h"
 
 // Sets default values
@@ -24,36 +25,11 @@ ALREnemySpawner::ALREnemySpawner()
 
 }
 
-// Called when the game starts or when spawned
 void ALREnemySpawner::BeginPlay()
 {
-	//Super::BeginPlay();
-	//
-	//if (!InitializeFromStageData())
-	//{
-	//	LR_WARN(TEXT("EnemySpawner(%s) failed to initialize from stage data"), *GetName());
-	//	return;
-	//}
-
-	//if (!EnemyClass)
-	//{
-	//	LR_WARN(TEXT("EnemySpawner(%s) has no EnemyClass"), *GetName());
-	//	return;
-	//}
-
-	//UPoolingSubsystem* PoolSys = GetWorld() ? GetWorld()->GetSubsystem<UPoolingSubsystem>() : nullptr;
-	//if (PoolSys)
-	//{
-	//	PoolSys->InitializePool(EnemyClass, PrewarmCount);
-	//}
-
-	//GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy,
-	//	FMath::Max(CurrentSpawnInterval, 0.05f), true);
-
 	Super::BeginPlay();
 
 	double StartTime = GetWorld()->GetTimeSeconds();
-	LR_INFO(TEXT("=== Spawner BeginPlay START: WorldTime = %.3f ==="), StartTime);
 
 	if (!InitializeFromStageData())
 	{
@@ -70,27 +46,12 @@ void ALREnemySpawner::BeginPlay()
 	UPoolingSubsystem* PoolSys = GetWorld() ? GetWorld()->GetSubsystem<UPoolingSubsystem>() : nullptr;
 	if (PoolSys)
 	{
-		double BeforePoolTime = GetWorld()->GetTimeSeconds();
-		LR_INFO(TEXT("Before InitializePool: WorldTime = %.3f"), BeforePoolTime);
-
+		PoolSys->InitializePool(ALREnemyAIController::StaticClass(), PrewarmCount);
 		PoolSys->InitializePool(EnemyClass, PrewarmCount);
-
-		double AfterPoolTime = GetWorld()->GetTimeSeconds();
-		LR_INFO(TEXT("After InitializePool: WorldTime = %.3f, Elapsed = %.3f"),
-			AfterPoolTime, AfterPoolTime - BeforePoolTime);
 	}
 
-	double BeforeTimerTime = GetWorld()->GetTimeSeconds();
 	GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy,
 		FMath::Max(CurrentSpawnInterval, 0.05f), true);
-
-	double AfterTimerTime = GetWorld()->GetTimeSeconds();
-	float RemainingTime = GetWorldTimerManager().GetTimerRemaining(SpawnTimerHandle);
-
-	LR_INFO(TEXT("Timer Set: WorldTime = %.3f, Interval = %.3f, FirstExecution = %.3f"),
-		AfterTimerTime, CurrentSpawnInterval, AfterTimerTime + RemainingTime);
-	LR_INFO(TEXT("=== Spawner BeginPlay END: Total Elapsed = %.3f ==="),
-		AfterTimerTime - StartTime);
 }
 
 // Called every frame
@@ -110,7 +71,6 @@ bool ALREnemySpawner::InitializeFromStageData()
 		return false;
 	}
 
-	// TODO: 컨벤션 맞춰서 수정 필요
 	if (const ULRGameInstance* LRGameInstance = Cast<ULRGameInstance>(GI))
 	{
 		CurrentStageID = LRGameInstance->GetCurrentStageID();
@@ -158,9 +118,6 @@ bool ALREnemySpawner::InitializeFromStageData()
 			*GetName(), *CurrentStageID.ToString());
 		return false;
 	}
-
-	//LR_INFO(TEXT("EnemySpawner initialized: Stage(%s), EnemyCount(%d), Interval(%.2f)"),
-	//	*CurrentStageID.ToString(), CachedEnemyIDs.Num(), CurrentSpawnInterval);
 	
 	return true;
 }
@@ -203,35 +160,6 @@ FTransform ALREnemySpawner::MakeRandomSpawnTransform() const
 
 void ALREnemySpawner::SpawnEnemy()
 {
-	//double CurrentTime = GetWorld()->GetTimeSeconds();
-	//LR_INFO(TEXT(">>> SpawnEnemy called at WorldTime = %.3f <<<"), CurrentTime);
-
-	//UPoolingSubsystem* PoolSys = GetWorld() ? GetWorld()->GetSubsystem<UPoolingSubsystem>() : nullptr;
-	//if (!PoolSys || !EnemyClass)
-	//{
-	//	return;
-	//}
-
-	//const FName TargetEnemyID = PickEnemyIDByWeight();
-	//if (TargetEnemyID == NAME_None)
-	//{
-	//	LR_WARN(TEXT("Failed to pick EnemyID By Random!"));
-	//	return;
-	//}
-
-	//FTransform SpawnTransform = MakeRandomSpawnTransform();
-	//ALREnemyCharacter* NewEnemy = PoolSys->Spawn<ALREnemyCharacter>(EnemyClass, SpawnTransform);
-	//if (!NewEnemy)
-	//{
-	//	LR_WARN(TEXT("EnemySpawner(%s): Failed to spawn enemy from pool"), *GetName());
-	//	return;
-	//}
-
-	//NewEnemy->InitializeByEnemyID(TargetEnemyID);
-
-	double CurrentTime = GetWorld()->GetTimeSeconds();
-	LR_INFO(TEXT(">>> SpawnEnemy called at WorldTime = %.3f <<<"), CurrentTime);
-
 	UPoolingSubsystem* PoolSys = GetWorld() ? GetWorld()->GetSubsystem<UPoolingSubsystem>() : nullptr;
 	if (!PoolSys || !EnemyClass)
 	{
@@ -247,7 +175,6 @@ void ALREnemySpawner::SpawnEnemy()
 	}
 
 	FTransform SpawnTransform = MakeRandomSpawnTransform();
-	LR_INFO(TEXT("SpawnTransform: Location = %s"), *SpawnTransform.GetLocation().ToString());
 
 	ALREnemyCharacter* NewEnemy = PoolSys->Spawn<ALREnemyCharacter>(EnemyClass, SpawnTransform);
 
@@ -257,11 +184,6 @@ void ALREnemySpawner::SpawnEnemy()
 		return;
 	}
 
-	LR_INFO(TEXT("Enemy spawned successfully: %s at location %s"),
-		*NewEnemy->GetName(), *NewEnemy->GetActorLocation().ToString());
-
 	NewEnemy->InitializeByEnemyID(TargetEnemyID);
-
-	LR_INFO(TEXT("Enemy initialized with ID: %s"), *TargetEnemyID.ToString());
 }
 

@@ -10,16 +10,16 @@
 
 #include "Subsystems/UIManagerSubsystem.h"
 
-#include "UI/OutGame/LRLobbyWidget.h"
+#include "UI/Lobby/LRLobbyWidget.h"
 #include "UI/Gacha/LRGachaShopWidget.h"
 #include "UI/Chapter/LRChapterSelectorWidget.h"
 #include "UI/Chapter/LRStageSelectorWidget.h"
 
-void ALROutGameController::BeginPlay()
-{
-	Super::BeginPlay();
 
-	OpenLobbyWidget();
+void ALROutGameController::OpenFirstWidget()
+{
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	UIManager->SwitchPageUIByID(EUIID::LOBBY);
 }
 
 void ALROutGameController::GachaSim(const FString& BannerIdStr, int32 TotalPulls, int32 Seed)
@@ -46,101 +46,3 @@ void ALROutGameController::GachaSim(const FString& BannerIdStr, int32 TotalPulls
 	UE_LOG(LogTemp, Warning, TEXT("  NoPity  : %s"), *NoPity.ToString());
 	UE_LOG(LogTemp, Warning, TEXT("  WithPity: %s"), *WithPity.ToString());
 }
-
-void ALROutGameController::OpenLobbyWidget()
-{
-	if (LobbyWidgetClass)
-	{
-		OpenWidget<ULRLobbyWidget>(LobbyWidgetClass);
-	}
-	else
-	{
-		LR_FATAL(TEXT("LobbyWidgetClass is not set in LROutGameController"));
-	}
-}
-
-void ALROutGameController::OpenShopWidget()
-{
-	if (ShopWidgetClass)
-	{
-		OpenWidget<UBaseWidget>(ShopWidgetClass);
-	}
-	else
-	{
-		LR_FATAL(TEXT("ShopWidgetClass is not set in LROutGameController"));
-	}
-}
-
-void ALROutGameController::OpenShopWidgetByCurrency()
-{
-	if (ShopWidgetClass)
-	{
-		OpenWidget<UBaseWidget>(ShopWidgetClass);
-	}
-	else
-	{
-		LR_FATAL(TEXT("ShopWidgetClass is not set in LROutGameController"));
-	}
-}
-
-void ALROutGameController::OpenGachaShopWidget()
-{
-	if (GachaShopWidgetClass)
-	{
-		OpenWidget<ULRGachaShopWidget>(GachaShopWidgetClass);
-	}
-	else
-	{
-		LR_FATAL(TEXT("GachaShopWidgetClass is not set in LROutGameController"));
-	}
-}
-
-void ALROutGameController::OpenCollectionWidget()
-{
-	// TODO : 구현 필요
-}
-
-void ALROutGameController::OpenPartyWidget()
-{
-	// TODO : 구현 필요
-}
-
-void ALROutGameController::OpenChapterWidget()
-{
-	if (ChapterSelectorWidgetClass)
-	{
-		OpenWidget<ULRChapterSelectorWidget>(ChapterSelectorWidgetClass);
-	}
-	else
-	{
-		LR_FATAL(TEXT("ChapterSelectorWidgetClass is not set in LROutGameController"));
-	}
-}
-
-void ALROutGameController::OpenStageWidget()
-{
-	if (StageSelectorWidgetClass)
-	{
-		OpenWidget<ULRStageSelectorWidget>(StageSelectorWidgetClass);
-	}
-	else
-	{
-		LR_FATAL(TEXT("ChapterSelectorWidgetClass is not set in LROutGameController"));
-	}
-}
-
-void ALROutGameController::OpenSettingsWidget()
-{
-	// TODO : 구현 필요
-}
-
-void ALROutGameController::OpenFigureInfo(FName CharacterID)
-{
-	// TODO : 구현 필요
-}
-
-void ALROutGameController::CloseFigureInfo()
-{
-	// TODO : 구현 필요
-}
-

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Common/LRPopupWidget.h"
+#include "UI/Core/LRChildWidget.h"
 #include "LRNameButtonsWidget.generated.h"
 
 
@@ -18,17 +18,18 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnButtonClicked, int32, Number);
 
 UCLASS()
-class LUNAR_REALM_API ULRNameButtonsWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRNameButtonsWidget : public ULRChildWidget
 {
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
+
+	virtual void SetName(const FText& Name);
 
 	FOnButtonClicked OnButtonClickedDel;
 
-	void SetName(const FText& Name);
 private:
 	UFUNCTION(BlueprintCallable)
 	void OnLowButtonClicked();

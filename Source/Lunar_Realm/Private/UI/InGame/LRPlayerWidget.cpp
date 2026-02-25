@@ -2,6 +2,7 @@
 
 
 #include "UI/InGame/LRPlayerWidget.h"
+#include "UI/InGame/LRSkillPanelWidget.h"
 
 #include "Components/Button.h"
 
@@ -11,24 +12,10 @@
 
 #include "Units/Player/LRPlayerController.h"
 
-void ULRPlayerWidget::NativeConstruct()
+
+void ULRPlayerWidget::BindProperties()
 {
-	Super::NativeConstruct();
-
-	if (Btn_Skill1)
-	{
-		Btn_Skill1->OnClicked.AddDynamic(this, &ULRPlayerWidget::OnSkill1Clicked);
-	}
-
-	if (Btn_Skill2)
-	{
-		Btn_Skill2->OnClicked.AddDynamic(this, &ULRPlayerWidget::OnSkill2Clicked);
-	}
-
-	if (Btn_Potion)
-	{
-		Btn_Potion->OnClicked.AddDynamic(this, &ULRPlayerWidget::OnPotionClicked);
-	}
+	Super::BindProperties();
 
 	if (Btn_Change)
 	{
@@ -36,14 +23,11 @@ void ULRPlayerWidget::NativeConstruct()
 	}
 }
 
-void ULRPlayerWidget::NativeDestruct()
+void ULRPlayerWidget::UnbindProperties()
 {
 	Btn_Change->OnClicked.Clear();
-	Btn_Potion->OnClicked.Clear();
-	Btn_Skill2->OnClicked.Clear();
-	Btn_Skill1->OnClicked.Clear();
 
-	Super::NativeDestruct();
+	Super::UnbindProperties();
 }
 
 void ULRPlayerWidget::InitializeUI()
@@ -83,12 +67,13 @@ void ULRPlayerWidget::BindToController(ALRControllerBase* Controller)
 	Super::BindToController(Controller);
 
 	ALRPlayerController* PC = Cast<ALRPlayerController>(Controller);
-	OnChangeClickedDel.AddDynamic(PC, &ALRPlayerController::ToggleAutoMode);
-	OnPotionClickedDel.AddDynamic(PC, &ALRPlayerController::UsePotion);
-	InitializeGAS(PC->GetAbilitySystemComponent());
+	//OnPotionClickedDel.AddDynamic(PC, &ALRPlayerController::UsePotion);
 
 	if (PC)
 	{
+		OnChangeClickedDel.AddDynamic(PC, &ALRPlayerController::ToggleAutoMode);
+		InitializeGAS(PC->GetAbilitySystemComponent());
+		
 		FInputModeGameAndUI InputMode;
 		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 		InputMode.SetHideCursorDuringCapture(false);
@@ -96,21 +81,10 @@ void ULRPlayerWidget::BindToController(ALRControllerBase* Controller)
 
 		PC->bShowMouseCursor = true;
 	}
-}
-
-void ULRPlayerWidget::OnSkill1Clicked()
-{
-	OnSkill1ClickedDel.Broadcast();
-}
-
-void ULRPlayerWidget::OnSkill2Clicked()
-{
-	OnSkill2ClickedDel.Broadcast();
-}
-
-void ULRPlayerWidget::OnPotionClicked()
-{
-	OnPotionClickedDel.Broadcast();
+	if (WBP_SkillPanel)
+	{
+		WBP_SkillPanel->BindToController(Controller);
+	}
 }
 
 void ULRPlayerWidget::OnChangeClicked()

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Data/LREnumType.h"
-#include "UI/Common/LRPopupWidget.h"
+#include "UI/Core/LRChildWidget.h"
 #include "LRCurrencyViewWidget.generated.h"
 
 
@@ -16,22 +16,16 @@
  // (260212) PJB 제작.
  //=============================================================================
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCurrencyAddClicked);
-
 UCLASS()
-class LUNAR_REALM_API ULRCurrencyViewWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRCurrencyViewWidget : public ULRChildWidget
 {
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
 
 	virtual void RefreshUI() override;
-
-	UPROPERTY(BlueprintAssignable, Category = "LR|Currency")
-	FOnCurrencyAddClicked OnCurrencyAddClickedDel;
-
 private:
 	UFUNCTION()
 	void OnCurrencyAddClicked();
@@ -50,4 +44,7 @@ protected:
 private:
 	UPROPERTY(EditAnywhere, Category = "LR|Currency")
 	ELRCurrencyType CurrencyType = ELRCurrencyType::Gold;
+
+	UPROPERTY(EditAnywhere, Category = "LR|UI")
+	TSubclassOf<class ULRShopWidget> ShopWidgetClass;
 };

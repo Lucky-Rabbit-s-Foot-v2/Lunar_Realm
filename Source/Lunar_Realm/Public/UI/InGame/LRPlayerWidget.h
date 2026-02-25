@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Common/LRPersistentWidget.h"
+#include "UI/Core/LRPersistentWidget.h"
 #include "LRPlayerWidget.generated.h"
 
 /**
@@ -12,14 +12,14 @@
 
 //=============================================================================
 // (260204) BJM 제작. 인게임 관련 Widget 생성.
-// (260209_BJM) OpenUI Visible -> SelfHitTestInvisible 로 변경
+// (260209) BJM OpenUI Visible -> SelfHitTestInvisible 로 변경
 // (260223) PJB InGame UI 연동
+// (260225) BJM SkillPanel 생성으로 인한 코드 정리
 //=============================================================================
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkill1Clicked);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkill2Clicked);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPotionClicked);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnChangeClicked);
+
+class ULRSkillPanelWidget;
 
 UCLASS()
 class LUNAR_REALM_API ULRPlayerWidget : public ULRPersistentWidget
@@ -27,8 +27,9 @@ class LUNAR_REALM_API ULRPlayerWidget : public ULRPersistentWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
+
 
 	virtual void InitializeUI() override;
 	virtual void OpenUI() override;
@@ -36,9 +37,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void TestSummonPanelRefresh();
 
-	FOnSkill1Clicked OnSkill1ClickedDel;
-	FOnSkill2Clicked OnSkill2ClickedDel;
-	FOnPotionClicked OnPotionClickedDel;
 	FOnChangeClicked OnChangeClickedDel;
 
 	UFUNCTION(BlueprintCallable, Category = "LR|UI")
@@ -47,28 +45,11 @@ public:
 	virtual void BindToController(class ALRControllerBase* Controller) override;
 
 private:
-	UFUNCTION(BlueprintCallable)
-	void OnSkill1Clicked();
-
-	UFUNCTION(BlueprintCallable)
-	void OnSkill2Clicked();
-	
-	UFUNCTION(BlueprintCallable)
-	void OnPotionClicked();
 	
 	UFUNCTION(BlueprintCallable)
 	void OnChangeClicked();
 
 protected:
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Skill1;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Skill2;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Potion;
-
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Change;
 
@@ -81,5 +62,8 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRSummonPanelWidget> WBP_SummonPanel;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<ULRSkillPanelWidget> WBP_SkillPanel;
 
 };

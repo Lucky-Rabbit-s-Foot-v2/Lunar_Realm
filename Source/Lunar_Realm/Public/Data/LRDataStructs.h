@@ -30,6 +30,7 @@
 // (260213) BJM 소환관련 cost, cooltime, icon 항목 추가
 // (260220) BJM GA항목 추가
 // (260224) KHS 스킬효과 데이터 추가.
+// (260225) BJM 플레이어가 직접 조종할 때 쓸 단일 평타 GA
 // =============================================================================
 
 USTRUCT(BlueprintType)
@@ -96,7 +97,10 @@ struct FCharacterStaticData : public FTableRowBase
 	TSoftObjectPtr<UTexture2D> PortraitIcon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Skills")
-	TArray<TSubclassOf<class ULRGameplayAbilityBase>> DefaultAbilities;
+	TArray<TSubclassOf<class ULRGameplayAbilityBase>> MemberAbilities;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Skills")
+	TSubclassOf<class ULRGameplayAbilityBase> PlayerBasicAttackAbility;
 
 
 

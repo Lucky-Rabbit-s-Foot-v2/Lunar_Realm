@@ -7,24 +7,27 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 
-#include "Units/OutGame/LROutGameController.h"
+#include "Engine/GameInstance.h"
+#include "Subsystems/UIManagerSubsystem.h"
 
-void ULRChapterWidget::NativeConstruct()
+#include "UI/Chapter/LRStageSelectorWidget.h"
+
+void ULRChapterWidget::BindProperties()
 {
-	Super::NativeConstruct();
+	Super::BindProperties();
 
-	if (Btn_Open)
-	{
-		Btn_Open->OnClicked.AddDynamic(this, &ULRChapterWidget::OnOpenButtonClicked);
-	}
+	if (Btn_Open) Btn_Open->OnClicked.AddDynamic(this, &ULRChapterWidget::OnOpenButtonClicked);
+}
 
-	if (ALROutGameController* PC = Cast<ALROutGameController>(GetWorld()->GetFirstPlayerController()))
-	{
-		OnChapterOpenClickedDel.AddDynamic(PC, &ALROutGameController::OpenStageWidget);
-	}
+void ULRChapterWidget::UnbindProperties()
+{
+	if (Btn_Open) Btn_Open->OnClicked.Clear();
+
+	Super::UnbindProperties();
 }
 
 void ULRChapterWidget::OnOpenButtonClicked()
 {
-	OnChapterOpenClickedDel.Broadcast();
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	UIManager->OpenUI<ULRStageSelectorWidget>(StageSelectorWidgetClass);
 }
