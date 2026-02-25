@@ -6,7 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "Engine/GameInstance.h"
 #include "Subsystems/UIManagerSubsystem.h"
-#include "UI/Common/LRPersistentWidget.h"
+#include "Subsystems/Settings/UIManagerSettings.h"
+#include "UI/Core/LRPersistentWidget.h"
 #include "LRControllerBase.generated.h"
 
 //============================================================================
@@ -25,32 +26,8 @@ class LUNAR_REALM_API ALRControllerBase : public APlayerController
 	GENERATED_BODY()
 	
 public:
+	virtual void BeginPlay() override;
+	
 	UFUNCTION(BlueprintCallable)
-	void OpenPersistentWidget();
-
-	UFUNCTION(BlueprintCallable)
-	UBaseWidget* GetPersistentWidget();
-
-	UFUNCTION(BlueprintCallable)
-	void SetCurrentPersistentType(EPersistentType InPersistentType);
-
-	template<typename T>
-	T* OpenWidget(TSubclassOf<T> WidgetClass);
-
-	UFUNCTION(BlueprintCallable)
-	void CloseWidget(UBaseWidget* Widget);
-
-private:
-	UPROPERTY(EditDefaultsOnly, Category = "LR|UI|Persistent")
-	TMap<EPersistentType, TSubclassOf<class ULRPersistentWidget>> PersistentWidgetClasses;
-
-	UPROPERTY(VisibleAnywhere, Category = "LR|UI|Persistent")
-	EPersistentType CurrentPersistentType;
+	virtual void OpenFirstWidget();
 };
-
-template<typename T>
-T* ALRControllerBase::OpenWidget(TSubclassOf<T> WidgetClass)
-{
-	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	return UIManager->OpenUI<T>(WidgetClass);
-}

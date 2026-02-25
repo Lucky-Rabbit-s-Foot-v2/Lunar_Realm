@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Common/LRPopupWidget.h"
+#include "UI/Core/LRPopupWidget.h"
 #include "LRStageSelectorWidget.generated.h"
 
 //============================================================================
@@ -21,26 +21,27 @@ class LUNAR_REALM_API ULRStageSelectorWidget : public ULRPopupWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|UI")
 	void OnBackButtonClicked();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UStageWidget> Stage1;
+	TObjectPtr<class ULRStageWidget> Stage1;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UStageWidget> Stage2;
+	TObjectPtr<class ULRStageWidget> Stage2;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UStageWidget> Stage3;
+	TObjectPtr<class ULRStageWidget> Stage3;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UStageWidget> Stage4;
+	TObjectPtr<class ULRStageWidget> Stage4;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UStageWidget> Stage5;
+	TObjectPtr<class ULRStageWidget> Stage5;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Back;

@@ -10,6 +10,7 @@
 void ULRSummonPanelWidget::InitializeUI()
 {
 	Super::InitializeUI();
+
 	SlotArray.Empty();
 	if (SummonSlot_0) SlotArray.Add(SummonSlot_0);
 	if (SummonSlot_1) SlotArray.Add(SummonSlot_1);

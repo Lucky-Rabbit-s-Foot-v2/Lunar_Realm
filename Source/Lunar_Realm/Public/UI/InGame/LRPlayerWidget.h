@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Common/LRPersistentWidget.h"
+#include "UI/Core/LRPersistentWidget.h"
 #include "LRPlayerWidget.generated.h"
 
 /**
@@ -27,8 +27,9 @@ class LUNAR_REALM_API ULRPlayerWidget : public ULRPersistentWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
+
 
 	virtual void InitializeUI() override;
 	virtual void OpenUI() override;

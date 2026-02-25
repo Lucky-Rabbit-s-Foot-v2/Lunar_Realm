@@ -13,9 +13,9 @@
 #include "Units/Player/LRPlayerController.h"
 
 
-void ULRPlayerWidget::NativeConstruct()
+void ULRPlayerWidget::BindProperties()
 {
-	Super::NativeConstruct();
+	Super::BindProperties();
 
 	if (Btn_Change)
 	{
@@ -23,11 +23,11 @@ void ULRPlayerWidget::NativeConstruct()
 	}
 }
 
-void ULRPlayerWidget::NativeDestruct()
+void ULRPlayerWidget::UnbindProperties()
 {
 	Btn_Change->OnClicked.Clear();
 
-	Super::NativeDestruct();
+	Super::UnbindProperties();
 }
 
 void ULRPlayerWidget::InitializeUI()
@@ -67,6 +67,7 @@ void ULRPlayerWidget::BindToController(ALRControllerBase* Controller)
 	Super::BindToController(Controller);
 
 	ALRPlayerController* PC = Cast<ALRPlayerController>(Controller);
+	//OnPotionClickedDel.AddDynamic(PC, &ALRPlayerController::UsePotion);
 
 	if (PC)
 	{
