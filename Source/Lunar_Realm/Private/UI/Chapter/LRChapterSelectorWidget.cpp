@@ -5,7 +5,9 @@
 
 #include "Components/Button.h"
 
-#include "Units/LRControllerBase.h"
+#include "Engine/GameInstance.h"
+#include "Subsystems/UIManagerSubsystem.h"
+#include "UI/Lobby/LRLobbyWidget.h"
 
 void ULRChapterSelectorWidget::NativeConstruct()
 {
@@ -15,14 +17,10 @@ void ULRChapterSelectorWidget::NativeConstruct()
 	{
 		Btn_Back->OnClicked.AddDynamic(this, &ULRChapterSelectorWidget::OnBackButtonClicked);
 	}
-
-	if (ALRControllerBase* PC = Cast<ALRControllerBase>(GetWorld()->GetFirstPlayerController()))
-	{
-		OnCloseUIRequestedDel.AddDynamic(PC, &ALRControllerBase::CloseWidget);
-	}
 }
 
 void ULRChapterSelectorWidget::OnBackButtonClicked()
 {
-	OnCloseUIRequestedDel.Broadcast(this);
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	UIManager->SwitchPageUI<ULRLobbyWidget>(LobbyWidgetClass);
 }

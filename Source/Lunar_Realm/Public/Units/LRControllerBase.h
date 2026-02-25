@@ -25,6 +25,8 @@ class LUNAR_REALM_API ALRControllerBase : public APlayerController
 	GENERATED_BODY()
 	
 public:
+	virtual void BeginPlay() override;
+	
 	UFUNCTION(BlueprintCallable)
 	void OpenPersistentWidget();
 
@@ -40,11 +42,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CloseWidget(ULRBaseWidget* Widget);
 
+	UFUNCTION(BlueprintCallable)
+	virtual void OpenFirstWidget();
+
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "LR|UI|Persistent")
+	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
 	TMap<EPersistentType, TSubclassOf<class ULRPersistentWidget>> PersistentWidgetClasses;
 
-	UPROPERTY(VisibleAnywhere, Category = "LR|UI|Persistent")
+	UPROPERTY(VisibleAnywhere, Category = "LR|UI")
 	EPersistentType CurrentPersistentType;
 };
 

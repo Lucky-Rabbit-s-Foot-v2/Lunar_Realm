@@ -7,12 +7,17 @@
 #include "UI/Core/LRPersistentWidget.h"
 #include "UI/Intro/LRLoadingWidget.h"
 
-
-void ALRTransitionController::BeginPlay()
+void ALRTransitionController::OpenFirstWidget()
 {
-	Super::BeginPlay();
-
-	SetCurrentPersistentType(EPersistentType::TRANSITION);
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	if (LoadingWidgetClass)
+	{
+		UIManager->OpenUI<ULRLoadingWidget>(LoadingWidgetClass);
+	}
+	else
+	{
+		LR_WARN(TEXT("LoadingWidgetClass is not set in LRTransitionGameMode"));
+	}
 }
 
 void ALRTransitionController::FinishLoading()

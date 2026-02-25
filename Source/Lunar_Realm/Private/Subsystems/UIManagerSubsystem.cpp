@@ -144,8 +144,9 @@ void UUIManagerSubsystem::UpdatePopupZOrders()
 		ULRBaseWidget* Widget = PopupUIStack[i];
 		if (Widget && Widget->IsInViewport())
 		{
-			int32 NewZOrder = CalculateZOrder(Widget);
-			Widget->AddToViewport(NewZOrder + i);
+			int32 NewZOrder = CalculateZOrder(Widget) + i;
+			Widget->AddToViewport(NewZOrder);
+			LR_INFO(TEXT("Adding %s to viewport with ZOrder %d"), *Widget->GetName(), NewZOrder);
 		}
 	}
 }

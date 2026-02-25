@@ -10,8 +10,6 @@ void ULRLoadingWidget::OpenUI()
 {
 	Super::OpenUI();
 	
-	RefreshUI();
-
 	GetWorld()->GetTimerManager().SetTimer(
 		LoadingTimerHandle,
 		this,

@@ -16,8 +16,6 @@
  // (260212) PJB 제작.
  //=============================================================================
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCurrencyAddClicked);
-
 UCLASS()
 class LUNAR_REALM_API ULRCurrencyViewWidget : public ULRChildWidget
 {
@@ -28,10 +26,6 @@ public:
 	virtual void NativeDestruct() override;
 
 	virtual void RefreshUI() override;
-
-	UPROPERTY(BlueprintAssignable, Category = "LR|Currency")
-	FOnCurrencyAddClicked OnCurrencyAddClickedDel;
-
 private:
 	UFUNCTION()
 	void OnCurrencyAddClicked();
@@ -50,4 +44,7 @@ protected:
 private:
 	UPROPERTY(EditAnywhere, Category = "LR|Currency")
 	ELRCurrencyType CurrencyType = ELRCurrencyType::Gold;
+
+	UPROPERTY(EditAnywhere, Category = "LR|UI")
+	TSubclassOf<class ULRShopWidget> ShopWidgetClass;
 };

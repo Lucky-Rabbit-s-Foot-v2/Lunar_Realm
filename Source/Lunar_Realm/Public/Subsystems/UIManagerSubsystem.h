@@ -97,6 +97,7 @@ public:
      * - 주로 위젯의 닫기 요청 델리게이트 핸들러에서 사용
      * @param Widget 닫고자 하는 위젯 인스턴스
      */
+	UFUNCTION()
     void CloseUI(ULRBaseWidget* Widget);
     
 
@@ -132,7 +133,7 @@ public:
 	* - Popup UI는 스택에서 제거하고 새로운 페이지 UI는 열어서 뷰포트에 추가
 	*/
 	template<typename T>
-	void SwitchPageUI(TSubclassOf<T> TargetClassFactory);
+	ULRBaseWidget* SwitchPageUI(TSubclassOf<T> TargetClassFactory);
 
 
     /** Popup UI가 하나라도 열려있는지 확인 */
@@ -209,7 +210,9 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
         return nullptr;
     }
 	
+
 	ULRBaseWidget* BaseWidget = Widget;
+	LR_INFO(TEXT("Opening UI: %s (Layer: %s)"), *BaseWidget->GetName(), *UEnum::GetValueAsString(BaseWidget->UILayer));
 
 	// UI 레이어가 NONE이면 열 수 없음 (Child Widget으로만 사용 가능)
 	if (BaseWidget->UILayer == EUILayer::NONE)
@@ -229,6 +232,7 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
 
 	switch (BaseWidget->UILayer)
 	{
+		case EUILayer::PAGE:
 		case EUILayer::BACKGROUND:
 		case EUILayer::PERSISTENT:
 		{
@@ -239,9 +243,11 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
 			}
 
 			BaseWidget->OpenUI();
+
 			if (!BaseWidget->IsInViewport())
 			{
 				int32 ZOrder = CalculateZOrder(BaseWidget);
+				LR_INFO(TEXT("Adding %s to viewport with ZOrder %d"), *BaseWidget->GetName(), ZOrder);
 				BaseWidget->AddToViewport(ZOrder);
 			}
 			break;
@@ -256,12 +262,18 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
 
 			PopupUIStack.Add(BaseWidget);
 			BaseWidget->OpenUI();
+			if (!BaseWidget->IsInViewport())
+			{
+				int32 ZOrder = CalculateZOrder(BaseWidget);
+				BaseWidget->AddToViewport(ZOrder);
+			}
 
 			UpdatePopupZOrders();
 			
 			NotifyInputModeChange();
 			break;
 		}
+		case EUILayer::NONE:
 		case EUILayer::TOOLTIP:
 		default:
 		{
@@ -292,19 +304,21 @@ void UUIManagerSubsystem::CloseUI(TSubclassOf<T> targetClassFactory)
 }
 
 template<typename T>
-void UUIManagerSubsystem::SwitchPageUI(TSubclassOf<T> TargetClassFactory)
+ULRBaseWidget* UUIManagerSubsystem::SwitchPageUI(TSubclassOf<T> TargetClassFactory)
 {
 	if (!TargetClassFactory)
 	{
-		return;
+		LR_WARN(TEXT("SwitchPageUI failed: TargetClassFactory is null."));
+		return nullptr;
 	}
 
-	if(CurrentPageWidget)
+	if (CurrentPageWidget)
 	{
-		if(CurrentPageWidget->GetClass() == TargetClassFactory)
+		if (CurrentPageWidget->GetClass() == TargetClassFactory)
 		{
 			return OpenUI<T>(TargetClassFactory);
 		}
+		LR_INFO(TEXT("Switching Page UI: Closing current page %s before opening new page."), *CurrentPageWidget->GetName());
 		CloseUIInternal(CurrentPageWidget);
 		CurrentPageWidget = nullptr;
 	}
@@ -318,6 +332,7 @@ void UUIManagerSubsystem::SwitchPageUI(TSubclassOf<T> TargetClassFactory)
 			if (BaseWidget->UILayer == EUILayer::PAGE)
 			{
 				CurrentPageWidget = BaseWidget;
+				LR_INFO(TEXT("Switched to new Page UI: %s"), *BaseWidget->GetName());
 			}
 			else
 			{

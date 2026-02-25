@@ -20,12 +20,11 @@ class LUNAR_REALM_API ULRLoadingWidget : public ULRBackgroundWidget
 {
 	GENERATED_BODY()
 
-protected:
+public:
 	virtual void OpenUI() override;
 	virtual void CloseUI() override;
 	virtual void RefreshUI() override;
 
-public:
 	void FinishLoading();
 
 private:

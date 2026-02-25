@@ -7,7 +7,10 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 
-#include "Units/OutGame/LROutGameController.h"
+#include "Engine/GameInstance.h"
+#include "Subsystems/UIManagerSubsystem.h"
+
+#include "UI/Chapter/LRStageSelectorWidget.h"
 
 void ULRChapterWidget::NativeConstruct()
 {
@@ -17,14 +20,10 @@ void ULRChapterWidget::NativeConstruct()
 	{
 		Btn_Open->OnClicked.AddDynamic(this, &ULRChapterWidget::OnOpenButtonClicked);
 	}
-
-	if (ALROutGameController* PC = Cast<ALROutGameController>(GetWorld()->GetFirstPlayerController()))
-	{
-		OnChapterOpenClickedDel.AddDynamic(PC, &ALROutGameController::OpenStageWidget);
-	}
 }
 
 void ULRChapterWidget::OnOpenButtonClicked()
 {
-	OnChapterOpenClickedDel.Broadcast();
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	UIManager->OpenUI<ULRStageSelectorWidget>(StageSelectorWidgetClass);
 }

@@ -24,13 +24,10 @@ class LUNAR_REALM_API ULRIntroWidget : public ULRBackgroundWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
-
 	virtual void OpenUI() override;
 	virtual void RefreshUI() override;
 	
-	virtual void BindToController(class ALRControllerBase* Controller);
+	void OpenTitleScreen();
 
 	UPROPERTY(BlueprintAssignable, Category = "LR|UI")
 	FOnIntroAnimFinished OnIntroAnimFinishedDel;
@@ -54,5 +51,8 @@ protected:
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	TObjectPtr<class UWidgetAnimation> FadeAnim;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
+	TSubclassOf<class ULRTitleWidget> TitleWidgetClass;
 
 };

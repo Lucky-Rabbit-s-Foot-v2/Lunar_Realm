@@ -51,14 +51,13 @@ void ULRGameInstance::SetNextLevelName(ELevelName LevelName)
 
 void ULRGameInstance::OpenNextLevelLatent()
 {
-	UUIManagerSubsystem* UIManager = GetSubsystem<UUIManagerSubsystem>();
-	UIManager->CloseAllPopupUI();
-
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(
 		TimerHandle,
 		[this]()
 		{
+			UUIManagerSubsystem* UIManager = GetSubsystem<UUIManagerSubsystem>();
+			UIManager->ResetAllUIStates();
 			UGameplayStatics::OpenLevel(this, Map_Transition.GetLongPackageFName());
 		},
 		0.1f,

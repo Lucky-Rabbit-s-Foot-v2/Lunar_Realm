@@ -16,11 +16,6 @@ void ULRStageSelectorWidget::NativeConstruct()
 	{
 		Btn_Back->OnClicked.AddDynamic(this, &ULRStageSelectorWidget::OnBackButtonClicked);
 	}
-
-	if(ALRControllerBase* PC = Cast<ALRControllerBase>(GetWorld()->GetFirstPlayerController()))
-	{
-		OnCloseUIRequestedDel.AddDynamic(PC, &ALRControllerBase::CloseWidget);
-	}
 }
 
 void ULRStageSelectorWidget::OnBackButtonClicked()

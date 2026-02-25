@@ -7,6 +7,11 @@
 
 #include "Units/OutGame/LROutGameController.h"
 
+#include "Engine/GameInstance.h"
+#include "Subsystems/UIManagerSubsystem.h"
+
+#include "UI/Chapter/LRChapterSelectorWidget.h"
+
 void ULRPageSelectorWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -30,43 +35,28 @@ void ULRPageSelectorWidget::NativeConstruct()
 	{
 		Btn_Gacha->OnClicked.AddDynamic(this, &ULRPageSelectorWidget::OnGachaButtonClicked);
 	}
-
-	if(ALROutGameController* LRController = GetWorld()->GetFirstPlayerController<ALROutGameController>())
-	{
-		OnStageButtonClickedDel.AddDynamic(LRController, &ALROutGameController::OpenChapterWidget);
-		OnCollectionButtonClickedDel.AddDynamic(LRController, &ALROutGameController::OpenCollectionWidget);
-		OnPartyButtonClickedDel.AddDynamic(LRController, &ALROutGameController::OpenPartyWidget);
-		OnGachaButtonClickedDel.AddDynamic(LRController, &ALROutGameController::OpenGachaShopWidget);
-	}
 }
 
 void ULRPageSelectorWidget::NativeDestruct()
 {
-	OnGachaButtonClickedDel.Clear();
-	OnPartyButtonClickedDel.Clear();
-	OnCollectionButtonClickedDel.Clear();
-	OnStageButtonClickedDel.Clear();
-
 	Super::NativeDestruct();
 }
 
 void ULRPageSelectorWidget::OnStageButtonClicked()
 {
-	OnStageButtonClickedDel.Broadcast();
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	UIManager->SwitchPageUI<ULRChapterSelectorWidget>(ChapterSelectorWidgetClass);
 }
 
 void ULRPageSelectorWidget::OnCollectionButtonClicked()
 {
-	OnCollectionButtonClickedDel.Broadcast();
 }
 
 void ULRPageSelectorWidget::OnPartyButtonClicked()
 {
-	OnPartyButtonClickedDel.Broadcast();
 }
 
 void ULRPageSelectorWidget::OnGachaButtonClicked()
 {
-	OnGachaButtonClickedDel.Broadcast();
 }
 

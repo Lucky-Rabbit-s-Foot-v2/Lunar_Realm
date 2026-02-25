@@ -32,4 +32,7 @@ private:
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Close;
+
+	UPROPERTY(EditAnywhere, Category = "LR|UI")
+	TSubclassOf<class ULRLobbyWidget> LobbyWidgetClass;
 };

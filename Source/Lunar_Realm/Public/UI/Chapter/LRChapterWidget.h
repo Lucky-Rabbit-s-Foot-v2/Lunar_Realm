@@ -45,4 +45,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Chapter")
 	FName ChapterID;
+
+	UPROPERTY(EditAnywhere, Category = "LR|UI")
+	TSubclassOf<class ULRStageSelectorWidget> StageSelectorWidgetClass;
 };

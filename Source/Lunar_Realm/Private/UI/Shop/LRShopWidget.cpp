@@ -6,6 +6,8 @@
 #include "Components/Button.h"
 #include "Units/LRControllerBase.h"
 
+#include "UI/Lobby/LRLobbyWidget.h"
+
 void ULRShopWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -13,11 +15,6 @@ void ULRShopWidget::NativeConstruct()
 	if (Btn_Close)
 	{
 		Btn_Close->OnClicked.AddDynamic(this, &ULRShopWidget::CloseButtonClicked);
-	}
-
-	if (ALRControllerBase* LRController = Cast<ALRControllerBase>(GetOwningPlayer()))
-	{
-		OnCloseUIRequestedDel.AddDynamic(LRController, &ALRControllerBase::CloseWidget);
 	}
 }
 
@@ -32,5 +29,6 @@ void ULRShopWidget::NativeDestruct()
 
 void ULRShopWidget::CloseButtonClicked()
 {
-	OnCloseUIRequestedDel.Broadcast(this);
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	UIManager->SwitchPageUI<ULRLobbyWidget>(LobbyWidgetClass);
 }

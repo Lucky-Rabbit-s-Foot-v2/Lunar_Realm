@@ -3,6 +3,13 @@
 
 #include "Units/LRControllerBase.h"
 
+void ALRControllerBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	OpenFirstWidget();
+}
+
 void ALRControllerBase::OpenPersistentWidget()
 {
 	if (PersistentWidgetClasses.Contains(CurrentPersistentType))
@@ -40,4 +47,9 @@ void ALRControllerBase::CloseWidget(ULRBaseWidget* Widget)
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	UIManager->CloseUI(Widget);
+}
+
+void ALRControllerBase::OpenFirstWidget()
+{
+	// 자식 클래스에서 첫 UI 열림 구현.
 }

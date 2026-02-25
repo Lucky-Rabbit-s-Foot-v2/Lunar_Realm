@@ -9,6 +9,11 @@
 
 #include "Subsystems/SaveGameSubsystem.h"
 
+#include "Engine/GameInstance.h"
+#include "Subsystems/UIManagerSubsystem.h"
+
+#include "UI/Shop/LRShopWidget.h"
+
 #include "Units/OutGame/LROutGameController.h"
 
 void ULRCurrencyViewWidget::NativeConstruct()
@@ -19,17 +24,10 @@ void ULRCurrencyViewWidget::NativeConstruct()
 	{
 		Btn_Add->OnClicked.AddDynamic(this, &ULRCurrencyViewWidget::OnCurrencyAddClicked);
 	}
-
-	if (ALROutGameController* LRController = GetWorld()->GetFirstPlayerController<ALROutGameController>())
-	{
-		OnCurrencyAddClickedDel.AddDynamic(LRController, &ALROutGameController::OpenShopWidgetByCurrency);
-	}
 }
 
 void ULRCurrencyViewWidget::NativeDestruct()
 {
-	OnCurrencyAddClickedDel.Clear();
-
 	if (Btn_Add)
 	{
 		Btn_Add->OnClicked.Clear();
@@ -55,5 +53,6 @@ void ULRCurrencyViewWidget::RefreshUI()
 
 void ULRCurrencyViewWidget::OnCurrencyAddClicked()
 {
-	OnCurrencyAddClickedDel.Broadcast();
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	UIManager->SwitchPageUI<ULRShopWidget>(ShopWidgetClass);
 }

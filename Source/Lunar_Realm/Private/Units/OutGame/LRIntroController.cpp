@@ -4,35 +4,9 @@
 #include "Units/OutGame/LRIntroController.h"
 
 #include "UI/Intro/LRIntroWidget.h"
-#include "UI/Intro/LRTitleWidget.h"
 
-void ALRIntroController::BeginPlay()
+void ALRIntroController::OpenFirstWidget()
 {
-	Super::BeginPlay();
-	
-	SetCurrentPersistentType(EPersistentType::INTRO);
-}
-
-void ALRIntroController::OpenIntroWidget()
-{
-	if (IntroWidgetClass)
-	{
-		OpenWidget(IntroWidgetClass);
-	}
-	else
-	{
-		LR_FATAL(TEXT("IntroWidgetClass is not set in LRIntroController"));
-	}
-}
-
-void ALRIntroController::OpenTitleWidget()
-{
-	if (TitleWidgetClass)
-	{
-		OpenWidget(TitleWidgetClass);
-	}
-	else
-	{
-		LR_FATAL(TEXT("TitleWidgetClass is not set in LRIntroController"));
-	}
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	UIManager->OpenUI<ULRIntroWidget>(IntroWidgetClass);
 }
