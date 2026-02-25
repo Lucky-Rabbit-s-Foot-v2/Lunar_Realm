@@ -29,7 +29,7 @@ AActor* UPoolingSubsystem::SpawnPooledActor(TSubclassOf<AActor> ClassToSpawn, co
 
 	if (!IsValid(PooledActor))
 	{
-		LR_INFO(TEXT("Spawn New Actor"));
+		// LR_INFO(TEXT("Spawn New Actor")); // Enemy로 인해 너무 많이 출력되서 임시로 주석처리 필요시 해제하고 사용 바람
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
@@ -38,11 +38,14 @@ AActor* UPoolingSubsystem::SpawnPooledActor(TSubclassOf<AActor> ClassToSpawn, co
 
 	if (PooledActor)
 	{
-		ActiveActors.Add(PooledActor);
+		PooledActor->SetActorTransform(SpawnTransform);
+
 		if (PooledActor->Implements<ULRPoolableInterface>())
 		{
 			ILRPoolableInterface::Execute_OnPoolActivate(PooledActor);
 		}
+		
+		ActiveActors.Add(PooledActor);
 	}
 
 	return PooledActor;
