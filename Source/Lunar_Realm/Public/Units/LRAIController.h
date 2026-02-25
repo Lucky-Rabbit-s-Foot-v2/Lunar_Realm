@@ -46,6 +46,7 @@ namespace LRBBKeys
  // (260211) KWB 제반 사항 구현. (공통 AI 로직 통합. Enemy/Member 공용)
  // (260212) KWB 비헤이비어트리 설정을 데이터 드리븐 구조로 전환하기 위한 SetAndRunBehaviorTree 함수 추가. OnPossess()에서 BT 검사 및 실행 로직 제거.
  // (260224) KWB 컨트롤러 풀링 시스템 적용을 위한 인터페이스 구현 추가
+ // (260225) KWB 주석 처리된 미사용 코드 제거
  //============================================================================
 UCLASS()	
 class LUNAR_REALM_API ALRAIController : public ADetourCrowdAIController, public ILRPoolableInterface

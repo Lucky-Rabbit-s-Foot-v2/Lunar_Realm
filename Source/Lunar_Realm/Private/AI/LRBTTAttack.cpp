@@ -57,7 +57,6 @@ EBTNodeResult::Type ULRBTTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 		return EBTNodeResult::Failed;
 	}
 
-	// TODO: 회전 자연스러운지 확인
 	// 타겟 방향으로 회전
 	FVector LookDir = (TargetActor->GetActorLocation() - MyPawn->GetActorLocation()).GetSafeNormal();
 	LookDir.Z = 0.0f;

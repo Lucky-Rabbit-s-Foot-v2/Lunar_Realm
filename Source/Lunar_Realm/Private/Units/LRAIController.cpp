@@ -253,27 +253,6 @@ bool ALRAIController::TryAttackTarget(AActor* Target)
 		EventData);
 	
 	return true;
-
-	// if (const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(MyPawn))
-	// {
-	// 	if (UAbilitySystemComponent* ASC = ASCInterface->GetAbilitySystemComponent())
-	// 	{
-	// 		FGameplayTagContainer AttackTags;
-	// 		AttackTags.AddTag(LRTags::Ability_Combat_BasicShoot);
-	//
-	// 		if (ASC->TryActivateAbilitiesByTag(AttackTags))
-	// 		{
-	// 			LastAttackTime = CurrentTime;
-	// 			return true;
-	// 		}
-	//
-	// 		LR_WARN(TEXT("[%s] No attack ability on [%s]."),
-	// 			*GetName(), *MyPawn->GetName());
-	// 		LastAttackTime = CurrentTime;
-	// 	}
-	// }
-	//
-	// return false;
 }
 
 void ALRAIController::InitializeBehaviorTree(UBehaviorTree* NewBT)
