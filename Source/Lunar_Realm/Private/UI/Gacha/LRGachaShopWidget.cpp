@@ -114,31 +114,6 @@ void ULRGachaShopWidget::NativeDestruct()
 	Super::NativeDestruct();
 }
 
-// ───────────────── 리빌 위젯 (구 플로우) ─────────────────
-
-void ULRGachaShopWidget::ShowRevealWidget(FName InBannerID, const TArray<FLRGachaResult>& InResults)
-{
-	if (!RevealWidgetClass)
-	{
-		return;
-	}
-
-	UUIManagerSubsystem* UISys = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	if (!UISys)
-	{
-		return;
-	}
-
-	ULRGachaRevealWidget* Reveal = UISys->OpenUI<ULRGachaRevealWidget>(RevealWidgetClass);
-	if (!Reveal)
-	{
-		return;
-	}
-
-	// 변경 전 플로우: 바로 StartReveal (SkipState 없음, TxnId 불필요)
-	Reveal->StartReveal(InBannerID, InResults);
-}
-
 // ───────────────── Draw 공통 처리 ─────────────────
 
 void ULRGachaShopWidget::TryBeginDrawAndOpenReveal(FName BannerID, int32 Count)

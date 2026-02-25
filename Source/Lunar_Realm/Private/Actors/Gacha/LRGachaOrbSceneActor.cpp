@@ -52,11 +52,6 @@ void ALRGachaOrbSceneActor::Tick(float DeltaTime)
 	UpdateMoonSequence(DeltaTime);
 }
 
-void ALRGachaOrbSceneActor::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	// 필요 시 Enhanced Input 바인딩 추가 예정
-}
-
 // ==========================================================================
 // Initialize & Spawn
 // ==========================================================================

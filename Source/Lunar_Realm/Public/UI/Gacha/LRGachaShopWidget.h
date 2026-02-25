@@ -47,9 +47,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Gacha")
 	FName DefaultEquipBannerID = TEXT("Equip_FullMoon");
 
-	/** (구 플로우용) 뽑기 결과로 리빌 위젯을 바로 띄우는 함수 */
-	void ShowRevealWidget(FName InBannerID, const TArray<FLRGachaResult>& InResults);
-
 protected:
 	// ───────────────── UI 위젯 바인딩 ─────────────────
 
@@ -93,10 +90,6 @@ private:
 	/** 가챠 서브시스템(트랜잭션/재화/천장 관리) */
 	UPROPERTY()
 	ULRGachaSubsystem* GachaSys = nullptr;
-
-	/** 리빌 위젯 클래스 (구 플로우용, BP에서 지정) */
-	UPROPERTY(EditAnywhere, Category = "LR|Gacha|UI")
-	TSubclassOf<ULRGachaRevealWidget> RevealWidgetClass;
 
 	/** Draw 버튼 클릭 시: 트랜잭션 시작 + 리빌 맵 이동 */
 	void TryBeginDrawAndOpenReveal(FName BannerID, int32 Count);
