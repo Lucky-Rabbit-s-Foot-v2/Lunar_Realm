@@ -14,6 +14,7 @@
 // (260203) BJM 제작. 플레이어 컨트롤러
 // (260210) BJM 카메라매니저 연동
 // (260223) PJB Stage UI 연동
+// (260225) BJM UseSkil 1,2 연동
 //=============================================================================
 
 class UTouchInterface;
@@ -31,6 +32,11 @@ public:
 
 	UFUNCTION()
 	void UsePotion();
+	UFUNCTION()
+	void UseSkill1();
+	UFUNCTION()
+	void UseSkill2();
+
 
 	class UAbilitySystemComponent* GetAbilitySystemComponent();
 
