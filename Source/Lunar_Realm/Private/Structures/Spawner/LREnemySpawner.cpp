@@ -181,6 +181,7 @@ FTransform ALREnemySpawner::MakeRandomSpawnTransform() const
 	return FTransform(GetActorRotation(), RandomLocation, FVector::OneVector);
 }
 
+// TEMP : 디버그 후 주석 처리 필요
 void ALREnemySpawner::SpawnEnemy()
 {
 	double CurrentTime = GetWorld()->GetTimeSeconds();

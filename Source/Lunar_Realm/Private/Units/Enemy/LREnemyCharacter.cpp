@@ -80,6 +80,11 @@ void ALREnemyCharacter::OnDie()
 
 void ALREnemyCharacter::InitializeByEnemyID(FName EnemyID)
 {
+	// TEMP : 풀 재사용시 BT 테스트
+	LR_INFO(TEXT("[%s] InitializeByEnemyID - Controller: %s"),
+		*GetName(),
+		GetController() ? *GetController()->GetName() : TEXT("NULL"));
+
 	CurrentEnemyID = EnemyID;
 
 	// 데이터 서브시스템에서 전체 에너미 데이터 조회
@@ -377,6 +382,7 @@ void ALREnemyCharacter::OnPoolActivate_Implementation()
 	{
 		MoveComp->SetMovementMode(MOVE_Walking);
 		MoveComp->SetActive(true);
+		MoveComp->SetComponentTickEnabled(true);
 	}
 
 	if (AbilitySystemComponent)
