@@ -12,22 +12,8 @@ void UUIManagerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 void UUIManagerSubsystem::Deinitialize()
 {
-	CloseAllPopupUI();
-	
-	//모든 캐시된 위젯 정리
-	//TODO 함수형으로 전환
-	for (auto& Pair : CachedWidgets)
-	{
-		if (Pair.Value && Pair.Value->IsInViewport())
-		{
-			Pair.Value->RemoveFromParent();
-		}
-	}
-	
-	CachedWidgets.Empty();
-	PersistentUIMap.Empty();
-	PopupUIStack.Empty();
-    
+	ResetAllUIStates();
+
 	Super::Deinitialize();
 }
 
@@ -38,15 +24,16 @@ int32 UUIManagerSubsystem::CalculateZOrder(ULRBaseWidget* Widget) const
 		return 0;
 	}
     
-	// Persistent 타입의 경우 ZOrder 낮게
-	if (Widget->UILayer == EUILayer::PERSISTENT)
+	int32 DefaultZOrder = Widget->ZOrder;
+	switch (Widget->UILayer)
 	{
-		return Widget->ZOrder;
-	}
-	// Popup 타입의 경우 ZOrder 높게 (100 + 스택 깊이)
-	else
-	{
-		return 100 + PopupUIStack.Num();
+		case EUILayer::BACKGROUND:	return DefaultZOrder;
+		case EUILayer::PAGE:		return 25 + DefaultZOrder;
+		case EUILayer::PERSISTENT:	return 50 + DefaultZOrder;
+		case EUILayer::POPUP:		return 100 + PopupUIStack.Num();
+		case EUILayer::TOOLTIP:		return 500 + DefaultZOrder;
+		case EUILayer::SYSTEM:		return 900 + PopupUIStack.Num();
+		default:					return DefaultZOrder;
 	}
 }
 
@@ -58,15 +45,21 @@ void UUIManagerSubsystem::NotifyInputModeChange()
 		return;
 	}
 	
-	FInputModeGameAndUI InputMode;
-	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-	InputMode.SetHideCursorDuringCapture(false);
-	if (PopupUIStack.Num() > 0)
+	ULRBaseWidget* TopModalWidget = FindTopModalPopup();
+	if (TopModalWidget)
 	{
-		InputMode.SetWidgetToFocus(PopupUIStack.Last()->TakeWidget());
+		FInputModeGameAndUI InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		InputMode.SetHideCursorDuringCapture(false);
+		InputMode.SetWidgetToFocus(TopModalWidget->TakeWidget());
+		PC->SetInputMode(InputMode);
+		PC->SetShowMouseCursor(true);
 	}
-	PC->SetInputMode(InputMode);
-	PC->SetShowMouseCursor(true);
+	else
+	{
+		PC->SetInputMode(FInputModeGameOnly());
+		PC->SetShowMouseCursor(false);
+	}
 }
 
 void UUIManagerSubsystem::CloseUIInternal(ULRBaseWidget* Widget)
@@ -76,27 +69,25 @@ void UUIManagerSubsystem::CloseUIInternal(ULRBaseWidget* Widget)
 		return;
 	}
     
-	if (Widget->UILayer == EUILayer::PERSISTENT)
-	{
-		Widget->CloseUI();
-		Widget->RemoveFromParent();
-        
-		TSubclassOf<ULRBaseWidget> WidgetClass = Widget->GetClass();
-		PersistentUIMap.Remove(WidgetClass);
-	}
-	else // Popup
+	EUILayer Layer = Widget->UILayer;
+	if (Layer == EUILayer::POPUP || Layer == EUILayer::SYSTEM)
 	{
 		int32 Index = PopupUIStack.Find(Widget);
 		if (Index != INDEX_NONE)
 		{
 			PopupUIStack.RemoveAt(Index);
-			Widget->CloseUI();
-			Widget->RemoveFromParent();
-            
-			RefreshTopPopupUI();
-			NotifyInputModeChange();
 		}
+		Widget->CloseUI();
+		RefreshTopPopupUI();
+		NotifyInputModeChange();
 	}
+	else
+	{
+		Widget->CloseUI();
+		PersistentUIMap.Remove(Widget->GetClass());
+	}
+
+	Widget->OnCloseUIRequestedDel.RemoveDynamic(this, &UUIManagerSubsystem::CloseUI);
 }
 
 void UUIManagerSubsystem::CloseUI(ULRBaseWidget* Widget)
@@ -112,11 +103,7 @@ void UUIManagerSubsystem::CloseTopPopupUI()
 	}
     
 	ULRBaseWidget* TopWidget = PopupUIStack.Pop();
-	TopWidget->CloseUI();
-	TopWidget->RemoveFromParent();
-    
-	RefreshTopPopupUI();
-	NotifyInputModeChange();
+	CloseUI(TopWidget);
 }
 
 void UUIManagerSubsystem::CloseAllPopupUI()
@@ -141,30 +128,51 @@ void UUIManagerSubsystem::ResetAllUIStates()
 	//캐싱된 인스턴스들 상태 초기화
 	for (auto& pair : CachedWidgets)
 	{
-		if (pair.Value)
-		{
-			if (pair.Value->IsOpen())
-			{
-				pair.Value->CloseUI();
-			}
-			
-			if (pair.Value->IsInViewport())
-			{
-				pair.Value->RemoveFromParent();
-			}
-		}
+		ResetUIState(pair.Value);
 	}
 	
 	//관련 컨테이너 비우기
 	PersistentUIMap.Empty();
 	PopupUIStack.Empty();
 	CachedWidgets.Empty ();
-	
-	//입력모드 초기화
-	APlayerController* pc = GetWorld()->GetFirstPlayerController();
-	if (pc)
+}
+
+void UUIManagerSubsystem::UpdatePopupZOrders()
+{
+	for (int32 i = 0; i < PopupUIStack.Num(); ++i)
 	{
-		pc->SetInputMode(FInputModeGameOnly());
-		pc->SetShowMouseCursor(false);
+		ULRBaseWidget* Widget = PopupUIStack[i];
+		if (Widget && Widget->IsInViewport())
+		{
+			int32 NewZOrder = CalculateZOrder(Widget);
+			Widget->AddToViewport(NewZOrder + i);
+		}
+	}
+}
+
+ULRBaseWidget* UUIManagerSubsystem::FindTopModalPopup()
+{
+	for (int32 i = PopupUIStack.Num() - 1; i >= 0; --i)
+	{
+		if (PopupUIStack[i]->bIsModal)
+		{
+			return PopupUIStack[i];
+		}
+	}
+	return nullptr;
+}
+
+void UUIManagerSubsystem::ResetUIState(ULRBaseWidget* Widget)
+{
+	if (Widget)
+	{
+		if (Widget->IsOpen())
+		{
+			Widget->CloseUI();
+		}
+		if (Widget->IsInViewport())
+		{
+			Widget->RemoveFromParent();
+		}
 	}
 }

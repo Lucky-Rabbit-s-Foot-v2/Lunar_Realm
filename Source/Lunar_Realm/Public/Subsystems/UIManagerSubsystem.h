@@ -22,6 +22,7 @@
 //=============================================================================
 // (260123) KHS 제작. 제반 사항 구현.
 // (260223) PJB 수정. Persistent UI와 Popup UI 로직 개선, 입력 모드 변경 로직 추가.
+// (260224) PJB 수정. UI 레이어 확장. 전체적인 코드 수정 및 최적화.
 // =============================================================================
 
 UCLASS()
@@ -31,11 +32,12 @@ class LUNAR_REALM_API UUIManagerSubsystem : public UGameInstanceSubsystem
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
-	private:
+
+private:
     /** UI 레이어에 따라 적절한 ZOrder 계산 (Persistent: 낮음, Popup: 높음) */
     int32 CalculateZOrder(ULRBaseWidget* Widget) const;
     
-    /** 현재 Popup 스택 상태에 따라 입력 모드 변경 (UIOnly ↔ GameOnly) */
+    /** 현재 Popup 스택 상태에 따라 입력 모드 변경 */
     void NotifyInputModeChange();
     
     /** 
@@ -44,7 +46,18 @@ public:
      * - 중복 로직 방지 및 유지보수성 향상
      */
     void CloseUIInternal(ULRBaseWidget* Widget);
-    
+
+	/** 팝업 UI들의 ZOrder를 현재 스택 상태에 맞게 갱신 */
+	void UpdatePopupZOrders();
+
+	/** 입력 제한 최상단 팝업 찾기
+	* - Popup UI 의 존재 여부를 통해 입력 모드 결정 시 사용
+	*/
+	ULRBaseWidget* FindTopModalPopup();
+
+	/** 각 위젯을 삭제하기 위한 헬퍼 함수 */
+	void ResetUIState(ULRBaseWidget* Widget);
+
 public:
     /**
      * UI를 열고 뷰포트에 추가
@@ -69,6 +82,7 @@ public:
     template<typename T>
     T* GetOrCreateWidget(TSubclassOf<T> WidgetClassFactory);
     
+
     /**
      * 특정 타입의 UI를 닫고 뷰포트에서 제거 (타입 기반)
      * - Persistent: 맵에서 제거
@@ -77,7 +91,7 @@ public:
      */
     template<typename T>
     void CloseUI(TSubclassOf<T> targetClassFactory);
-    
+	
     /**
      * 위젯 인스턴스를 직접 받아서 닫기 (인스턴스 기반)
      * - 주로 위젯의 닫기 요청 델리게이트 핸들러에서 사용
@@ -85,6 +99,7 @@ public:
      */
     void CloseUI(ULRBaseWidget* Widget);
     
+
     /** 
      * 스택 최상위 Popup만 닫기
      * - ESC 키 바인딩 등에 사용
@@ -98,18 +113,28 @@ public:
      */
     void CloseAllPopupUI();
     
+
     /** 
      * Popup 스택의 새로운 Top에 포커스 전달
      * - 중간 팝업이 닫혔을 때 호출됨
      */
     void RefreshTopPopupUI();
     
-     /** 
+
+    /** 
      * 레벨 전환시 모든 UI상태 리셋 함수(Controller)
      * - 캐싱된 UI들을 모두 초기화하여 레벨 전환시 재생성 보장.
      */
-		void ResetAllUIStates();
-    
+	void ResetAllUIStates();
+
+	/**
+	* 페이지 UI 를 전환할 때 사용
+	* - Popup UI는 스택에서 제거하고 새로운 페이지 UI는 열어서 뷰포트에 추가
+	*/
+	template<typename T>
+	void SwitchPageUI(TSubclassOf<T> TargetClassFactory);
+
+
     /** Popup UI가 하나라도 열려있는지 확인 */
     FORCEINLINE bool HasOpenPopupUI() const { return PopupUIStack.Num() > 0; }
 	FORCEINLINE int GetPopupStackSize() const { return PopupUIStack.Num(); }
@@ -133,6 +158,9 @@ private:
      */
     UPROPERTY()
     TMap<TSubclassOf<ULRBaseWidget>, ULRBaseWidget*> CachedWidgets;
+
+	UPROPERTY()
+	ULRBaseWidget* CurrentPageWidget = nullptr;
 };
 
 
@@ -180,50 +208,66 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
     {
         return nullptr;
     }
-    
-    // 이미 열려있으면 기존 인스턴스 사용
+	
+	ULRBaseWidget* BaseWidget = Widget;
+
+	// UI 레이어가 NONE이면 열 수 없음 (Child Widget으로만 사용 가능)
+	if (BaseWidget->UILayer == EUILayer::NONE)
+	{
+		LR_WARN(TEXT("Invalid UILayer for %s. Please set a valid UILayer in the widget blueprint."), *BaseWidget->GetName());
+		return nullptr;
+	}
+
+    // 이미 열려있으면 갱신 후 조기 종료
     if (Widget->IsOpen())
     {
-		// 이미 열려있지만 OpenUI 호출하여 필요한 경우 UI 갱신
-		Widget->OpenUI(); 
+		Widget->RefreshUI(); 
         return Widget;
     }
     
-	ULRBaseWidget* BaseWidget = Widget;
 	BaseWidget->InitializeUI();
 
-    // Persistent 타입 UI일 때
-    if (BaseWidget->UILayer == EUILayer::PERSISTENT)
-    {
-        TSubclassOf<ULRBaseWidget> BaseClassFactory = TargetClassFactory;
-        if (!PersistentUIMap.Contains(BaseClassFactory))
-        {
-            PersistentUIMap.Add(BaseClassFactory, BaseWidget);
-        }
-        
-        BaseWidget->OpenUI();
-        int32 ZOrder = CalculateZOrder(BaseWidget);
-        BaseWidget->AddToViewport(ZOrder);
-    }
-    else // Popup 타입 UI일 때
-    {
-        // 현재의 Top에 FocusLost 알림
-        if (PopupUIStack.Num() > 0)
-        {
-            PopupUIStack.Last()->OnFocusLost();
-        }
-        
-        // 스택에 추가
-        PopupUIStack.Add(BaseWidget);
-        
-        BaseWidget->OpenUI();
-        int32 ZOrder = CalculateZOrder(BaseWidget);
-        BaseWidget->AddToViewport(ZOrder);
-        
-        // 입력 모드 변경
-        NotifyInputModeChange();
-    }
-    
+	switch (BaseWidget->UILayer)
+	{
+		case EUILayer::BACKGROUND:
+		case EUILayer::PERSISTENT:
+		{
+			TSubclassOf<ULRBaseWidget> BaseClassFactory = TargetClassFactory;
+			if (!PersistentUIMap.Contains(BaseClassFactory))
+			{
+				PersistentUIMap.Add(BaseClassFactory, BaseWidget);
+			}
+
+			BaseWidget->OpenUI();
+			if (!BaseWidget->IsInViewport())
+			{
+				int32 ZOrder = CalculateZOrder(BaseWidget);
+				BaseWidget->AddToViewport(ZOrder);
+			}
+			break;
+		}
+		case EUILayer::POPUP:
+		case EUILayer::SYSTEM:
+		{
+			if (PopupUIStack.Num() > 0)
+			{
+				PopupUIStack.Last()->OnFocusLost();
+			}
+
+			PopupUIStack.Add(BaseWidget);
+			BaseWidget->OpenUI();
+
+			UpdatePopupZOrders();
+			
+			NotifyInputModeChange();
+			break;
+		}
+		case EUILayer::TOOLTIP:
+		default:
+		{
+			break;
+		}
+	}
     return Widget;
 }
 
@@ -235,16 +279,51 @@ void UUIManagerSubsystem::CloseUI(TSubclassOf<T> targetClassFactory)
 		return;
 	}
 	
-	TSubclassOf<ULRBaseWidget> baseClassFactory = targetClassFactory;
-	
 	// 캐싱중인 UI라면 리턴
+	TSubclassOf<ULRBaseWidget> baseClassFactory = targetClassFactory;
 	if (!CachedWidgets.Contains(baseClassFactory))
 	{
 		return;
 	}
 	
-	ULRBaseWidget* widget = CachedWidgets[baseClassFactory];
-	
 	//실제 닫기 로직은 내부 헬퍼함수 호출
+	ULRBaseWidget* widget = CachedWidgets[baseClassFactory];
 	CloseUIInternal(widget);
+}
+
+template<typename T>
+void UUIManagerSubsystem::SwitchPageUI(TSubclassOf<T> TargetClassFactory)
+{
+	if (!TargetClassFactory)
+	{
+		return;
+	}
+
+	if(CurrentPageWidget)
+	{
+		if(CurrentPageWidget->GetClass() == TargetClassFactory)
+		{
+			return OpenUI<T>(TargetClassFactory);
+		}
+		CloseUIInternal(CurrentPageWidget);
+		CurrentPageWidget = nullptr;
+	}
+
+	T* NewPageWidget = OpenUI<T>(TargetClassFactory);
+	if (NewPageWidget)
+	{
+		ULRBaseWidget* BaseWidget = Cast<ULRBaseWidget>(NewPageWidget);
+		if (BaseWidget)
+		{
+			if (BaseWidget->UILayer == EUILayer::PAGE)
+			{
+				CurrentPageWidget = BaseWidget;
+			}
+			else
+			{
+				LR_WARN(TEXT("Invalid UILayer for %s. Please set UILayer to PAGE in the widget blueprint."), *BaseWidget->GetName());
+			}
+		}
+	}
+	return NewPageWidget;
 }
