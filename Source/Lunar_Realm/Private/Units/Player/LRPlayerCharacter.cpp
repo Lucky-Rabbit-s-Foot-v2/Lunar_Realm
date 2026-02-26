@@ -17,6 +17,7 @@
 #include "Input/LRInputConfig.h"   
 #include "GAS/Tags/LRGameplayTags.h"
 #include "GAS/Attributes/LRPlayerAttributeSet.h"
+#include "GAS/Attributes/LRAttributeSet.h"
 
 #include "GameplayTagsManager.h"
 #include "Components/CapsuleComponent.h"
@@ -80,7 +81,7 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 		if (AttributeSet)
 		{
 			AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-				ULRPlayerAttributeSet::GetHealthAttribute()).AddUObject(this, &ALRPlayerCharacter::OnHealthChangedNative);
+				ULRAttributeSet::GetHealthAttribute()).AddUObject(this, &ALRPlayerCharacter::OnHealthChangedNative);
 		}
 
 		UE_LOG(LogTemp, Log, TEXT("GAS Initialized completely in %s"), *GetName());
@@ -319,8 +320,10 @@ void ALRPlayerCharacter::RespawnPlayer()
 
 	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
 	{
-		float MaxHP = ASC->GetNumericAttribute(ULRPlayerAttributeSet::GetMaxHealthAttribute());
-		ASC->SetNumericAttributeBase(ULRPlayerAttributeSet::GetHealthAttribute(), MaxHP);
+		float MaxHP = ASC->GetNumericAttribute(ULRAttributeSet::GetMaxHealthAttribute());
+		ASC->SetNumericAttributeBase(ULRAttributeSet::GetHealthAttribute(), MaxHP);
+		//float MaxHP = ASC->GetNumericAttribute(ULRPlayerAttributeSet::GetMaxHealthAttribute());
+		//ASC->SetNumericAttributeBase(ULRPlayerAttributeSet::GetHealthAttribute(), MaxHP);
 	}
 
 	LR_INFO(TEXT("플레이어 코어에서 부활 완료"));

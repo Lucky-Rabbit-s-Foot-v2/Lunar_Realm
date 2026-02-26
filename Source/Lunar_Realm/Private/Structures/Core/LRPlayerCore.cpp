@@ -7,6 +7,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "System/LoggingSystem.h"
+#include "GAS/Attributes/LRCoreAttributeSet.h"
 
 ALRPlayerCore::ALRPlayerCore()
 {
@@ -19,6 +20,19 @@ ALRPlayerCore::ALRPlayerCore()
 
 	SpawnArea->SetCollisionProfileName(TEXT("NoCollision"));
 	SpawnArea->SetHiddenInGame(false);
+}
+
+void ALRPlayerCore::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (AttributeSet)
+	{
+		AttributeSet->InitHealth(5000.0f);
+		AttributeSet->InitMaxHealth(5000.0f);
+	}
+
+	LR_INFO(TEXT("아군 코어 생성 및 체력 세팅 완료: %.1f"), AttributeSet->GetHealth());
 }
 
 FVector ALRPlayerCore::GetRandomSpawnLocation() const

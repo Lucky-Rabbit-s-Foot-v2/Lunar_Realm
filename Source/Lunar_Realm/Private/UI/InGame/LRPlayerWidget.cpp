@@ -23,6 +23,7 @@ void ULRPlayerWidget::BindProperties()
 	}
 }
 
+
 void ULRPlayerWidget::UnbindProperties()
 {
 	Btn_Change->OnClicked.Clear();
