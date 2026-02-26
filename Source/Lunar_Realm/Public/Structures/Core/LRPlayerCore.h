@@ -27,6 +27,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Summon")
 	FVector GetRandomSpawnLocation() const;
+protected:
+	virtual void BeginPlay() override;
+
 
 protected:
 	virtual void OnCoreDestroyed() override;

@@ -23,6 +23,7 @@ void ULRPlayerWidget::BindProperties()
 	}
 }
 
+
 void ULRPlayerWidget::UnbindProperties()
 {
 	Btn_Change->OnClicked.Clear();
@@ -51,13 +52,19 @@ void ULRPlayerWidget::TestSummonPanelRefresh()
 
 void ULRPlayerWidget::InitializeGAS(UAbilitySystemComponent* ASC)
 {
+	LR_WARN(TEXT("Initializing Player Widget GAS with ASC: %s"), *GetNameSafe(ASC));
+
 	if (Widget_Aether)
 	{
+		LR_WARN(TEXT("Initializing Player Widget GAS with ASC: %s"), *GetNameSafe(ASC));
+
 		Widget_Aether->BindToASC(ASC);
 	}
 
 	if (Widget_HealthBar)
 	{
+		LR_WARN(TEXT("Initializing Player Widget GAS with ASC: %s"), *GetNameSafe(ASC));
+
 		Widget_HealthBar->BindToASC(ASC);
 	}
 }

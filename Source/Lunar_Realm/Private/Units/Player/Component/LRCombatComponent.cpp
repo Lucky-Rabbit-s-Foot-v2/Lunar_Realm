@@ -334,7 +334,7 @@ bool ULRCombatComponent::IsTargetDead(AActor* InTargetActor) const
 	if (!TargetASC) return false;
 
 	bool bFound = false;
-	float Health = TargetASC->GetGameplayAttributeValue(ULRPlayerAttributeSet::GetHealthAttribute(), bFound);
+	float Health = TargetASC->GetGameplayAttributeValue(ULRAttributeSet::GetHealthAttribute(), bFound);
 
 	if (bFound && Health <= 0.0f)
 	{

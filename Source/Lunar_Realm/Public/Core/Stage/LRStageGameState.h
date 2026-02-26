@@ -19,4 +19,6 @@ class LUNAR_REALM_API ALRStageGameState : public ALRGameStateBase
 {
 	GENERATED_BODY()
 	
+public:
+	virtual void BeginPlay() override;
 };

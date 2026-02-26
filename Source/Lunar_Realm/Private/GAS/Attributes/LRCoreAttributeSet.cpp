@@ -5,6 +5,6 @@
 
 ULRCoreAttributeSet::ULRCoreAttributeSet()
 {
-	InitHealth(50.0f);
-	InitMaxHealth(1000.0f);
+	InitHealth(1000.0f);
+	InitMaxHealth(10000.0f);
 }

@@ -9,6 +9,7 @@
 
 #include "Core/LRGameInstance.h"
 #include "Subsystems/StageManagerSubsystem.h"
+#include "Subsystems/GameDataSubsystem.h"
 
 void ULRStageWidget::NativeConstruct()
 {
@@ -44,4 +45,22 @@ void ULRStageWidget::UnbindProperties()
 	if (Btn_Open) Btn_Open->OnClicked.Clear();
 
 	Super::UnbindProperties();
+}
+
+void ULRStageWidget::RefreshUI()
+{
+	Super::RefreshUI();
+
+	if (ULRGameInstance* GI = Cast<ULRGameInstance>(GetWorld()->GetGameInstance()))
+	{
+		UGameDataSubsystem* GameDataSubsystem = GI->GetSubsystem<UGameDataSubsystem>();
+		const FStageStaticData& StageData = GameDataSubsystem->GetStageStaticData(StageID);
+
+		Txt_Name->SetText(StageData.StageName);
+	}
+}
+
+void ULRStageWidget::SetStageID(FName InStageID)
+{
+	StageID = InStageID;
 }

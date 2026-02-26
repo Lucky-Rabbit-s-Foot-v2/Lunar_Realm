@@ -560,3 +560,18 @@ const FStageStaticData& UGameDataSubsystem::GetStageStaticData(FName StageID) co
 {
 	return GetCachedData(CachedStageStaticData, StageID, EmptyStageStaticData, TEXT("StageStaticData"));
 }
+
+const TArray<FName> UGameDataSubsystem::GetAllStageIDsByChapterID(FName ChapterID) const
+{
+	TArray<FName> StageIDs;
+	for (const auto& Param : CachedStageStaticData)
+	{
+		FString StageIDStr = Param.Key.ToString();
+		FString ChapterIDStr = ChapterID.ToString();
+		if (StageIDStr.StartsWith(ChapterIDStr))
+		{
+			StageIDs.Add(Param.Key);
+		}
+	}
+	return StageIDs;
+}

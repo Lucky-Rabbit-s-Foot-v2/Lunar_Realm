@@ -2,9 +2,11 @@
 
 
 #include "GAS/Attributes/LRPlayerAttributeSet.h"
+#include "GAS/Attributes/LRAttributeSet.h"
 #include "Units/Player/LRPlayerCharacter.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
+#include "System/LoggingSystem.h"
 
 ULRPlayerAttributeSet::ULRPlayerAttributeSet()
 {
@@ -19,7 +21,7 @@ void ULRPlayerAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 {
 	Super::PreAttributeChange(Attribute, NewValue);
 
-	if (Attribute == GetHealthAttribute())
+	if (Attribute == ULRAttributeSet::GetHealthAttribute())
 	{
 		if (NewValue < GetHealth())
 		{
@@ -40,11 +42,17 @@ void ULRPlayerAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 {
 	Super::PostGameplayEffectExecute(Data);
 
-	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	LR_WARN(TEXT("[AttributeSet] 데미지 들어옴! 변경된 속성: %s, 변경 후 수치: %f"),
+		*Data.EvaluatedData.Attribute.GetName(), Data.EvaluatedData.Attribute.GetNumericValue(this));
+
+	if (Data.EvaluatedData.Attribute == ULRAttributeSet::GetHealthAttribute())
 	{
+		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
+		LR_INFO(TEXT("[AttributeSet] 체력 Clamp 완료. 최종 체력: %f"), GetHealth());
+
 		if (GetHealth() <= 0.0f)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Player Die"));
+			LR_WARN(TEXT("Player Die - 체력이 0이 되었습니다."));
 		}
 	}
 }

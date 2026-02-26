@@ -236,7 +236,6 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
 
 	switch (BaseWidget->UILayer)
 	{
-		case EUILayer::PAGE:
 		case EUILayer::BACKGROUND:
 		case EUILayer::PERSISTENT:
 		{
@@ -256,6 +255,7 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
 			}
 			break;
 		}
+		case EUILayer::PAGE:
 		case EUILayer::POPUP:
 		case EUILayer::SYSTEM:
 		{
