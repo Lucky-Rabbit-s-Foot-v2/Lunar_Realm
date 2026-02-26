@@ -4,6 +4,7 @@
 #include "Projectiles/LRProjectile.h"
 
 #include "TimerManager.h"
+#include "GameFramework/Pawn.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "GAS/Tags/LRGameplayTags.h"
@@ -122,6 +123,12 @@ void ALRProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPri
 	FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (!OtherActor || OtherActor == this)
+	{
+		return;
+	}
+	
+	//자기자신 무시
+	if (OtherActor == Cast<AActor>(GetInstigator()))
 	{
 		return;
 	}

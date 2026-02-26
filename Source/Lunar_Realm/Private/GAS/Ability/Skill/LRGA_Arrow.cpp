@@ -24,6 +24,8 @@ ULRGA_Arrow::ULRGA_Arrow()
 void ULRGA_Arrow::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
+	LR_INFO(TEXT("[LRGA_Arrow] OnAbilityActivated 진입!"));
+	
 	 // 유효성 검사
     if (!CachedInstigator || !ProjectileClass || !DamageEffectClass)
     {
@@ -57,7 +59,7 @@ void ULRGA_Arrow::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
     InitData.Lifetime          = Lifetime;
 
     // 투사체 Spawn
-    FVector SpawnLocation  = CachedInstigator->GetActorLocation();
+    FVector SpawnLocation  = CachedInstigator->GetActorLocation() + CachedInstigator->GetActorForwardVector() * 200.f;
     FRotator SpawnRotation = CachedInstigator->GetActorRotation();
 
     FActorSpawnParameters SpawnParams;
