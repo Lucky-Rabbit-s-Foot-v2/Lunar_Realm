@@ -76,7 +76,7 @@ void ALRProjectile::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGamepl
 	//데미지 수치 SetByCaller로 전달
 	if (DamageValue > 0.f)
 	{
-		SpecHandle.Data->SetByCallerTagMagnitudes.Add(LRTags::Data_Damage, DamageValue);
+		SpecHandle.Data->SetByCallerTagMagnitudes.Add(LRTags::Data_Damage, -DamageValue);
 	}
 	
 	SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);

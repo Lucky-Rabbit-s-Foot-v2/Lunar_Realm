@@ -5,16 +5,21 @@
 #include "Data/LRGameDataConfig.h"
 
 //Static 기본값 정의(조회 실패시 반환용도)
-FCharacterStaticData UGameDataSubsystem::EmptyCharacterStaticData;
-FEquipmentStaticData UGameDataSubsystem::EmptyEquipmentStaticData;
-FEquipmentBonus UGameDataSubsystem::EmptyEquipmentBonus;
-FSetEffectData UGameDataSubsystem::EmptySetEffectData;
-FSkillStaticData UGameDataSubsystem::EmptySkillStaticData;
-FSkillEffectData UGameDataSubsystem::EmptySkillEffectData;
-FSkillEffectParameterList UGameDataSubsystem::EmptySkillEffectParameterList;
-FBuffEffectData UGameDataSubsystem::EmptyBuffEffectData;
-FEnemyStaticData UGameDataSubsystem::EmptyEnemyStaticData;
-FStageStaticData UGameDataSubsystem::EmptyStageStaticData;
+FCharacterStaticData	UGameDataSubsystem::EmptyCharacterStaticData;
+FEquipmentStaticData	UGameDataSubsystem::EmptyEquipmentStaticData;
+FEquipmentBonus			UGameDataSubsystem::EmptyEquipmentBonus;
+FSetEffectData			UGameDataSubsystem::EmptySetEffectData;
+FSkillStaticData		UGameDataSubsystem::EmptySkillStaticData;
+FSkillEffectData		UGameDataSubsystem::EmptySkillEffectData;
+FSkillSpawnData			UGameDataSubsystem::EmptySkillSpawnData;
+FFlightHomingData		UGameDataSubsystem::EmptyFlightHomingData;
+FFlightArcData			UGameDataSubsystem::EmptyFlightArcData;
+FFlightPierceData		UGameDataSubsystem::EmptyFlightPierceData;
+FFlightExplodeData		UGameDataSubsystem::EmptyFlightExplodeData;
+FSkillHitAreaData		UGameDataSubsystem::EmptySkillHitAreaData;
+FStatusEffectData		UGameDataSubsystem::EmptyStatusEffectData;
+FEnemyStaticData		UGameDataSubsystem::EmptyEnemyStaticData;
+FStageStaticData		UGameDataSubsystem::EmptyStageStaticData;
 
 
 void UGameDataSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -36,8 +41,13 @@ void UGameDataSubsystem::Deinitialize()
 	CachedEquipmentBonus.Empty();
 	CachedSetEffectData.Empty();
 	CachedSkillStaticData.Empty();
-	CachedSkillEffectData.Empty();    
-    CachedSkillEffectParameterData.Empty(); 
+	CachedSkillEffectData.Empty();  
+	CachedSkillSpawnData.Empty();
+	CachedFlightHomingData.Empty();
+	CachedFlightArcData.Empty();
+	CachedFlightPierceData.Empty();
+	CachedFlightExplodeData.Empty();
+	CachedSkillHitAreaData.Empty();
     CachedBuffEffectData.Empty();   
 	CachedEnemyStaticData.Empty();
 	CachedStageStaticData.Empty();
@@ -102,17 +112,22 @@ void UGameDataSubsystem::LoadDataTables()
 	}
 	
 	// Config의 SoftObjectPtr를 경유하여 로드 → LoadedXXX에 저장
-	LoadedBaseStatsCurve = Config->BaseStatsCurveTable.LoadSynchronous(); //베이스 스탯 커브
-	LoadedCharacterStaticData = Config->CharacterStaticDataTable.LoadSynchronous(); //캐릭터 데이터
-	LoadedEnemyStaticData = Config->EnemyStaticDataTable.LoadSynchronous(); //적 데이터
-	LoadedEquipmentStaticData = Config->EquipmentStaticDataTable.LoadSynchronous(); //장비 데이터
-	LoadedEquipmentStatBonus = Config->EquipmentStatBonusTable.LoadSynchronous(); //장비 보너스
-	LoadedSetEffectBonus = Config->EquipmentSetEffectTable.LoadSynchronous(); //세트장비 효과
-	LoadedSkillStaticData = Config->SkillStaticDataTable.LoadSynchronous(); //스킬 데이터
-	LoadedSkillEffectData = Config->SkillEffectDataTable.LoadSynchronous(); //스킬 GA 사용데이터
-	LoadedSkillEffectParameterData = Config->SkillEffectParameterDataTable.LoadSynchronous(); //GA 사용 추가파라미터 데이터
-	LoadedBuffEffectData = Config->BuffEffectDataTable.LoadSynchronous(); //스킬 효과 버프/디버프 데이터
-	LoadedStageStaticData = Config->StageStaticDataTable.LoadSynchronous(); //스테이지 데이터
+	LoadedBaseStatsCurve		 = Config->BaseStatsCurveTable.LoadSynchronous();		//베이스 스탯 커브
+	LoadedCharacterStaticData	 = Config->CharacterStaticDataTable.LoadSynchronous();	//캐릭터 데이터
+	LoadedEnemyStaticData		 = Config->EnemyStaticDataTable.LoadSynchronous();		//적 데이터
+	LoadedEquipmentStaticData	 = Config->EquipmentStaticDataTable.LoadSynchronous();	//장비 데이터
+	LoadedEquipmentStatBonus	 = Config->EquipmentStatBonusTable.LoadSynchronous();	//장비 보너스
+	LoadedSetEffectBonus		 = Config->EquipmentSetEffectTable.LoadSynchronous();	//세트장비 효과
+	LoadedSkillStaticData		 = Config->SkillStaticDataTable.LoadSynchronous();		//스킬 데이터
+	LoadedSkillEffectData		 = Config->SkillEffectDataTable.LoadSynchronous();		//스킬 GA 사용데이터
+	LoadedSkillSpawnData		 = Config->SkillSpawnDataTable.LoadSynchronous();		//스킬 오브젝트 스폰 데이터
+	LoadedSkillHitAreaData		 = Config->HitAreaDataTable.LoadSynchronous();			//스킬 오브젝트 효과범위 데이터
+	LoadedStatusEffectData		 = Config->StatusEffectDataTable.LoadSynchronous();		//스킬 효과 버프/디버프 데이터
+	LoadedSkillFlightHomingData  = Config->FlightHomingDataTable.LoadSynchronous();		//유도형 스킬 오브젝트 데이터
+	LoadedSkillFlightArcData	 = Config->FlightArcDataTable.LoadSynchronous();		//궤도형 스킬 오브젝트 데이터
+	LoadedSkillFlightPierceData  = Config->FlightPierceDataTable.LoadSynchronous();		//관통형 스킬 오브젝트 데이터
+	LoadedSkillFlightExplodeData = Config->FlightExplodeDataTable.LoadSynchronous();	//폭발형 스킬 오브젝트 데이터
+	LoadedStageStaticData		 = Config->StageStaticDataTable.LoadSynchronous();		//스테이지 데이터
 	
 	if (LoadedCharacterStaticData)
 	{
@@ -131,58 +146,42 @@ void UGameDataSubsystem::CacheAllData()
 	//캐릭터 정적데이터 캐싱 
 	CacheDataTable<FCharacterStaticData, FName>(
 		LoadedCharacterStaticData, CachedCharacterStaticData, &FCharacterStaticData::DataID, TEXT("CharacterStaticData"));
-
 	//장비 정적데이터 캐싱
 	CacheDataTable<FEquipmentStaticData, FName>(
 		LoadedEquipmentStaticData, CachedEquipmentStaticData, &FEquipmentStaticData::DataID, TEXT("EquipmentStaticData"));
 	//장비 스탯 보너스 데이터 캐싱
 	CacheDataTable<FEquipmentBonus, FName>(
 		LoadedEquipmentStatBonus, CachedEquipmentBonus, &FEquipmentBonus::DataID, TEXT("EquipmentBonus"));
-	
 	//세트 장비 효과 데이터 캐싱
 	CacheDataTable<FSetEffectData, FName>(
 		LoadedSetEffectBonus, CachedSetEffectData, &FSetEffectData::DataID, TEXT("SetEffectData"));
-	
 	//스킬 데이터 캐싱
 	CacheDataTable<FSkillStaticData, FName>(
 		LoadedSkillStaticData, CachedSkillStaticData, &FSkillStaticData::SkillID, TEXT("SkillStaticData"));
-	
 	//GA 클래스 사용 데이터 캐싱
 	CacheDataTable<FSkillEffectData, FName>(
 		LoadedSkillEffectData, CachedSkillEffectData, &FSkillEffectData::SkillEffectID, TEXT("SkillEffectData"));
-	CacheDataTable<FBuffEffectData, FName>(
-		LoadedBuffEffectData, CachedBuffEffectData, &FBuffEffectData::BuffEffectID, TEXT("BuffEffectData"));
-	
+	// (260226) KHS v1.2 신규 추가
+	CacheDataTable<FSkillSpawnData, FName>(
+		LoadedSkillSpawnData, CachedSkillSpawnData, &FSkillSpawnData::SkillEffectID, TEXT("SkillSpawnData"));
+	CacheDataTable<FFlightHomingData, FName>(
+		LoadedSkillFlightHomingData, CachedFlightHomingData, &FFlightHomingData::SkillEffectID, TEXT("FlightHomingData"));
+	CacheDataTable<FFlightArcData, FName>(
+		LoadedSkillFlightArcData, CachedFlightArcData, &FFlightArcData::SkillEffectID, TEXT("FlightArcData"));
+	CacheDataTable<FFlightPierceData, FName>(
+		LoadedSkillFlightPierceData, CachedFlightPierceData, &FFlightPierceData::SkillEffectID, TEXT("FlightPierceData"));
+	CacheDataTable<FFlightExplodeData, FName>(
+		LoadedSkillFlightExplodeData, CachedFlightExplodeData, &FFlightExplodeData::SkillEffectID, TEXT("FlightExplodeData"));
+	CacheDataTable<FSkillHitAreaData, FName>(
+		LoadedSkillHitAreaData, CachedSkillHitAreaData, &FSkillHitAreaData::SkillEffectID, TEXT("HitAreaData"));
+	CacheDataTable<FStatusEffectData, FName>(
+		LoadedStatusEffectData, CachedBuffEffectData, &FStatusEffectData::StatusEffectID, TEXT("BuffEffectData"));
 	//에너미 데이터 캐싱
 	CacheDataTable<FEnemyStaticData, FName>(
 		LoadedEnemyStaticData, CachedEnemyStaticData, &FEnemyStaticData::DataID, TEXT("EnemyStaticData"));
-
 	//스테이지 데이터 캐싱
 	CacheDataTable<FStageStaticData, FName>(
 		LoadedStageStaticData, CachedStageStaticData, &FStageStaticData::DataID, TEXT("StageStaticData"));
-	
-	
-	//스킬 추가 파라미터는 1:N매칭이라 별도 처리
-	if (LoadedSkillEffectParameterData)
-	{
-		CachedSkillEffectParameterData.Empty();
-		for (FName RowName : LoadedSkillEffectParameterData->GetRowNames())
-		{
-			FSkillEffectParameterData* Row = LoadedSkillEffectParameterData->FindRow<FSkillEffectParameterData>(RowName, TEXT(""));
-			if (Row)
-			{
-				// 로그 체크용도
-				// LR_INFO(TEXT("[ParamCache] SkillEffectID=%s, ParamType=%s, Value=%.1f"),
-				// *Row->SkillEffectID.ToString(),
-				// *Row->ParamType.ToString(),
-				// Row->Value);
-				
-				CachedSkillEffectParameterData
-						.FindOrAdd(Row->SkillEffectID)
-						.Params.Add(*Row);
-			}
-		}
-	}
 }
 
 FName UGameDataSubsystem::StatTypeToName(ELRStatusType StatusType)
@@ -218,65 +217,41 @@ FName UGameDataSubsystem::SetTypeToName(ELRSetItemType SetType)
 	}
 }
 
-ESkillType UGameDataSubsystem::ParseSkillType(FName TypeName)
+EFlightType UGameDataSubsystem::ParseSkillType(FName TypeName)
 {
-	static const TMap<FName, ESkillType> SkillTypeToNameMap = 
+	static const TMap<FName, EFlightType> SkillTypeToNameMap = 
 	{
-		{"Linear", ESkillType::LINEAR},
-		{"Homing", ESkillType::HOMING},
-		{"Arc", ESkillType::ARC},
-		{"Pierce", ESkillType::PIERCE},
-		{"Explode", ESkillType::EXPLODE}
+		{"Linear", EFlightType::LINEAR},
+		{"Homing", EFlightType::HOMING},
+		{"Arc", EFlightType::ARC},
+		{"Pierce", EFlightType::PIERCE},
+		{"Explode", EFlightType::EXPLODE}
 	};
 	
-	const ESkillType* found = SkillTypeToNameMap.Find(TypeName);
+	const EFlightType* found = SkillTypeToNameMap.Find(TypeName);
 	if (!found)
 	{
 		LR_WARN(TEXT("Unknown SkillType! : %s"), *TypeName.ToString());
-		return ESkillType::LINEAR;
+		return EFlightType::LINEAR;
 	}
 	
 	return *found;
 }
 
-ESkillParamType UGameDataSubsystem::ParseSkillParamType(FName TypeName)
-{
-	static const TMap<FName, ESkillParamType> ParamMap =
-	{
-		{ "Lifetime",           ESkillParamType::Lifetime           },
-		{ "EffectTime",         ESkillParamType::EffectTime         },
-		{ "ExplosionRadius",    ESkillParamType::ExplosionRadius    },
-		{ "PierceCount",        ESkillParamType::PierceCount        },
-		{ "PierceDamageDecay",  ESkillParamType::PierceDamageDecay  },
-		{ "HomingTurnSpeed",    ESkillParamType::HomingTurnSpeed    },
-		{ "HomingLockRange",    ESkillParamType::HomingLockRange    },
-		{ "ArcLaunchAngle",     ESkillParamType::ArcLaunchAngle    },
-		{ "SlowdownMultiplier", ESkillParamType::SlowdownMultiplier },
-		{ "DOTDamage",          ESkillParamType::DOTDamage          },
-		{ "DOTInterval",        ESkillParamType::DOTInterval        }
-	};
-	const ESkillParamType* found = ParamMap.Find(TypeName);
-	if (!found)
-	{
-		LR_WARN(TEXT("Unknown ParameterType! : %s"), *TypeName.ToString());
-		return ESkillParamType::Lifetime;
-	}
-	return *found;
-}
 
-EBuffType UGameDataSubsystem::ParseBuffType(FName TypeName)
+EStatusType UGameDataSubsystem::ParseBuffType(FName TypeName)
 {
-	static const TMap<FName, EBuffType> BuffTypeToNameMap =
+	static const TMap<FName, EStatusType> BuffTypeToNameMap =
 	{
-		{"BUFF", EBuffType::BUFF},
-		{"DEBUFF", EBuffType::DEBUFF}
+		{"BUFF", EStatusType::BUFF},
+		{"DEBUFF", EStatusType::DEBUFF}
 	};
 	
-	const EBuffType* found = BuffTypeToNameMap.Find(TypeName);
+	const EStatusType* found = BuffTypeToNameMap.Find(TypeName);
 	if (!found)
 	{
 		LR_WARN(TEXT("Unknown BuffType! : %s"), *TypeName.ToString());
-		return EBuffType::BUFF;
+		return EStatusType::BUFF;
 	}
 	
 	return *found;
@@ -514,36 +489,22 @@ const FSkillEffectData& UGameDataSubsystem::GetSkillEffectData(FName SkillEffect
 	return GetCachedData(CachedSkillEffectData, SkillEffectID, EmptySkillEffectData, TEXT("SkillEffectData"));
 }
 
-const FSkillEffectParameterList& UGameDataSubsystem::GetSkillEffectParameters(FName SkillEffectID) const
+const FSkillSpawnData& UGameDataSubsystem::GetSkillSpawnData(FName SkillEffectID) const
 {
-	return GetCachedData(CachedSkillEffectParameterData, SkillEffectID, EmptySkillEffectParameterList, TEXT("SkillEffectParameterData"));
+	return GetCachedData(CachedSkillSpawnData, SkillEffectID, EmptySkillSpawnData, TEXT("SkillSpawnData"));
 }
 
-const FBuffEffectData& UGameDataSubsystem::GetBuffEffectData(FName BuffEffectID) const
+
+const FStatusEffectData& UGameDataSubsystem::GetStatusEffectData(FName StatusEffectID) const
 {
-	return GetCachedData(CachedBuffEffectData, BuffEffectID, EmptyBuffEffectData, TEXT("BuffEffectData"));
+	return GetCachedData(CachedBuffEffectData, StatusEffectID, EmptyStatusEffectData, TEXT("BuffEffectData"));
 }
 
-float UGameDataSubsystem::GetSkillParamValue(FName SkillEffectID, ESkillParamType ParamType, float DefaultValue) const
+const FSkillHitAreaData& UGameDataSubsystem::GetSkillHitAreaData(FName SkillEffectID) const
 {
-	const FSkillEffectParameterList* paramList = CachedSkillEffectParameterData.Find(SkillEffectID);
-	if (!paramList)
-	{
-		LR_WARN(TEXT("CANNOT find Parameter on ID : %s"), *SkillEffectID.ToString());
-		return DefaultValue;
-	}
-	
-	for (const auto& param : paramList->Params)
-	{
-		if (ParseSkillParamType(param.ParamType) == ParamType)
-		{
-			return param.Value;
-		}
-	}
-	
-	LR_WARN(TEXT("CANNOT find Parameter Type on ID : %s"), *SkillEffectID.ToString());
-	return DefaultValue;
+	return GetCachedData(CachedSkillHitAreaData, SkillEffectID, EmptySkillHitAreaData, TEXT("SkillHitAreaData"));
 }
+
 
 const FEnemyStaticData& UGameDataSubsystem::GetEnemyStaticData(FName EnemyID) const
 {

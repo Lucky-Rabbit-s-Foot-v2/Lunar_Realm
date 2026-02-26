@@ -39,16 +39,14 @@ void ULRGA_Arrow::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
     UGameDataSubsystem* DataSys = GI->GetSubsystem<UGameDataSubsystem>();
     if (!DataSys)
     {
+    	LR_WARN(TEXT("말도 안돼 데이터시스템이 없다니!"));
         EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
         return;
     }
 
     const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillEffectID);
-    const FSkillEffectParameterList& Params = DataSys->GetSkillEffectParameters(SkillEffectID);
+    const FSkillSpawnData& SpawnData = DataSys->GetSkillSpawnData(SkillEffectID);
 
-    // Lifetime 파라미터 가져오기
-    float Lifetime = DataSys->GetSkillParamValue(SkillEffectID, ESkillParamType::Lifetime, 3.f);
-	
     //FSkillObjectInitData 채우기
     FSkillObjectInitData InitData;
     InitData.DamageEffectClass = DamageEffectClass;
@@ -56,28 +54,11 @@ void ULRGA_Arrow::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
     InitData.InstigatorASC     = GetOwnerASC();
     InitData.Damage            = EffectData.Damage;
     InitData.Speed             = EffectData.Speed;
-    InitData.Lifetime          = Lifetime;
+    InitData.Lifetime          = EffectData.Lifetime;
+	InitData.SpawnData         = SpawnData;	
 
     // 투사체 Spawn
-    FVector SpawnLocation  = CachedInstigator->GetActorLocation() + CachedInstigator->GetActorForwardVector() * 200.f;
-    FRotator SpawnRotation = CachedInstigator->GetActorRotation();
-
-    FActorSpawnParameters SpawnParams;
-    SpawnParams.Owner      = const_cast<ALRCharacter*>(CachedInstigator.Get());
-    SpawnParams.Instigator = const_cast<ALRCharacter*>(CachedInstigator.Get());
-
-    ALRProjectile* Projectile = GetWorld()->SpawnActor<ALRProjectile>(
-        ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
-
-    if (!Projectile)
-    {
-        LR_WARN(TEXT(" Spawn Projectile Class is FAILED"));
-        EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-        return;
-    }
-
-    // InitSkillObject 호출
-    Projectile->InitSkillObject(InitData);
+	SpawnProjectiles(ProjectileClass, InitData);
 
     // EndAbility 
     EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
