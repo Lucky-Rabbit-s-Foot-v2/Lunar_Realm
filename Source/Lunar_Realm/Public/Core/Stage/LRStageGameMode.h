@@ -37,6 +37,9 @@ public:
 	void OnPauseGame();
 
 	UFUNCTION(BlueprintCallable, Category = "GameLogic")
+	void OnOpenPauseUI();
+
+	UFUNCTION(BlueprintCallable, Category = "GameLogic")
 	void OnResumeGame();
 
 	UFUNCTION(BlueprintCallable, Category = "GameLogic")

@@ -27,6 +27,11 @@ void ALRStageGameMode::OnRestartGame()
 void ALRStageGameMode::OnPauseGame()
 {
 	UGameplayStatics::SetGamePaused(GetWorld(), true);
+}
+
+void ALRStageGameMode::OnOpenPauseUI()
+{
+	OnPauseGame();
 
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	UIManager->OpenUIByID(EUIID::PAUSE);

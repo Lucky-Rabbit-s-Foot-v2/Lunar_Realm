@@ -96,5 +96,5 @@ void ULRPlayerWidget::OnChangeClicked()
 void ULRPlayerWidget::OnPauseButtonClicked()
 {
 	ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(UGameplayStatics::GetGameMode(this));
-	StageGM->OnPauseGame();
+	StageGM->OnOpenPauseUI();
 }
