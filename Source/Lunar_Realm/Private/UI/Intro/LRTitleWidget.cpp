@@ -40,7 +40,7 @@ void ULRTitleWidget::OnClickedStartButton()
 	ULRGameInstance* GI = Cast<ULRGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (GI)
 	{
-		GI->SetNextLevelName(ELevelName::Lobby);
+		GI->SetNextLevelName(ELevelName::LOBBY);
 		OnChangeLevelRequestedDel.Broadcast();
 	}
 }
