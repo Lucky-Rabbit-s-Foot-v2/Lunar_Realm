@@ -32,6 +32,6 @@ class LUNAR_REALM_API UMapSettings : public UDeveloperSettings
 public:
 	UMapSettings();
 
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Level Routing")
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Level Routing")
 	TMap<ELevelName, TSoftObjectPtr<UWorld>> LevelMap;
 };
