@@ -48,6 +48,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GameLogic")
 	void OnExitStage();
 
+	UFUNCTION(BlueprintCallable, Category = "GameLogic")
+	void OnStartNextStage();
+
 private:
 	bool bIsGamePause = false;
 };
