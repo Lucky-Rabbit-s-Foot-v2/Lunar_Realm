@@ -36,7 +36,9 @@ void ULRPageSelectorWidget::UnbindProperties()
 void ULRPageSelectorWidget::OnStageButtonClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->SwitchPageUIByID(EUIID::DUTY);
+	
+	ULRChapterSelectorWidget* ChapterSelector = Cast<ULRChapterSelectorWidget>(UIManager->SwitchPageUIByID(EUIID::DUTY));
+	ChapterSelector->RefreshUI();
 }
 
 void ULRPageSelectorWidget::OnCollectionButtonClicked()

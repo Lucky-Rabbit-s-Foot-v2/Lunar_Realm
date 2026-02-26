@@ -4,7 +4,6 @@
 #include "Subsystems/UIManagerSubsystem.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
-
 void UUIManagerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
@@ -64,6 +63,8 @@ void UUIManagerSubsystem::NotifyInputModeChange()
 
 void UUIManagerSubsystem::CloseUIInternal(ULRBaseWidget* Widget)
 {
+	LR_SCREEN_INFO(TEXT("Request to close UI: %s"), Widget ? *Widget->GetName() : TEXT("nullptr"));
+
 	if (!Widget || !Widget->IsOpen())
 	{
 		return;
@@ -86,8 +87,6 @@ void UUIManagerSubsystem::CloseUIInternal(ULRBaseWidget* Widget)
 		Widget->CloseUI();
 		PersistentUIMap.Remove(Widget->GetClass());
 	}
-
-	Widget->OnCloseUIRequestedDel.RemoveDynamic(this, &UUIManagerSubsystem::CloseUI);
 }
 
 void UUIManagerSubsystem::CloseUI(ULRBaseWidget* Widget)
