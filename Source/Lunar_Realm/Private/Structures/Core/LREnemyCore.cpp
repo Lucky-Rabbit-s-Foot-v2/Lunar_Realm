@@ -6,6 +6,7 @@
 #include "Core/Stage/LRStageGameMode.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "GAS/Attributes/LRCoreAttributeSet.h"
 
 ALREnemyCore::ALREnemyCore()
 {
@@ -16,7 +17,16 @@ void ALREnemyCore::BeginPlay()
 {
 	Super::BeginPlay();
 
-	LR_INFO(TEXT("적 코어 생성 완료"));
+	if (AttributeSet)
+	{
+		AttributeSet->InitHealth(1000.0f);
+		AttributeSet->InitMaxHealth(1000.0f);
+	}
+
+	LR_INFO(TEXT("적 코어 생성 및 체력 세팅 완료: %.1f"), AttributeSet->GetHealth());
+
+
+
 }
 
 void ALREnemyCore::OnCoreDestroyed()

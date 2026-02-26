@@ -15,6 +15,8 @@
 // (260205) 멀티플레이 코드 제거 및 방어력(Defense) 추가 완료_BJM
 // (260224) KHS 수정. 상속관계 정리, 공통 어트리뷰트 이동.
 //=============================================================================
+
+
 UCLASS()
 class LUNAR_REALM_API ULRPlayerAttributeSet : public ULRAttributeSet
 {

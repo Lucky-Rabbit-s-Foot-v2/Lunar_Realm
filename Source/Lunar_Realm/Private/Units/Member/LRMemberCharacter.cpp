@@ -52,7 +52,7 @@ void ALRMemberCharacter::BeginPlay()
 		if (MemberAttributeSet)
 		{
 			AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-				ULRPlayerAttributeSet::GetHealthAttribute()).AddUObject(this, &ALRMemberCharacter::OnHealthChangedNative);
+				ULRAttributeSet::GetHealthAttribute()).AddUObject(this, &ALRMemberCharacter::OnHealthChangedNative);
 		}
 	}
 }

@@ -5,6 +5,7 @@
 #include "Components/ProgressBar.h"
 #include "AbilitySystemComponent.h"
 #include "GAS/Attributes/LRPlayerAttributeSet.h"
+#include "GAS/Attributes/LRAttributeSet.h"
 
 void ULRHealthWidget::BindToASC(UAbilitySystemComponent* ASC)
 {
@@ -16,15 +17,22 @@ void ULRHealthWidget::BindToASC(UAbilitySystemComponent* ASC)
 	bool bFoundHealth = false;
 	bool bFoundMaxHealth = false;
 
-	CurrentHealth = ASC->GetGameplayAttributeValue(ULRPlayerAttributeSet::GetHealthAttribute(), bFoundHealth);
-	CurrentMaxHealth = ASC->GetGameplayAttributeValue(ULRPlayerAttributeSet::GetMaxHealthAttribute(), bFoundMaxHealth);
+	//CurrentHealth = ASC->GetGameplayAttributeValue(ULRPlayerAttributeSet::GetHealthAttribute(), bFoundHealth);
+	//CurrentMaxHealth = ASC->GetGameplayAttributeValue(ULRPlayerAttributeSet::GetMaxHealthAttribute(), bFoundMaxHealth);
+	CurrentHealth = ASC->GetGameplayAttributeValue(ULRAttributeSet::GetHealthAttribute(), bFoundHealth);
+	CurrentMaxHealth = ASC->GetGameplayAttributeValue(ULRAttributeSet::GetMaxHealthAttribute(), bFoundMaxHealth);
 
 	UpdateHealth(CurrentHealth, CurrentMaxHealth);
 
-	ASC->GetGameplayAttributeValueChangeDelegate(ULRPlayerAttributeSet::GetHealthAttribute())
+	//ASC->GetGameplayAttributeValueChangeDelegate(ULRPlayerAttributeSet::GetHealthAttribute())
+	//	.AddUObject(this, &ULRHealthWidget::OnHealthChanged);
+
+	//ASC->GetGameplayAttributeValueChangeDelegate(ULRPlayerAttributeSet::GetMaxHealthAttribute())
+	//	.AddUObject(this, &ULRHealthWidget::OnMaxHealthChanged);
+	ASC->GetGameplayAttributeValueChangeDelegate(ULRAttributeSet::GetHealthAttribute())
 		.AddUObject(this, &ULRHealthWidget::OnHealthChanged);
 
-	ASC->GetGameplayAttributeValueChangeDelegate(ULRPlayerAttributeSet::GetMaxHealthAttribute())
+	ASC->GetGameplayAttributeValueChangeDelegate(ULRAttributeSet::GetMaxHealthAttribute())
 		.AddUObject(this, &ULRHealthWidget::OnMaxHealthChanged);
 }
 

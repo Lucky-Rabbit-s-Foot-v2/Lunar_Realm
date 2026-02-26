@@ -42,13 +42,24 @@ void ALRCore::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (AbilitySystemComponent)
+	if (AbilitySystemComponent && AttributeSet)
 	{
+		AttributeSet->InitHealth(1000.0f);
+		AttributeSet->InitMaxHealth(10000.0f);
+
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-			AttributeSet->GetHealthAttribute()).AddUObject(this, &ALRCore::OnHealthChanged);
+			ULRAttributeSet::GetHealthAttribute()).AddUObject(this, &ALRCore::OnHealthChanged);
 
 		LR_INFO(TEXT("[%s] GAS 초기화 완료. 현재 체력: %.f"), *GetName(), AttributeSet->GetHealth());
 	}
+
+	//if (AbilitySystemComponent)
+	//{
+	//	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+	//		AttributeSet->GetHealthAttribute()).AddUObject(this, &ALRCore::OnHealthChanged);
+
+	//	LR_INFO(TEXT("[%s] GAS 초기화 완료. 현재 체력: %.f"), *GetName(), AttributeSet->GetHealth());
+	//}
 }
 
 void ALRCore::OnHitCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
