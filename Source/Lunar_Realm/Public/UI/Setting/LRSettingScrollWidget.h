@@ -20,6 +20,12 @@ class LUNAR_REALM_API ULRSettingScrollWidget : public ULRChildWidget
 {
 	GENERATED_BODY()
 	
+public:
+	void SetDefaultSettings();
+
+	void SaveAllSettings();
+
+
 protected:
 	
 	UPROPERTY(meta = (BindWidget))

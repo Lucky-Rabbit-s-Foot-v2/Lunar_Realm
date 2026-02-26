@@ -14,9 +14,6 @@
  // (260219) PJB 제작.
  //=============================================================================
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCloseButtonClicked);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDefaultButtonClicked);
-
 UCLASS()
 class LUNAR_REALM_API ULRSettingWidget : public ULRPopupWidget
 {
@@ -24,21 +21,25 @@ class LUNAR_REALM_API ULRSettingWidget : public ULRPopupWidget
 	
 
 public:
-	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
-
-	FOnCloseButtonClicked OnCloseButtonClickedDel;
-	FOnDefaultButtonClicked OnDefaultButtonClickedDel;
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
 
 private:
 	UFUNCTION(BlueprintCallable)
 	void OnCloseButtonClicked();
+
 	UFUNCTION(BlueprintCallable)
 	void OnDefaultButtonClicked();
+
+	UFUNCTION(BlueprintCallable)
+	void OnSaveButtonClicked();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Close;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UButton> Btn_Save;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Default;
