@@ -17,6 +17,7 @@
  // (260204) KWB 제작.
  // (260210) KWB 멤버 추가(속성, 속성 한계값)
  // (260223) KWB OnDie() 호출 로직 작성
+ // (260225) KWB 불필요한 속성값 초기화 코드, 로그 삭제
  //============================================================================
 UCLASS()
 class LUNAR_REALM_API ULREnemyAttributeSet : public ULRAttributeSet
@@ -43,7 +44,7 @@ public:
 	float MaxSpeed = 300.0f;
 
 	UPROPERTY(BlueprintReadWrite, Category = "LR|Spec|Limits")
-	float MaxAttackRange = 2000.0f;	// TEMP : 임시값 엔진에서 거리 보면서 조정 필요
+	float MaxAttackRange = 2000.0f;
 
 	UPROPERTY(BlueprintReadWrite, Category = "LR|Spec|Limits")
 	float MaxScale = 1.5f;	// 150%
