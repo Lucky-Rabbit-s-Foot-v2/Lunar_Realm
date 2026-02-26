@@ -1,45 +1,52 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// LRGachaSubsystem.cpp
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Subsystems/Gacha/LRGachaSubsystem.h"
-
 #include "Subsystems/CollectionSubsystem.h"
 #include "Subsystems/GameDataSubsystem.h"
 #include "Subsystems/SaveGameSubsystem.h"
+#include "Subsystems/UIManagerSubsystem.h"
+
+#include "UObject/UObjectGlobals.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "SaveGame/LRSaveGame.h"
 #include "System/LoggingSystem.h"
 
 #include "Engine/GameInstance.h"
 #include "Engine/Engine.h"
+#include "Engine/World.h"
 
-// ───────────────── UGameInstanceSubsystem 구현 ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  Subsystem 생명주기
+// ─────────────────────────────────────────────────────────────────────────────
 
 void ULRGachaSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	// DataTable 경로 기본값 (에디터에서 지정 안 했을 때)
+	// 맵 로드 완료 후 훅(로비 복귀 시 샵 자동 오픈 처리)
+	FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &ULRGachaSubsystem::HandlePostLoadMapWithWorld);
+
+	// ── DataTable 기본 경로(에디터에서 지정 안 했을 때) ───────────
 	if (BannerDataTable.IsNull())
 	{
 		BannerDataTable = TSoftObjectPtr<UDataTable>(
 			FSoftObjectPath(TEXT("DataTable'/Game/DataTables/Gacha/DT_GachaBanners.DT_GachaBanners'"))
 		);
 	}
-
 	if (PoolDataTable.IsNull())
 	{
 		PoolDataTable = TSoftObjectPtr<UDataTable>(
 			FSoftObjectPath(TEXT("DataTable'/Game/DataTables/Gacha/DT_GachaPool.DT_GachaPool'"))
 		);
 	}
-
 	if (DuplicateRewardDataTable.IsNull())
 	{
 		DuplicateRewardDataTable = TSoftObjectPtr<UDataTable>(
 			FSoftObjectPath(TEXT("DataTable'/Game/DataTables/Gacha/DT_GachaDuplicateRewards.DT_GachaDuplicateRewards'"))
 		);
 	}
-
 	if (RarityRateDataTable.IsNull())
 	{
 		RarityRateDataTable = TSoftObjectPtr<UDataTable>(
@@ -47,18 +54,19 @@ void ULRGachaSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 		);
 	}
 
+	// ── Subsystem 참조 캐시 ───────────────────────────────────────
 	if (UGameInstance* GI = GetGameInstance())
 	{
 		CurrencySubsystem = GI->GetSubsystem<UCurrencySubsystem>();
 		SaveGameSubsystem = GI->GetSubsystem<USaveGameSubsystem>();
 	}
 
-	// DataTable 로드
+	// ── DataTable 로드 ───────────────────────────────────────────
 	LoadDataTables();
-
 	LR_INFO(TEXT("LRGachaSubsystem Initialized"));
 
-	// SaveGame에 Pending 트랜잭션이 남아있으면, 상태를 PendingReveal로 세팅
+	// ── SaveGame에 Pending 트랜잭션이 남아있으면 상태를 PendingReveal로 ──
+	// (튕김 복구 흐름: Shop 진입 시 GetAnyPendingTransaction로 처리)
 	if (ULRSaveGame* S = GetSaveGame())
 	{
 		if (S->GachaPendingTransactions.Num() > 0)
@@ -69,7 +77,87 @@ void ULRGachaSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	}
 }
 
-// ───────────────── DataTable 로드/조회 ─────────────────
+void ULRGachaSubsystem::Deinitialize()
+{
+	// 델리게이트 등록 해제(PIE 재실행/중복 등록 방지)
+	FCoreUObjectDelegates::PostLoadMapWithWorld.RemoveAll(this);
+
+	Super::Deinitialize();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  로비 복귀 시 샵 자동 오픈 플로우
+// ─────────────────────────────────────────────────────────────────────────────
+
+void ULRGachaSubsystem::RequestOpenShopOnLobbyReturn(FName InBannerID)
+{
+	bOpenShopOnLobbyReturn = true;
+	PendingReturnShopBannerID = InBannerID;
+}
+
+void ULRGachaSubsystem::ClearOpenShopOnLobbyReturn()
+{
+	// Home 버튼 등으로 “샵 자동 오픈”이 필요 없는 경우 호출
+	bOpenShopOnLobbyReturn = false;
+	PendingReturnShopBannerID = NAME_None;
+}
+
+bool ULRGachaSubsystem::ConsumePendingReturnShopBanner(FName& OutBannerID)
+{
+	// “복귀 배너”는 한 번만 소비되도록 설계
+	if (PendingReturnShopBannerID.IsNone())
+	{
+		return false;
+	}
+
+	OutBannerID = PendingReturnShopBannerID;
+	PendingReturnShopBannerID = NAME_None;
+	return true;
+}
+
+void ULRGachaSubsystem::HandlePostLoadMapWithWorld(UWorld* LoadedWorld)
+{
+	if (!LoadedWorld || !bOpenShopOnLobbyReturn)
+	{
+		return;
+	}
+
+	// PIE에서는 "UEDPIE_0_Map_Lobby" 같은 이름이 될 수 있으니 prefix 제거
+	FString MapName = LoadedWorld->GetMapName();
+	const FString Prefix = LoadedWorld->StreamingLevelsPrefix;
+	if (!Prefix.IsEmpty())
+	{
+		MapName.RemoveFromStart(Prefix);
+	}
+
+	// 로비 맵이 아닐 때는 무시
+	if (!MapName.Equals(TEXT("Map_Lobby")))
+	{
+		return;
+	}
+
+	// 플래그는 1회성으로 꺼준다
+	bOpenShopOnLobbyReturn = false;
+
+	UGameInstance* GI = LoadedWorld->GetGameInstance();
+	if (!GI)
+	{
+		return;
+	}
+
+	UUIManagerSubsystem* UISys = GI->GetSubsystem<UUIManagerSubsystem>();
+	if (!UISys)
+	{
+		return;
+	}
+
+	// UIManagerSettings에서 EUIID::GACHA가 WBP_GachaShop으로 매핑되어 있어야 함
+	UISys->OpenUIByID(EUIID::GACHA);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  DataTable 로드/SaveGame 헬퍼
+// ─────────────────────────────────────────────────────────────────────────────
 
 void ULRGachaSubsystem::LoadDataTables()
 {
@@ -92,7 +180,9 @@ ULRSaveGame* ULRGachaSubsystem::GetSaveGame() const
 	return SaveGameSubsystem ? SaveGameSubsystem->GetCurrentSaveGame() : nullptr;
 }
 
-// ───────────────── 재화 API ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  재화 API
+// ─────────────────────────────────────────────────────────────────────────────
 
 int32 ULRGachaSubsystem::GetCurrency(ELRCurrencyType Type) const
 {
@@ -125,7 +215,9 @@ bool ULRGachaSubsystem::SpendCurrency(ELRCurrencyType Type, int32 Cost)
 	return bOk;
 }
 
-// ───────────────── 천장(Pity) 처리 ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  천장(Pity)
+// ─────────────────────────────────────────────────────────────────────────────
 
 int32 ULRGachaSubsystem::GetPityCount(FName BannerID) const
 {
@@ -180,7 +272,9 @@ void ULRGachaSubsystem::ResetPity(FName BannerID)
 	}
 }
 
-// ───────────────── DataTable 조회 ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  DataTable 조회
+// ─────────────────────────────────────────────────────────────────────────────
 
 bool ULRGachaSubsystem::GetBannerRow(FName BannerID, FLRGachaBannerRow& OutRow) const
 {
@@ -218,7 +312,10 @@ void ULRGachaSubsystem::GetPoolRowsForBanner(FName BannerID, TArray<FLRGachaPool
 	}
 }
 
-void ULRGachaSubsystem::GetRarityRateRowsForBanner(FName BannerID, ELRGachaItemType ItemType, TArray<FLRGachaRarityRateRow>& OutRows) const
+void ULRGachaSubsystem::GetRarityRateRowsForBanner(
+	FName BannerID,
+	ELRGachaItemType ItemType,
+	TArray<FLRGachaRarityRateRow>& OutRows) const
 {
 	OutRows.Empty();
 	if (!LoadedRarityRateDT)
@@ -242,7 +339,9 @@ void ULRGachaSubsystem::GetRarityRateRowsForBanner(FName BannerID, ELRGachaItemT
 	}
 }
 
-// ───────────────── 희귀도/풀 선택 ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  희귀도/풀 선택 로직
+// ─────────────────────────────────────────────────────────────────────────────
 
 bool ULRGachaSubsystem::PickRarityByRates(FName BannerID, ELRGachaItemType ItemType, ELRGachaRarity& OutRarity) const
 {
@@ -256,7 +355,6 @@ bool ULRGachaSubsystem::PickRarityByRates(FName BannerID, ELRGachaItemType ItemT
 		return false;
 	}
 
-	// 전체 합
 	float Total = 0.0f;
 	for (const auto& R : Rates)
 	{
@@ -267,7 +365,6 @@ bool ULRGachaSubsystem::PickRarityByRates(FName BannerID, ELRGachaItemType ItemT
 		return false;
 	}
 
-	// 0 ~ Total 랜덤값을 누적합으로 맞춰서 등급 결정
 	const float Rand = FMath::FRandRange(0.0f, Total);
 	float Acc = 0.0f;
 
@@ -296,7 +393,10 @@ bool ULRGachaSubsystem::PickOneFromPoolUniform(const TArray<FLRGachaPoolRow>& Po
 	return true;
 }
 
-bool ULRGachaSubsystem::PickOneFromPoolByRarity(const TArray<FLRGachaPoolRow>& Pool, ELRGachaRarity TargetRarity, FLRGachaPoolRow& OutPicked) const
+bool ULRGachaSubsystem::PickOneFromPoolByRarity(
+	const TArray<FLRGachaPoolRow>& Pool,
+	ELRGachaRarity TargetRarity,
+	FLRGachaPoolRow& OutPicked) const
 {
 	TArray<FLRGachaPoolRow> Filtered;
 	for (const auto& Row : Pool)
@@ -311,7 +411,9 @@ bool ULRGachaSubsystem::PickOneFromPoolByRarity(const TArray<FLRGachaPoolRow>& P
 	return PickOneFromPoolUniform((Filtered.Num() > 0) ? Filtered : Pool, OutPicked);
 }
 
-// ───────────────── 중복 보상 ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  중복 보상(골드 전환)
+// ─────────────────────────────────────────────────────────────────────────────
 
 int32 ULRGachaSubsystem::GetDuplicateGold(ELRGachaRarity Rarity) const
 {
@@ -370,7 +472,9 @@ bool ULRGachaSubsystem::TryAddToCollection(const FLRGachaResult& Result, bool& b
 	return true;
 }
 
-// ───────────────── 뽑기 가능 여부 ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  뽑기 가능 여부
+// ─────────────────────────────────────────────────────────────────────────────
 
 bool ULRGachaSubsystem::CanDraw(FName BannerID, int32 DrawCount, int32& OutNeedCost) const
 {
@@ -399,7 +503,9 @@ bool ULRGachaSubsystem::CanDraw(FName BannerID, int32 DrawCount, int32& OutNeedC
 	return GetCurrency(Banner.CostCurrencyType) >= OutNeedCost;
 }
 
-// ───────────────── 트랜잭션: Begin ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  트랜잭션: Begin(비용 차감 + 결과 확정 저장)
+// ─────────────────────────────────────────────────────────────────────────────
 
 bool ULRGachaSubsystem::BeginDrawTransaction(FName BannerID, int32 DrawCount, FGuid& OutTxnId, TArray<FLRGachaResult>& OutResults)
 {
@@ -409,21 +515,21 @@ bool ULRGachaSubsystem::BeginDrawTransaction(FName BannerID, int32 DrawCount, FG
 	ULRSaveGame* S = GetSaveGame();
 	if (!S)
 	{
-		LR_WARN(TEXT("BeginDrawTransaction failed : SaveGame null"));
+		LR_WARN(TEXT("BeginDrawTransaction 실패: SaveGame null"));
 		return false;
 	}
 
 	// 연타/중복 실행 방지(락)
 	if (bTxnInProgress)
 	{
-		LR_WARN(TEXT("BeginDrawTransaction blocked : transaction already in progress"));
+		LR_WARN(TEXT("BeginDrawTransaction 차단: 이미 트랜잭션 진행 중"));
 		return false;
 	}
 
 	// Pending이 남아있으면 새 트랜잭션 시작 금지
 	if (S->GachaPendingTransactions.Num() > 0)
 	{
-		LR_WARN(TEXT("BeginDrawTransaction blocked: Pending transaction exists"));
+		LR_WARN(TEXT("BeginDrawTransaction 차단: Pending 트랜잭션이 남아있음"));
 		return false;
 	}
 
@@ -431,7 +537,7 @@ bool ULRGachaSubsystem::BeginDrawTransaction(FName BannerID, int32 DrawCount, FG
 	FLRGachaBannerRow Banner;
 	if (!GetBannerRow(BannerID, Banner))
 	{
-		LR_WARN(TEXT("BeginDrawTransaction failed: Banner not found %s"), *BannerID.ToString());
+		LR_WARN(TEXT("BeginDrawTransaction 실패: 배너 없음 %s"), *BannerID.ToString());
 		return false;
 	}
 
@@ -439,14 +545,14 @@ bool ULRGachaSubsystem::BeginDrawTransaction(FName BannerID, int32 DrawCount, FG
 	int32 NeedCost = 0;
 	if (!CanDraw(BannerID, DrawCount, NeedCost))
 	{
-		LR_WARN(TEXT("BeginDrawTransaction failed: not enough currency"));
+		LR_WARN(TEXT("BeginDrawTransaction 실패: 재화 부족"));
 		return false;
 	}
 
 	// 비용 차감(예약)
 	if (!SpendCurrency(Banner.CostCurrencyType, NeedCost))
 	{
-		LR_WARN(TEXT("BeginDrawTransaction failed: spend failed"));
+		LR_WARN(TEXT("BeginDrawTransaction 실패: SpendCurrency 실패"));
 		return false;
 	}
 
@@ -457,7 +563,7 @@ bool ULRGachaSubsystem::BeginDrawTransaction(FName BannerID, int32 DrawCount, FG
 	{
 		// 차감했는데 풀 없음 → 환불
 		AddCurrency(Banner.CostCurrencyType, NeedCost);
-		LR_WARN(TEXT("BeginDrawTransaction failed: Pool empty. Refunded"));
+		LR_WARN(TEXT("BeginDrawTransaction 실패: Pool 비어있음 → 환불 처리"));
 		return false;
 	}
 
@@ -474,32 +580,32 @@ bool ULRGachaSubsystem::BeginDrawTransaction(FName BannerID, int32 DrawCount, FG
 
 		if (Rates.Num() <= 0 || Total <= 0.f)
 		{
-			AddCurrency(Banner.CostCurrencyType, NeedCost); // 환불
-			LR_WARN(TEXT("BeginDrawTransaction failed: RarityRate missing/invalid. Refunded"));
+			AddCurrency(Banner.CostCurrencyType, NeedCost);
+			LR_WARN(TEXT("BeginDrawTransaction 실패: 확률 테이블 누락/무효 → 환불 처리"));
 			return false;
 		}
 	}
 
-	// 천장 계산용 작업용 pity
+	// 천장 계산용 작업용 pity(실제 저장값은 커밋 전용으로 유지)
 	const int32 PrevPity = GetPityCount(BannerID);
 	int32 WorkingPity = PrevPity;
 
 	// 결과 롤링(지급X)
 	if (!RollResults_NoApply(Banner, Pool, DrawCount, WorkingPity, OutResults))
 	{
-		AddCurrency(Banner.CostCurrencyType, NeedCost); // 환불
-		LR_WARN(TEXT("BeginDrawTransaction failed: roll failed. Refunded"));
+		AddCurrency(Banner.CostCurrencyType, NeedCost);
+		LR_WARN(TEXT("BeginDrawTransaction 실패: 롤링 실패 → 환불 처리"));
 		return false;
 	}
 
-	// 천장 카운터를 "결과 확정 시점"에 반영
+	// 천장 카운터는 “결과 확정 시점”에 저장
 	if (Banner.bUsePity)
 	{
 		S->GachaPityCounterMap.FindOrAdd(BannerID) = WorkingPity;
 		OnPityChanged.Broadcast(BannerID, WorkingPity);
 	}
 
-	// Pending 트랜잭션 저장 (튕김 복구 핵심)
+	// Pending 트랜잭션 저장(튕김 복구 핵심)
 	FLRGachaPendingTransaction Pending;
 	Pending.TxnId = FGuid::NewGuid();
 	Pending.BannerID = BannerID;
@@ -518,11 +624,11 @@ bool ULRGachaSubsystem::BeginDrawTransaction(FName BannerID, int32 DrawCount, FG
 		SaveGameSubsystem->UpdateLastSavedTimeAndSave();
 	}
 
-	// 락 ON + 상태 브로드캐스트
+	// 락 ON + 상태 변경 브로드캐스트
 	bTxnInProgress = true;
 	OnGachaTxnStateChanged.Broadcast(ELRGachaTxnState::PendingReveal);
 
-	// UI 연출 시작 이벤트 (원하면 여기 구독해서 바로 리빌 열 수도 있음)
+	// UI 연출용 이벤트(원하면 여기 구독해서 바로 리빌 열 수 있음)
 	OnGachaFinished.Broadcast(BannerID, OutResults);
 
 	OutTxnId = Pending.TxnId;
@@ -542,7 +648,9 @@ bool ULRGachaSubsystem::BeginDrawTransaction(FName BannerID, int32 DrawCount, FG
 	return true;
 }
 
-// ───────────────── 트랜잭션: Commit ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  트랜잭션: Commit(실제 지급)
+// ─────────────────────────────────────────────────────────────────────────────
 
 bool ULRGachaSubsystem::CommitTransaction(const FGuid& TxnId)
 {
@@ -552,11 +660,10 @@ bool ULRGachaSubsystem::CommitTransaction(const FGuid& TxnId)
 		return false;
 	}
 
-	// Pending 트랜잭션 찾기
 	FLRGachaPendingTransaction* PendingPtr = S->GachaPendingTransactions.Find(TxnId);
 	if (!PendingPtr)
 	{
-		LR_WARN(TEXT("CommitTransaction failed: Pending not found"));
+		LR_WARN(TEXT("CommitTransaction 실패: Pending 없음"));
 		return false;
 	}
 
@@ -564,17 +671,16 @@ bool ULRGachaSubsystem::CommitTransaction(const FGuid& TxnId)
 	const FName BannerIDCopy = PendingPtr->BannerID;
 	TArray<FLRGachaResult> ResultsCopy = PendingPtr->Results;
 
-	// 실제 지급(컬렉션 반영/중복 골드 지급)
+	// 실제 지급(컬렉션 반영 + 중복이면 골드 지급)
 	for (const FLRGachaResult& Result : ResultsCopy)
 	{
 		bool bWasNew = false;
 		if (!TryAddToCollection(Result, bWasNew))
 		{
-			LR_WARN(TEXT("CommitTransaction: TryAddToCollection failed"));
+			LR_WARN(TEXT("CommitTransaction: TryAddToCollection 실패"));
 			continue;
 		}
 
-		// 중복이면 골드 지급
 		if (!bWasNew)
 		{
 			const int32 Gold = GetDuplicateGold(Result.Rarity);
@@ -598,7 +704,9 @@ bool ULRGachaSubsystem::CommitTransaction(const FGuid& TxnId)
 	return true;
 }
 
-// ───────────────── 트랜잭션: Cancel ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  트랜잭션: Cancel(환불 + 천장 원복)
+// ─────────────────────────────────────────────────────────────────────────────
 
 bool ULRGachaSubsystem::CancelTransaction(const FGuid& TxnId)
 {
@@ -608,15 +716,13 @@ bool ULRGachaSubsystem::CancelTransaction(const FGuid& TxnId)
 		return false;
 	}
 
-	// Pending 찾기
 	FLRGachaPendingTransaction* PendingPtr = S->GachaPendingTransactions.Find(TxnId);
 	if (!PendingPtr)
 	{
-		LR_WARN(TEXT("CancelTransaction failed: pending not found"));
+		LR_WARN(TEXT("CancelTransaction 실패: Pending 없음"));
 		return false;
 	}
 
-	// Remove 전에 복사(안전)
 	const FName BannerIDCopy = PendingPtr->BannerID;
 	const ELRCurrencyType CostTypeCopy = PendingPtr->CostCurrencyType;
 	const int32 CostAmountCopy = PendingPtr->CostAmount;
@@ -641,16 +747,13 @@ bool ULRGachaSubsystem::CancelTransaction(const FGuid& TxnId)
 	bTxnInProgress = false;
 	OnGachaTxnStateChanged.Broadcast(ELRGachaTxnState::Canceled);
 
-	LR_INFO(
-		TEXT("CancelTransaction OK: %s Txn=%s Refunded=%d"),
-		*BannerIDCopy.ToString(),
-		*TxnId.ToString(),
-		CostAmountCopy
-	);
+	LR_INFO(TEXT("CancelTransaction OK: %s Txn=%s Refunded=%d"), *BannerIDCopy.ToString(), *TxnId.ToString(), CostAmountCopy);
 	return true;
 }
 
-// ───────────────── 결과 롤링(지급X) ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  결과 롤링(지급X) - 신규/중복 판정 포함
+// ─────────────────────────────────────────────────────────────────────────────
 
 bool ULRGachaSubsystem::RollResults_NoApply(
 	const FLRGachaBannerRow& Banner,
@@ -662,15 +765,15 @@ bool ULRGachaSubsystem::RollResults_NoApply(
 {
 	OutResults.Empty();
 
-	// 컬렉션 시스템(보유 여부 판단용)
 	UCollectionSubsystem* CollectionSys = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
 	if (!CollectionSys)
 	{
-		LR_WARN(TEXT("RollResults_NoApply: CollectionSubsystem not found"));
+		LR_WARN(TEXT("RollResults_NoApply 실패: CollectionSubsystem 없음"));
 		return false;
 	}
 
-	TSet<FName> NewlyObtainedInThisTxn; // 이번 트랜잭션에서 새로 뽑힌 것
+	// “이번 트랜잭션 안에서” 같은 아이템이 중복으로 나온 경우도 중복 처리하기 위한 세트
+	TSet<FName> NewlyObtainedInThisTxn;
 
 	for (int32 i = 0; i < DrawCount; i++)
 	{
@@ -681,18 +784,18 @@ bool ULRGachaSubsystem::RollResults_NoApply(
 
 		if (bShouldPity)
 		{
-			// 천장 발동이면 확정 등급에서 뽑기
+			// 천장 발동: 확정 등급에서 뽑기
 			bPickedOk = PickOneFromPoolByRarity(Pool, Banner.PityGuaranteedRarity, Picked);
 		}
 		else
 		{
-			// 천장 아니면: “등급 확률” → 해당 등급 풀에서 랜덤
+			// 일반: 확률로 등급 뽑고, 해당 등급 풀에서 랜덤
 			ELRGachaRarity RolledRarity = ELRGachaRarity::Common;
 			const bool bHasRate = PickRarityByRates(Banner.BannerID, Banner.ItemType, RolledRarity);
 
 			if (!bHasRate)
 			{
-				LR_WARN(TEXT("RollResults_NoApply: PickRarityByRates failed (banner=%s)"), *Banner.BannerID.ToString());
+				LR_WARN(TEXT("RollResults_NoApply 실패: PickRarityByRates 실패 (banner=%s)"), *Banner.BannerID.ToString());
 				return false;
 			}
 
@@ -710,19 +813,17 @@ bool ULRGachaSubsystem::RollResults_NoApply(
 
 		if (!bPickedOk)
 		{
-			LR_WARN(TEXT("RollResults_NoApply: pick failed"));
+			LR_WARN(TEXT("RollResults_NoApply 실패: pick 실패"));
 			return false;
 		}
 
-		// Result 구성
 		FLRGachaResult Result;
 		Result.ItemType = Banner.ItemType;
 		Result.ItemID = Picked.ItemID;
 		Result.Rarity = Picked.Rarity;
 
-		// "지급 전" 기준으로 New/중복 판정
+		// “지급 전” 기준 신규/중복 판정
 		bool bOwnedAlready = false;
-
 		if (Result.ItemType == ELRGachaItemType::Hero)
 		{
 			bOwnedAlready = CollectionSys->HasCharacter(Result.ItemID);
@@ -736,24 +837,23 @@ bool ULRGachaSubsystem::RollResults_NoApply(
 
 		if (!bOwnedAlready && !bDupInThisTxn)
 		{
-			// 진짜 신규
 			Result.bIsNew = true;
 			NewlyObtainedInThisTxn.Add(Result.ItemID);
 		}
 		else
 		{
-			// 중복이면 "골드 전환" 정보 미리 계산
+			// 중복이면 골드 전환 정보도 미리 기록(결과 UI에서 사용 가능)
 			Result.bIsNew = false;
 			Result.bConvertedToGold = true;
 			Result.ConvertedGoldAmount = GetDuplicateGold(Result.Rarity);
 		}
 
-		// 천장 카운터 갱신
+		// 천장 카운터 갱신(전설이면 리셋)
 		if (Banner.bUsePity)
 		{
 			if (Result.Rarity == ELRGachaRarity::Legendary)
 			{
-				InOutPityCounter = 0; // 전설이면 리셋
+				InOutPityCounter = 0;
 			}
 			else
 			{
@@ -763,26 +863,25 @@ bool ULRGachaSubsystem::RollResults_NoApply(
 
 		OutResults.Add(Result);
 	}
+
 	return true;
 }
 
-// ───────────────── Pending 트랜잭션 조회 ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  Pending 트랜잭션 조회(튕김 복구용)
+// ─────────────────────────────────────────────────────────────────────────────
 
 bool ULRGachaSubsystem::GetAnyPendingTransaction(FLRGachaPendingTransaction& OutPending) const
 {
 	OutPending = FLRGachaPendingTransaction();
 
 	ULRSaveGame* S = GetSaveGame();
-	if (!S)
-	{
-		return false;
-	}
-	if (S->GachaPendingTransactions.Num() <= 0)
+	if (!S || S->GachaPendingTransactions.Num() <= 0)
 	{
 		return false;
 	}
 
-	// 하나만 써도 되므로 첫 번째 반환
+	// 하나만 쓰면 되므로 첫 번째 반환
 	for (const auto& Pair : S->GachaPendingTransactions)
 	{
 		OutPending = Pair.Value;
@@ -791,7 +890,9 @@ bool ULRGachaSubsystem::GetAnyPendingTransaction(FLRGachaPendingTransaction& Out
 	return false;
 }
 
-// ───────────────── UI 편의 함수 ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  UI 편의 함수
+// ─────────────────────────────────────────────────────────────────────────────
 
 FName ULRGachaSubsystem::GetBannerIdBySelection(ELRGachaItemType ItemType, ELRGachaTicketType TicketType) const
 {
@@ -818,10 +919,9 @@ bool ULRGachaSubsystem::BeginDrawBySelection(
 	const FName BannerID = GetBannerIdBySelection(ItemType, TicketType);
 
 	const bool bOk = BeginDrawTransaction(BannerID, DrawCount, OutTxnId, OutResults);
-
 	if (!bOk)
 	{
-		LR_WARN(TEXT("[Gacha] BeginDrawBySelection FAILED Banner=%s Count=%d"), *BannerID.ToString(), DrawCount);
+		LR_WARN(TEXT("[Gacha] BeginDrawBySelection 실패 Banner=%s Count=%d"), *BannerID.ToString(), DrawCount);
 	}
 	return bOk;
 }
@@ -836,7 +936,9 @@ int32 ULRGachaSubsystem::GetDisplayPityCount(ELRGachaItemType ItemType) const
 	return GetPityCount(FullMoonBannerID);
 }
 
-// ───────────────── Pending Reveal (리빌 맵 연동) ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  Pending Reveal (리빌 맵 연동)
+// ─────────────────────────────────────────────────────────────────────────────
 
 void ULRGachaSubsystem::SetPendingReveal(FName InBannerID, const FGuid& InTxnId, const TArray<FLRGachaResult>& InResults)
 {
@@ -857,7 +959,7 @@ bool ULRGachaSubsystem::ConsumePendingReveal(FName& OutBannerID, FGuid& OutTxnId
 	OutTxnId = PendingTxnId;
 	OutResults = MoveTemp(PendingResults);
 
-	// 상태 리셋
+	// 소비 후 상태 리셋(한 번만 사용)
 	PendingResults.Reset();
 	PendingBannerID = NAME_None;
 	PendingTxnId.Invalidate();
@@ -866,17 +968,19 @@ bool ULRGachaSubsystem::ConsumePendingReveal(FName& OutBannerID, FGuid& OutTxnId
 	return true;
 }
 
-// ───────────────── Debug 출력 ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  Debug 출력(로그/화면)
+// ─────────────────────────────────────────────────────────────────────────────
 
 FLinearColor ULRGachaSubsystem::DebugRarityToColor(ELRGachaRarity Rarity) const
 {
 	switch (Rarity)
 	{
-	case ELRGachaRarity::Common:    return FLinearColor(0.6f, 0.6f, 0.6f, 1.0f);      // Gray
-	case ELRGachaRarity::Elite:     return FLinearColor(0.20f, 0.55f, 1.00f, 1.0f);   // Blue
-	case ELRGachaRarity::Unique:    return FLinearColor(1.00f, 0.25f, 0.25f, 1.0f);   // Red
-	case ELRGachaRarity::Epic:      return FLinearColor(0.6f, 0.2f, 0.8f, 1.0f);      // Purple
-	case ELRGachaRarity::Legendary: return FLinearColor(1.0f, 0.8f, 0.2f, 1.0f);      // Gold
+	case ELRGachaRarity::Common:    return FLinearColor(0.6f, 0.6f, 0.6f, 1.0f);
+	case ELRGachaRarity::Elite:     return FLinearColor(0.20f, 0.55f, 1.00f, 1.0f);
+	case ELRGachaRarity::Unique:    return FLinearColor(1.00f, 0.25f, 0.25f, 1.0f);
+	case ELRGachaRarity::Epic:      return FLinearColor(0.6f, 0.2f, 0.8f, 1.0f);
+	case ELRGachaRarity::Legendary: return FLinearColor(1.0f, 0.8f, 0.2f, 1.0f);
 	default:                        return FLinearColor::White;
 	}
 }
@@ -886,13 +990,8 @@ FString ULRGachaSubsystem::DebugResultToColoredString(const FLRGachaResult& Resu
 	const UEnum* ItemTypeEnum = StaticEnum<ELRGachaItemType>();
 	const UEnum* RarityEnum = StaticEnum<ELRGachaRarity>();
 
-	const FString ItemTypeStr = ItemTypeEnum
-		? ItemTypeEnum->GetNameStringByValue((int64)Result.ItemType)
-		: TEXT("UnknownType");
-
-	const FString RarityStr = RarityEnum
-		? RarityEnum->GetNameStringByValue((int64)Result.Rarity)
-		: TEXT("UnknownRarity");
+	const FString ItemTypeStr = ItemTypeEnum ? ItemTypeEnum->GetNameStringByValue((int64)Result.ItemType) : TEXT("UnknownType");
+	const FString RarityStr = RarityEnum ? RarityEnum->GetNameStringByValue((int64)Result.Rarity) : TEXT("UnknownRarity");
 
 	FString ColorName = TEXT("White");
 	switch (Result.Rarity)
@@ -917,11 +1016,10 @@ FString ULRGachaSubsystem::DebugResultToColoredString(const FLRGachaResult& Resu
 
 void ULRGachaSubsystem::DebugPrintResults(FName BannerID, int32 DrawCount, const FGuid& TxnId, const TArray<FLRGachaResult>& Results) const
 {
-	// 로그
+	// ── 1) 로그 출력(파일/콘솔) ───────────────────────────────────
 	if (bDebugPrintToLog)
 	{
-		LR_INFO(
-			TEXT("[GachaDebug] Banner=%s Count=%d Txn=%s Results=%d"),
+		LR_INFO(TEXT("[GachaDebug] Banner=%s Count=%d Txn=%s Results=%d"),
 			*BannerID.ToString(),
 			DrawCount,
 			*TxnId.ToString(),
@@ -934,23 +1032,33 @@ void ULRGachaSubsystem::DebugPrintResults(FName BannerID, int32 DrawCount, const
 		}
 	}
 
-	// 화면
+	// ── 2) 화면 출력(좌상단 OnScreenDebugMessage) ─────────────────
 	if (bDebugPrintToScreen && GEngine)
 	{
+		// 누적 출력 방지
+		// 기존 메시지를 지우고,
+		// 고정된 Key로 덮어쓰기
+		GEngine->ClearOnScreenDebugMessages();
+
+		const int32 BaseKey = 9000; // 고정 키 범위(프로젝트에서 다른 디버그 키와 겹치지만 않으면 됨)
+
+		// 헤더(항상 BaseKey로 덮어쓰기)
 		GEngine->AddOnScreenDebugMessage(
-			-1,
+			BaseKey,
 			DebugScreenDuration,
 			FColor::White,
-			FString::Printf(TEXT("[GachaDebug] %s  x%d  (%d results)"), *BannerID.ToString(), DrawCount, Results.Num())
+			FString::Printf(TEXT("[GachaDebug] %s  x%d  (%d results)"),
+				*BannerID.ToString(), DrawCount, Results.Num())
 		);
 
+		// 결과 라인도 i번째는 항상 BaseKey+1+i로 덮어쓰기
 		for (int32 i = 0; i < Results.Num(); ++i)
 		{
 			const FLinearColor LC = DebugRarityToColor(Results[i].Rarity);
 			const FColor C = LC.ToFColor(true);
 
 			GEngine->AddOnScreenDebugMessage(
-				-1,
+				BaseKey + 1 + i,
 				DebugScreenDuration,
 				C,
 				FString::Printf(TEXT("#%02d %s"), i + 1, *DebugResultToColoredString(Results[i]))
@@ -959,7 +1067,9 @@ void ULRGachaSubsystem::DebugPrintResults(FName BannerID, int32 DrawCount, const
 	}
 }
 
-// ───────────────── 시뮬레이션 ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  시뮬레이션(테스트용)
+// ─────────────────────────────────────────────────────────────────────────────
 
 static int32 RarityToIndex(ELRGachaRarity R)
 {
@@ -1006,11 +1116,10 @@ bool ULRGachaSubsystem::Debug_SimulateBanner(
 	OutSummary = FLRGachaSimSummary{};
 	OutSummary.TotalPulls = FMath::Max(0, TotalPulls);
 
-	// 배너/풀 로드
 	FLRGachaBannerRow Banner;
 	if (!GetBannerRow(BannerID, Banner))
 	{
-		LR_WARN(TEXT("Debug_SimulateBanner: Banner not found: %s"), *BannerID.ToString());
+		LR_WARN(TEXT("Debug_SimulateBanner 실패: 배너 없음 %s"), *BannerID.ToString());
 		return false;
 	}
 
@@ -1020,21 +1129,18 @@ bool ULRGachaSubsystem::Debug_SimulateBanner(
 	GetPoolRowsForBanner(BannerID, Pool);
 	if (Pool.Num() <= 0)
 	{
-		LR_WARN(TEXT("Debug_SimulateBanner: Pool empty: %s"), *BannerID.ToString());
+		LR_WARN(TEXT("Debug_SimulateBanner 실패: Pool 비어있음 %s"), *BannerID.ToString());
 		return false;
 	}
 
 	FRandomStream Stream(Seed);
 
-	// 실제 저장된 천장 카운트는 건드리면 안 되므로, 로컬 변수 사용
 	int32 SimPity = 0;
 	int32 NoLegendaryStreak = 0;
 
-	// 등급 확률 Row 캐시
 	TArray<FLRGachaRarityRateRow> Rates;
 	GetRarityRateRowsForBanner(BannerID, Banner.ItemType, Rates);
 
-	// 등급 뽑기 (RandomStream 버전)
 	auto PickRarity_Stream = [&Stream, &Rates](ELRGachaRarity& OutRarity) -> bool
 		{
 			float Total = 0.f;
@@ -1061,7 +1167,6 @@ bool ULRGachaSubsystem::Debug_SimulateBanner(
 			return false;
 		};
 
-	// 풀에서 균등 랜덤 1개 선택 (RandomStream 버전)
 	auto PickUniform_Stream = [&Stream](const TArray<FLRGachaPoolRow>& In, FLRGachaPoolRow& Out) -> bool
 		{
 			if (In.Num() <= 0)
@@ -1084,7 +1189,6 @@ bool ULRGachaSubsystem::Debug_SimulateBanner(
 		{
 			OutSummary.PityTriggered++;
 
-			// 특정 등급만 필터해서 그 안에서 uniform
 			TArray<FLRGachaPoolRow> Filtered;
 			for (const auto& Row : Pool)
 			{
@@ -1100,7 +1204,7 @@ bool ULRGachaSubsystem::Debug_SimulateBanner(
 			ELRGachaRarity RolledRarity = ELRGachaRarity::Common;
 			if (!PickRarity_Stream(RolledRarity))
 			{
-				LR_WARN(TEXT("Debug_SimulateBanner: rate pick failed"));
+				LR_WARN(TEXT("Debug_SimulateBanner 실패: 등급 뽑기 실패"));
 				return false;
 			}
 
@@ -1117,11 +1221,10 @@ bool ULRGachaSubsystem::Debug_SimulateBanner(
 
 		if (!bOk)
 		{
-			LR_WARN(TEXT("Debug_SimulateBanner: pick failed (banner=%s)"), *BannerID.ToString());
+			LR_WARN(TEXT("Debug_SimulateBanner 실패: pick 실패 (banner=%s)"), *BannerID.ToString());
 			return false;
 		}
 
-		// 통계 집계
 		const int32 Star = RarityToIndex(Picked.Rarity);
 		if (Star == 1)      OutSummary.Count1++;
 		else if (Star == 2) OutSummary.Count2++;
@@ -1129,7 +1232,6 @@ bool ULRGachaSubsystem::Debug_SimulateBanner(
 		else if (Star == 4) OutSummary.Count4++;
 		else if (Star == 5) OutSummary.Count5++;
 
-		// 천장 카운터 갱신 (Legendary면 초기화)
 		if (bUsePitySim)
 		{
 			if (Picked.Rarity == ELRGachaRarity::Legendary)
