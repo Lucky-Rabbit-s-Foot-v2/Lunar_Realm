@@ -38,6 +38,6 @@ void ALREnemyCore::OnCoreDestroyed()
 	
 	if (ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(UGameplayStatics::GetGameMode(this)))
 	{
-		StageGM->OnGameOver(false);
+		StageGM->OnGameClear();
 	}
 }

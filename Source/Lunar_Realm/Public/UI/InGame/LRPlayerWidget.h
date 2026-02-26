@@ -44,6 +44,9 @@ public:
 	
 	virtual void BindToController(class ALRControllerBase* Controller) override;
 
+	UFUNCTION(BlueprintCallable)
+	void OnPauseButtonClicked();
+
 private:
 	
 	UFUNCTION(BlueprintCallable)
@@ -66,4 +69,6 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<ULRSkillPanelWidget> WBP_SkillPanel;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UButton> Btn_Pause;
 };

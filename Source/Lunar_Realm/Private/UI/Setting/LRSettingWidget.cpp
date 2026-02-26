@@ -6,40 +6,35 @@
 #include "Components/Button.h"
 #include "UI/Setting/LRSettingScrollWidget.h"
 
-void ULRSettingWidget::NativeConstruct()
+void ULRSettingWidget::BindProperties()
 {
-	Super::NativeConstruct();
-	if (Btn_Close)
-	{
-		Btn_Close->OnClicked.AddDynamic(this, &ULRSettingWidget::OnCloseButtonClicked);
-	}
-	if (Btn_Default)
-	{
-		Btn_Default->OnClicked.AddDynamic(this, &ULRSettingWidget::OnDefaultButtonClicked);
-	}
+	Super::BindProperties();
+
+	if (Btn_Close) Btn_Close->OnClicked.AddDynamic(this, &ULRSettingWidget::OnCloseButtonClicked);
+	if (Btn_Save) Btn_Save->OnClicked.AddDynamic(this, &ULRSettingWidget::OnSaveButtonClicked);
+	if (Btn_Default) Btn_Default->OnClicked.AddDynamic(this, &ULRSettingWidget::OnDefaultButtonClicked);
 }
 
-void ULRSettingWidget::NativeDestruct()
+void ULRSettingWidget::UnbindProperties()
 {
-	if (Btn_Close)
-	{
-		Btn_Close->OnClicked.Clear();
-	}
-	if (Btn_Default)
-	{
-		Btn_Default->OnClicked.Clear();
-	}
-	Super::NativeDestruct();
+	if (Btn_Close) Btn_Close->OnClicked.Clear();
+	if (Btn_Save) Btn_Save->OnClicked.Clear();
+	if (Btn_Default) Btn_Default->OnClicked.Clear();
+
+	Super::UnbindProperties();
 }
 
 void ULRSettingWidget::OnCloseButtonClicked()
 {
-	OnCloseButtonClickedDel.Broadcast();
+	OnCloseUIRequestedDel.Broadcast(this);
+}
+
+void ULRSettingWidget::OnSaveButtonClicked()
+{
+	SettingScrollWidget->SaveAllSettings();
 }
 
 void ULRSettingWidget::OnDefaultButtonClicked()
 {
-	OnDefaultButtonClickedDel.Broadcast();
+	SettingScrollWidget->SetDefaultSettings();
 }
-
-

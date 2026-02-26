@@ -1,5 +1,0 @@
-,BuffEffectID,BuffType,GameplayTag,BuffEffectGE,StackLimit,StackPolicy
-1,STATUS_BURN,DEBUFF,,,5,Stack
-2,STATUS_FREEZE,DEBUFF,,,1,Replace
-3,STATUS_SHOCK,DEBUFF,,,3,Stack
-4,STATUS_SLOW,DEBUFF,,,1,Replace

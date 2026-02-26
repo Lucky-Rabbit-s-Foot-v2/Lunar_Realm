@@ -1,10 +1,13 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// LRGachaRevealWidget.cpp
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "UI/Gacha/LRGachaRevealWidget.h"
 #include "UI/Gacha/LRGachaResultSlotWidget.h"
 
 #include "Actors/Gacha/LRGachaOrbSceneActor.h"
+
 #include "Subsystems/UIManagerSubsystem.h"
+#include "Subsystems/Gacha/LRGachaSubsystem.h"
 
 #include "Components/Button.h"
 #include "Components/PanelWidget.h"
@@ -19,19 +22,31 @@
 #include "TimerManager.h"
 #include "EngineUtils.h"
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  위젯 생명주기
+// ─────────────────────────────────────────────────────────────────────────────
+
 void ULRGachaRevealWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
 	// 스킵 버튼 바인딩
+	// - PIE 재실행/위젯 재사용 시 중복 바인딩이 생기면 클릭이 여러 번 실행될 수 있으니 제거 후 AddUnique
 	if (ButtonSkip)
 	{
-		ButtonSkip->OnClicked.AddDynamic(this, &ULRGachaRevealWidget::OnClickSkip);
+		ButtonSkip->OnClicked.RemoveDynamic(this, &ULRGachaRevealWidget::OnClickSkip);
+		ButtonSkip->OnClicked.AddUniqueDynamic(this, &ULRGachaRevealWidget::OnClickSkip);
 	}
 }
 
 void ULRGachaRevealWidget::NativeDestruct()
 {
+	// 버튼 델리게이트 해제(스테일 포인터/중복 호출 방지)
+	if (ButtonSkip)
+	{
+		ButtonSkip->OnClicked.RemoveDynamic(this, &ULRGachaRevealWidget::OnClickSkip);
+	}
+
 	// OrbSceneActor 델리게이트 해제
 	if (OrbSceneActor)
 	{
@@ -39,7 +54,8 @@ void ULRGachaRevealWidget::NativeDestruct()
 		OrbSceneActor->OnAllOrbsRevealed.RemoveDynamic(this, &ULRGachaRevealWidget::HandleAllOrbsRevealed);
 	}
 
-	// 카메라 ViewTarget 원래대로 복원 (위젯만 닫히는 경우에도 안전)
+	// 카메라 ViewTarget 복원
+	// - 리빌 위젯이 닫힐 때(레벨 이동 없이 닫힐 수도 있음) 카메라가 OrbSceneActor에 고정되면 안 됨
 	if (APlayerController* PC = GetOwningPlayer())
 	{
 		if (PreviousViewTarget)
@@ -51,42 +67,69 @@ void ULRGachaRevealWidget::NativeDestruct()
 	Super::NativeDestruct();
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  외부 진입점(리빌 시작)
+// ─────────────────────────────────────────────────────────────────────────────
+
 void ULRGachaRevealWidget::StartRevealWithTransaction(
 	FName InBannerID,
 	FGuid InTxnId,
 	const TArray<FLRGachaResult>& InResults)
 {
-	// 트랜잭션 ID는 나중에 서버 검증/로그용으로 활용 가능
+	// 트랜잭션 ID는 “서버 검증/로그/재처리” 확장용으로 캐시
 	CachedTxnId = InTxnId;
 
-	// 실제 연출 플로우는 기존 StartReveal 재사용
+	// 실제 연출 로직은 StartReveal에서 공통 처리
 	StartReveal(InBannerID, InResults);
-
-	// UI/입력 모드 꼬임 방지를 위해 다음 틱에서 Game+UI 모드 세팅
-	ForceUIInputNextTick();
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  외부 진입점 (상점 → 바로 리빌 위젯)
-// ─────────────────────────────────────────────────────────────────────────────
 
 void ULRGachaRevealWidget::StartReveal(FName InBannerID, const TArray<FLRGachaResult>& InResults)
 {
+	// ── 0) 이번 리빌의 입력/상태 초기화 ───────────────────────────
+
 	CachedBannerID = InBannerID;
 	CachedResults = InResults;
 
 	bAllRevealed = false;
 	bResultOverlayShown = false;
 
-	// 3D 씬 액터 찾거나 스폰
+	// 두 번째 리빌에서 MouseUp 무반응 같은 문제 방지(포인터 상태 리셋)
+	bIsPointerDown = false;
+	PointerDownPosition = FVector2D::ZeroVector;
+
+	// ── 1) 결과 UI 초기화(이전 결과 잔상 제거) ─────────────────────
+
+	if (ResultSlotContainer)
+	{
+		ResultSlotContainer->ClearChildren();
+	}
+
+	if (ResultOverlay)
+	{
+		// 시작 시 결과 오버레이는 숨김(최종 단계에서만 표시)
+		ResultOverlay->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+	if (HintText)
+	{
+		// “탭해서 열기” 등의 힌트는 시작 시 표시
+		HintText->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	// ── 2) 입력 모드 강제(중요) ───────────────────────────────────
+	// - 두 번째 리빌부터 클릭이 안 먹는 대표 원인: InputMode가 GameOnly로 남아있음
+	ForceUIInputNextTick();
+
+	// ── 3) 3D 연출 씬 액터 연결 ───────────────────────────────────
+
 	FindOrSpawnOrbSceneActor();
 
-	// OrbSceneActor에 결과 주입 → 달 연출 + 구슬 배치 시작
 	if (OrbSceneActor)
 	{
+		// OrbSceneActor에게 결과 주입 → 달 연출 + 구슬 배치 시작
 		OrbSceneActor->InitializeWithResults(CachedResults);
 
-		// 카메라를 OrbSceneActor 쪽으로 전환 (기존 ViewTarget 저장)
+		// 카메라를 OrbSceneActor로 전환(원래 ViewTarget은 저장해두고 복원)
 		if (APlayerController* PC = GetOwningPlayer())
 		{
 			PreviousViewTarget = PC->GetViewTarget();
@@ -94,21 +137,35 @@ void ULRGachaRevealWidget::StartReveal(FName InBannerID, const TArray<FLRGachaRe
 		}
 	}
 
-	// BP에 뽑기 수 알림(1회/10회 UI 분기용)
+	// ── 4) BP에 “뽑기 수” 알림(1회/10회 UI 분기) ───────────────────
 	BP_OnRevealStarted(InResults.Num());
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  리빌 종료(로비 복귀)
+// ─────────────────────────────────────────────────────────────────────────────
+
 void ULRGachaRevealWidget::FinishAndClose()
 {
-	// 1) UIManager를 통해 이 위젯을 닫는다.
+	// 로비로 돌아가면 “샵을 자동으로 다시 열기” 요청
+	// - 리빌 맵은 연출 전용이라, 로비로 돌아오면 UX상 샵으로 이어지는 흐름이 자연스러움
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (ULRGachaSubsystem* GachaSys = GI->GetSubsystem<ULRGachaSubsystem>())
+		{
+			GachaSys->RequestOpenShopOnLobbyReturn(CachedBannerID);
+		}
+	}
+
+	// 1) 리빌 위젯 닫기(레벨 이동 전에 UIManager 캐시 정리)
 	CloseSelf();
 
-	// 2) 리빌 전용 맵에서 로비(또는 상점맵)으로 복귀
+	// 2) 로비 레벨로 이동
 	UGameplayStatics::OpenLevel(this, FName(TEXT("Map_Lobby")));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  결과 슬롯 생성
+//  결과 슬롯 생성(10칸 그리드)
 // ─────────────────────────────────────────────────────────────────────────────
 
 void ULRGachaRevealWidget::BuildResultSlots()
@@ -126,10 +183,10 @@ void ULRGachaRevealWidget::BuildResultSlots()
 		return;
 	}
 
-	// 5개씩 두 줄(최대 10개)을 깔기 위한 열 개수
+	// 10회 뽑기 기준: 5열 x 2행
 	const int32 NumColumns = 5;
 
-	// UniformGridPanel로 배치하면 Row/Col로 깔끔하게 정렬 가능
+	// UniformGridPanel이면 Row/Col로 안정적으로 배치 가능
 	if (UUniformGridPanel* Grid = Cast<UUniformGridPanel>(ResultSlotContainer))
 	{
 		const int32 NumResults = CachedResults.Num();
@@ -148,20 +205,20 @@ void ULRGachaRevealWidget::BuildResultSlots()
 
 			SlotWidget->SetupWithResult(Result);
 
-			const int32 Row = Index / NumColumns; // 0,0,0,0,0 / 1,1,1,1,1
-			const int32 Col = Index % NumColumns; // 0~4 반복
+			const int32 Row = Index / NumColumns; // 0..4 -> Row 0, 5..9 -> Row 1
+			const int32 Col = Index % NumColumns; // 0..4 반복
 
 			UUniformGridSlot* GridSlot = Grid->AddChildToUniformGrid(SlotWidget, Row, Col);
 			if (GridSlot)
 			{
-				// 필요하면 여기서 각 슬롯 패딩 조정 가능
+				// 필요 시 슬롯 패딩/정렬을 여기서 조정
 				// GridSlot->SetPadding(FMargin(8.f));
 			}
 		}
 	}
 	else
 	{
-		// 혹시 다른 PanelWidget으로 교체되어도 최소한 보이게 하는 폴백
+		// 폴백: 컨테이너가 다른 PanelWidget이라도 최소한 출력되게
 		for (const FLRGachaResult& Result : CachedResults)
 		{
 			ULRGachaResultSlotWidget* SlotWidget =
@@ -179,7 +236,7 @@ void ULRGachaRevealWidget::BuildResultSlots()
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  스킵 버튼
+//  스킵 버튼(단일 버튼 3단 동작)
 // ─────────────────────────────────────────────────────────────────────────────
 
 void ULRGachaRevealWidget::OnClickSkip()
@@ -189,15 +246,15 @@ void ULRGachaRevealWidget::OnClickSkip()
 		return;
 	}
 
-	// 1) 아직 전부 안 열렸으면 즉시 모두 리빌
+	// 1) 아직 전부 안 열렸으면: 즉시 전체 리빌
 	if (!bAllRevealed)
 	{
 		OrbSceneActor->SkipAllReveal();
-		// SkipAllReveal → OnAllOrbsRevealed → HandleAllOrbsRevealed 에서
-		// bAllRevealed = true 로 세팅됨.
+		// SkipAllReveal -> OrbSceneActor가 OnAllOrbsRevealed 브로드캐스트
+		// -> HandleAllOrbsRevealed()에서 bAllRevealed=true 세팅됨
 	}
 
-	// 2) 결과 오버레이가 아직 안 떠 있으면: 이번 클릭에서 결과 화면으로 전환
+	// 2) 결과 오버레이가 아직 안 떴으면: 결과 슬롯 생성 + BP 이벤트 호출
 	if (!bResultOverlayShown)
 	{
 		BuildResultSlots();
@@ -206,20 +263,19 @@ void ULRGachaRevealWidget::OnClickSkip()
 		return;
 	}
 
-	// 3) 이미 결과 화면이 떠 있는 상태에서 스킵 버튼 → 로비/상점 복귀
+	// 3) 이미 결과 화면이면: 로비 복귀
 	FinishAndClose();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  탭/스와이프 입력 처리 (마우스/터치)
+//  마우스/터치 입력 처리(탭/스와이프)
 // ─────────────────────────────────────────────────────────────────────────────
 
 FReply ULRGachaRevealWidget::NativeOnMouseButtonDown(
 	const FGeometry& InGeometry,
 	const FPointerEvent& InMouseEvent)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[Reveal] MouseDown"));
-
+	// Down에서 위치 저장 → Up에서 Delta로 스와이프/탭 판정
 	bIsPointerDown = true;
 	PointerDownPosition = InMouseEvent.GetScreenSpacePosition();
 
@@ -230,8 +286,6 @@ FReply ULRGachaRevealWidget::NativeOnMouseButtonUp(
 	const FGeometry& InGeometry,
 	const FPointerEvent& InMouseEvent)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[Reveal] MouseUp"));
-
 	if (!bIsPointerDown)
 	{
 		return FReply::Unhandled();
@@ -241,10 +295,9 @@ FReply ULRGachaRevealWidget::NativeOnMouseButtonUp(
 	const FVector2D UpPos = InMouseEvent.GetScreenSpacePosition();
 	const FVector2D Delta = UpPos - PointerDownPosition;
 
-	// ── [1] 이미 모든 구슬이 열린 상태 ─────────────────────────────
+	// ── [1] 이미 모든 구슬이 열린 상태: 탭으로 결과/복귀 처리 ───────
 	if (bAllRevealed)
 	{
-		// 아직 결과 오버레이를 한 번도 안 띄웠으면 → 이번 탭에서 결과 화면 전환
 		if (!bResultOverlayShown)
 		{
 			BuildResultSlots();
@@ -253,28 +306,25 @@ FReply ULRGachaRevealWidget::NativeOnMouseButtonUp(
 		}
 		else
 		{
-			// 이미 결과 화면이 떠 있는 상태에서 탭 → 상점/로비 복귀
 			FinishAndClose();
 		}
-
 		return FReply::Handled();
 	}
 
-	// ── [2] 아직 구슬이 다 안 열렸을 때만 스와이프/탭 처리 ────────
+	// ── [2] 아직 리빌 중: 스와이프/탭을 OrbSceneActor로 전달 ───────
 	if (OrbSceneActor)
 	{
 		const float AbsX = FMath::Abs(Delta.X);
 		const float AbsY = FMath::Abs(Delta.Y);
 
-		// 가로로 많이 움직였으면 “캐러셀 스와이프”
+		// 가로 이동이 크면 스와이프(캐러셀 이동)
 		if (AbsX > SwipeMinDistance && AbsX > AbsY)
 		{
-			// Delta.X 부호에 따라 좌/우 이동
 			OrbSceneActor->OnSwipeInput(-Delta.X);
 		}
 		else
 		{
-			// 거의 안 움직였으면 “탭” → 가운데 구슬 리빌
+			// 거의 움직이지 않으면 탭(가운데 구슬 리빌)
 			OrbSceneActor->OnTapCenterOrb();
 		}
 	}
@@ -288,17 +338,19 @@ FReply ULRGachaRevealWidget::NativeOnMouseButtonUp(
 
 void ULRGachaRevealWidget::HandleOrbClicked(int32 OrbIndex)
 {
-	// 필요 시: UI에 현재 인덱스 표시, 토스트 등 확장 가능.
+	// 현재는 확장용 자리:
+	// - 예: “현재 선택 인덱스 UI 표시”, “툴팁”, “진동/사운드” 등
 }
 
 void ULRGachaRevealWidget::HandleAllOrbsRevealed()
 {
-	// “모든 구슬 리빌 완료” 상태 플래그만 세팅
+	// 모든 구슬 리빌 완료 플래그만 세팅
+	// - 결과 오버레이 표시/복귀는 OnClickSkip 또는 탭에서 처리
 	bAllRevealed = true;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  OrbSceneActor 찾기 / 스폰
+//  OrbSceneActor 찾기/스폰 + 델리게이트 연결
 // ─────────────────────────────────────────────────────────────────────────────
 
 void ULRGachaRevealWidget::FindOrSpawnOrbSceneActor()
@@ -309,14 +361,22 @@ void ULRGachaRevealWidget::FindOrSpawnOrbSceneActor()
 		return;
 	}
 
-	// 1) 레벨에 이미 배치된 OrbSceneActor가 있으면 그걸 사용
+	// 이전 참조가 남아있으면 델리게이트 해제 후 포인터 정리
+	if (OrbSceneActor)
+	{
+		OrbSceneActor->OnOrbClicked.RemoveDynamic(this, &ULRGachaRevealWidget::HandleOrbClicked);
+		OrbSceneActor->OnAllOrbsRevealed.RemoveDynamic(this, &ULRGachaRevealWidget::HandleAllOrbsRevealed);
+		OrbSceneActor = nullptr;
+	}
+
+	// 1) 레벨에 이미 배치된 OrbSceneActor가 있으면 재사용
 	for (TActorIterator<ALRGachaOrbSceneActor> It(World); It; ++It)
 	{
 		OrbSceneActor = *It;
-		break; // 첫 번째 것만 사용
+		break;
 	}
 
-	// 2) 없으면 C++에서 스폰
+	// 2) 없으면 클래스가 지정된 경우 스폰
 	if (!OrbSceneActor && OrbSceneActorClass)
 	{
 		FActorSpawnParameters Params;
@@ -329,16 +389,19 @@ void ULRGachaRevealWidget::FindOrSpawnOrbSceneActor()
 		);
 	}
 
-	// 3) 델리게이트 구독
+	// 3) 델리게이트 구독(중복 방지 위해 Remove 후 AddUnique)
 	if (OrbSceneActor)
 	{
-		OrbSceneActor->OnOrbClicked.AddDynamic(this, &ULRGachaRevealWidget::HandleOrbClicked);
-		OrbSceneActor->OnAllOrbsRevealed.AddDynamic(this, &ULRGachaRevealWidget::HandleAllOrbsRevealed);
+		OrbSceneActor->OnOrbClicked.RemoveDynamic(this, &ULRGachaRevealWidget::HandleOrbClicked);
+		OrbSceneActor->OnAllOrbsRevealed.RemoveDynamic(this, &ULRGachaRevealWidget::HandleAllOrbsRevealed);
+
+		OrbSceneActor->OnOrbClicked.AddUniqueDynamic(this, &ULRGachaRevealWidget::HandleOrbClicked);
+		OrbSceneActor->OnAllOrbsRevealed.AddUniqueDynamic(this, &ULRGachaRevealWidget::HandleAllOrbsRevealed);
 	}
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  입력 모드 유틸 / UI 닫기
+//  입력 모드 강제 / UI 닫기
 // ─────────────────────────────────────────────────────────────────────────────
 
 void ULRGachaRevealWidget::ForceUIInputNextTick()
@@ -349,6 +412,8 @@ void ULRGachaRevealWidget::ForceUIInputNextTick()
 		return;
 	}
 
+	// 다음 틱에 SetInputMode를 적용
+	// - 위젯 생성 직후/레벨 로드 직후에는 타이밍 이슈로 즉시 적용이 씹히는 경우가 있음
 	GetWorld()->GetTimerManager().SetTimerForNextTick(
 		[PC]()
 		{
@@ -367,13 +432,14 @@ void ULRGachaRevealWidget::ForceUIInputNextTick()
 
 void ULRGachaRevealWidget::CloseSelf()
 {
+	// UIManagerSubsystem이 있으면 그쪽을 통해 닫아야 캐시/스택이 정상 유지됨
 	if (UUIManagerSubsystem* UISys = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
 	{
 		UISys->CloseUI(this);
 	}
 	else
 	{
-		// UIManager가 없으면 안전하게 RemoveFromParent
+		// 폴백
 		RemoveFromParent();
 	}
 }

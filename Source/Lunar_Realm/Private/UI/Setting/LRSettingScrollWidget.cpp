@@ -3,3 +3,10 @@
 
 #include "UI/Setting/LRSettingScrollWidget.h"
 
+void ULRSettingScrollWidget::SetDefaultSettings()
+{
+}
+
+void ULRSettingScrollWidget::SaveAllSettings()
+{
+}
