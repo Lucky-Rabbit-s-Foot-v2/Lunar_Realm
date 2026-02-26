@@ -52,7 +52,6 @@ void ULRChapterSelectorWidget::RefreshUI()
 	{
 		if (ChapterWidget)
 		{
-			LR_SCREEN_INFO(TEXT("Refreshing Chapter Widget: %s"), *ChapterWidget->GetName());
 			ChapterWidget->RefreshUI();
 		}
 	}

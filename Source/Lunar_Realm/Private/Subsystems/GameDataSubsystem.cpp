@@ -36,9 +36,13 @@ void UGameDataSubsystem::Deinitialize()
 	CachedEquipmentBonus.Empty();
 	CachedSetEffectData.Empty();
 	CachedSkillStaticData.Empty();
+	CachedSkillEffectData.Empty();    
+    CachedSkillEffectParameterData.Empty(); 
+    CachedBuffEffectData.Empty();   
 	CachedEnemyStaticData.Empty();
 	CachedStageStaticData.Empty();
 	
+
 	LR_INFO(TEXT("GameDataSubsystem Deinitialize - Cleaned up caches"));
 	
 	Super::Deinitialize();

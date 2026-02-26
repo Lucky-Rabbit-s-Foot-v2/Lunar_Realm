@@ -63,8 +63,6 @@ void UUIManagerSubsystem::NotifyInputModeChange()
 
 void UUIManagerSubsystem::CloseUIInternal(ULRBaseWidget* Widget)
 {
-	LR_SCREEN_INFO(TEXT("Request to close UI: %s"), Widget ? *Widget->GetName() : TEXT("nullptr"));
-
 	if (!Widget || !Widget->IsOpen())
 	{
 		return;

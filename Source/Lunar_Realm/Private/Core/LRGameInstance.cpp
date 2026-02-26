@@ -14,7 +14,7 @@
 
 void ULRGameInstance::OpenNextStage(FName StageID)
 {
-	SetNextLevelName(ELevelName::Stage);
+	SetNextLevelName(ELevelName::STAGE);
 	SetNextStageID(StageID);
 	
 	if (UStageManagerSubsystem* StageManager = GetSubsystem<UStageManagerSubsystem>())
@@ -25,6 +25,12 @@ void ULRGameInstance::OpenNextStage(FName StageID)
 	OpenNextLevelLatent();
 }
 
+void ULRGameInstance::OpenNextLevelByName(ELevelName LevelName)
+{
+	SetNextLevelName(LevelName);
+	OpenNextLevelLatent();
+}
+
 void ULRGameInstance::OpenNextLevel()
 {
 	OpenNextLevelLatent();
@@ -32,20 +38,19 @@ void ULRGameInstance::OpenNextLevel()
 
 void ULRGameInstance::SetNextLevelName(ELevelName LevelName)
 {
-	switch (LevelName)
+	const UMapSettings* MapSettings = GetDefault<UMapSettings>();
+	if (!MapSettings)
 	{
-	case ELevelName::Intro:
-		NextLevelName = FName(Map_Intro.GetLongPackageFName());
-		break;
-	case ELevelName::Stage:
-		NextLevelName = FName(Map_Stage.GetLongPackageFName());
-		break;
-	case ELevelName::Lobby:
-		NextLevelName = FName(Map_Lobby.GetLongPackageFName());
-		break;
-	default:
-		LR_SCREEN_INFO(TEXT("Invalid LevelName enum value"));
-		break;
+		return;
+	}
+
+	if (const TSoftObjectPtr<UWorld>* TargetMapPtr = MapSettings->LevelMap.Find(LevelName))
+	{
+		NextLevelName = FName(TargetMapPtr->GetLongPackageFName());
+	}
+	else
+	{
+		LR_ERROR(TEXT("LevelName %d not found in MapSettings LevelMap"), static_cast<uint8>(LevelName));
 	}
 }
 
@@ -56,9 +61,22 @@ void ULRGameInstance::OpenNextLevelLatent()
 		TimerHandle,
 		[this]()
 		{
-			UUIManagerSubsystem* UIManager = GetSubsystem<UUIManagerSubsystem>();
-			UIManager->ResetAllUIStates();
-			UGameplayStatics::OpenLevel(this, Map_Transition.GetLongPackageFName());
+			const UMapSettings* MapSettings = GetDefault<UMapSettings>();
+			const TSoftObjectPtr<UWorld>* TransitionMap = MapSettings->LevelMap.Find(ELevelName::TRANSITION);
+			
+			if (UUIManagerSubsystem* UIManager = GetSubsystem<UUIManagerSubsystem>())
+			{
+				UIManager->ResetAllUIStates();
+			}
+
+			if (TransitionMap)
+			{
+				UGameplayStatics::OpenLevel(this, FName(TransitionMap->GetLongPackageName()));
+			}
+			else
+			{
+				LR_ERROR(TEXT("TransitionMap not set in MapSettings. Opening level %s directly."), *NextLevelName.ToString());
+			}
 		},
 		0.1f,
 		false
