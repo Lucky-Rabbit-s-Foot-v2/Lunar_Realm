@@ -11,6 +11,12 @@
 void ALRStageGameMode::OnGameOver()
 {
 	LR_SCREEN_INFO(TEXT("Game Over : Not implemented yet"));
+	// 주의사항: UI 애니메이션도 멈춤
+	// TODO : 방법 고민 필요. 일단은 일시정지 로직 재활용
+	OnPauseGame();
+
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	UIManager->OpenUIByID(EUIID::GAMEOVER);
 }
 
 void ALRStageGameMode::OnGameClear()
