@@ -286,6 +286,14 @@ void ALRPlayerCharacter::Die()
 	GetCharacterMovement()->StopMovementImmediately();
 	GetCharacterMovement()->DisableMovement();
 
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->CancelAllAbilities();
+	}
+	if (CombatComponent)
+	{
+		CombatComponent->SetActive(false);
+	}
 	if (DeathMontage)
 	{
 		PlayAnimMontage(DeathMontage);
