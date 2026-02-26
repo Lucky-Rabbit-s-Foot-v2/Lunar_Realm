@@ -18,6 +18,7 @@
 //============================================================================
 // (260128) PJB 제작. 제반 사항 구현.
 // (260224) KHS 수정. GA/GE처리
+// (260226) KHS 수정. VFX/SFX 처리
 //============================================================================
 
 UCLASS()
@@ -30,7 +31,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	
+
 	UFUNCTION()
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) final;
 	virtual void OnLifeTimeExpired() final;
@@ -62,6 +63,9 @@ public:
 private:
 	//GE적용 헬퍼
 	void ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> Effect, float DamageValue);
+	//FX 재생 헬퍼
+	void PlaySpawnEffects();
+	void PlayImpactEffects();
 	
 	FTimerHandle LifeTimeTimerHandle;
 	
@@ -71,6 +75,8 @@ protected:
 	TObjectPtr<class USphereComponent> SphereComp;
 	UPROPERTY(VisibleAnywhere, Category = "LR|Projectile")
 	TObjectPtr<class UProjectileMovementComponent> ProjectileComp;
+	UPROPERTY(VisibleAnywhere, Category = "LR|VFX") 
+	TObjectPtr<class UNiagaraComponent> TrailVFXComponent;
 	
 	//InitData(GA로부터 받는 데이터)
 	UPROPERTY()

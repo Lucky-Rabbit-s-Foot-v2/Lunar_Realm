@@ -46,12 +46,14 @@ void ULRGA_Arrow::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
 
     const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillEffectID);
     const FSkillSpawnData& SpawnData = DataSys->GetSkillSpawnData(SkillEffectID);
+	const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillEffectID);
 
     //FSkillObjectInitData 채우기
     FSkillObjectInitData InitData;
     InitData.DamageEffectClass = DamageEffectClass;
     InitData.StatusEffectClass = nullptr;  // Arrow는 상태이상 없음
     InitData.InstigatorASC     = GetOwnerASC();
+	InitData.ResourceID		   = SkillData.ResourceID;
     InitData.Damage            = EffectData.Damage;
     InitData.Speed             = EffectData.Speed;
     InitData.Lifetime          = EffectData.Lifetime;

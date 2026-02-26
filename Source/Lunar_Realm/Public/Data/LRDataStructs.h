@@ -600,8 +600,12 @@ struct FSkillObjectInitData
 	float Speed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Lifetime;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSkillSpawnData SpawnData;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName ResourceID; 
 };
 
 // Pierce 전용 확장
