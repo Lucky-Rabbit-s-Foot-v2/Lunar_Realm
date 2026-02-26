@@ -60,7 +60,6 @@ void ULRStageSelectorWidget::SetStageData(const TArray<FName>& StageIDs)
 	{
 		if (StageWidgets[i])
 		{
-			LR_SCREEN_INFO(TEXT("Setting Stage ID for Widget %d: %s"), i, *StageIDs[i].ToString());
 			StageWidgets[i]->SetStageID(StageIDs[i]);
 		}
 	}
