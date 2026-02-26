@@ -17,6 +17,7 @@
 //=============================================================================
 // (260206) KHS 제작. 제반 사항 구현.
 // (260209) KWB 스테이지 정적 데이터 테이블 추가.
+// (260226) KHS v1.2 스킬 시스템 개편 — 신규 테이블 참조 추가
 // =============================================================================
 UCLASS()
 class LUNAR_REALM_API ULRGameDataConfig : public UPrimaryDataAsset
@@ -62,13 +63,28 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Ability")
 	TSoftObjectPtr<UDataTable> SkillEffectDataTable;
 	
-	// 스킬효과 추가 요구 파라미터 DataTable(GA 사용) 
+	// (260226) KHS v1.2 스킬 시스템 개편 — 신규 테이블 참조 추가
 	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Ability")
-	TSoftObjectPtr<UDataTable> SkillEffectParameterDataTable;
-	
+	TSoftObjectPtr<UDataTable> SkillSpawnDataTable;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Ability")
+	TSoftObjectPtr<UDataTable> FlightHomingDataTable;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Ability")
+	TSoftObjectPtr<UDataTable> FlightArcDataTable;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Ability")
+	TSoftObjectPtr<UDataTable> FlightPierceDataTable;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Ability")
+	TSoftObjectPtr<UDataTable> FlightExplodeDataTable;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Ability")
+	TSoftObjectPtr<UDataTable> HitAreaDataTable;
+
 	// 스킬 결과 버프/디버프 효과 DataTable(GE 사용) 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Ability")
-	TSoftObjectPtr<UDataTable> BuffEffectDataTable;
+	TSoftObjectPtr<UDataTable> StatusEffectDataTable;
 	
 
 	// 스테이지 정적 데이터 DataTable
