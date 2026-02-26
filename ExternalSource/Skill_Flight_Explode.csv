@@ -1,0 +1,3 @@
+,ExplodeID,SkillEffectID,ExplosionRadius,ExplosionDamageMultiplier
+1,EXPLODE_FIREBALL,EFFECT_FIREBALL,400.0,0.5
+2,EXPLODE_ICEBALL,EFFECT_ICEBALL,300.0,0.5
