@@ -21,6 +21,8 @@
 //=============================================================================
 
 class ALRCharacter;
+class ALRProjectile;
+struct FSkillObjectInitData;
 
 UCLASS()
 class LUNAR_REALM_API ULRGameplayAbilityBase : public UGameplayAbility
@@ -48,6 +50,15 @@ protected:
 	const FGameplayAbilitySpecHandle Handle, 
 	const FGameplayAbilityActorInfo* ActorInfo, 
 	const FGameplayAbilityActivationInfo ActivationInfo);
+	
+	/**
+	 * SpawnData 기반으로 투사체를 스폰하는 공통 헬퍼
+	 * @param ProjectileClass  스폰할 투사체 클래스
+	 * @param InitData         투사체 초기화 데이터
+	 */
+	void SpawnProjectiles(
+		TSubclassOf<ALRProjectile> ProjectileClass,
+		const FSkillObjectInitData& InitData);
 	
 	/*
 	 * GA가 보유한 캐릭터 정보 반환

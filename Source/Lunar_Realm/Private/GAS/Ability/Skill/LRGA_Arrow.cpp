@@ -58,25 +58,7 @@ void ULRGA_Arrow::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
 	InitData.SpawnData         = SpawnData;	
 
     // 투사체 Spawn
-    FVector SpawnLocation  = CachedInstigator->GetActorLocation() + CachedInstigator->GetActorForwardVector() * 200.f;
-    FRotator SpawnRotation = CachedInstigator->GetActorRotation();
-
-    FActorSpawnParameters SpawnParams;
-    SpawnParams.Owner      = const_cast<ALRCharacter*>(CachedInstigator.Get());
-    SpawnParams.Instigator = const_cast<ALRCharacter*>(CachedInstigator.Get());
-
-    ALRProjectile* Projectile = GetWorld()->SpawnActor<ALRProjectile>(
-        ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
-
-    if (!Projectile)
-    {
-        LR_WARN(TEXT(" Spawn Projectile Class is FAILED"));
-        EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-        return;
-    }
-
-    // InitSkillObject 호출
-    Projectile->InitSkillObject(InitData);
+	SpawnProjectiles(ProjectileClass, InitData);
 
     // EndAbility 
     EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
