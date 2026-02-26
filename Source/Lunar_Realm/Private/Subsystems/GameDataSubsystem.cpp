@@ -36,9 +36,13 @@ void UGameDataSubsystem::Deinitialize()
 	CachedEquipmentBonus.Empty();
 	CachedSetEffectData.Empty();
 	CachedSkillStaticData.Empty();
+	CachedSkillEffectData.Empty();    
+    CachedSkillEffectParameterData.Empty(); 
+    CachedBuffEffectData.Empty();   
 	CachedEnemyStaticData.Empty();
 	CachedStageStaticData.Empty();
 	
+
 	LR_INFO(TEXT("GameDataSubsystem Deinitialize - Cleaned up caches"));
 	
 	Super::Deinitialize();
@@ -559,4 +563,19 @@ TArray<FName> UGameDataSubsystem::GetAllEnemyIDs()
 const FStageStaticData& UGameDataSubsystem::GetStageStaticData(FName StageID) const
 {
 	return GetCachedData(CachedStageStaticData, StageID, EmptyStageStaticData, TEXT("StageStaticData"));
+}
+
+const TArray<FName> UGameDataSubsystem::GetAllStageIDsByChapterID(FName ChapterID) const
+{
+	TArray<FName> StageIDs;
+	for (const auto& Param : CachedStageStaticData)
+	{
+		FString StageIDStr = Param.Key.ToString();
+		FString ChapterIDStr = ChapterID.ToString();
+		if (StageIDStr.StartsWith(ChapterIDStr))
+		{
+			StageIDs.Add(Param.Key);
+		}
+	}
+	return StageIDs;
 }

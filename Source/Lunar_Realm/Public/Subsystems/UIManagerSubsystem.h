@@ -216,7 +216,6 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
 	
 
 	ULRBaseWidget* BaseWidget = Widget;
-	LR_INFO(TEXT("Opening UI: %s (Layer: %s)"), *BaseWidget->GetName(), *UEnum::GetValueAsString(BaseWidget->UILayer));
 
 	// UI 레이어가 NONE이면 열 수 없음 (Child Widget으로만 사용 가능)
 	if (BaseWidget->UILayer == EUILayer::NONE)
@@ -236,7 +235,6 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
 
 	switch (BaseWidget->UILayer)
 	{
-		case EUILayer::PAGE:
 		case EUILayer::BACKGROUND:
 		case EUILayer::PERSISTENT:
 		{
@@ -251,11 +249,11 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
 			if (!BaseWidget->IsInViewport())
 			{
 				int32 ZOrder = CalculateZOrder(BaseWidget);
-				LR_INFO(TEXT("Adding %s to viewport with ZOrder %d"), *BaseWidget->GetName(), ZOrder);
 				BaseWidget->AddToViewport(ZOrder);
 			}
 			break;
 		}
+		case EUILayer::PAGE:
 		case EUILayer::POPUP:
 		case EUILayer::SYSTEM:
 		{

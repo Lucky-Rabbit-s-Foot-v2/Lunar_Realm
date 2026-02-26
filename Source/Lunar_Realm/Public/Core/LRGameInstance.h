@@ -4,23 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "Subsystems/Settings/MapSettings.h"
 #include "LRGameInstance.generated.h"
-
-// =============================================================================
-/**
- * 맵 이름 enum class
- */
- // =============================================================================
-
-UENUM(BlueprintType)
-enum class ELevelName : uint8
-{
-	None			UMETA(DisplayName = "None"),
-	Transition		UMETA(DisplayName = "Transition"),
-	Intro			UMETA(DisplayName = "Intro"),
-	Lobby			UMETA(DisplayName = "Lobby"),
-	Stage			UMETA(DisplayName = "Stage")
-};
 
 // =============================================================================
 /**
@@ -41,6 +26,9 @@ public:
 	void OpenNextStage(FName StageID);
 
 	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
+	void OpenNextLevelByName(ELevelName LevelName);
+
+	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
 	void OpenNextLevel();
 
 	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
@@ -59,27 +47,16 @@ private:
 	void OpenNextLevelLatent();
 
 protected:
-	FName NextLevelName = EName::None;
-	FName NextStageID = EName::None;
+	FName NextLevelName = NAME_None;
+	FName NextStageID = NAME_None;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
 	TSubclassOf<class ULRLoadingWidget> LoadingWidgetClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Level Streaming")
-	TSoftObjectPtr<UWorld> Map_Transition;
-
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Level Streaming")
-	TSoftObjectPtr<UWorld> Map_Intro;
-
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Level Streaming")
-	TSoftObjectPtr<UWorld> Map_Lobby;
-
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Level Streaming")
-	TSoftObjectPtr<UWorld> Map_Stage;
-
 public:
 	UPROPERTY()
 	TObjectPtr<class ULRLoadingWidget> LoadingWidgetInstance = nullptr;
+	
 	UFUNCTION(BlueprintCallable, Category = "LR|Stage")
 	void SetCurrentStageID(FName InStageID) { CurrentStageID = InStageID; }
 

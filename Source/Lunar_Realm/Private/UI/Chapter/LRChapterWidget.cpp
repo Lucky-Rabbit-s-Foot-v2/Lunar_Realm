@@ -9,6 +9,7 @@
 
 #include "Engine/GameInstance.h"
 #include "Subsystems/UIManagerSubsystem.h"
+#include "Subsystems/GameDataSubsystem.h"
 
 #include "UI/Chapter/LRStageSelectorWidget.h"
 
@@ -26,8 +27,21 @@ void ULRChapterWidget::UnbindProperties()
 	Super::UnbindProperties();
 }
 
+void ULRChapterWidget::RefreshUI()
+{
+	Super::RefreshUI();
+
+	Txt_Name->SetText(FText::FromName(ChapterID));
+}
+
 void ULRChapterWidget::OnOpenButtonClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	ULRStageSelectorWidget* StageSelectorWidget = UIManager->OpenUI<ULRStageSelectorWidget>(StageSelectorWidgetClass);
+	
+	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+	TArray<FName> StageIDs = GameDataSubsystem->GetAllStageIDsByChapterID(ChapterID);
+	StageSelectorWidget->SetStageData(StageIDs);
+	
 	UIManager->OpenUI<ULRStageSelectorWidget>(StageSelectorWidgetClass);
 }

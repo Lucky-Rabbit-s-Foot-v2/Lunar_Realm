@@ -4,6 +4,7 @@
 #include "GAS/Ability/Player/LRGA_BasicAttack.h"
 #include "Units/Player/Component/LRCombatComponent.h"
 #include "Units/LRCharacter.h"
+#include "GAS/Attributes/LRAttributeSet.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
@@ -37,6 +38,14 @@ void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		LR_ERROR(TEXT("[GA_Attack] 평타 GA 실행 실패 (CommitAbility 실패)"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+
+	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
+	if (ASC && ASC->GetNumericAttributeBase(ULRAttributeSet::GetHealthAttribute()) <= 0.0f)
+	{
+		LR_WARN(TEXT("[GA_Attack] 사망한 상태 공격 강제 취소"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}

@@ -4,7 +4,6 @@
 #include "Subsystems/UIManagerSubsystem.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
-
 void UUIManagerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
@@ -86,8 +85,6 @@ void UUIManagerSubsystem::CloseUIInternal(ULRBaseWidget* Widget)
 		Widget->CloseUI();
 		PersistentUIMap.Remove(Widget->GetClass());
 	}
-
-	Widget->OnCloseUIRequestedDel.RemoveDynamic(this, &UUIManagerSubsystem::CloseUI);
 }
 
 void UUIManagerSubsystem::CloseUI(ULRBaseWidget* Widget)

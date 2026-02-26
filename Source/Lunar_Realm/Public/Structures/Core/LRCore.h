@@ -10,11 +10,13 @@
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
 
+
 #include "LRCore.generated.h"
 
 class UBoxComponent;
 class UStaticMeshComponent;
 class ULRCoreAttributeSet;
+class ULRAttributeSet;
 
 /**
  * LRCore 구성 요소
@@ -80,7 +82,7 @@ protected:
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY()
-	TObjectPtr<ULRCoreAttributeSet> AttributeSet;
+	TObjectPtr<ULRAttributeSet> AttributeSet;
 
 	bool bIsDestroyed;
 };
