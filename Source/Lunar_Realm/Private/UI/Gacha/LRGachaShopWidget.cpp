@@ -25,12 +25,9 @@ void ULRGachaShopWidget::NativeConstruct()
 	}
 
 	// ───────────────── 1) 기본 배너 설정 ─────────────────
-	// - 기본은 영웅 배너로 시작(프로젝트 정책)
 	CurrentBannerID = DefaultHeroBannerID;
 
 	// ───────────────── 2) 리빌에서 돌아온 경우 “배너 복구” ─────────────────
-	// - 리빌 끝나고 로비로 돌아오면 샵을 자동으로 열되,
-	//   직전에 뽑았던 배너 탭 상태를 유지하기 위해 Subsystem에 저장해둔 배너를 소비
 	if (GachaSys)
 	{
 		FName ReturnBanner;
@@ -52,35 +49,45 @@ void ULRGachaShopWidget::NativeConstruct()
 
 	if (ButtonHeroTab)
 	{
-		ButtonHeroTab->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickHeroTab);
+		ButtonHeroTab->OnClicked.RemoveDynamic(this, &ULRGachaShopWidget::OnClickHeroTab);
+		ButtonHeroTab->OnClicked.AddUniqueDynamic(this, &ULRGachaShopWidget::OnClickHeroTab);
 	}
+
 	if (ButtonEquipTab)
 	{
-		ButtonEquipTab->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickEquipTab);
+		ButtonEquipTab->OnClicked.RemoveDynamic(this, &ULRGachaShopWidget::OnClickEquipTab);
+		ButtonEquipTab->OnClicked.AddUniqueDynamic(this, &ULRGachaShopWidget::OnClickEquipTab);
 	}
 
 	if (ButtonCrescentDraw1)
 	{
-		ButtonCrescentDraw1->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickCrescentDraw1);
+		ButtonCrescentDraw1->OnClicked.RemoveDynamic(this, &ULRGachaShopWidget::OnClickCrescentDraw1);
+		ButtonCrescentDraw1->OnClicked.AddUniqueDynamic(this, &ULRGachaShopWidget::OnClickCrescentDraw1);
 	}
 	if (ButtonCrescentDraw10)
 	{
-		ButtonCrescentDraw10->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickCrescentDraw10);
+		ButtonCrescentDraw10->OnClicked.RemoveDynamic(this, &ULRGachaShopWidget::OnClickCrescentDraw10);
+		ButtonCrescentDraw10->OnClicked.AddUniqueDynamic(this, &ULRGachaShopWidget::OnClickCrescentDraw10);
 	}
 	if (ButtonFullMoonDraw1)
 	{
-		ButtonFullMoonDraw1->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickFullMoonDraw1);
+		ButtonFullMoonDraw1->OnClicked.RemoveDynamic(this, &ULRGachaShopWidget::OnClickFullMoonDraw1);
+		ButtonFullMoonDraw1->OnClicked.AddUniqueDynamic(this, &ULRGachaShopWidget::OnClickFullMoonDraw1);
 	}
 	if (ButtonFullMoonDraw10)
 	{
-		ButtonFullMoonDraw10->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickFullMoonDraw10);
+		ButtonFullMoonDraw10->OnClicked.RemoveDynamic(this, &ULRGachaShopWidget::OnClickFullMoonDraw10);
+		ButtonFullMoonDraw10->OnClicked.AddUniqueDynamic(this, &ULRGachaShopWidget::OnClickFullMoonDraw10);
 	}
 
-	// ───────────────── 4) 델리게이트 구독(재화/천장 변경 시 UI 자동 갱신) ─────────────────
+	// ───────────────── 4) 델리게이트 구독(재화/천장 변경) ─────────────────
 	if (GachaSys)
 	{
-		GachaSys->OnCurrencyChanged.AddDynamic(this, &ULRGachaShopWidget::HandleCurrencyChanged);
-		GachaSys->OnPityChanged.AddDynamic(this, &ULRGachaShopWidget::HandlePityChanged);
+		GachaSys->OnCurrencyChanged.RemoveDynamic(this, &ULRGachaShopWidget::HandleCurrencyChanged);
+		GachaSys->OnCurrencyChanged.AddUniqueDynamic(this, &ULRGachaShopWidget::HandleCurrencyChanged);
+
+		GachaSys->OnPityChanged.RemoveDynamic(this, &ULRGachaShopWidget::HandlePityChanged);
+		GachaSys->OnPityChanged.AddUniqueDynamic(this, &ULRGachaShopWidget::HandlePityChanged);
 	}
 
 	// ───────────────── 5) 초기 UI 갱신 ─────────────────
@@ -88,9 +95,6 @@ void ULRGachaShopWidget::NativeConstruct()
 	RefreshPityText();
 
 	// ───────────────── 6) 튕김 복구(안전장치) ─────────────────
-	// - SaveGame에 Pending 트랜잭션이 남아있으면:
-	//   “이미 비용 차감 + 결과 확정 저장”까지 된 상태일 수 있다.
-	// - 따라서 진입 시 자동 커밋 후 다시 리빌 맵으로 이동시켜 UX를 이어준다.
 	if (GachaSys)
 	{
 		FLRGachaPendingTransaction Pending;
@@ -118,7 +122,6 @@ void ULRGachaShopWidget::NativeConstruct()
 				return;
 			}
 
-			// 리빌 맵으로 결과 넘기기
 			GachaSys->SetPendingReveal(Pending.BannerID, Pending.TxnId, Pending.Results);
 			UGameplayStatics::OpenLevel(this, FName(TEXT("GachaRevealMap")));
 			return;
@@ -128,7 +131,16 @@ void ULRGachaShopWidget::NativeConstruct()
 
 void ULRGachaShopWidget::NativeDestruct()
 {
-	// ───────────────── 델리게이트 해제 ─────────────────
+	// ───────────────── 버튼 델리게이트 해제 ─────────────────
+	if (ButtonHome)          ButtonHome->OnClicked.RemoveDynamic(this, &ULRGachaShopWidget::OnClickHome);
+	if (ButtonHeroTab)       ButtonHeroTab->OnClicked.RemoveDynamic(this, &ULRGachaShopWidget::OnClickHeroTab);
+	if (ButtonEquipTab)      ButtonEquipTab->OnClicked.RemoveDynamic(this, &ULRGachaShopWidget::OnClickEquipTab);
+	if (ButtonCrescentDraw1) ButtonCrescentDraw1->OnClicked.RemoveDynamic(this, &ULRGachaShopWidget::OnClickCrescentDraw1);
+	if (ButtonCrescentDraw10)ButtonCrescentDraw10->OnClicked.RemoveDynamic(this, &ULRGachaShopWidget::OnClickCrescentDraw10);
+	if (ButtonFullMoonDraw1) ButtonFullMoonDraw1->OnClicked.RemoveDynamic(this, &ULRGachaShopWidget::OnClickFullMoonDraw1);
+	if (ButtonFullMoonDraw10)ButtonFullMoonDraw10->OnClicked.RemoveDynamic(this, &ULRGachaShopWidget::OnClickFullMoonDraw10);
+
+	// ───────────────── Subsystem 델리게이트 해제 ─────────────────
 	if (GachaSys)
 	{
 		GachaSys->OnCurrencyChanged.RemoveDynamic(this, &ULRGachaShopWidget::HandleCurrencyChanged);
