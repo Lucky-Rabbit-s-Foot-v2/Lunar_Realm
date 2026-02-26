@@ -8,6 +8,8 @@
 #include "Data/LREnumType.h"
 #include "Engine/DataTable.h"
 #include "Engine/SkeletalMesh.h"
+#include "NiagaraSystem.h"
+#include "Sound/SoundBase.h"
 #include "LRDataStructs.generated.h"
 
 
@@ -351,6 +353,9 @@ struct FSkillStaticData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName SkillEffectID; //DT_SkillEffect(FK)
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName ResourceID; //DT_SkillResource FK
+	
 	// 실제 GA 클래스
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<TSoftClassPtr<UGameplayAbility>> GrantedAbilities;
@@ -369,11 +374,37 @@ struct FSkillStaticData : public FTableRowBase
     
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText Description;
-    
+	
+};
+
+// (260226) KHS v1.2 신규 추가 — 스킬 리소스 데이터
+USTRUCT(BlueprintType)
+struct FSkillResourceData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName ResourceID; // RESOURCE_ARROW
+
+	// UI
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<UTexture2D> SkillIcon;
-    
-	
+
+	// 스폰 시
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UNiagaraSystem> SpawnVFX;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<USoundBase> SpawnSFX;
+
+	// 비행 중 트레일
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UNiagaraSystem> TrailVFX;
+
+	// 충돌/소멸 시
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UNiagaraSystem> ImpactVFX;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<USoundBase> ImpactSFX;
 };
 
 
@@ -628,7 +659,7 @@ struct FArcSkillObjectInitData : public FSkillObjectInitData
 
 // =============================================================================
 /** 
- * FBuffEffectData 구성 요소
+ * FStatusEffectData 구성 요소
  * - 스킬로 인한 버프/디버프 효과 정적데이터
  */
 //=============================================================================
