@@ -27,6 +27,8 @@ public:
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 	
+	virtual void RefreshUI() override;
+
 	UPROPERTY(BlueprintAssignable, Category = "LR|Event")
 	FOnChapterOpenClicked OnChapterOpenClickedDel;
 

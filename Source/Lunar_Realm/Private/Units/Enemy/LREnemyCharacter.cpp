@@ -20,6 +20,7 @@
 #include "System/LoggingSystem.h"
 
 #include "Units/LRAIController.h"
+#include "Units/Enemy/LREnemyAIController.h"
 
 ALREnemyCharacter::ALREnemyCharacter()
 {
@@ -34,7 +35,10 @@ void ALREnemyCharacter::OnDie()
 	 // 1. AI 비활성화
 	if (AAIController* AIController = Cast<AAIController>(GetController()))
 	{
-		AIController->BrainComponent->StopLogic(TEXT("Dead"));
+		if (AIController->BrainComponent)
+		{
+			AIController->BrainComponent->StopLogic(TEXT("Dead"));
+		}
 	}
 
 	// 2. 충돌 비활성화 (추가 공격 방지)
@@ -76,6 +80,11 @@ void ALREnemyCharacter::OnDie()
 
 void ALREnemyCharacter::InitializeByEnemyID(FName EnemyID)
 {
+	// TEMP : #55 안움직이는 버그 수정 때 필요
+	//LR_INFO(TEXT("[%s] InitializeByEnemyID - Controller: %s"),
+	//	*GetName(),
+	//	GetController() ? *GetController()->GetName() : TEXT("NULL"));
+
 	CurrentEnemyID = EnemyID;
 
 	// 데이터 서브시스템에서 전체 에너미 데이터 조회
@@ -214,11 +223,11 @@ void ALREnemyCharacter::ApplyVisualData(const FEnemyStaticData& EnemyData)
 		if (AnimClass)
 		{
 			MeshComp->SetAnimInstanceClass(AnimClass);
-			LR_INFO(TEXT("Enemy [%s] AnimBP set to [%s]"), *CurrentEnemyID.ToString(), *AnimClass->GetName());	// TODO: AnimBP 넣고 테스트
+			// LR_INFO(TEXT("Enemy [%s] AnimBP set to [%s]"), *CurrentEnemyID.ToString(), *AnimClass->GetName());	// TODO: AnimBP 넣고 테스트
 		}
 		else
 		{
-			LR_WARN(TEXT("Failed to load AnimBlueprintClass for [%s]"), *CurrentEnemyID.ToString());
+			// LR_WARN(TEXT("Failed to load AnimBlueprintClass for [%s]"), *CurrentEnemyID.ToString());
 		}
 	}
 
@@ -247,18 +256,9 @@ void ALREnemyCharacter::GrantEnemyAbilities()
 
 	TArray<FName> SkillIDs = DataSys->GetEnemySkillIDs(CurrentEnemyID);
 
-	// TEMP
-	//LR_INFO(TEXT("[%s] GrantEnemyAbilities - SkillIDs Count: %d"), *CurrentEnemyID.ToString(), SkillIDs.Num());
-
 	for (FName SkillID : SkillIDs)
 	{
-		// TEMP
-		//LR_INFO(TEXT("  Processing SkillID: %s"), *SkillID.ToString());
-
 		const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillID);
-
-		// TEMP
-		//LR_INFO(TEXT("  Granted Abilities Count: %d"), SkillData.GrantedAbilities.Num());
 
 		for (const TSoftClassPtr<UGameplayAbility>& SoftAbilityClass : SkillData.GrantedAbilities)
 		{
@@ -276,29 +276,19 @@ void ALREnemyCharacter::GrantEnemyAbilities()
 				continue;
 			}
 
-			// TEMP
-			//LR_INFO(TEXT("  Loading Ability: %s"), *AbilityClass->GetName());
-
 			FGameplayAbilitySpec Spec(AbilityClass, 1, INDEX_NONE, this);
 			FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
 
 			if (Handle.IsValid())
 			{
 				GrantedAbilityHandles.Add(Handle);
-
-				// TEMP
-				//LR_INFO(TEXT("  ✓ Successfully granted ability: %s"), *AbilityClass->GetName());
 			}
 			else
 			{
-				// TEMP
-				LR_ERROR(TEXT("  ✗ Failed to grant ability: %s"), *AbilityClass->GetName());
+				LR_ERROR(TEXT("Failed to grant ability: %s"), *AbilityClass->GetName());
 			}
 		}
 	}
-
-	// TEMP
-	//LR_INFO(TEXT("[%s] Total Granted Abilities: %d"), *CurrentEnemyID.ToString(), GrantedAbilityHandles.Num());
 }
 
 void ALREnemyCharacter::ClearGrantedEnemyAbilities()
@@ -321,12 +311,24 @@ void ALREnemyCharacter::ClearGrantedEnemyAbilities()
 
 void ALREnemyCharacter::OnPoolActivate_Implementation()
 {
-	// TEMP
-	LR_INFO(TEXT("[%s] OnPoolActivate called"), *GetName());
+	if (!GetController())
+	{
+		UPoolingSubsystem* PoolingSystem = GetWorld()->GetSubsystem<UPoolingSubsystem>();
+		if (PoolingSystem)
+		{
+			AController* PooledController = Cast<AController>(
+				PoolingSystem->SpawnPooledActor(
+					ALREnemyAIController::StaticClass(),
+					FTransform::Identity
+				)
+			);
 
-	SetActorHiddenInGame(false);
-	SetActorEnableCollision(true);
-	SetActorTickEnabled(true);
+			if (PooledController)
+			{
+				PooledController->Possess(this);
+			}
+		}
+	}
 
 	if (UCapsuleComponent* Capsule = GetCapsuleComponent())
 	{
@@ -344,25 +346,29 @@ void ALREnemyCharacter::OnPoolActivate_Implementation()
 	{
 		MoveComp->SetMovementMode(MOVE_Walking);
 		MoveComp->SetActive(true);
+		MoveComp->SetComponentTickEnabled(true);
 	}
 
-	// AI 컨트롤러 재빙의
-	// SpawnDefaultController()를 호출하면 AIControllerClass에 설정된 컨트롤러가 빙의됨
-	// TODO: 테스트 후 다시 확인
-	if (!GetController())
+	if (AbilitySystemComponent)
 	{
-		SpawnDefaultController();
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	}
 
-	// TEMP 
-	LR_INFO(TEXT("[%s] OnPoolActivate completed, Location: %s"),
-		*GetName(), *GetActorLocation().ToString());
+	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
+	SetActorTickEnabled(true);
 }
 
 void ALREnemyCharacter::OnPoolDeactivate_Implementation()
 {
 	if (AController* Ctrl = GetController())
 	{
+		UPoolingSubsystem* PoolingSystem = GetWorld()->GetSubsystem<UPoolingSubsystem>();
+		if (PoolingSystem)
+		{
+			PoolingSystem->ReturnToPool(Ctrl);
+		}
+
 		Ctrl->UnPossess();
 	}
 
@@ -370,6 +376,7 @@ void ALREnemyCharacter::OnPoolDeactivate_Implementation()
 	{
 		MoveComp->StopMovementImmediately();
 		MoveComp->DisableMovement();
+		MoveComp->SetComponentTickEnabled(false);
 	}
 
 	SetActorEnableCollision(false);

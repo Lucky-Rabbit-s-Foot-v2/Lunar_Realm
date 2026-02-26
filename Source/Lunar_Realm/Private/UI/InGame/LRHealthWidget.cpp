@@ -9,10 +9,14 @@
 
 void ULRHealthWidget::BindToASC(UAbilitySystemComponent* ASC)
 {
+	LR_WARN(TEXT("Initializing Player Widget GAS with ASC: %s"), *GetNameSafe(ASC));
+
 	if (!ASC)
 	{
 		return;
 	}
+
+	LR_WARN(TEXT("Initializing Player Widget GAS with ASC: %s"), *GetNameSafe(ASC));
 
 	bool bFoundHealth = false;
 	bool bFoundMaxHealth = false;

@@ -27,6 +27,7 @@
 // (260208) KWB 스테이지 데이터 관련 항목 추가 : EnemySpawner에서 필요
 // (260208) KWB 에너미 스킬 데이터 조회 함수 추가
 // (260224) KHS GA필요 데이터 추가.
+// (260225) PJB 챕터로 스테이지 불러오기
 // =============================================================================
 
 UCLASS()
@@ -121,6 +122,9 @@ public:
 	// ========================================
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Stage")
 	const FStageStaticData& GetStageStaticData(FName StageID) const;
+
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Stage")
+	const TArray<FName> GetAllStageIDsByChapterID(FName ChapterID) const;
 
 private:
 	// ========================================

@@ -7,10 +7,6 @@
 
 ULREnemyAttributeSet::ULREnemyAttributeSet()
 {
-	// TEMP : 추후 실제 값으로 변경 필요
-	InitHealth(10.0f);
-	InitAttack(20.0f);
-	InitSpeed(150.0f);
 }
 
 void ULREnemyAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -53,7 +49,6 @@ void ULREnemyAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 
 			if (ALREnemyCharacter* EnemyChar = Cast<ALREnemyCharacter>(OwnerActor))
 			{
-				LR_INFO(TEXT("[%s] Health reached 0, calling OnDie()"), *EnemyChar->GetName());
 				EnemyChar->OnDie();
 			}
 		}

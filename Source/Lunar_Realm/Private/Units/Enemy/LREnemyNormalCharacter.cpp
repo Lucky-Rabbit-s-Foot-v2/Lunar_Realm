@@ -9,7 +9,7 @@
 ALREnemyNormalCharacter::ALREnemyNormalCharacter()
 {
 	AIControllerClass = ALREnemyAIController::StaticClass();
-    AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+    AutoPossessAI = EAutoPossessAI::Disabled;
 
     UnitTag = LRTags::Team_Enemy_Character_Normal;
 }

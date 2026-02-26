@@ -30,6 +30,9 @@ public:
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
+	virtual void RefreshUI() override;
+
+	void SetStageID(FName InStageID);
 
 	UPROPERTY(BlueprintAssignable, Category = "LR|Event")
 	FOnStageOpenClicked OnStageOpenClickedDel;
