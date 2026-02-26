@@ -1,4 +1,5 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// LRGachaShopWidget.cpp
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "UI/Gacha/LRGachaShopWidget.h"
 
@@ -17,16 +18,38 @@ void ULRGachaShopWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	// ───────────────── Subsystem 참조 ─────────────────
+	// ───────────────── 0) Subsystem 참조 ─────────────────
 	if (UGameInstance* GI = GetGameInstance())
 	{
 		GachaSys = GI->GetSubsystem<ULRGachaSubsystem>();
 	}
 
-	// 기본 배너는 영웅으로 시작
+	// ───────────────── 1) 기본 배너 설정 ─────────────────
+	// - 기본은 영웅 배너로 시작(프로젝트 정책)
 	CurrentBannerID = DefaultHeroBannerID;
 
-	// ───────────────── 버튼 바인딩 ─────────────────
+	// ───────────────── 2) 리빌에서 돌아온 경우 “배너 복구” ─────────────────
+	// - 리빌 끝나고 로비로 돌아오면 샵을 자동으로 열되,
+	//   직전에 뽑았던 배너 탭 상태를 유지하기 위해 Subsystem에 저장해둔 배너를 소비
+	if (GachaSys)
+	{
+		FName ReturnBanner;
+		if (GachaSys->ConsumePendingReturnShopBanner(ReturnBanner))
+		{
+			if (!ReturnBanner.IsNone())
+			{
+				CurrentBannerID = ReturnBanner;
+			}
+		}
+	}
+
+	// ───────────────── 3) 버튼 바인딩 ─────────────────
+	if (ButtonHome)
+	{
+		ButtonHome->OnClicked.RemoveDynamic(this, &ULRGachaShopWidget::OnClickHome);
+		ButtonHome->OnClicked.AddUniqueDynamic(this, &ULRGachaShopWidget::OnClickHome);
+	}
+
 	if (ButtonHeroTab)
 	{
 		ButtonHeroTab->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickHeroTab);
@@ -53,20 +76,21 @@ void ULRGachaShopWidget::NativeConstruct()
 		ButtonFullMoonDraw10->OnClicked.AddDynamic(this, &ULRGachaShopWidget::OnClickFullMoonDraw10);
 	}
 
-	// ───────────────── 델리게이트 구독 ─────────────────
-	// 재화/천장 변경 시 UI 자동 갱신
+	// ───────────────── 4) 델리게이트 구독(재화/천장 변경 시 UI 자동 갱신) ─────────────────
 	if (GachaSys)
 	{
 		GachaSys->OnCurrencyChanged.AddDynamic(this, &ULRGachaShopWidget::HandleCurrencyChanged);
 		GachaSys->OnPityChanged.AddDynamic(this, &ULRGachaShopWidget::HandlePityChanged);
 	}
 
-	// 초기 UI 갱신
+	// ───────────────── 5) 초기 UI 갱신 ─────────────────
 	RefreshCurrencyTexts();
 	RefreshPityText();
 
-	// ───────────────── 튕김 복구 처리 ─────────────────
-	// Pending 트랜잭션이 남아있으면 "자동 커밋" 후 리빌을 다시 보여줌.
+	// ───────────────── 6) 튕김 복구(안전장치) ─────────────────
+	// - SaveGame에 Pending 트랜잭션이 남아있으면:
+	//   “이미 비용 차감 + 결과 확정 저장”까지 된 상태일 수 있다.
+	// - 따라서 진입 시 자동 커밋 후 다시 리빌 맵으로 이동시켜 UX를 이어준다.
 	if (GachaSys)
 	{
 		FLRGachaPendingTransaction Pending;
@@ -75,7 +99,7 @@ void ULRGachaShopWidget::NativeConstruct()
 			UE_LOG(
 				LogLRGachaShop,
 				Warning,
-				TEXT("[GachaShop] Pending Txn found on enter. Auto-committing. Banner=%s Txn=%s Results=%d"),
+				TEXT("[GachaShop] Pending Txn 발견 → 자동 커밋 후 리빌 재진입. Banner=%s Txn=%s Results=%d"),
 				*Pending.BannerID.ToString(),
 				*Pending.TxnId.ToString(),
 				Pending.Results.Num()
@@ -87,14 +111,14 @@ void ULRGachaShopWidget::NativeConstruct()
 				UE_LOG(
 					LogLRGachaShop,
 					Error,
-					TEXT("[GachaShop] Auto-commit failed. Banner=%s Txn=%s"),
+					TEXT("[GachaShop] 자동 커밋 실패. Banner=%s Txn=%s"),
 					*Pending.BannerID.ToString(),
 					*Pending.TxnId.ToString()
 				);
 				return;
 			}
 
-			// 새 플로우 - 리빌 맵으로 넘기기 (TxnId도 같이 넘김)
+			// 리빌 맵으로 결과 넘기기
 			GachaSys->SetPendingReveal(Pending.BannerID, Pending.TxnId, Pending.Results);
 			UGameplayStatics::OpenLevel(this, FName(TEXT("GachaRevealMap")));
 			return;
@@ -104,7 +128,7 @@ void ULRGachaShopWidget::NativeConstruct()
 
 void ULRGachaShopWidget::NativeDestruct()
 {
-	// 델리게이트 해제
+	// ───────────────── 델리게이트 해제 ─────────────────
 	if (GachaSys)
 	{
 		GachaSys->OnCurrencyChanged.RemoveDynamic(this, &ULRGachaShopWidget::HandleCurrencyChanged);
@@ -114,7 +138,9 @@ void ULRGachaShopWidget::NativeDestruct()
 	Super::NativeDestruct();
 }
 
-// ───────────────── Draw 공통 처리 ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  Draw 공통 처리: 트랜잭션 시작 → 커밋 → PendingReveal → 레벨 이동
+// ─────────────────────────────────────────────────────────────────────────────
 
 void ULRGachaShopWidget::TryBeginDrawAndOpenReveal(FName BannerID, int32 Count)
 {
@@ -123,7 +149,7 @@ void ULRGachaShopWidget::TryBeginDrawAndOpenReveal(FName BannerID, int32 Count)
 		return;
 	}
 
-	// 새로고침: UI 표시와 실제 값이 어긋나지 않게 선반영
+	// UI 표시와 실제 값 불일치 방지(선 갱신)
 	RefreshPityText();
 
 	int32 NeedCost = 0;
@@ -133,7 +159,7 @@ void ULRGachaShopWidget::TryBeginDrawAndOpenReveal(FName BannerID, int32 Count)
 		UE_LOG(
 			LogLRGachaShop,
 			Warning,
-			TEXT("[GachaShop] CanDraw Failed. Banner=%s Count=%d NeedCost=%d"),
+			TEXT("[GachaShop] CanDraw 실패. Banner=%s Count=%d NeedCost=%d"),
 			*BannerID.ToString(),
 			Count,
 			NeedCost
@@ -144,68 +170,82 @@ void ULRGachaShopWidget::TryBeginDrawAndOpenReveal(FName BannerID, int32 Count)
 	FGuid TxnId;
 	TArray<FLRGachaResult> Results;
 
-	// 트랜잭션 시작(비용 차감 + 결과 확정 저장)
+	// 1) 트랜잭션 시작: 비용 차감 + 결과 확정/저장 (지급은 아직 X)
 	const bool bOk = GachaSys->BeginDrawTransaction(BannerID, Count, TxnId, Results);
 	if (!bOk || !TxnId.IsValid() || Results.Num() == 0)
 	{
 		UE_LOG(
 			LogLRGachaShop,
 			Error,
-			TEXT("[GachaShop] BeginDrawTransaction Failed. Banner=%s Count=%d"),
+			TEXT("[GachaShop] BeginDrawTransaction 실패. Banner=%s Count=%d"),
 			*BannerID.ToString(),
 			Count
 		);
 		return;
 	}
 
-	// 디버그 로그
 	UE_LOG(
 		LogLRGachaShop,
 		Log,
-		TEXT("[GachaShop] Txn Started. Banner=%s Count=%d Txn=%s Results=%d"),
+		TEXT("[GachaShop] Txn 시작. Banner=%s Count=%d Txn=%s Results=%d"),
 		*BannerID.ToString(),
 		Count,
 		*TxnId.ToString(),
 		Results.Num()
 	);
 
-	// 바로 커밋(지급 확정)
-	// 연출 보는 도중 취소로 이득을 보는 걸 막기 위한 설계
+	// 2) 즉시 커밋(지급 확정)
+	// - 연출 도중 앱 종료/취소로 이득을 보는 것을 막기 위한 정책
 	const bool bCommitted = GachaSys->CommitTransaction(TxnId);
 	if (!bCommitted)
 	{
 		UE_LOG(
 			LogLRGachaShop,
 			Error,
-			TEXT("[GachaShop] Auto-commit failed. Banner=%s Txn=%s"),
+			TEXT("[GachaShop] Auto-commit 실패. Banner=%s Txn=%s"),
 			*BannerID.ToString(),
 			*TxnId.ToString()
 		);
 		return;
 	}
 
-	// 리빌 맵으로 결과 넘기기
+	// 3) 리빌 맵으로 넘길 결과를 Subsystem에 캐시
 	GachaSys->SetPendingReveal(BannerID, TxnId, Results);
+
+	// 4) 레벨 전환 전에 Shop UI 닫기
+	// - UIManager 캐시에 “열림 상태”가 남아 검은 화면/입력 꼬임이 생기는 것을 방지
+	if (UUIManagerSubsystem* UISys = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
+	{
+		UISys->CloseUI(this);
+	}
+	else
+	{
+		RemoveFromParent();
+	}
+
+	// 5) 리빌 맵으로 이동
 	UGameplayStatics::OpenLevel(this, FName(TEXT("GachaRevealMap")));
 }
 
-// ───────────────── 탭 버튼 콜백 ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  탭 버튼
+// ─────────────────────────────────────────────────────────────────────────────
 
 void ULRGachaShopWidget::OnClickHeroTab()
 {
-	// Hero_FullMoon 기준
 	CurrentBannerID = DefaultHeroBannerID;
 	RefreshPityText();
 }
 
 void ULRGachaShopWidget::OnClickEquipTab()
 {
-	// Equip_FullMoon 기준
 	CurrentBannerID = DefaultEquipBannerID;
 	RefreshPityText();
 }
 
-// ───────────────── Draw 버튼 콜백 ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  Draw 버튼
+// ─────────────────────────────────────────────────────────────────────────────
 
 void ULRGachaShopWidget::OnClickCrescentDraw1()
 {
@@ -231,11 +271,13 @@ void ULRGachaShopWidget::OnClickFullMoonDraw10()
 	TryBeginDrawAndOpenReveal(BannerID, 10);
 }
 
-// ───────────────── 델리게이트 핸들러 ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  델리게이트 핸들러(서브시스템 이벤트)
+// ─────────────────────────────────────────────────────────────────────────────
 
 void ULRGachaShopWidget::HandleCurrencyChanged(ELRCurrencyType Type, int32 /*NewValue*/)
 {
-	// 어떤 재화가 바뀌든 전체 텍스트를 갱신
+	// 어떤 재화가 변하든 상단 표시 전체를 갱신
 	RefreshCurrencyTexts();
 }
 
@@ -250,7 +292,9 @@ void ULRGachaShopWidget::HandlePityChanged(FName BannerID, int32 /*NewValue*/)
 	}
 }
 
-// ───────────────── UI 갱신 헬퍼 ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  UI 갱신
+// ─────────────────────────────────────────────────────────────────────────────
 
 void ULRGachaShopWidget::RefreshCurrencyTexts()
 {
@@ -263,18 +307,9 @@ void ULRGachaShopWidget::RefreshCurrencyTexts()
 	const int32 Crescent = GachaSys->GetCurrency(ELRCurrencyType::CrescentTicket);
 	const int32 FullMoon = GachaSys->GetCurrency(ELRCurrencyType::FullMoonTicket);
 
-	if (TextGold)
-	{
-		TextGold->SetText(FText::AsNumber(Gold));
-	}
-	if (TextCrescent)
-	{
-		TextCrescent->SetText(FText::AsNumber(Crescent));
-	}
-	if (TextFullMoon)
-	{
-		TextFullMoon->SetText(FText::AsNumber(FullMoon));
-	}
+	if (TextGold)     TextGold->SetText(FText::AsNumber(Gold));
+	if (TextCrescent) TextCrescent->SetText(FText::AsNumber(Crescent));
+	if (TextFullMoon) TextFullMoon->SetText(FText::AsNumber(FullMoon));
 }
 
 void ULRGachaShopWidget::RefreshPityText()
@@ -295,30 +330,82 @@ void ULRGachaShopWidget::RefreshPityText()
 	);
 }
 
-// ───────────────── 헬퍼 ─────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  배너 계산 헬퍼
+// ─────────────────────────────────────────────────────────────────────────────
 
 bool ULRGachaShopWidget::IsHeroTabSelected() const
 {
-	// 배너 이름이 "Hero_" 로 시작하면 영웅 탭으로 판단 (현재 네이밍 규칙 기준)
-	const FString BannerString = CurrentBannerID.ToString();
-	return BannerString.StartsWith(TEXT("Hero_"));
+	// 배너 이름이 "Hero_" 로 시작하면 영웅 탭으로 판단(현재 네이밍 규칙 기준)
+	return CurrentBannerID.ToString().StartsWith(TEXT("Hero_"));
 }
 
 FName ULRGachaShopWidget::MakeBannerIDForTicket(const bool bFullMoon) const
 {
-	// 배너 네이밍 규칙: Hero_FullMoon / Hero_Crescent / Equip_FullMoon / Equip_Crescent
+	// 배너 네이밍 규칙:
+	// Hero_FullMoon / Hero_Crescent / Equip_FullMoon / Equip_Crescent
 	const bool bHero = IsHeroTabSelected();
 
 	if (bHero)
 	{
-		return bFullMoon
-			? FName(TEXT("Hero_FullMoon"))
-			: FName(TEXT("Hero_Crescent"));
+		return bFullMoon ? FName(TEXT("Hero_FullMoon")) : FName(TEXT("Hero_Crescent"));
 	}
 	else
 	{
-		return bFullMoon
-			? FName(TEXT("Equip_FullMoon"))
-			: FName(TEXT("Equip_Crescent"));
+		return bFullMoon ? FName(TEXT("Equip_FullMoon")) : FName(TEXT("Equip_Crescent"));
 	}
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Home 버튼(로비로 돌아가기)
+// ─────────────────────────────────────────────────────────────────────────────
+
+void ULRGachaShopWidget::OnClickHome()
+{
+	// 로비 복귀 시 “샵 자동 오픈” 플래그 끄기
+	// - 사용자가 홈으로 빠지는 경우는 샵 자동 재오픈이 UX에 방해될 수 있음
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (ULRGachaSubsystem* LocalGachaSys = GI->GetSubsystem<ULRGachaSubsystem>())
+		{
+			LocalGachaSys->ClearOpenShopOnLobbyReturn();
+		}
+	}
+
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	// PIE prefix 제거해서 맵 이름 정규화
+	FString MapName = World->GetMapName();
+	const FString Prefix = World->StreamingLevelsPrefix;
+	if (!Prefix.IsEmpty())
+	{
+		MapName.RemoveFromStart(Prefix);
+	}
+
+	// 1) UI 닫기(먼저 닫아야 검은 화면/입력 꼬임이 덜함)
+	if (UUIManagerSubsystem* UISys = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
+	{
+		UISys->CloseUI(this);
+	}
+	else
+	{
+		RemoveFromParent();
+	}
+
+	// 2) 이미 로비 맵이면 레벨 이동 X, 로비 페이지로 전환만
+	if (MapName.Equals(TEXT("Map_Lobby"), ESearchCase::IgnoreCase))
+	{
+		if (UUIManagerSubsystem* UISys = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
+		{
+			UISys->SwitchPageUIByID(EUIID::LOBBY);
+		}
+		return;
+	}
+
+	// 3) 로비 맵이 아니면 로비로 이동
+	UGameplayStatics::OpenLevel(this, FName(TEXT("Map_Lobby")));
 }
