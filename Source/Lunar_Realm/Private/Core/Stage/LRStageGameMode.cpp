@@ -2,22 +2,50 @@
 
 
 #include "Core/Stage/LRStageGameMode.h"
-#include "System/LoggingSystem.h"
 
-void ALRStageGameMode::OnGameOver(bool bInPlayerWon)
+#include "Kismet/GameplayStatics.h"
+#include "Core/LRGameInstance.h"
+#include "Subsystems/Settings/UIManagerSettings.h"
+#include "Subsystems/UIManagerSubsystem.h"
+
+void ALRStageGameMode::OnGameOver()
 {
-	if (bIsGameOver)
-	{
-		return;
-	}
-	bIsGameOver = true;
+	LR_SCREEN_INFO(TEXT("Game Over : Not implemented yet"));
+}
 
-	if (bInPlayerWon)
-	{
-		LR_INFO(TEXT("게임종료 : 플레이어 승리"));
-	}
-	else
-	{
-		LR_INFO(TEXT("게임종료 : 플레이어 패배"));
-	}
+void ALRStageGameMode::OnGameClear()
+{
+	LR_SCREEN_INFO(TEXT("Game Clear : Not implemented yet"));
+}
+
+void ALRStageGameMode::OnRestartGame()
+{
+	OnResetStage();
+	LR_SCREEN_INFO(TEXT("Restart : Not implemented yet"));
+}
+
+void ALRStageGameMode::OnPauseGame()
+{
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
+
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	UIManager->OpenUIByID(EUIID::PAUSE);
+}
+
+void ALRStageGameMode::OnResumeGame()
+{
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
+}
+
+void ALRStageGameMode::OnResetStage()
+{
+	LR_SCREEN_INFO(TEXT("Reset : Not implemented yet"));
+}
+
+void ALRStageGameMode::OnExitStage()
+{
+	OnResumeGame();
+
+	ULRGameInstance* GI = Cast<ULRGameInstance>(GetGameInstance());
+	GI->OpenNextLevelByName(ELevelName::LOBBY);
 }

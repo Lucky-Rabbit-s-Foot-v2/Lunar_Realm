@@ -28,7 +28,10 @@ enum class EUIID : uint8
 	PARTY,
 	COLLECTION,
 	DUTY,
-	SETTING
+	SETTING,
+	PAUSE,
+	GAMEOVER,
+	GAMECLEAR
 };
 
 UCLASS(Config = Game, defaultconfig, meta = (DisplayName = "UI Manager Settings"))

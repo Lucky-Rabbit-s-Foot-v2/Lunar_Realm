@@ -52,7 +52,7 @@ void ALRPlayerCore::OnCoreDestroyed()
 
 	if (ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(UGameplayStatics::GetGameMode(this)))
 	{
-		StageGM->OnGameOver(false);
+		StageGM->OnGameOver();
 	}
 
 }

@@ -5,6 +5,8 @@
 #include "UI/InGame/LRSkillPanelWidget.h"
 
 #include "Components/Button.h"
+#include "Kismet/GameplayStatics.h"
+#include "Core/Stage/LRStageGameMode.h"
 
 #include "UI/InGame/LRAetherWidget.h"
 #include "UI/InGame/LRHealthWidget.h"
@@ -17,10 +19,8 @@ void ULRPlayerWidget::BindProperties()
 {
 	Super::BindProperties();
 
-	if (Btn_Change)
-	{
-		Btn_Change->OnClicked.AddDynamic(this, &ULRPlayerWidget::OnChangeClicked);
-	}
+	if (Btn_Change) Btn_Change->OnClicked.AddDynamic(this, &ULRPlayerWidget::OnChangeClicked);
+	if (Btn_Pause) Btn_Pause->OnClicked.AddDynamic(this, &ULRPlayerWidget::OnPauseButtonClicked);
 }
 
 
@@ -52,19 +52,13 @@ void ULRPlayerWidget::TestSummonPanelRefresh()
 
 void ULRPlayerWidget::InitializeGAS(UAbilitySystemComponent* ASC)
 {
-	LR_WARN(TEXT("Initializing Player Widget GAS with ASC: %s"), *GetNameSafe(ASC));
-
 	if (Widget_Aether)
 	{
-		LR_WARN(TEXT("Initializing Player Widget GAS with ASC: %s"), *GetNameSafe(ASC));
-
 		Widget_Aether->BindToASC(ASC);
 	}
 
 	if (Widget_HealthBar)
 	{
-		LR_WARN(TEXT("Initializing Player Widget GAS with ASC: %s"), *GetNameSafe(ASC));
-
 		Widget_HealthBar->BindToASC(ASC);
 	}
 }
@@ -97,4 +91,10 @@ void ULRPlayerWidget::BindToController(ALRControllerBase* Controller)
 void ULRPlayerWidget::OnChangeClicked()
 {
 	OnChangeClickedDel.Broadcast();
+}
+
+void ULRPlayerWidget::OnPauseButtonClicked()
+{
+	ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(UGameplayStatics::GetGameMode(this));
+	StageGM->OnPauseGame();
 }
