@@ -69,7 +69,7 @@ void UUIManagerSubsystem::CloseUIInternal(ULRBaseWidget* Widget)
 	}
     
 	EUILayer Layer = Widget->UILayer;
-	if (Layer == EUILayer::POPUP || Layer == EUILayer::SYSTEM)
+	if (Layer == EUILayer::POPUP || Layer == EUILayer::SYSTEM || Layer == EUILayer::PAGE)
 	{
 		int32 Index = PopupUIStack.Find(Widget);
 		if (Index != INDEX_NONE)
