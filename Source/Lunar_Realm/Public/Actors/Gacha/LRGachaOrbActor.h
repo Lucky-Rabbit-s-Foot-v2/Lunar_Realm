@@ -45,6 +45,10 @@
  * [BP 이벤트]
  * - BP_OnRevealFinished : 리빌 완료 후 카메라/추가 연출
  */
+
+ // ───────────────── Orb Reveal Finished Delegate ─────────────────
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOrbRevealFinished, int32, OrbIndex);
+
 UCLASS(BlueprintType, Blueprintable)
 class LUNAR_REALM_API ALRGachaOrbActor : public AActor
 {
@@ -52,6 +56,18 @@ class LUNAR_REALM_API ALRGachaOrbActor : public AActor
 
 public:
 	ALRGachaOrbActor();
+
+	/** (SceneActor가 바인딩) 이 Orb의 인덱스 세팅 */
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Orb")
+	void SetOrbIndex(int32 InIndex) { OrbIndex = InIndex; }
+
+	/** 이 Orb 인덱스 */
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Orb")
+	int32 GetOrbIndex() const { return OrbIndex; }
+
+	/** 리빌 연출 완료 시 브로드캐스트 (SceneActor에서 수신) */
+	UPROPERTY(BlueprintAssignable, Category = "LR|Gacha|Orb")
+	FOnOrbRevealFinished OnOrbRevealFinished;
 
 	// AActor
 	virtual void BeginPlay() override;
@@ -135,14 +151,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
 	float EmissiveDuration = 1.5f;
 
-	/** 포커스 시 스케일 (SetFocused에서 사용 예정) */
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
-	float FocusedScale = 1.5f;
-
-	/** 기본 스케일 */
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
-	float DefaultScale = 1.0f;
-
 	/** 머티리얼 컬러 파라미터 이름 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
 	FName ColorParamName = TEXT("OrbColor");
@@ -174,6 +182,10 @@ protected:
 	void BP_OnRevealFinished(ELRGachaRarity Rarity, const FLRGachaResult& Result);
 
 private:
+	/** 캐러셀에서 이 Orb가 담당하는 인덱스 */
+	UPROPERTY()
+	int32 OrbIndex = INDEX_NONE;
+
 	// ===== Runtime State ===================================================
 
 	/** 이번 Orb가 표시하는 가챠 결과 */
