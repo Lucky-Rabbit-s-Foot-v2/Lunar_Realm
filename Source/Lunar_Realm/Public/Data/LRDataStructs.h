@@ -168,7 +168,6 @@ USTRUCT(BlueprintType)
 struct FEquipmentStaticData : public FTableRowBase
 {
 	GENERATED_BODY()
-    
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
 	FName DataID; //EQUIP_FIRE_SWORD

@@ -40,7 +40,7 @@ UAbilitySystemComponent* ALRPlayerState::GetAbilitySystemComponent() const
 
 void ALRPlayerState::InitializePlayerData()
 {
-	// TODO: SaveGameSubsystem에서 플레이어 데이터 로드
+	// TODO_BJM: SaveGameSubsystem에서 플레이어 데이터 로드
 	// 지금은 임시 데이터 넣음
 	CharacterID = FName("CHAR_ARCHER_01");
 	CharacterLevel = FName("1");
@@ -212,16 +212,6 @@ void ALRPlayerState::GrantEquipmentAbilities(EEquipmentSlotType Slot, FName Equi
 
 	//const FCharacterStaticData& CharData = DataSubsystem->GetCharacterStaticData(CharacterID);
 
-	//// 기본공격 GA 부여
-	//if (CharData.PlayerBasicAttackAbility)
-	//{
-	//	FGameplayAbilitySpec Spec(CharData.PlayerBasicAttackAbility, 1, INDEX_NONE, this);
-	//	FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
-	//	CharacterAbilityHandles.Add(Handle);
-
-	//	UE_LOG(LogTemp, Warning, TEXT("[PlayerState] 플레이어 평타 자동 장착 완료: %s"), *CharData.PlayerBasicAttackAbility->GetName());
-	//}
-
 	// 장비 ID로 스킬 ID 목록 조회
 	TArray<FName> SkillIDs = DataSubsystem->GetEquipmentSkillIDs(EquipmentID);
 
@@ -278,43 +268,27 @@ void ALRPlayerState::ActivateSkill1()
 	FName TargetSkillID = SkillIDs[0];
 	const FSkillStaticData& SkillData = DataSubsystem->GetSkillStaticData(TargetSkillID);
 
+	FGameplayTag TriggerTag = SkillData.SkillTag;
+
+	// 태그가 DT에 안 비어있는지 방어 코드 
+	if (!TriggerTag.IsValid())
+	{
+		LR_WARN(TEXT("Skill1 발동 실패: DT에 스킬 트리거 태그가 세팅되지 않음. ID: %s"), *TargetSkillID.ToString());
+		return;
+	}
+
 	//Instigator정보와 Target정보를 이벤트로 등록
 	FGameplayEventData EvenData;
 	EvenData.Instigator = Cast<const AActor>(GetPawn());
 	EvenData.Target = nullptr; //직선형은 타겟 정보 불필요.
 	
-	LR_INFO(TEXT("[ActivateSkill1] Event 발송 시도 - Tag: Ability_Skill_Arrow, Instigator: %s"),
-	GetPawn() ? *GetPawn()->GetName() : TEXT("NULL"));
+	LR_INFO(TEXT("[ActivateSkill1] Event 발송 시도 - Tag: %s, Instigator: %s"),
+		*TriggerTag.ToString(), GetPawn() ? *GetPawn()->GetName() : TEXT("NULL"));
 	
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Cast<AActor>(GetPawn()), LRTags::Ability_Skill_Arrow, EvenData);
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Cast<AActor>(GetPawn()), TriggerTag, EvenData);
+	//UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Cast<AActor>(GetPawn()), LRTags::Ability_Skill_Fireball, EvenData);
 	
 	LR_INFO(TEXT("[ActivateSkill1] Event 발송 완료 (GA 발동 여부는 GA 내부 로그 확인)"));
-	
-	//또 TryActivateAbilityByClass하면 죽인다 죽여버릴거야 진짜 가만안둔다
-	//쓰지말라했는데 또썼어 또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어
-	/*
-	 * 정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아
-	 * 정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아
-	 * 정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아
-	 */
-	// if (SkillData.GrantedAbilities.IsValidIndex(0))
-	// {
-	// 	TSubclassOf<UGameplayAbility> AbilityClass = SkillData.GrantedAbilities[0].LoadSynchronous();
-	//
-	// 	if (AbilityClass)
-	// 	{
-	// 		bool bSuccess = AbilitySystemComponent->TryActivateAbilityByClass(AbilityClass);
-	//
-	// 		if (bSuccess)
-	// 		{
-	// 			LR_WARN(TEXT("Skill1 발동 성공: %s"), *TargetSkillID.ToString());
-	// 		}
-	// 		else
-	// 		{
-	// 			LR_WARN(TEXT("Skill1 발동 실패"));
-	// 		}
-	// 	}
-	// }
 }
 
 void ALRPlayerState::ActivateSkill2()
