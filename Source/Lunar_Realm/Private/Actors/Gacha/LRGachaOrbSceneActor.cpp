@@ -445,14 +445,6 @@ FVector ALRGachaOrbSceneActor::GetOrbPositionForAngle(float AngleDeg) const
 	);
 }
 
-float ALRGachaOrbSceneActor::GetOrbScaleForAngle(float AngleDeg) const
-{
-	// 0deg(정면)일수록 CenterOrbScale, 양옆으로 갈수록 SideOrbScale
-	const float NormAngle = FMath::Abs(FMath::Fmod(AngleDeg + 180.f, 360.f) - 180.f);
-	const float T = 1.f - (NormAngle / 180.f);
-	return FMath::Lerp(SideOrbScale, CenterOrbScale, T);
-}
-
 int32 ALRGachaOrbSceneActor::FindNextUnrevealedIndex(int32 StartIndex, int32 IndexStep, int32& OutStepCount) const
 {
 	const int32 Count = OrbActors.Num();

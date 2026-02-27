@@ -135,14 +135,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
 	float EmissiveDuration = 1.5f;
 
-	/** 포커스 시 스케일 (SetFocused에서 사용 예정) */
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
-	float FocusedScale = 1.5f;
-
-	/** 기본 스케일 */
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
-	float DefaultScale = 1.0f;
-
 	/** 머티리얼 컬러 파라미터 이름 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
 	FName ColorParamName = TEXT("OrbColor");
