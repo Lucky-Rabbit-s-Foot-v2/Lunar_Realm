@@ -284,40 +284,11 @@ void ALRPlayerState::ActivateSkill1()
 	
 	LR_INFO(TEXT("[ActivateSkill1] Event 발송 시도 - Tag: %s, Instigator: %s"),
 		*TriggerTag.ToString(), GetPawn() ? *GetPawn()->GetName() : TEXT("NULL"));
-
-	//LR_INFO(TEXT("[ActivateSkill1] Event 발송 시도 - Tag: Ability_Skill_Arrow, Instigator: %s"),
-	//GetPawn() ? *GetPawn()->GetName() : TEXT("NULL"));
 	
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Cast<AActor>(GetPawn()), TriggerTag, EvenData);
 	//UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Cast<AActor>(GetPawn()), LRTags::Ability_Skill_Fireball, EvenData);
 	
 	LR_INFO(TEXT("[ActivateSkill1] Event 발송 완료 (GA 발동 여부는 GA 내부 로그 확인)"));
-	
-	//또 TryActivateAbilityByClass하면 죽인다 죽여버릴거야 진짜 가만안둔다
-	//쓰지말라했는데 또썼어 또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어또썼어
-	/*
-	 * 정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아
-	 * 정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아
-	 * 정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아정신나갈것같아
-	 */
-	// if (SkillData.GrantedAbilities.IsValidIndex(0))
-	// {
-	// 	TSubclassOf<UGameplayAbility> AbilityClass = SkillData.GrantedAbilities[0].LoadSynchronous();
-	//
-	// 	if (AbilityClass)
-	// 	{
-	// 		bool bSuccess = AbilitySystemComponent->TryActivateAbilityByClass(AbilityClass);
-	//
-	// 		if (bSuccess)
-	// 		{
-	// 			LR_WARN(TEXT("Skill1 발동 성공: %s"), *TargetSkillID.ToString());
-	// 		}
-	// 		else
-	// 		{
-	// 			LR_WARN(TEXT("Skill1 발동 실패"));
-	// 		}
-	// 	}
-	// }
 }
 
 void ALRPlayerState::ActivateSkill2()
