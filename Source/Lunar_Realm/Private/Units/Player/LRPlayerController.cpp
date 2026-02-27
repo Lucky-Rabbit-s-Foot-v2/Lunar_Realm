@@ -10,7 +10,9 @@
 
 
 #include "Subsystems/UIManagerSubsystem.h"
+#include "Subsystems/GameDataSubsystem.h"
 #include "TimerManager.h"
+#include "Engine/GameInstance.h"
 
 ALRPlayerController::ALRPlayerController()
 {
@@ -39,6 +41,79 @@ void ALRPlayerController::BeginPlay()
 		{
 			LR_ERROR(TEXT("터치 인터페이스 활성화 실패"));
 		}
+	}
+}
+
+void ALRPlayerController::EquipWeapon1()
+{
+	if (ALRPlayerState* PS = GetPlayerState<ALRPlayerState>())
+	{
+		FName WeaponID = FName("EQUIP_MELEE_01");
+		PS->EquipItem(EEquipmentSlotType::WEAPON, WeaponID);
+
+		// DT에서 무기 이름 꺼내오기
+		FString EqName = TEXT("Unknown");
+		if (UGameInstance* GI = GetGameInstance())
+		{
+			if (UGameDataSubsystem* DataSubsystem = GI->GetSubsystem<UGameDataSubsystem>())
+			{
+				const FEquipmentStaticData& EquipData = DataSubsystem->GetEquipmentStaticData(WeaponID);
+				EqName = EquipData.EquipmentName;
+			}
+		}
+
+		LR_INFO(TEXT("[PlayerController] 장착 명령 전송 완료 - 무기 1번: %s"), *EqName);
+	}
+}
+
+void ALRPlayerController::EquipWeapon2()
+{
+	if (ALRPlayerState* PS = GetPlayerState<ALRPlayerState>())
+	{
+		FName WeaponID = FName("EQUIP_MELEE_02");
+		PS->EquipItem(EEquipmentSlotType::WEAPON, WeaponID);
+
+		FString EqName = TEXT("Unknown");
+		if (UGameInstance* GI = GetGameInstance())
+		{
+			if (UGameDataSubsystem* DataSubsystem = GI->GetSubsystem<UGameDataSubsystem>())
+			{
+				const FEquipmentStaticData& EquipData = DataSubsystem->GetEquipmentStaticData(WeaponID);
+				EqName = EquipData.EquipmentName;
+			}
+		}
+
+		LR_INFO(TEXT("[PlayerController] 장착 완료 - 무기 2번: %s"), *EqName);
+	}
+}
+
+void ALRPlayerController::EquipWeapon3()
+{
+	if (ALRPlayerState* PS = GetPlayerState<ALRPlayerState>())
+	{
+		FName WeaponID = FName("EQUIP_RANGED_01");
+		PS->EquipItem(EEquipmentSlotType::WEAPON, WeaponID);
+
+		FString EqName = TEXT("Unknown");
+		if (UGameInstance* GI = GetGameInstance())
+		{
+			if (UGameDataSubsystem* DataSubsystem = GI->GetSubsystem<UGameDataSubsystem>())
+			{
+				const FEquipmentStaticData& EquipData = DataSubsystem->GetEquipmentStaticData(WeaponID);
+				EqName = EquipData.EquipmentName;
+			}
+		}
+
+		LR_INFO(TEXT("[PlayerController] 장착 완료 - 무기 3번: %s"), *EqName);
+	}
+}
+
+void ALRPlayerController::UnequipWeapon()
+{
+	if (ALRPlayerState* PS = GetPlayerState<ALRPlayerState>())
+	{
+		PS->UnequipItem(EEquipmentSlotType::WEAPON);
+		LR_INFO(TEXT("[PlayerController] 무기 장착 해제 명령 전송 완료"));
 	}
 }
 

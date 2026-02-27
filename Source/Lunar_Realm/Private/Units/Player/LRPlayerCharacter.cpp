@@ -76,6 +76,7 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 		AttributeSet = PS->GetAttributeSet();
 
 		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+		AbilitySystemComponent->AddLooseGameplayTag(UnitTag);
 		PS->InitializePlayerData();
 
 		if (AttributeSet)

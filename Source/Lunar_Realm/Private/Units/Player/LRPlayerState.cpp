@@ -293,6 +293,53 @@ void ALRPlayerState::ActivateSkill1()
 
 void ALRPlayerState::ActivateSkill2()
 {
-	// TODO_BJM: 나중에 무기 장착 시 EquipmentAbilityHandles에서 무기 스킬(Skill2)을 꺼내서 발동하도록 구현
-	LR_WARN(TEXT("무기 스킬(Skill2)은 아직 구현되지 않았습니다."));
+	// TODO_BJM: 나중에 무기 장착 시 무기 스킬(Skill2)을 꺼내서 발동하도록 구현
+
+	if (!AbilitySystemComponent) return;
+
+	UGameInstance* GI = GetGameInstance();
+	if (!GI) return;
+
+	UGameDataSubsystem* DataSubsystem = GI->GetSubsystem<UGameDataSubsystem>();
+	if (!DataSubsystem) return;
+
+	// 현재 장착 중인 무기 ID 가져오기
+	if (!EquippedItems.Contains(EEquipmentSlotType::WEAPON))
+	{
+		LR_WARN(TEXT("Skill2 발동 실패: 장착된 무기가 없음."));
+		return;
+	}
+	FName WeaponID = EquippedItems[EEquipmentSlotType::WEAPON];
+
+	// 무기 ID로 장비 스킬 ID 목록 가져오기
+	TArray<FName> SkillIDs = DataSubsystem->GetEquipmentSkillIDs(WeaponID);
+
+	if (!SkillIDs.IsValidIndex(0))
+	{
+		LR_WARN(TEXT("Skill2 발동 실패: 무기(%s)에 등록된 스킬이 없음."), *WeaponID.ToString());
+		return;
+	}
+
+	// 스킬 데이터에서 태그 빼오기
+	FName TargetSkillID = SkillIDs[0];
+	const FSkillStaticData& SkillData = DataSubsystem->GetSkillStaticData(TargetSkillID);
+
+	FGameplayTag TriggerTag = SkillData.SkillTag;
+
+	if (!TriggerTag.IsValid())
+	{
+		LR_WARN(TEXT("Skill2 발동 실패: 무기 스킬(%s)에 태그가 없음."), *TargetSkillID.ToString());
+		return;
+	}
+
+	// 이벤트 태그 발송 방식으로 실행
+	FGameplayEventData EventData;
+	EventData.Instigator = Cast<const AActor>(GetPawn());
+	EventData.Target = nullptr;
+
+	LR_INFO(TEXT("[ActivateSkill2] 무기 스킬 발송 시도 - Tag: %s"), *TriggerTag.ToString());
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Cast<AActor>(GetPawn()), TriggerTag, EventData);
+
+	LR_INFO(TEXT("[ActivateSkill2] 무기 스킬 발송 완료"));
 }
