@@ -260,7 +260,7 @@ void ALRGachaOrbSceneActor::RevealOrb(int32 Index)
 		return;
 	}
 
-	if (OrbStates[Index] == ELROrbState::Revealed)
+	if (OrbStates[Index] == ELROrbState::Revealed || OrbStates[Index] == ELROrbState::Revealing)
 	{
 		return;
 	}
@@ -273,15 +273,7 @@ void ALRGachaOrbSceneActor::RevealOrb(int32 Index)
 		OrbActor->PlayReveal();
 	}
 
-	OnOrbClicked.Broadcast(Index);
-
-	OrbStates[Index] = ELROrbState::Revealing;
-
-	if (ALRGachaOrbActor* OrbActor = Cast<ALRGachaOrbActor>(OrbActors[Index]))
-	{
-		OrbActor->PlayReveal();
-	}
-
+	// "클릭됨" 이벤트는 1번만
 	OnOrbClicked.Broadcast(Index);
 }
 

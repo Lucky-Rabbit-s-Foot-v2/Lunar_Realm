@@ -14,6 +14,9 @@
 #include "Components/UniformGridPanel.h"
 #include "Components/UniformGridSlot.h"
 
+// 테스트 시연용
+#include "Components/TextBlock.h"
+
 #include "Engine/World.h"
 #include "Engine/GameInstance.h"
 
@@ -114,6 +117,13 @@ void ULRGachaRevealWidget::StartReveal(FName InBannerID, const TArray<FLRGachaRe
 	{
 		// “탭해서 열기” 등의 힌트는 시작 시 표시
 		HintText->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	// 테스트 시연용
+	if (Text_DebugOrbIndex)
+	{
+		Text_DebugOrbIndex->SetVisibility(ESlateVisibility::Collapsed);
+		Text_DebugOrbIndex->SetText(FText::GetEmpty());
 	}
 
 	// ── 2) 입력 모드 강제(중요) ───────────────────────────────────
@@ -338,8 +348,60 @@ FReply ULRGachaRevealWidget::NativeOnMouseButtonUp(
 
 void ULRGachaRevealWidget::HandleOrbClicked(int32 OrbIndex)
 {
-	// 현재는 확장용 자리:
-	// - 예: “현재 선택 인덱스 UI 표시”, “툴팁”, “진동/사운드” 등
+	// 테스트 시연용
+#if !UE_BUILD_SHIPPING
+	if (!bEnableDebugOrbIndex || !Text_DebugOrbIndex || !GetWorld())
+	{
+		return;
+	}
+
+	// OrbIndex -> 결과 배열에서 ItemID 가져오기
+	if (!CachedResults.IsValidIndex(OrbIndex))
+	{
+		// 안전장치: 인덱스가 이상하면 숨김 처리
+		Text_DebugOrbIndex->SetVisibility(ESlateVisibility::Collapsed);
+		return;
+	}
+
+	const FName ItemID = CachedResults[OrbIndex].ItemID;
+
+	// 결과 화면처럼 ItemID 표시
+	Text_DebugOrbIndex->SetText(FText::FromName(ItemID));
+	Text_DebugOrbIndex->SetVisibility(ESlateVisibility::Visible);
+
+	// 등급별 텍스트 색 적용 (테스트 시연용)
+	const ELRGachaRarity Rarity = CachedResults[OrbIndex].Rarity;
+
+	FLinearColor TextColor = FLinearColor::White;
+	switch (Rarity)
+	{
+	case ELRGachaRarity::Common:    TextColor = FLinearColor(0.8f, 0.8f, 0.8f, 1.f); break; // 회백
+	case ELRGachaRarity::Elite:     TextColor = FLinearColor(0.1f, 0.4f, 1.0f, 1.f); break; // 파랑
+	case ELRGachaRarity::Unique:    TextColor = FLinearColor(0.9f, 0.1f, 0.1f, 1.f); break; // 빨강
+	case ELRGachaRarity::Epic:      TextColor = FLinearColor(0.5f, 0.1f, 0.9f, 1.f); break; // 보라
+	case ELRGachaRarity::Legendary: TextColor = FLinearColor(1.0f, 0.75f, 0.0f, 1.f); break; // 금색
+	default: break;
+	}
+
+	// TextBlock 글씨 색 변경
+	Text_DebugOrbIndex->SetColorAndOpacity(FSlateColor(TextColor));
+	// 이전 타이머 있으면 갱신
+	GetWorld()->GetTimerManager().ClearTimer(Timer_DebugOrbIndex);
+
+	// 잠깐 보여주고 숨김
+	GetWorld()->GetTimerManager().SetTimer(
+		Timer_DebugOrbIndex,
+		[this]()
+		{
+			if (Text_DebugOrbIndex)
+			{
+				Text_DebugOrbIndex->SetVisibility(ESlateVisibility::Collapsed);
+			}
+		},
+		DebugOrbIndexDisplayTime,
+		false
+	);
+#endif
 }
 
 void ULRGachaRevealWidget::HandleAllOrbsRevealed()

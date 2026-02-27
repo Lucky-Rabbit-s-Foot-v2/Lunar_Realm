@@ -138,6 +138,7 @@ void ALREnemyCharacter::BeginPlay()
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+		AbilitySystemComponent->AddLooseGameplayTag(UnitTag);
 	}
 }
 

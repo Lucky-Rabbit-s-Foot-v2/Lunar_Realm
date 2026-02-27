@@ -5,7 +5,7 @@
 
 #include "Data/LRDataStructs.h"
 #include "Data/LREnumType.h"
-#include "Logging/TokenizedMessage.h"
+#include "GAS/Tags/LRGameplayTags.h"
 #include "Projectiles/LRProjectile.h"
 #include "Units/LRCharacter.h"
 
@@ -118,4 +118,34 @@ ALRCharacter* ULRGameplayAbilityBase::GetCharacterFromActorInfo(const FGameplayA
 UAbilitySystemComponent* ULRGameplayAbilityBase::GetOwnerASC() const
 {
 	return GetAbilitySystemComponentFromActorInfo_Ensured();
+}
+
+FGameplayTag ULRGameplayAbilityBase::GetHostileTeamTag() const
+{
+	if (!CachedInstigator)
+	{
+		LR_WARN(TEXT("유효하지 않은 Instigator"));
+		return FGameplayTag::EmptyTag;
+	}
+	
+	UAbilitySystemComponent* InstigatorASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(	const_cast<ALRCharacter*>(CachedInstigator.Get()));
+
+	if (!InstigatorASC)
+	{
+		LR_WARN(TEXT("유효하지 않은 ASC"));
+		return FGameplayTag::EmptyTag;
+	}
+	
+	//ASC의 Instigator타입에 따라 팀 태그 반환
+	if (InstigatorASC->HasMatchingGameplayTag(LRTags::Team_Player))
+	{
+		return LRTags::Team_Enemy;
+	}
+	
+	if (InstigatorASC->HasMatchingGameplayTag(LRTags::Team_Enemy))
+	{
+		return LRTags::Team_Player;
+	}
+	
+	return FGameplayTag::EmptyTag;
 }
