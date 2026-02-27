@@ -13,6 +13,7 @@
 //=============================================================================
 // (260205) KHS 제작. 제반 사항 구현.
 // (260224) KHS 스킬관련 Enum (투사체타입/스킬파라미터타입/버프타입) 추가.
+// (260226) KHS 스킬 기획 변경에 따라 Enum추가
 // =============================================================================
 
 //ID 타입 식별용
@@ -213,9 +214,12 @@ enum class ELRGachaTxnState : uint8
 // ============================================================
 // 스킬 관련 Enum
 // (260224) KHS 추가
+// (260026) KHS 변경
 // ============================================================
+
+// 투사체 비행 타입(기존 ESkillType -> 이름 변경)
 UENUM(BlueprintType)
-enum class ESkillType : uint8
+enum class EFlightType : uint8
 {
 	LINEAR      UMETA(DisplayName = "직선형"),
 	HOMING      UMETA(DisplayName = "유도형"),
@@ -224,24 +228,38 @@ enum class ESkillType : uint8
 	EXPLODE     UMETA(DisplayName = "폭발형")
 };
 
+// 투사체 타격 타입
 UENUM(BlueprintType)
-enum class ESkillParamType : uint8
+enum class EHitType : uint8
 {
-	Lifetime            UMETA(DisplayName = "투사체 생명주기"),
-	EffectTime          UMETA(DisplayName = "스킬효과 지속시간"),
-	ExplosionRadius     UMETA(DisplayName = "폭발범위"),
-	PierceCount         UMETA(DisplayName = "관통형 횟수"),
-	PierceDamageDecay   UMETA(DisplayName = "관통형 데미지 감소율"),
-	HomingTurnSpeed     UMETA(DisplayName = "유도체 회전속도"),
-	HomingLockRange     UMETA(DisplayName = "유도체 감지범위"),
-	ArcLaunchAngle      UMETA(DisplayName = "궤도형 발사 각도"),
-	SlowdownMultiplier  UMETA(DisplayName = "둔화 이속감소율"),
-	DOTDamage           UMETA(DisplayName = "도트데미지"),
-	DOTInterval         UMETA(DisplayName = "도트뎀 주기")
+	SINGLE  UMETA(DisplayName = "단일 타격"),
+	PIERCE  UMETA(DisplayName = "관통 타격"),
+	AREA    UMETA(DisplayName = "범위 타격")
 };
 
+// 투사체 소멸 조건
 UENUM(BlueprintType)
-enum class EBuffType : uint8
+enum class EExpireCondition : uint8
+{
+	OnHit           UMETA(DisplayName = "충돌 시"),
+	OnPierceCount   UMETA(DisplayName = "관통 횟수 소진 시"),
+	OnExplosion     UMETA(DisplayName = "폭발 후"),
+	OnLifetime      UMETA(DisplayName = "수명 만료 시"),
+	OnBoundaryExit  UMETA(DisplayName = "맵 경계 이탈 시")
+};
+
+// 스폰 패턴
+UENUM(BlueprintType)
+enum class ESpawnPattern : uint8
+{
+	SINGLE      UMETA(DisplayName = "단일"),
+	SPREAD   UMETA(DisplayName = "부채꼴"),
+	CIRCLE      UMETA(DisplayName = "원형")
+};
+
+
+UENUM(BlueprintType)
+enum class EStatusType : uint8
 {
 	BUFF    UMETA(DisplayName = "버프"),
 	DEBUFF  UMETA(DisplayName = "디버프")

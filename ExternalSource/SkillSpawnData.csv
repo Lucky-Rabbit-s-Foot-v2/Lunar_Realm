@@ -1,4 +1,4 @@
-,SpawnID,SkillEffectID,ProjectileCount,SocketName,SpawnPattern,SpreadAngle
+,SkillSpawnID,SkillEffectID,ProjectileCount,SocketName,SpawnPattern,SpreadAngle
 1,SPAWN_ARROW,EFFECT_ARROW,1,None,Single,0
 2,SPAWN_FIREBALL,EFFECT_FIREBALL,1,None,Single,0
 3,SPAWN_ICEBALL,EFFECT_ICEBALL,1,None,Single,0

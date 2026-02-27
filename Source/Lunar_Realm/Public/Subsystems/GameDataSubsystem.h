@@ -28,6 +28,7 @@
 // (260208) KWB 에너미 스킬 데이터 조회 함수 추가
 // (260224) KHS GA필요 데이터 추가.
 // (260225) PJB 챕터로 스테이지 불러오기
+// (260226) KHS 스킬 기획 변경에 따른 헬퍼함수 추가.
 // =============================================================================
 
 UCLASS()
@@ -100,12 +101,23 @@ public:
 	// ========================================
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Abilites")
 	const FSkillEffectData& GetSkillEffectData(FName SkillEffectID) const;
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Ability")
+	const FSkillResourceData& GetSkillResourceData(FName ResourceID) const;
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Ability")
+	const FSkillSpawnData& GetSkillSpawnData(FName SkillEffectID) const;
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Abilites")
-	const FSkillEffectParameterList& GetSkillEffectParameters(FName SkillEffectID) const;
+	const FSkillHitAreaData& GetSkillHitAreaData(FName SkillEffectID) const;
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Abilites")
-	const FBuffEffectData& GetBuffEffectData(FName BuffEffectID) const;
-	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Abilites")
-	float GetSkillParamValue(FName SkillEffectID, ESkillParamType ParamType, float DefaultValue = 0.f) const;
+	const FStatusEffectData& GetStatusEffectData(FName StatusEffectID) const;
+	
+	// FlightType 전용 템플릿 조회
+	// 사용 예: GetFlightData<FFlightHomingData>(SkillEffectID)
+	template<typename T>
+	const T& GetFlightData(FName SkillEffectID) const;
+
+	// 내부에서 T 타입에 맞는 캐시를 선택하는 헬퍼
+	template<typename T>
+	const TMap<FName, T>& GetFlightCache() const;
 	
 	// ========================================
 	// 에너미 정적 데이터 조회
@@ -154,9 +166,8 @@ private:
 	static FName SetTypeToName(ELRSetItemType SetType);
 	
 	//FName->Enum 변환 헬퍼(DT 접근용)
-	static ESkillType ParseSkillType(FName TypeName);
-	static ESkillParamType ParseSkillParamType(FName TypeName);
-	static EBuffType ParseBuffType(FName TypeName);
+	static EFlightType ParseSkillType(FName TypeName);
+	static EStatusType ParseBuffType(FName TypeName);
 	
 	
 	//데이터 테이블 로드 헬퍼 탬플릿
@@ -188,14 +199,27 @@ private:
 	UDataTable* LoadedEquipmentStatBonus;
 	UPROPERTY()
 	UDataTable* LoadedSetEffectBonus;
+	// (260226) KHS v1.2 신규 추가
 	UPROPERTY()
 	UDataTable* LoadedSkillStaticData;
 	UPROPERTY()
 	UDataTable* LoadedSkillEffectData;
 	UPROPERTY()
-	UDataTable* LoadedSkillEffectParameterData;
+	UDataTable* LoadedSkillResourceData;
 	UPROPERTY()
-	UDataTable* LoadedBuffEffectData;
+	UDataTable* LoadedSkillSpawnData;
+	UPROPERTY()
+	UDataTable* LoadedSkillFlightHomingData;
+	UPROPERTY()
+	UDataTable* LoadedSkillFlightArcData;
+	UPROPERTY()
+	UDataTable* LoadedSkillFlightPierceData;
+	UPROPERTY()
+	UDataTable* LoadedSkillFlightExplodeData;
+	UPROPERTY()
+	UDataTable* LoadedSkillHitAreaData;
+	UPROPERTY()
+	UDataTable* LoadedStatusEffectData;
 	UPROPERTY()
 	UDataTable* LoadedEnemyStaticData;
 	UPROPERTY()
@@ -218,15 +242,29 @@ private:
 	TMap<FName, FSetEffectData> CachedSetEffectData;
 	//캐릭터/장비 스킬데이터 캐시
 	TMap<FName, FSkillStaticData> CachedSkillStaticData;
+	
 	//스킬 GA 데이터 캐시
 	UPROPERTY()
 	TMap<FName, FSkillEffectData> CachedSkillEffectData;
-	//스킬 GA 추가 파라미터 캐시
 	UPROPERTY()
-	TMap<FName, FSkillEffectParameterList> CachedSkillEffectParameterData;
+	TMap<FName, FSkillResourceData> CachedSkillResourceData;
+	// (260226) KHS v1.2 신규 추가
+	UPROPERTY()
+	TMap<FName, FSkillSpawnData> CachedSkillSpawnData;
+	UPROPERTY()
+	TMap<FName, FFlightHomingData> CachedFlightHomingData;
+	UPROPERTY()
+	TMap<FName, FFlightArcData> CachedFlightArcData;
+	UPROPERTY()
+	TMap<FName, FFlightPierceData> CachedFlightPierceData;
+	UPROPERTY()
+	TMap<FName, FFlightExplodeData> CachedFlightExplodeData;
+	UPROPERTY()
+	TMap<FName, FSkillHitAreaData> CachedSkillHitAreaData;
 	//스킬 효과 버프/디버프 데이터 캐시
 	UPROPERTY()
-	TMap<FName, FBuffEffectData> CachedBuffEffectData;
+	TMap<FName, FStatusEffectData> CachedBuffEffectData;
+	
 	//에너미 정적 데이터 캐시
 	TMap<FName, FEnemyStaticData> CachedEnemyStaticData;
 	//스테이지 정적 데이터 캐시
@@ -238,9 +276,15 @@ private:
 	static FEquipmentBonus EmptyEquipmentBonus;
 	static FSetEffectData EmptySetEffectData;
 	static FSkillStaticData EmptySkillStaticData;
+	static FSkillResourceData EmptySkillResourceData;
 	static FSkillEffectData EmptySkillEffectData;
-	static FSkillEffectParameterList EmptySkillEffectParameterList;
-	static FBuffEffectData EmptyBuffEffectData;
+	static FSkillSpawnData EmptySkillSpawnData;
+	static FFlightHomingData EmptyFlightHomingData;
+	static FFlightArcData EmptyFlightArcData;
+	static FFlightPierceData EmptyFlightPierceData;
+	static FFlightExplodeData EmptyFlightExplodeData;
+	static FSkillHitAreaData EmptySkillHitAreaData;
+	static FStatusEffectData EmptyStatusEffectData;
 	static FEnemyStaticData EmptyEnemyStaticData;
 	static FStageStaticData EmptyStageStaticData;
 	
@@ -319,4 +363,66 @@ const T& UGameDataSubsystem::GetCachedData(const TMap<FName, T>& Cache, FName ID
 	}
 		
 	return *found;
+}
+
+// ========================================
+// GetFlightData 템플릿 구현부
+// (260226) KHS v1.2 신규 추가
+// ========================================
+
+// T 타입에 맞는 캐시 맵을 반환하는 특수화
+template<typename T>
+const TMap<FName, T>& UGameDataSubsystem::GetFlightCache() const
+{
+	// 기본 템플릿 — 잘못된 타입 사용 시 컴파일 에러로 방어
+	static_assert(sizeof(T) == 0, "GetFlightCache: 지원하지 않는 FlightData 타입입니다.");
+	
+	// 컴파일러 경고 억제용 더미 반환 (실제로 실행되지 않음)
+	static TMap<FName, T> Dummy;
+	return Dummy;
+}
+
+// FFlightHomingData 전용 특수화
+template<>
+inline const TMap<FName, FFlightHomingData>& UGameDataSubsystem::GetFlightCache() const
+{
+	return CachedFlightHomingData;
+}
+
+// FFlightArcData 전용 특수화
+template<>
+inline const TMap<FName, FFlightArcData>& UGameDataSubsystem::GetFlightCache() const
+{
+	return CachedFlightArcData;
+}
+
+// FFlightPierceData 전용 특수화
+template<>
+inline const TMap<FName, FFlightPierceData>& UGameDataSubsystem::GetFlightCache() const
+{
+	return CachedFlightPierceData;
+}
+
+// FFlightExplodeData 전용 특수화
+template<>
+inline const TMap<FName, FFlightExplodeData>& UGameDataSubsystem::GetFlightCache() const
+{
+	return CachedFlightExplodeData;
+}
+
+// 실제 조회 함수 — 위 특수화를 통해 올바른 캐시 맵 선택
+template<typename T>
+const T& UGameDataSubsystem::GetFlightData(FName SkillEffectID) const
+{
+	const TMap<FName, T>& Cache = GetFlightCache<T>();
+	
+	const T* Found = Cache.Find(SkillEffectID);
+	if (!Found)
+	{
+		LR_WARN(TEXT("FlightData not found for SkillEffectID: %s"), *SkillEffectID.ToString());
+		static T Empty;
+		return Empty;
+	}
+	
+	return *Found;
 }
