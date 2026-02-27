@@ -122,7 +122,6 @@ void ULRGachaSubsystem::HandlePostLoadMapWithWorld(UWorld* LoadedWorld)
 		return;
 	}
 
-	// PIE에서는 "UEDPIE_0_Map_Lobby" 같은 이름이 될 수 있으니 prefix 제거
 	FString MapName = LoadedWorld->GetMapName();
 	const FString Prefix = LoadedWorld->StreamingLevelsPrefix;
 	if (!Prefix.IsEmpty())
@@ -130,29 +129,21 @@ void ULRGachaSubsystem::HandlePostLoadMapWithWorld(UWorld* LoadedWorld)
 		MapName.RemoveFromStart(Prefix);
 	}
 
-	// 로비 맵이 아닐 때는 무시
 	if (!MapName.Equals(TEXT("Map_Lobby")))
 	{
 		return;
 	}
 
-	// 플래그는 1회성으로 꺼준다
+	// 1회성 플래그 OFF
 	bOpenShopOnLobbyReturn = false;
 
 	UGameInstance* GI = LoadedWorld->GetGameInstance();
-	if (!GI)
-	{
-		return;
-	}
+	if (!GI) return;
 
 	UUIManagerSubsystem* UISys = GI->GetSubsystem<UUIManagerSubsystem>();
-	if (!UISys)
-	{
-		return;
-	}
+	if (!UISys) return;
 
-	// UIManagerSettings에서 EUIID::GACHA가 WBP_GachaShop으로 매핑되어 있어야 함
-	UISys->OpenUIByID(EUIID::GACHA);
+	UISys->SwitchPageUIByID(EUIID::GACHA);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
