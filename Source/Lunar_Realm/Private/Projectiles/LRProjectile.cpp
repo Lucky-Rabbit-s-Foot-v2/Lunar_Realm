@@ -2,12 +2,18 @@
 
 
 #include "Projectiles/LRProjectile.h"
-
+#include "NiagaraSystem.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Sound/SoundBase.h"
 #include "TimerManager.h"
 #include "GameFramework/Pawn.h"
 #include "Components/SphereComponent.h"
+#include "Engine/GameInstance.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "GAS/Tags/LRGameplayTags.h"
+#include "Kismet/GameplayStatics.h"
+#include "Subsystems/GameDataSubsystem.h"
 
 ALRProjectile::ALRProjectile()
 {
@@ -16,7 +22,7 @@ ALRProjectile::ALRProjectile()
 	// 충돌체 (루트)
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollision"));
 	SetRootComponent(SphereComp);
-	SphereComp->SetSphereRadius(15.f);
+	SphereComp->SetSphereRadius(100.f);
 	SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	SphereComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	SphereComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
@@ -28,6 +34,11 @@ ALRProjectile::ALRProjectile()
 	ProjectileComp->MaxSpeed = 3000.f;
 	ProjectileComp->bRotationFollowsVelocity = true;
 	ProjectileComp->ProjectileGravityScale = 0.f; // 기본은 중력 없음 (Arc에서 오버라이드)
+	
+	//Trail VFX 컴포넌트
+	TrailVFXComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("TrailVFX"));
+	TrailVFXComponent->SetupAttachment(RootComponent);
+	TrailVFXComponent->bAutoActivate = false;
 }
 
 void ALRProjectile::BeginPlay()
@@ -82,6 +93,67 @@ void ALRProjectile::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGamepl
 	SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 }
 
+void ALRProjectile::PlaySpawnEffects()
+{
+	UGameInstance* GI = GetGameInstance();
+	check(GI);
+
+	UGameDataSubsystem* DataSys = GI->GetSubsystem<UGameDataSubsystem>();
+	if (!ensureMsgf(DataSys, TEXT("DataSubsystem Loading is Failed")))
+	{
+		return;
+	}
+
+	const FSkillResourceData& Resource = DataSys->GetSkillResourceData(InitData.ResourceID);
+
+	// 스폰 VFX
+	if (UNiagaraSystem* SpawnVFX = Resource.SpawnVFX.LoadSynchronous())
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), SpawnVFX, GetActorLocation());
+	}
+
+	// 스폰 SFX
+	if (USoundBase* SpawnSFX = Resource.SpawnSFX.LoadSynchronous())
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, SpawnSFX, GetActorLocation());
+	}
+
+	// 트레일 VFX + 컴포넌트 활성화
+	if (UNiagaraSystem* TrailVFX = Resource.TrailVFX.LoadSynchronous())
+	{
+		TrailVFXComponent->SetAsset(TrailVFX);
+		TrailVFXComponent->Activate(true);
+	}
+	
+	LR_INFO(TEXT("Skill FX 발동!"));
+}
+
+void ALRProjectile::PlayImpactEffects()
+{
+	UGameInstance* GI = GetGameInstance();
+	check(GI);
+
+	UGameDataSubsystem* DataSys = GI->GetSubsystem<UGameDataSubsystem>();
+	if (!ensureMsgf(DataSys, TEXT("DataSubsystem Loading is Failed")))
+	{
+		return;
+	}
+	
+	const FSkillResourceData& Resource = DataSys->GetSkillResourceData(InitData.ResourceID);
+
+	// 충돌 VFX
+	if (UNiagaraSystem* ImpactVFX = Resource.ImpactVFX.LoadSynchronous())
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ImpactVFX, GetActorLocation());
+	}
+
+	// 충돌 SFX
+	if (USoundBase* ImpactSFX = Resource.ImpactSFX.LoadSynchronous())
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSFX, GetActorLocation());
+	}
+}
+
 
 void ALRProjectile::OnPoolActivate_Implementation()
 {
@@ -115,6 +187,9 @@ void ALRProjectile::InitSkillObject(const FSkillObjectInitData& Initdata)
 		LifeTimeTimerHandle, this, &ALRProjectile::OnLifeTimeExpired, 
 		InitData.Lifetime, false);
 	
+	// FX효과 재생
+	PlaySpawnEffects();
+	
 	//자식 추가 초기화
 	OnSkillObjectInitialized();
 }
@@ -122,13 +197,26 @@ void ALRProjectile::InitSkillObject(const FSkillObjectInitData& Initdata)
 void ALRProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
+	//자기자신 무시
 	if (!OtherActor || OtherActor == this)
 	{
 		return;
 	}
 	
-	//자기자신 무시
+	//소환자 무시
 	if (OtherActor == Cast<AActor>(GetInstigator()))
+	{
+		return;
+	}
+	
+	// 충돌 이펙트 재생
+	PlayImpactEffects();
+	
+	//HitType이 SINGLE일때만 베이스가 직접 데미지 처리
+	//그 외에는 자식의 OnSkillObjectHIt에서 직접 처리
+	//풀 복귀도 OnSkillObjectHit 처리 결과에 따라 부모/자식이 처리하는 로직 전환
+	bool bHandledByChild = !OnSkillObjectHit(OtherActor, Hit);
+	if (bHandledByChild)
 	{
 		return;
 	}
@@ -145,12 +233,8 @@ void ALRProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPri
 		ApplyEffectToTarget(OtherActor, InitData.StatusEffectClass, 0.f);
 	}
 	
-	//자식 충돌 처리
-	//true반환시 베이스가 직접 풀 복귀. false반환시 자식이 직접 처리
-	if (OnSkillObjectHit(OtherActor, Hit))
-	{
-		OnPoolDeactivate_Implementation();
-	}
+	//풀 복귀
+	OnPoolDeactivate_Implementation();
 }
 
 void ALRProjectile::OnLifeTimeExpired()

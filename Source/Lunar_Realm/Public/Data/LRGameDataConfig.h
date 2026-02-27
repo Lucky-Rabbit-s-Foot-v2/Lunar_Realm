@@ -68,6 +68,9 @@ public:
 	TSoftObjectPtr<UDataTable> SkillSpawnDataTable;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Ability")
+	TSoftObjectPtr<UDataTable> SkillResourceDataTable;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Ability")
 	TSoftObjectPtr<UDataTable> FlightHomingDataTable;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Ability")

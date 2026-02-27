@@ -7,6 +7,16 @@ ALRCharacter::ALRCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	// (260227) KHS UnitTag를 ASC에도 등록
+	if (UnitTag.IsValid())
+	{
+		UAbilitySystemComponent* ASC = 
+			UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(this);
+		if (ASC)
+		{
+			ASC->AddLooseGameplayTag(UnitTag);
+		}
+	}
 }
 
 void ALRCharacter::BeginPlay()

@@ -61,7 +61,7 @@ void ALRPlayerCharacter::BeginPlay()
 		}
 	}
 
-	// TODO: 테스트용으로 임시 배치.
+	// TODO_BJM: 테스트용으로 임시 배치.
 	TestSummonSlot();
 }
 

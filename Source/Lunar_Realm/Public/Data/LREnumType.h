@@ -41,6 +41,21 @@ enum class ELRAttackType : uint8
 	MAX UMETA(Hidden)
 };
 
+
+//공통 사용 등급(캐릭터/적/장비 공유)
+UENUM(BlueprintType)
+enum class ELRGrade : uint8
+{
+	NONE = 0,
+	BASIC = 1,
+	ELITE = 2,
+	UNIQUE = 3,
+	EPIC = 4,
+	LEGEND = 5,
+	
+	MAX = 6 UMETA(Hidden)
+};
+
 //========================================
 /*
  * 캐릭터 관련 Enum
@@ -59,25 +74,14 @@ enum class ELRClassType : uint8
 	MAX UMETA(Hidden)
 };
 
+
+
 //========================================
 /*
  * 에너미 관련 Enum
  */
 //========================================
 
-//적 등급
-UENUM(BlueprintType)
-enum class ELRGrade : uint8
-{
-	NONE = 0,
-	BASIC = 1,
-	ELITE = 2,
-	UNIQUE = 3,
-	EPIC = 4,
-	LEGEND = 5,
-	
-	MAX UMETA(Hidden)
-};
 
 //적 클래스 타입(직업)
 UENUM(BlueprintType)

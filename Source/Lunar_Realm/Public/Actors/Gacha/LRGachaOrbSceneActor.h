@@ -131,12 +131,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Carousel|Settings")
 	float RotationSpeed = 5.f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Carousel|Settings")
-	float CenterOrbScale = 1.5f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Carousel|Settings")
-	float SideOrbScale = 0.85f;
-
 	// ===== Moon Components =================================================
 
 	/** 달 스태틱 메쉬 컴포넌트 */
@@ -199,6 +193,9 @@ protected:
 	TObjectPtr<UCameraComponent> CameraComp;
 
 private:
+	UFUNCTION()
+	void HandleOrbRevealFinished(int32 OrbIndex);
+
 	// ===== Runtime State ===================================================
 
 	/** 가챠 결과 캐시 (InitializeWithResults에서 세팅) */
@@ -248,9 +245,6 @@ private:
 
 	/** 각도 기반 Orb 위치 계산 */
 	FVector GetOrbPositionForAngle(float AngleDeg) const;
-
-	/** 각도 기반 스케일(중앙/양옆) 계산 (현재는 사용 X) */
-	float GetOrbScaleForAngle(float AngleDeg) const;
 
 	/**
 	 * 스와이프 방향으로 다음 "미리빌" 구슬 인덱스 + 이동 칸 수 찾기

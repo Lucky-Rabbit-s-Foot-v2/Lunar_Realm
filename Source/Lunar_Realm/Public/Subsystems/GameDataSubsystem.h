@@ -102,6 +102,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Abilites")
 	const FSkillEffectData& GetSkillEffectData(FName SkillEffectID) const;
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Ability")
+	const FSkillResourceData& GetSkillResourceData(FName ResourceID) const;
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Ability")
 	const FSkillSpawnData& GetSkillSpawnData(FName SkillEffectID) const;
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Abilites")
 	const FSkillHitAreaData& GetSkillHitAreaData(FName SkillEffectID) const;
@@ -203,6 +205,8 @@ private:
 	UPROPERTY()
 	UDataTable* LoadedSkillEffectData;
 	UPROPERTY()
+	UDataTable* LoadedSkillResourceData;
+	UPROPERTY()
 	UDataTable* LoadedSkillSpawnData;
 	UPROPERTY()
 	UDataTable* LoadedSkillFlightHomingData;
@@ -242,6 +246,8 @@ private:
 	//스킬 GA 데이터 캐시
 	UPROPERTY()
 	TMap<FName, FSkillEffectData> CachedSkillEffectData;
+	UPROPERTY()
+	TMap<FName, FSkillResourceData> CachedSkillResourceData;
 	// (260226) KHS v1.2 신규 추가
 	UPROPERTY()
 	TMap<FName, FSkillSpawnData> CachedSkillSpawnData;
@@ -270,6 +276,7 @@ private:
 	static FEquipmentBonus EmptyEquipmentBonus;
 	static FSetEffectData EmptySetEffectData;
 	static FSkillStaticData EmptySkillStaticData;
+	static FSkillResourceData EmptySkillResourceData;
 	static FSkillEffectData EmptySkillEffectData;
 	static FSkillSpawnData EmptySkillSpawnData;
 	static FFlightHomingData EmptyFlightHomingData;

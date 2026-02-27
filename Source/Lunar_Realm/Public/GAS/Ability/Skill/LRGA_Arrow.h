@@ -45,4 +45,7 @@ protected:
 	//DT 참조 키
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
 	FName SkillEffectID = "EFFECT_ARROW";
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
+	FName SkillID = "SKILL_ARROW";
+	
 };

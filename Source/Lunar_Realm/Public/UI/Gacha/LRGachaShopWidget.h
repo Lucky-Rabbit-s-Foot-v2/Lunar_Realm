@@ -8,7 +8,7 @@
 #include "Data/LRDataStructs.h"
 #include "Data/LREnumType.h"
 
-#include "UI/Core/LRBaseWidget.h"
+#include "UI/Core/LRPageWidget.h"
 #include "UI/Gacha/LRGachaRevealWidget.h"
 #include "LRGachaShopWidget.generated.h"
 
@@ -30,7 +30,7 @@ class ULRGachaSubsystem;
  * - ShopWidget은 UI/이동/표시만 담당한다.
  */
 UCLASS()
-class LUNAR_REALM_API ULRGachaShopWidget : public ULRBaseWidget
+class LUNAR_REALM_API ULRGachaShopWidget : public ULRPageWidget
 {
 	GENERATED_BODY()
 

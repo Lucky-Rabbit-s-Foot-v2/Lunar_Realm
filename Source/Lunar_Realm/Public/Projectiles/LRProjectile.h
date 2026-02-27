@@ -18,6 +18,7 @@
 //============================================================================
 // (260128) PJB 제작. 제반 사항 구현.
 // (260224) KHS 수정. GA/GE처리
+// (260226) KHS 수정. VFX/SFX 처리
 //============================================================================
 
 UCLASS()
@@ -30,7 +31,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	
+
 	UFUNCTION()
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) final;
 	virtual void OnLifeTimeExpired() final;
@@ -44,6 +45,9 @@ protected:
 	//자식 스킬 타입별 충돌 처리 
 	//@return true면 베이스가 풀 복귀, false면 자식이 직접 풀복귀
 	virtual bool OnSkillObjectHit(AActor* OtherActor, const FHitResult& Hit) { return true; }
+	
+	//GE적용 헬퍼
+	void ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> Effect, float DamageValue);
 	
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -60,8 +64,9 @@ public:
 	virtual void InitSkillObject(const FSkillObjectInitData& Initdata) final;
 	
 private:
-	//GE적용 헬퍼
-	void ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> Effect, float DamageValue);
+	//FX 재생 헬퍼
+	void PlaySpawnEffects();
+	void PlayImpactEffects();
 	
 	FTimerHandle LifeTimeTimerHandle;
 	
@@ -71,6 +76,8 @@ protected:
 	TObjectPtr<class USphereComponent> SphereComp;
 	UPROPERTY(VisibleAnywhere, Category = "LR|Projectile")
 	TObjectPtr<class UProjectileMovementComponent> ProjectileComp;
+	UPROPERTY(VisibleAnywhere, Category = "LR|VFX") 
+	TObjectPtr<class UNiagaraComponent> TrailVFXComponent;
 	
 	//InitData(GA로부터 받는 데이터)
 	UPROPERTY()

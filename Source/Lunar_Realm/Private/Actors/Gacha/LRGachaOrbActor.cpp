@@ -195,6 +195,9 @@ void ALRGachaOrbActor::OnEmissiveFinished()
 
 	// 리빌 완료를 BP에 알림 (카메라 연출 등)
 	BP_OnRevealFinished(CachedResult.Rarity, CachedResult);
+
+	// C++ 완료 이벤트 브로드캐스트 (SceneActor 동기화)
+	OnOrbRevealFinished.Broadcast(OrbIndex);
 }
 
 // ==========================================================================

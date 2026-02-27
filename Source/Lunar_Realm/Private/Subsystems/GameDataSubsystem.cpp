@@ -10,6 +10,7 @@ FEquipmentStaticData	UGameDataSubsystem::EmptyEquipmentStaticData;
 FEquipmentBonus			UGameDataSubsystem::EmptyEquipmentBonus;
 FSetEffectData			UGameDataSubsystem::EmptySetEffectData;
 FSkillStaticData		UGameDataSubsystem::EmptySkillStaticData;
+FSkillResourceData		UGameDataSubsystem::EmptySkillResourceData;
 FSkillEffectData		UGameDataSubsystem::EmptySkillEffectData;
 FSkillSpawnData			UGameDataSubsystem::EmptySkillSpawnData;
 FFlightHomingData		UGameDataSubsystem::EmptyFlightHomingData;
@@ -41,6 +42,7 @@ void UGameDataSubsystem::Deinitialize()
 	CachedEquipmentBonus.Empty();
 	CachedSetEffectData.Empty();
 	CachedSkillStaticData.Empty();
+	CachedSkillResourceData.Empty();
 	CachedSkillEffectData.Empty();  
 	CachedSkillSpawnData.Empty();
 	CachedFlightHomingData.Empty();
@@ -118,7 +120,8 @@ void UGameDataSubsystem::LoadDataTables()
 	LoadedEquipmentStaticData	 = Config->EquipmentStaticDataTable.LoadSynchronous();	//장비 데이터
 	LoadedEquipmentStatBonus	 = Config->EquipmentStatBonusTable.LoadSynchronous();	//장비 보너스
 	LoadedSetEffectBonus		 = Config->EquipmentSetEffectTable.LoadSynchronous();	//세트장비 효과
-	LoadedSkillStaticData		 = Config->SkillStaticDataTable.LoadSynchronous();		//스킬 데이터
+	LoadedSkillStaticData		 = Config->SkillStaticDataTable.LoadSynchronous();		//스킬 정적 데이터
+	LoadedSkillResourceData		 = Config->SkillResourceDataTable.LoadSynchronous();	//스킬 리소스 데이터
 	LoadedSkillEffectData		 = Config->SkillEffectDataTable.LoadSynchronous();		//스킬 GA 사용데이터
 	LoadedSkillSpawnData		 = Config->SkillSpawnDataTable.LoadSynchronous();		//스킬 오브젝트 스폰 데이터
 	LoadedSkillHitAreaData		 = Config->HitAreaDataTable.LoadSynchronous();			//스킬 오브젝트 효과범위 데이터
@@ -162,6 +165,8 @@ void UGameDataSubsystem::CacheAllData()
 	CacheDataTable<FSkillEffectData, FName>(
 		LoadedSkillEffectData, CachedSkillEffectData, &FSkillEffectData::SkillEffectID, TEXT("SkillEffectData"));
 	// (260226) KHS v1.2 신규 추가
+	CacheDataTable<FSkillResourceData, FName>(
+	LoadedSkillResourceData, CachedSkillResourceData, &FSkillResourceData::ResourceID, TEXT("SkillResourceData"));
 	CacheDataTable<FSkillSpawnData, FName>(
 		LoadedSkillSpawnData, CachedSkillSpawnData, &FSkillSpawnData::SkillEffectID, TEXT("SkillSpawnData"));
 	CacheDataTable<FFlightHomingData, FName>(
@@ -487,6 +492,11 @@ TArray<FName> UGameDataSubsystem::GetEquipmentSkillIDs(FName EquipmentID)
 const FSkillEffectData& UGameDataSubsystem::GetSkillEffectData(FName SkillEffectID) const
 {
 	return GetCachedData(CachedSkillEffectData, SkillEffectID, EmptySkillEffectData, TEXT("SkillEffectData"));
+}
+
+const FSkillResourceData& UGameDataSubsystem::GetSkillResourceData(FName ResourceID) const
+{
+	return GetCachedData(CachedSkillResourceData, ResourceID, EmptySkillResourceData, TEXT("SkillResourceData"));
 }
 
 const FSkillSpawnData& UGameDataSubsystem::GetSkillSpawnData(FName SkillEffectID) const

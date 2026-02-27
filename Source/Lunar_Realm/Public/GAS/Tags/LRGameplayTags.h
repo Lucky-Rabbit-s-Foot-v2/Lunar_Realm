@@ -76,6 +76,8 @@ namespace LRTags
 	
 	//화상 상태(Burning) <- GE_Burn이 화상상태 부여
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Debuff_Burning);
+	//감전 상태(Shock) <- GE_Shock가 감전 상태 부여
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Debuff_Shock);
 	//사망 상태(Dead) <- 체력 0이면 부여
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Dead);
 	//대시 상태(Dashing)
