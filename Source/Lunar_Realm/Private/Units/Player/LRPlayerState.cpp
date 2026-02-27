@@ -10,6 +10,7 @@
 #include "GameFramework/Pawn.h"
 #include "GAS/Ability/LRGameplayAbilityBase.h"
 #include "GAS/Tags/LRGameplayTags.h"
+#include "Units/Player/LRPlayerCharacter.h"
 
 ALRPlayerState::ALRPlayerState()
 {
@@ -62,6 +63,13 @@ void ALRPlayerState::InitializePlayerData()
 
 	UE_LOG(LogTemp, Log, TEXT("[LRPlayerState] 플레이어의 데이터 모두 가져옴"));
 
+	if (EquippedItems.Contains(EEquipmentSlotType::WEAPON))
+	{
+		if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetPawn()))
+		{
+			PC->UpdateWeaponMesh(EquippedItems[EEquipmentSlotType::WEAPON]);
+		}
+	}
 }
 
 void ALRPlayerState::InitializeAttributes()
@@ -133,6 +141,13 @@ void ALRPlayerState::EquipItem(EEquipmentSlotType Slot, FName ItemID)
 
 	InitializeAttributes();
 	
+	if (Slot == EEquipmentSlotType::WEAPON)
+	{
+		if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetPawn()))
+		{
+			PC->UpdateWeaponMesh(ItemID);
+		}
+	}
 }
 
 void ALRPlayerState::UnequipItem(EEquipmentSlotType Slot)
