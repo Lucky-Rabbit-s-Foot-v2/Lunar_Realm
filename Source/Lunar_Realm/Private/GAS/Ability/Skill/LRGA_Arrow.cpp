@@ -46,7 +46,7 @@ void ULRGA_Arrow::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
 
     const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillEffectID);
     const FSkillSpawnData& SpawnData = DataSys->GetSkillSpawnData(SkillEffectID);
-	const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillEffectID);
+	const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillID);
 
     //FSkillObjectInitData 채우기
     FSkillObjectInitData InitData;
