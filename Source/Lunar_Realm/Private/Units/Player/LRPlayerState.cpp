@@ -268,15 +268,28 @@ void ALRPlayerState::ActivateSkill1()
 	FName TargetSkillID = SkillIDs[0];
 	const FSkillStaticData& SkillData = DataSubsystem->GetSkillStaticData(TargetSkillID);
 
+	FGameplayTag TriggerTag = SkillData.SkillTag;
+
+	// 태그가 DT에 안 비어있는지 방어 코드 
+	if (!TriggerTag.IsValid())
+	{
+		LR_WARN(TEXT("Skill1 발동 실패: DT에 스킬 트리거 태그가 세팅되지 않음. ID: %s"), *TargetSkillID.ToString());
+		return;
+	}
+
 	//Instigator정보와 Target정보를 이벤트로 등록
 	FGameplayEventData EvenData;
 	EvenData.Instigator = Cast<const AActor>(GetPawn());
 	EvenData.Target = nullptr; //직선형은 타겟 정보 불필요.
 	
-	LR_INFO(TEXT("[ActivateSkill1] Event 발송 시도 - Tag: Ability_Skill_Arrow, Instigator: %s"),
-	GetPawn() ? *GetPawn()->GetName() : TEXT("NULL"));
+	LR_INFO(TEXT("[ActivateSkill1] Event 발송 시도 - Tag: %s, Instigator: %s"),
+		*TriggerTag.ToString(), GetPawn() ? *GetPawn()->GetName() : TEXT("NULL"));
+
+	//LR_INFO(TEXT("[ActivateSkill1] Event 발송 시도 - Tag: Ability_Skill_Arrow, Instigator: %s"),
+	//GetPawn() ? *GetPawn()->GetName() : TEXT("NULL"));
 	
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Cast<AActor>(GetPawn()), LRTags::Ability_Skill_Arrow, EvenData);
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Cast<AActor>(GetPawn()), TriggerTag, EvenData);
+	//UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Cast<AActor>(GetPawn()), LRTags::Ability_Skill_Fireball, EvenData);
 	
 	LR_INFO(TEXT("[ActivateSkill1] Event 발송 완료 (GA 발동 여부는 GA 내부 로그 확인)"));
 	
