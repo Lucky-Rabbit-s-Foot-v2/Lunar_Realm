@@ -83,7 +83,7 @@ void ALRPlayerController::EquipWeapon2()
 			}
 		}
 
-		LR_INFO(TEXT("[PlayerController] 장착 명령 전송 완료 - 무기 2번: %s"), *EqName);
+		LR_INFO(TEXT("[PlayerController] 장착 완료 - 무기 2번: %s"), *EqName);
 	}
 }
 
@@ -104,7 +104,7 @@ void ALRPlayerController::EquipWeapon3()
 			}
 		}
 
-		LR_INFO(TEXT("[PlayerController] 장착 명령 전송 완료 - 무기 3번: %s"), *EqName);
+		LR_INFO(TEXT("[PlayerController] 장착 완료 - 무기 3번: %s"), *EqName);
 	}
 }
 
