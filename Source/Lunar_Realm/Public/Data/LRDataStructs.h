@@ -178,6 +178,9 @@ struct FEquipmentStaticData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
 	FText Description;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Resource")
+	TSoftObjectPtr<UStaticMesh> EquipmentMesh;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Classification")
 	ELRGrade Grade;
 	
