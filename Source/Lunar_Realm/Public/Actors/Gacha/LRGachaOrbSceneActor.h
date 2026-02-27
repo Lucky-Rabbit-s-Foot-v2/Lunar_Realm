@@ -193,6 +193,9 @@ protected:
 	TObjectPtr<UCameraComponent> CameraComp;
 
 private:
+	UFUNCTION()
+	void HandleOrbRevealFinished(int32 OrbIndex);
+
 	// ===== Runtime State ===================================================
 
 	/** 가챠 결과 캐시 (InitializeWithResults에서 세팅) */
