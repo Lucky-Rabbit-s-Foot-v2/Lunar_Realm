@@ -124,6 +124,8 @@ void ALRProjectile::PlaySpawnEffects()
 		TrailVFXComponent->SetAsset(TrailVFX);
 		TrailVFXComponent->Activate(true);
 	}
+	
+	LR_INFO(TEXT("Skill FX 발동!"));
 }
 
 void ALRProjectile::PlayImpactEffects()

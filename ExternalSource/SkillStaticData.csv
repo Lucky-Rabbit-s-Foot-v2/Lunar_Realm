@@ -1,6 +1,6 @@
-,SkillID,SkillEffectID,GrantedAbilities,CoolTimeGE,CostGE,SkillTag,SkillName,Description,SkillIcon
-1,SKILL_FIREBALL,EFFECT_FIREBALL,"""()""",,,,Fireball,Fireball,
-2,SKILL_ICEBALL,EFFECT_ICEBALL,"""()""",,,,Iceball,Iceball,
-3,SKILL_LIGHTNING,EFFECT_LIGHTNING,"""()""",,,,Lightning,Lightning,
-4,SKILL_ARROW,EFFECT_ARROW,"""()""",,,,Arrow,Arrow,
-5,SKILL_PIERCE,EFFECT_PIERCE,"""()""",,,,Pierce,Pierce,
+,SkillID,SkillEffectID,ResourceID,GrantedAbilities,CoolTimeGE,CostGE,SkillTag,SkillName,Description
+1,SKILL_FIREBALL,EFFECT_FIREBALL,RESOURCE_FIREBALL,"""()""",,,,Fireball,Fireball
+2,SKILL_ICEBALL,EFFECT_ICEBALL,RESOURCE_ICEBALL,"""()""",,,,Iceball,Iceball
+3,SKILL_LIGHTNING,EFFECT_LIGHTNING,RESOURCE_LIGHTNING,"""()""",,,,Lightning,Lightning
+4,SKILL_ARROW,EFFECT_ARROW,RESOURCE_ARROW,"""()""",,,,Arrow,Arrow
+5,SKILL_PIERCE,EFFECT_PIERCE,RESOURCE_PIERCE,"""()""",,,,Pierce,Pierce
