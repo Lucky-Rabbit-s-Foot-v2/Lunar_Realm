@@ -18,6 +18,7 @@
 #include "GAS/Tags/LRGameplayTags.h"
 #include "GAS/Attributes/LRPlayerAttributeSet.h"
 #include "GAS/Attributes/LRAttributeSet.h"
+#include "Actors/Equipment/LREquipmentBase.h"
 
 #include "GameplayTagsManager.h"
 #include "Components/CapsuleComponent.h"
@@ -367,4 +368,40 @@ void ALRPlayerCharacter::EndInvincibility()
 	}
 
 	LR_INFO(TEXT("무적 및 깜빡임 종료"));
+}
+
+void ALRPlayerCharacter::UpdateWeaponMesh(FName InWeaponID)
+{
+	if (!WeaponClass)
+	{
+		LR_WARN(TEXT("WeaponClass가 지정되지 않았습니다. 캐릭터 블루프린트를 확인하세요!"));
+		return;
+	}
+
+	if (!CurrentWeaponActor)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = this;
+
+		CurrentWeaponActor = GetWorld()->SpawnActor<ALREquipmentBase>(WeaponClass, GetActorLocation(), GetActorRotation(), SpawnParams);
+
+		if (CurrentWeaponActor)
+		{
+			CurrentWeaponActor->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
+		}
+	}
+
+	if (CurrentWeaponActor)
+	{
+		bool bSuccess = CurrentWeaponActor->InitEquipment(InWeaponID);
+		if (bSuccess)
+		{
+			LR_INFO(TEXT("무기 외형 업데이트 완료: %s"), *InWeaponID.ToString());
+		}
+		else
+		{
+			LR_WARN(TEXT("무기 외형 업데이트 실패 (DT에 메시가 없거나 ID가 잘못됨): %s"), *InWeaponID.ToString());
+		}
+	}
 }

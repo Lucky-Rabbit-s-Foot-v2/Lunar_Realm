@@ -21,9 +21,11 @@
 // (260210) BJM 카메라 컴포넌트 추가로 인한 스프링암, 카메라 컴포넌트 주석처리
 // (260212) BJM 사망 처리 추가
 // (260223) BJM 사망 후 조작 적용
+// (260227) BJM beginplay에서 무기 장착
 //=============================================================================
 
 class ULRInputConfig;
+class ALREquipmentBase;
 /**
  * 
  */
@@ -143,4 +145,18 @@ protected:
 	UFUNCTION()
 	void EndInvincibility();
 
+public:
+	// PlayerState가 무기를 바꿀 때마다 호출할 함수
+	UFUNCTION(BlueprintCallable, Category = "LR|Equipment")
+	void UpdateWeaponMesh(FName InWeaponID);
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Equipment")
+	TSubclassOf<ALREquipmentBase> WeaponClass;
+
+	UPROPERTY()
+	TObjectPtr<ALREquipmentBase> CurrentWeaponActor;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Equipment")
+	FName WeaponSocketName = TEXT("WeaponSocket");
 };
