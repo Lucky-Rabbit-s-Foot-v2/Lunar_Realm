@@ -16,10 +16,13 @@
 
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "BrainComponent.h"
+#include "BehaviorTree/BehaviorTree.h"  
+#include "BehaviorTree/BehaviorTreeComponent.h"  
+#include "BehaviorTree/BlackboardComponent.h"
 
 #include "Units/LRAIController.h"      
 #include "Units/Member/LRMemberAIController.h"
-#include "BehaviorTree/BehaviorTree.h"  
 #include "GAS/Ability/LRGameplayAbilityBase.h"
 
 ALRMemberCharacter::ALRMemberCharacter()
@@ -120,10 +123,15 @@ void ALRMemberCharacter::OnPoolDeactivate_Implementation()
 	SetActorEnableCollision(false);
 	SetActorTickEnabled(false);
 
-	if (AController* AICon = GetController())
+	if (ALRAIController* AICon = Cast<ALRAIController>(GetController()))
 	{
 		AICon->StopMovement();
-		AICon->UnPossess();
+		//AICon->UnPossess();
+		if (UBehaviorTreeComponent* MemberBT = Cast<UBehaviorTreeComponent>(AICon->GetBrainComponent()))
+		{
+			MemberBT->StopTree();
+		}
+
 	}
 }
 
@@ -218,11 +226,11 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 		}
 
 		// ALRAIController로 캐스팅해서 BT 실행
-		if (ALRAIController* AIC = Cast<ALRAIController>(GetController()))
+		if (ALRMemberAIController* AIC = Cast<ALRMemberAIController>(GetController()))
 		{
 			AIC->InitializeBehaviorTree(CharData.BehaviorTree);
 
-			// AIC->RestartAI(); 
+			AIC->RestartAI(); 
 
 			LR_INFO(TEXT("[%s] BT 실행 성공: %s"), *InCharacterID.ToString(), *CharData.BehaviorTree->GetName());
 		}
@@ -250,7 +258,7 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 	}
 	else
 	{
-		LR_WARN(TEXT("[%s] ASC가 없어서 스킬을 부여할 수 없습니다!"), *InCharacterID.ToString());
+		LR_WARN(TEXT("[%s] ASC가 없어서 스킬을 부여할 수 없음"), *InCharacterID.ToString());
 	}
 
 
@@ -280,6 +288,14 @@ void ALRMemberCharacter::ResetAIController()
 	{
 		SpawnDefaultController();
 	}
+	if (AAIController* AICon = Cast<AAIController>(GetController()))
+	{
+		if (UBlackboardComponent* BBComp = AICon->GetBlackboardComponent())
+		{
+			BBComp->ClearValue(TEXT("TargetActor"));
+			BBComp->ClearValue(TEXT("HasNearbyHostile"));
+		}
+	}
 }
 
 void ALRMemberCharacter::Die()
@@ -295,7 +311,7 @@ void ALRMemberCharacter::Die()
 	if (Controller)
 	{
 		Controller->StopMovement();
-		Controller->UnPossess();
+		//Controller->UnPossess();
 	}
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -316,7 +332,7 @@ void ALRMemberCharacter::Die()
 	}
 	else
 	{
-		LR_WARN(TEXT("재생할 사망 몽타주(LoadedDeathMontage)가 없습니다! DT를 확인하세요."));
+		LR_WARN(TEXT("재생할 사망 몽타주가 없음 DT를 확인 필요."));
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, this, &ALRMemberCharacter::ReturnSelf, ReturnDelay, false);

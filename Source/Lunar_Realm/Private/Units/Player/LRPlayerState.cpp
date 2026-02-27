@@ -40,7 +40,7 @@ UAbilitySystemComponent* ALRPlayerState::GetAbilitySystemComponent() const
 
 void ALRPlayerState::InitializePlayerData()
 {
-	// TODO: SaveGameSubsystem에서 플레이어 데이터 로드
+	// TODO_BJM: SaveGameSubsystem에서 플레이어 데이터 로드
 	// 지금은 임시 데이터 넣음
 	CharacterID = FName("CHAR_ARCHER_01");
 	CharacterLevel = FName("1");
@@ -211,16 +211,6 @@ void ALRPlayerState::GrantEquipmentAbilities(EEquipmentSlotType Slot, FName Equi
 	if (!DataSubsystem || !AbilitySystemComponent) return;
 
 	//const FCharacterStaticData& CharData = DataSubsystem->GetCharacterStaticData(CharacterID);
-
-	//// 기본공격 GA 부여
-	//if (CharData.PlayerBasicAttackAbility)
-	//{
-	//	FGameplayAbilitySpec Spec(CharData.PlayerBasicAttackAbility, 1, INDEX_NONE, this);
-	//	FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
-	//	CharacterAbilityHandles.Add(Handle);
-
-	//	UE_LOG(LogTemp, Warning, TEXT("[PlayerState] 플레이어 평타 자동 장착 완료: %s"), *CharData.PlayerBasicAttackAbility->GetName());
-	//}
 
 	// 장비 ID로 스킬 ID 목록 조회
 	TArray<FName> SkillIDs = DataSubsystem->GetEquipmentSkillIDs(EquipmentID);
