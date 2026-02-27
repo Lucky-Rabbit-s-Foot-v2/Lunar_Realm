@@ -8,6 +8,8 @@
 #include "Data/LREnumType.h"
 #include "Engine/DataTable.h"
 #include "Engine/SkeletalMesh.h"
+#include "NiagaraSystem.h"
+#include "Sound/SoundBase.h"
 #include "LRDataStructs.generated.h"
 
 
@@ -351,6 +353,9 @@ struct FSkillStaticData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName SkillEffectID; //DT_SkillEffect(FK)
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName ResourceID; //DT_SkillResource FK
+	
 	// 실제 GA 클래스
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<TSoftClassPtr<UGameplayAbility>> GrantedAbilities;
@@ -369,11 +374,37 @@ struct FSkillStaticData : public FTableRowBase
     
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText Description;
-    
+	
+};
+
+// (260226) KHS v1.2 신규 추가 — 스킬 리소스 데이터
+USTRUCT(BlueprintType)
+struct FSkillResourceData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName ResourceID; // RESOURCE_ARROW
+
+	// UI
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<UTexture2D> SkillIcon;
-    
-	
+
+	// 스폰 시
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UNiagaraSystem> SpawnVFX;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<USoundBase> SpawnSFX;
+
+	// 비행 중 트레일
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UNiagaraSystem> TrailVFX;
+
+	// 충돌/소멸 시
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UNiagaraSystem> ImpactVFX;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<USoundBase> ImpactSFX;
 };
 
 
@@ -384,6 +415,8 @@ struct FSkillStaticData : public FTableRowBase
  */
 //=============================================================================
 // (260224) KHS 제작. 제반 사항 구현.
+// (260226) KHS v1.2 개편. SkillType/BasicCount/Range 제거,
+//          FlightType/HitType/Lifetime/ExpireCondition 추가
 // =============================================================================
 USTRUCT(BlueprintType)
 struct FSkillEffectData : public FTableRowBase
@@ -394,56 +427,148 @@ struct FSkillEffectData : public FTableRowBase
 	FName SkillEffectID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName BuffEffectID;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName SkillType; // ParseSkillType()으로 변환
+	FName StatusEffectID; // DT_StatusEffect FK (기존 BuffEffectID → 이름 변경)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 BasicCount; //스킬로 생성된 오브젝트 갯수
+	EFlightType FlightType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Damage;
-	
+	EHitType HitType;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Speed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Range;
+	float Lifetime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Damage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EExpireCondition ExpireCondition;
 };
 
-
 // =============================================================================
-/** 
- * FSkillEffectParameterData   구성 요소
- * - GA 스킬에 추가로 요구되는 파라미터 정적 데이터
- */
-//=============================================================================
-// (260224) KHS 제작. 제반 사항 구현.
+// (260226) KHS v1.2 신규 추가 — 스폰 파라미터
 // =============================================================================
 USTRUCT(BlueprintType)
-struct FSkillEffectParameterData : public FTableRowBase
+struct FSkillSpawnData : public FTableRowBase
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName SkillEffectID;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName SkillSpawnID;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName ParamType; // 파라미터 타입 문자열 → ParseSkillParamType()으로 변환
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName SkillEffectID; // DT_SkillEffect FK
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Value;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 ProjectileCount;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName SocketName; // 유효하지 않으면 캐릭터 전방 2m에서 스폰
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    ESpawnPattern SpawnPattern;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float SpreadAngle = 0.f; // FanSpread 전용
+};
+
+// =============================================================================
+// (260226) KHS v1.2 신규 추가 — 비행 타입별 전용 파라미터
+// =============================================================================
+USTRUCT(BlueprintType)
+struct FFlightHomingData : public FTableRowBase
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName HomingID;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName SkillEffectID; // DT_SkillEffect FK
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float TurnSpeed;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float LockRange;
 };
 
 USTRUCT(BlueprintType)
-struct FSkillEffectParameterList
+struct FFlightArcData : public FTableRowBase
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	//스킬마다 필요 파라미터수가 달라서 Array로 래핑
-	UPROPERTY()
-	TArray<FSkillEffectParameterData> Params;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName ArcID;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName SkillEffectID;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float LaunchAngle;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float GravityScale;
+};
+
+USTRUCT(BlueprintType)
+struct FFlightPierceData : public FTableRowBase
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName PierceID;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName SkillEffectID;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 PierceCount;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float DamageDecay; // 관통마다 데미지 감소율
+};
+
+USTRUCT(BlueprintType)
+struct FFlightExplodeData : public FTableRowBase
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName ExplodeID;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName SkillEffectID;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float ExplosionRadius;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float ExplosionDamageMultiplier; // 거리 기반 감쇠 배율
+};
+
+// =============================================================================
+// (260226) KHS v1.2 신규 추가 — 범위 타격 전용
+// =============================================================================
+USTRUCT(BlueprintType)
+struct FSkillHitAreaData : public FTableRowBase
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName HitAreaID;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName SkillEffectID;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float HitRadius;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 MaxTargetCount; // 0 = 제한 없음
 };
 
 // =============================================================================
@@ -459,51 +584,108 @@ struct FSkillObjectInitData
 {
 	GENERATED_BODY()
 	
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UGameplayEffect> DamageEffectClass; // 데미지 GE
 	
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UGameplayEffect> StatusEffectClass; // 상태이상 GE (없으면 nullptr)
 	
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TWeakObjectPtr<UAbilitySystemComponent> InstigatorASC; // 발사자 ASC
 
 	//공통 프로퍼티
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Damage;
-
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Speed;
-
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Lifetime;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FSkillSpawnData SpawnData;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName ResourceID; 
+};
+
+// Pierce 전용 확장
+USTRUCT(BlueprintType)
+struct FPierceSkillObjectInitData : public FSkillObjectInitData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 PierceCount;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DamageDecay;
+};
+
+// Explode/Arc 전용 확장
+USTRUCT(BlueprintType)
+struct FExplodeSkillObjectInitData : public FSkillObjectInitData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float ExplosionRadius;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float ExplosionDamageMultiplier;
+};
+
+// Homing 전용 확장
+USTRUCT(BlueprintType)
+struct FHomingSkillObjectInitData : public FSkillObjectInitData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float TurnSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float LockRange;
+};
+
+// Arc 전용 확장
+USTRUCT(BlueprintType)
+struct FArcSkillObjectInitData : public FSkillObjectInitData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float ExplosionRadius;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float ExplosionDamageMultiplier;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float LaunchAngle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float GravityScale;
 };
 
 
 // =============================================================================
 /** 
- * FBuffEffectData 구성 요소
+ * FStatusEffectData 구성 요소
  * - 스킬로 인한 버프/디버프 효과 정적데이터
  */
 //=============================================================================
 // (260224) KHS 제작. 제반 사항 구현.
+// (260226) KHS v1.2 신규 추가 — 상태이상 정의 (기존 FBuffEffectData 대체)
 // =============================================================================
 USTRUCT(BlueprintType)
-struct FBuffEffectData : public FTableRowBase
+struct FStatusEffectData : public FTableRowBase
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName BuffEffectID;
+	FName StatusEffectID;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName BuffType; // 버프/디버프 타입 문자열 → ParseBuffType()으로 변환
+	EStatusType StatusType; // 버프/디버프 타입 문자열 → ParseBuffType()으로 변환
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTag GameplayTag; // GAS 상태이상 태그
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSoftClassPtr<UGameplayEffect> BuffEffectGE; // 상태이상 GE 에셋 
+	TSoftClassPtr<UGameplayEffect> StatusEffectGE; // 상태이상 GE 에셋 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 StackLimit;
@@ -511,6 +693,7 @@ struct FBuffEffectData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName StackPolicy;
 };
+
 
 
 // =============================================================================

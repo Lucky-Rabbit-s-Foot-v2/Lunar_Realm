@@ -1,0 +1,6 @@
+,ResourceID,SkillIcon,SpawnVFX,SpawnSFX,TrailVFX,ImpactVFX,ImpactSFX
+1,RESOURCE_ARROW,None,None,None,None,None,None
+2,RESOURCE_FIREBALL,None,None,None,None,None,None
+3,RESOURCE_ICEBALL,None,None,None,None,None,None
+4,RESOURCE_LIGHTNING,None,None,None,None,None,None
+5,RESOURCE_PIERCE,None,None,None,None,None,None
