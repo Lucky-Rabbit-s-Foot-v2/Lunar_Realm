@@ -16,7 +16,6 @@
  // (260213) PJB 제작. 제반 사항 구현
  //============================================================================
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStageOpenClicked, FName, StageID);
 
 UCLASS()
 class LUNAR_REALM_API ULRStageWidget : public ULRChildWidget
@@ -24,18 +23,12 @@ class LUNAR_REALM_API ULRStageWidget : public ULRChildWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
-
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
 	virtual void RefreshUI() override;
 
 	void SetStageID(FName InStageID);
-
-	UPROPERTY(BlueprintAssignable, Category = "LR|Event")
-	FOnStageOpenClicked OnStageOpenClickedDel;
 
 private:
 	UFUNCTION(BlueprintCallable, Category = "LR|UI")
@@ -62,4 +55,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Chapter")
 	FName StageID;
+
+private:
+	UPROPERTY(EditAnywhere, Category = "LR|UI")
+	TSubclassOf<class ULRStageReadyWidget> StageReadyClass;
 };
