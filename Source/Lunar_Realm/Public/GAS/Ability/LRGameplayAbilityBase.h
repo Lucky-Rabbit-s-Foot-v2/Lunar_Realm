@@ -74,6 +74,12 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "LR|Ability")
 	UAbilitySystemComponent* GetOwnerASC() const;
 	
+	/**
+	 * Instigator의 팀 태그를 기반으로 적대 팀 태그 반환
+	 * @return 적대 팀의 루트 태그
+	 */
+	FGameplayTag GetHostileTeamTag() const;
+	
 protected:
 	UPROPERTY()
 	TObjectPtr<const ALRCharacter> CachedInstigator;
