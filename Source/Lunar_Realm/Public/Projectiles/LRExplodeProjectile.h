@@ -18,7 +18,8 @@ protected:
 	virtual void OnSkillObjectInitialized() override;
 	// true반환 = 베이스가 풀복귀, false반환 = 자식이 직접 처리
 	virtual bool OnSkillObjectHit(AActor* OtherActor, const FHitResult& Hit) override;
-
+	virtual void OnSkillObjectExpired() override;
+	
 private:
 	void ApplyExplosionDamage();
 

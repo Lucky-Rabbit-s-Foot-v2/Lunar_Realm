@@ -28,9 +28,14 @@ void ALRExplodeProjectile::OnSkillObjectInitialized()
 
 bool ALRExplodeProjectile::OnSkillObjectHit(AActor* OtherActor, const FHitResult& Hit)
 {
-	ApplyExplosionDamage();
+	OnSkillObjectExpired();
 	OnPoolDeactivate_Implementation();
 	return false; //자식이 직접 풀 복귀시킴
+}
+
+void ALRExplodeProjectile::OnSkillObjectExpired()
+{
+	ApplyExplosionDamage();
 }
 
 void ALRExplodeProjectile::ApplyExplosionDamage()

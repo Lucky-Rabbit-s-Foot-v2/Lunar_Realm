@@ -27,6 +27,7 @@ namespace LRTags
 	//상태 태그
 	UE_DEFINE_GAMEPLAY_TAG(State_Debuff_Burning, "State.Debuff.Burning");
 	UE_DEFINE_GAMEPLAY_TAG(State_Debuff_Shock, "State.Debuff.Shock");
+	UE_DEFINE_GAMEPLAY_TAG(State_Debuff_Freeze, "State.Debuff.Freeze");
 	UE_DEFINE_GAMEPLAY_TAG(State_Dead, "State.Dead");
 	UE_DEFINE_GAMEPLAY_TAG(State_Dashing, "State.Dashing");
 	

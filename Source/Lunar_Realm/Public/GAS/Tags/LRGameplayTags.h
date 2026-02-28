@@ -78,6 +78,8 @@ namespace LRTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Debuff_Burning);
 	//감전 상태(Shock) <- GE_Shock가 감전 상태 부여
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Debuff_Shock);
+	//빙결 상태(Freeze) <- GE_Freeze가 빙결 상태 부여
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Debuff_Freeze);
 	//사망 상태(Dead) <- 체력 0이면 부여
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Dead);
 	//대시 상태(Dashing)
