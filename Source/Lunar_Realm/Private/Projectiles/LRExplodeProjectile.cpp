@@ -33,6 +33,11 @@ bool ALRExplodeProjectile::OnSkillObjectHit(AActor* OtherActor, const FHitResult
 	return false; //자식이 직접 풀 복귀시킴
 }
 
+void ALRExplodeProjectile::OnSkillObjectExpired()
+{
+	ApplyExplosionDamage();
+}
+
 void ALRExplodeProjectile::ApplyExplosionDamage()
 {
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;

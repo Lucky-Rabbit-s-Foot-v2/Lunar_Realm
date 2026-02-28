@@ -239,6 +239,7 @@ void ALRProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPri
 
 void ALRProjectile::OnLifeTimeExpired()
 {
+	OnSkillObjectExpired();
 	OnPoolDeactivate_Implementation();
 }
 
