@@ -73,6 +73,7 @@ private:
 	void PlayImpactEffects();
 	
 	FTimerHandle LifeTimeTimerHandle;
+	bool bIsDeactivated = false;
 	
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "LR|Projectile")
