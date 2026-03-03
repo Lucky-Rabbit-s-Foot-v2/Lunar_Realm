@@ -18,6 +18,7 @@
 #include "Subsystems/GameDataSubsystem.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
+#include "Components/PrimitiveComponent.h"
 
 ULRCombatComponent::ULRCombatComponent()
 {
@@ -356,9 +357,27 @@ bool ULRCombatComponent::IsTargetInRange() const
 	ALRCharacter* OwnerCharacter = GetOwnerCharacter();
 	if (!OwnerCharacter || !CurrentTarget) return false;
 
-	float DistSq = FVector::DistSquared(OwnerCharacter->GetActorLocation(), CurrentTarget->GetActorLocation());
+	FVector MyLoc = OwnerCharacter->GetActorLocation();
+	FVector TargetLoc = CurrentTarget->GetActorLocation();
+
+	// 타겟의 콜리전을 가져와서 내 위치와 가장 가까운 '표면 좌표'를 구함!
+	if (UPrimitiveComponent* TargetCollision = Cast<UPrimitiveComponent>(CurrentTarget->GetRootComponent()))
+	{
+		TargetCollision->GetClosestPointOnCollision(MyLoc, TargetLoc);
+	}
+
+	// 중심점이 아닌, 타겟의 '표면 좌표'와의 거리를 계산
+	float DistSq = FVector::DistSquared(MyLoc, TargetLoc);
 	float AttackRangeSq = AttackRange * AttackRange;
+
 	return DistSq <= AttackRangeSq;
+
+	//ALRCharacter* OwnerCharacter = GetOwnerCharacter();
+	//if (!OwnerCharacter || !CurrentTarget) return false;
+
+	//float DistSq = FVector::DistSquared(OwnerCharacter->GetActorLocation(), CurrentTarget->GetActorLocation());
+	//float AttackRangeSq = AttackRange * AttackRange;
+	//return DistSq <= AttackRangeSq;
 }
 
 FGameplayTag ULRCombatComponent::GetEnemyRootTag() const

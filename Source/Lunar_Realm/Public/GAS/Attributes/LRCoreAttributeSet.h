@@ -23,5 +23,8 @@ class LUNAR_REALM_API ULRCoreAttributeSet : public ULRAttributeSet
 public:
 	ULRCoreAttributeSet();
 
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+
 
 };

@@ -6,6 +6,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "System/LoggingSystem.h"
 #include "Units/LRAIController.h"
+#include "Components/PrimitiveComponent.h"
 
 
 ULRBTTAttack::ULRBTTAttack()
@@ -43,13 +44,25 @@ EBTNodeResult::Type ULRBTTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 		return EBTNodeResult::Failed;
 	}
 
-	// 사거리 체크
-	const float DistToTarget = FVector::Dist(
-		MyPawn->GetActorLocation(),
-		TargetActor->GetActorLocation()
-	);
+	// BJM 타겟 사거리 계산 수정
+	FVector MyLoc = MyPawn->GetActorLocation();
+	FVector TargetLoc = TargetActor->GetActorLocation();
 
+	if (UPrimitiveComponent* TargetCollision = Cast<UPrimitiveComponent>(TargetActor->GetRootComponent()))
+	{
+		TargetCollision->GetClosestPointOnCollision(MyLoc, TargetLoc);
+	}
+
+	const float DistToTarget = FVector::Dist(MyLoc, TargetLoc);
 	const float CurrentAttackRange = AIController->GetAttackRange();
+
+	//// 사거리 체크
+	//const float DistToTarget = FVector::Dist(
+	//	MyPawn->GetActorLocation(),
+	//	TargetActor->GetActorLocation()
+	//);
+
+	//const float CurrentAttackRange = AIController->GetAttackRange();
 
 	if (DistToTarget > CurrentAttackRange)
 	{
