@@ -224,11 +224,11 @@ void ALRProjectile::InitSkillObject(const FSkillObjectInitData& Initdata)
 void ALRProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
-	LR_INFO(TEXT(" 충돌 감지 - OtherActor: %s / bIsDeactivated: %s / this: %s"), 
+	LR_INFO(TEXT(" 충돌 감지 - OtherActor: %s / bIsDeactivated: %s / this: %s"),
 		OtherActor ? *OtherActor->GetName() : TEXT("NULL"),
 		bIsDeactivated ? TEXT("true") : TEXT("false"),
 		*GetName()); // ← 어떤 투사체 인스턴스인지 확인
-	
+
 	if (bIsDeactivated)
 	{
 		return;
@@ -272,6 +272,11 @@ void ALRProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPri
 		LR_WARN(TEXT("[OnHit] HostileTag 불일치 — 무시: %s"), *OtherActor->GetName());
 		return;
 	}
+	// 사망 대상 무시
+    if (OtherASC->HasMatchingGameplayTag(LRTags::State_Dead))
+    {
+        return;
+    }
 	LR_INFO(TEXT("[OnHit] 태그 검사 통과 → 데미지 처리 진입: %s"), *OtherActor->GetName());
 	
 	

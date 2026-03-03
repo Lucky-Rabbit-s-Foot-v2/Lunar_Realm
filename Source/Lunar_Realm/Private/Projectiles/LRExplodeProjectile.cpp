@@ -5,6 +5,7 @@
 
 #include "DrawDebugHelpers.h"
 #include "Engine/GameInstance.h"
+#include "GAS/Tags/LRGameplayTags.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Subsystems/GameDataSubsystem.h"
 #include "Units/LRCharacter.h"
@@ -81,6 +82,11 @@ void ALRExplodeProjectile::ApplyExplosionDamage()
 			continue;
 		}
 		if (!TargetASC->HasMatchingGameplayTag(HostileTag))
+		{
+			continue;
+		}
+		// 사망 대상 무시
+		if (TargetASC->HasMatchingGameplayTag(LRTags::State_Dead))
 		{
 			continue;
 		}

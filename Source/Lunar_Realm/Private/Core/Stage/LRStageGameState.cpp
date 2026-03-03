@@ -21,3 +21,20 @@ void ALRStageGameState::BeginPlay()
 	LR_SCREEN_INFO(TEXT("Current Stage Reward Data: Gold = %d, Normal Tickets = %d, Enhance Tickets = %d"), RewardData.Gold, RewardData.NormalTicket, RewardData.EnhanceTicket);
 
 }
+
+void ALRStageGameState::AddAether(float Amount)
+{
+	if (Amount <= 0.0f)
+	{
+		return;
+	}
+
+	CurrentAether += Amount;
+
+	LR_DEBUG(TEXT("GameState: Aether added %.1f, Total: %.1f"), Amount, CurrentAether);
+
+	if (OnAetherChanged.IsBound())
+	{
+		OnAetherChanged.Execute(Amount);
+	}
+}
