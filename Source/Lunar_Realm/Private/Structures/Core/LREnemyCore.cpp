@@ -7,6 +7,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "GAS/Attributes/LRCoreAttributeSet.h"
+#include "GAS/Tags/LRGameplayTags.h"
 
 ALREnemyCore::ALREnemyCore()
 {
@@ -21,6 +22,11 @@ void ALREnemyCore::BeginPlay()
 	{
 		AttributeSet->InitHealth(1000.0f);
 		AttributeSet->InitMaxHealth(1000.0f);
+	}
+
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->AddLooseGameplayTag(LRTags::Team_Enemy_Structure_Core);
 	}
 
 	LR_INFO(TEXT("적 코어 생성 및 체력 세팅 완료: %.1f"), AttributeSet->GetHealth());

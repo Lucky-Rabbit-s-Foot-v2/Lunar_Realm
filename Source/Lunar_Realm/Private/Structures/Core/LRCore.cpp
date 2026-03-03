@@ -7,6 +7,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "System/LoggingSystem.h"
 
+
 // Sets default values
 ALRCore::ALRCore()
 {
@@ -14,6 +15,7 @@ ALRCore::ALRCore()
 	PrimaryActorTick.bCanEverTick = false;
 
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
+	//AbilitySystemComponent->InitAbilityActorInfo(this, this);
 
 	AttributeSet = CreateDefaultSubobject<ULRCoreAttributeSet>(TEXT("AttributeSet"));
 
@@ -25,9 +27,9 @@ ALRCore::ALRCore()
 	HitCollision->SetGenerateOverlapEvents(true);
 
 	HitCollision->SetCollisionObjectType(ECC_WorldDynamic);
-
-	HitCollision->SetCollisionResponseToAllChannels(ECR_Ignore);
-	HitCollision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+	//HitCollision->SetCollisionResponseToAllChannels(ECR_Ignore);
+	HitCollision->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block);
+	//HitCollision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 
 	VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VisualMesh"));
 	VisualMesh->SetupAttachment(HitCollision);
@@ -42,6 +44,10 @@ void ALRCore::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	}
 	if (AbilitySystemComponent && AttributeSet)
 	{
 		AttributeSet->InitHealth(1000.0f);
@@ -50,9 +56,9 @@ void ALRCore::BeginPlay()
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
 			ULRAttributeSet::GetHealthAttribute()).AddUObject(this, &ALRCore::OnHealthChanged);
 
+
 		LR_INFO(TEXT("[%s] GAS 초기화 완료. 현재 체력: %.f"), *GetName(), AttributeSet->GetHealth());
 	}
-
 	//if (AbilitySystemComponent)
 	//{
 	//	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
@@ -66,9 +72,10 @@ void ALRCore::OnHitCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponen
 {
 	if (!OtherActor || OtherActor == this)
 	{
-		LR_DEBUG(TEXT("Core Overlapped By: %s"), *OtherActor->GetName());
 		return;
 	}
+
+	LR_DEBUG(TEXT("Core Overlapped By: %s"), *OtherActor->GetName());
 }
 
 void ALRCore::OnHealthChanged(const FOnAttributeChangeData& InData)

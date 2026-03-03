@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "System/LoggingSystem.h"
 #include "GAS/Attributes/LRCoreAttributeSet.h"
+#include "GAS/Tags/LRGameplayTags.h"
 
 ALRPlayerCore::ALRPlayerCore()
 {
@@ -31,6 +32,11 @@ void ALRPlayerCore::BeginPlay()
 		AttributeSet->InitHealth(5000.0f);
 		AttributeSet->InitMaxHealth(5000.0f);
 	}
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->AddLooseGameplayTag(LRTags::Team_Player_Structure_Core);
+	}
+
 
 	LR_INFO(TEXT("아군 코어 생성 및 체력 세팅 완료: %.1f"), AttributeSet->GetHealth());
 }

@@ -32,13 +32,15 @@ class ULRAttributeSet;
 //============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ALRCore : public AActor, public IGameplayTagAssetInterface
+class LUNAR_REALM_API ALRCore : public AActor, public IGameplayTagAssetInterface, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
 	ALRCore();
+
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const { return AbilitySystemComponent; }
 
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override
 	{
