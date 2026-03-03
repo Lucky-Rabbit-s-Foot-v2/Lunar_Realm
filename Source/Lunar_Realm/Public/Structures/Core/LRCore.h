@@ -48,13 +48,13 @@ public:
 	FORCEINLINE UBoxComponent* GetHitCollision() const { return HitCollision; }
 	FORCEINLINE UStaticMeshComponent* GetVisualMesh() const { return VisualMesh; }
 
+	virtual void OnCoreDestroyed();
 
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void OnHealthChanged(const FOnAttributeChangeData& InData);
 
-	virtual void OnCoreDestroyed();
 
 	UFUNCTION()
 	void OnHitCollisionBeginOverlap(
