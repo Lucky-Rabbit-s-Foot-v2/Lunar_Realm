@@ -1,10 +1,11 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include "Units/Enemy/LREnemyAIController.h"
+
 #include "AbilitySystemBlueprintLibrary.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "GAS/Tags/LRGameplayTags.h"
-#include "Units/Enemy/LREnemyAIController.h"
 #include "Units/LRCharacter.h"
 
 
