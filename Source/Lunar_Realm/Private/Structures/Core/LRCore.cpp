@@ -29,7 +29,9 @@ ALRCore::ALRCore()
 	HitCollision->SetCollisionObjectType(ECC_WorldDynamic);
 	//HitCollision->SetCollisionResponseToAllChannels(ECR_Ignore);
 	HitCollision->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block);
-	//HitCollision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+	HitCollision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+
+	HitCollision->SetCanEverAffectNavigation(false);
 
 	VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VisualMesh"));
 	VisualMesh->SetupAttachment(HitCollision);

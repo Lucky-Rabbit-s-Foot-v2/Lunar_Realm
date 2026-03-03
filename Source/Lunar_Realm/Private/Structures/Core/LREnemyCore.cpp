@@ -20,8 +20,8 @@ void ALREnemyCore::BeginPlay()
 
 	if (AttributeSet)
 	{
-		AttributeSet->InitHealth(1000.0f);
-		AttributeSet->InitMaxHealth(1000.0f);
+		AttributeSet->InitHealth(500.0f);
+		AttributeSet->InitMaxHealth(500.0f);
 	}
 
 	if (AbilitySystemComponent)
