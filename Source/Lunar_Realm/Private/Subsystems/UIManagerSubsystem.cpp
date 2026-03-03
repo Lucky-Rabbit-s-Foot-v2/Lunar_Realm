@@ -4,6 +4,9 @@
 #include "Subsystems/UIManagerSubsystem.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "UI/InGame/LRDamageWidget.h"
+
 void UUIManagerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
@@ -188,6 +191,91 @@ ULRBaseWidget* UUIManagerSubsystem::SwitchPageUIByID(EUIID PageID)
 	}
 
 	return nullptr;
+}
+
+void UUIManagerSubsystem::ShowDamageText(float Damage, FVector HitLocation)
+{
+	ULRDamageWidget* DamageUI = GetFreeDamageWidgetFromPool();
+    if (!DamageUI) return;
+
+    APlayerController* PC = GetWorld()->GetFirstPlayerController();
+    FVector2D ScreenPosition;
+    
+    // 3D 월드 좌표(HitLocation)를 2D 스크린 좌표(ScreenPosition)로 전환
+    if (UGameplayStatics::ProjectWorldToScreen(PC, HitLocation, ScreenPosition))
+    {
+		DamageUI->SetPositionInViewport(ScreenPosition);
+
+		//==================START:스케일링 로직====================
+        FVector CameraLocation = PC->PlayerCameraManager->GetCameraLocation();
+        float Distance = FVector::Distance(CameraLocation, HitLocation);
+
+        // 거리에 따른 스케일(비율) 매핑
+        FVector2D InRange(500.0f, 3000.0f); // 거리 : 500 ~ 3000 
+        FVector2D OutRange(1.0f, 0.4f); // 스케일 : 1.0f ~ 0.4f 
+        float DynamicScale = FMath::GetMappedRangeValueClamped(InRange, OutRange, Distance);
+
+        // 렌더 스케일 적용
+        DamageUI->SetRenderScale(FVector2D(DynamicScale, DynamicScale));
+		//====================END:스케일링 로직==================
+		DamageUI->PlayFloatAnimation(Damage);
+    }
+}
+
+ULRDamageWidget* UUIManagerSubsystem::GetFreeDamageWidgetFromPool()
+{
+	ULRDamageWidget* Widget = nullptr;
+
+	if (DamageWidgetPool.Num() > 0)
+	{
+		Widget = DamageWidgetPool.Pop();
+	}
+	else
+	{
+		UUIManagerSettings* Settings = GetMutableDefault<UUIManagerSettings>();
+		Widget = CreateWidget<ULRDamageWidget>(GetWorld(), Settings->DamageWidgetClass);
+	}
+	
+	if (Widget)
+	{
+		Widget->ActivateWidget();
+	}
+	return Widget;
+}
+
+void UUIManagerSubsystem::ReturnDamageWidgetToPool(ULRDamageWidget* Widget)
+{
+	if (Widget)
+	{
+		Widget->DeactivateWidget();
+		DamageWidgetPool.Add(Widget);
+	}
+}
+
+void UUIManagerSubsystem::InitializeDamageWidgetPool(int32 PoolSize)
+{
+	for (int32 i = 0; i < PoolSize; ++i)
+	{
+		UUIManagerSettings* Settings = GetMutableDefault<UUIManagerSettings>();
+		ULRDamageWidget* Widget = CreateWidget<ULRDamageWidget>(GetWorld(), Settings->DamageWidgetClass);
+		if (Widget)
+		{
+			Widget->SetVisibility(ESlateVisibility::Collapsed);
+			DamageWidgetPool.Add(Widget);
+		}
+	}
+}
+
+void UUIManagerSubsystem::ResetDamageWidgetPool()
+{
+	for (auto& Widget : DamageWidgetPool)
+	{
+		if (Widget)
+		{
+			Widget->RemoveFromParent();
+		}
+	}
+	DamageWidgetPool.Empty();
 }
 
 void UUIManagerSubsystem::UpdatePopupZOrders()
