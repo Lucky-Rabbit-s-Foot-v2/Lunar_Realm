@@ -7,7 +7,7 @@
 
 ULRMMC_Damage::ULRMMC_Damage()
 {
-	// Source(공격자)의 AttackPower를 캡처하겠다고 세팅
+	// Source의 AttackPower를 캡처하겠다고 세팅
 	AttackPowerDef = FGameplayEffectAttributeCaptureDefinition(ULRPlayerAttributeSet::GetAttackPowerAttribute(), EGameplayEffectAttributeCaptureSource::Source, true);
 
 	// 캡처 목록에 등록
