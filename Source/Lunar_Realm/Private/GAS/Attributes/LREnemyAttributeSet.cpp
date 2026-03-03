@@ -30,7 +30,7 @@ void ULREnemyAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribut
 	}
 	if(Attribute == GetDamageAttribute())
 	{
-		NewValue = FMath::Clamp(NewValue, 0.0f, MaxAttack);
+		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxHealth());
 	}
 }
 
