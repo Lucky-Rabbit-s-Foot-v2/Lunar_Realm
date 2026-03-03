@@ -21,6 +21,7 @@
 // (260123) KHS 제작. 제반 사항 구현.
 // (260211) PYI 재화, 가챠저장용 데이터(천장카운터, 트랜잭션), 유저 재화 기본값 추가
 // (260211) KHS 멤버 숨김. SaveGame 시스템 사용용도 Getter/Setter추가.
+// (260227) PJB 캐릭터 슬롯 최대 5개로 확장.
 // ==================================================================================
 
 
@@ -87,7 +88,7 @@ private:
 	// 선택된 리더 캐릭터 장비 정보
 	TArray<FGuid> SelectedEquipmentIDs; // 리더 장비 3개 [무기, 헬멧, 갑옷]
     
-	const int PARTY_SLOT_SIZE = 4;
+	const int PARTY_SLOT_SIZE = 5;
 	const int EQUIPMENT_SLOT_SIZE = 3;
 	
 public:

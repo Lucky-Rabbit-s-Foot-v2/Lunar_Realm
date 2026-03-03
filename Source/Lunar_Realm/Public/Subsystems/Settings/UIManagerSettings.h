@@ -31,7 +31,8 @@ enum class EUIID : uint8
 	SETTING,
 	PAUSE,
 	GAMEOVER,
-	GAMECLEAR
+	GAMECLEAR,
+	DAMAGEPOPUP,
 };
 
 UCLASS(Config = Game, defaultconfig, meta = (DisplayName = "UI Manager Settings"))
@@ -44,4 +45,7 @@ public:
 
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "UI Routing")
 	TMap<EUIID, TSoftClassPtr<ULRBaseWidget>> UIClassMap;
+
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "UI Routing")
+	TSubclassOf<ULRBaseWidget> DamageWidgetClass;
 };
