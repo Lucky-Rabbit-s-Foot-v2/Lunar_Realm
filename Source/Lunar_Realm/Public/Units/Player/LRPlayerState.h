@@ -21,6 +21,7 @@
 // (260205) BJM DataSubsystem연동 및 장비 장착/해제 기능 추가.
 // (260206) BJM 수정된 ID 테이블 반영.
 // (260225) BJM player 기본공격 GA 부여 수정 및 스킬 연동
+// (260303) KWB GameState로부터 에테르를 받는 함수 추가 및 BeginPlay()에서 델리게이트 바인딩 추가 : 추후 시스템 구성(ex. SpawnManager)에 따라 삭제 예정
 //=============================================================================
 
 class UAbilitySystemComponent;
@@ -58,6 +59,9 @@ protected:
 public:
 	void ActivateSkill1();
 	void ActivateSkill2();
+
+	// (260303) KWB GameState로부터 에테르를 받는 함수
+	void OnAetherReceived(float Amount);
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "GAS")

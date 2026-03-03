@@ -23,6 +23,8 @@ class UGameplayAbility;
  // (260209) KWB "GrantEnemyAbilities()" 함수 리팩터 -> "FEnemyStaticData" 스킬 항목 "TArray<int32>" 타입으로 캐릭터, 장비와 통일
  // (260210) KWB 키값 타입 int32 -> FName 으로 변경 반영
  // (260210) KWB 비주얼 데이터 적용, 풀링 라이프 사이클 구현
+ // (260303) KWB DropAether 값 DT에서 조회하는 헬퍼 함수 추가, "OnDie()"시 게임 스테이트에 에테르 추가 로직 추가
+ // (260303) KWB bool IsDead 변수로 OnDie() 중복 호출 방어 
  //============================================================================
 
 UCLASS()
@@ -69,4 +71,8 @@ private:
 	FName CurrentEnemyID;
 
 	TArray<FGameplayAbilitySpecHandle> GrantedAbilityHandles;
+
+	float GetDropAetherAmount() const;
+
+	bool IsDead = false;
 };
