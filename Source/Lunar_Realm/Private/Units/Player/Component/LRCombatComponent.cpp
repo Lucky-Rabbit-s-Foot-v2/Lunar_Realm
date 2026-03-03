@@ -175,8 +175,10 @@ void ULRCombatComponent::FindBestTarget()
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(OwnerCharacter);
 
+	float CurrentCheckRadius = (CombatState == EAutoCombatState::Manual) ? AttackRange : SearchRadius;
+
 	bool bOverlapFound = UKismetSystemLibrary::SphereOverlapActors(
-		GetWorld(), OwnerCharacter->GetActorLocation(), SearchRadius,
+		GetWorld(), OwnerCharacter->GetActorLocation(), CurrentCheckRadius,
 		ObjectTypes, ALRCharacter::StaticClass(), ActorsToIgnore, OutActors
 	);
 

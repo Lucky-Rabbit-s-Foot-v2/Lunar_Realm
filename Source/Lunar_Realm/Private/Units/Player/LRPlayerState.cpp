@@ -31,7 +31,7 @@ void ALRPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitializePlayerData();
+	//InitializePlayerData();
 }
 
 UAbilitySystemComponent* ALRPlayerState::GetAbilitySystemComponent() const
@@ -41,6 +41,13 @@ UAbilitySystemComponent* ALRPlayerState::GetAbilitySystemComponent() const
 
 void ALRPlayerState::InitializePlayerData()
 {
+	if (bIsPlayerDataInitialized)
+	{
+		return;
+	}
+
+	bIsPlayerDataInitialized = true;
+
 	// TODO_BJM: SaveGameSubsystem에서 플레이어 데이터 로드
 	// 지금은 임시 데이터 넣음
 	CharacterID = FName("CHAR_ARCHER_01");
