@@ -28,10 +28,10 @@ public:
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Limit")
-	float MinY = -1700.0f;
+	float MinY = -2000.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Limit")
-	float MaxY = 1700.0f;
+	float MaxY = 2000.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Camera Setting")
 	float FixedX = -1000.0f;

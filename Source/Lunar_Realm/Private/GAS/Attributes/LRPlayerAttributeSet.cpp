@@ -15,7 +15,7 @@ ULRPlayerAttributeSet::ULRPlayerAttributeSet()
 	InitHealth(100.0f);
 	InitMaxHealth(100.0f);
 	InitAether(0.0f);
-	InitAttackPower(10.0f);
+	InitAttackPower(4.0f);
 	InitDefense(0.0f);
 }
 
