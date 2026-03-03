@@ -11,6 +11,7 @@
 #include "GAS/Ability/LRGameplayAbilityBase.h"
 #include "GAS/Tags/LRGameplayTags.h"
 #include "Units/Player/LRPlayerCharacter.h"
+#include "Core/Stage/LRStageGameState.h"
 
 ALRPlayerState::ALRPlayerState()
 {
@@ -32,6 +33,16 @@ void ALRPlayerState::BeginPlay()
 	Super::BeginPlay();
 
 	//InitializePlayerData();
+
+	// (260303) KWB 델리게이트 바인딩을 위한 GameState 가져오기
+	if (ALRStageGameState* GameState = GetWorld()->GetGameState<ALRStageGameState>())
+	{
+		GameState->OnAetherChanged.BindUObject(this, &ALRPlayerState::OnAetherReceived);
+	}
+	else
+	{
+		LR_WARN(TEXT("[PlayerState] GameState를 찾을 수 없어 델리게이트 바인딩 실패"));
+	}
 }
 
 UAbilitySystemComponent* ALRPlayerState::GetAbilitySystemComponent() const
@@ -364,4 +375,25 @@ void ALRPlayerState::ActivateSkill2()
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Cast<AActor>(GetPawn()), TriggerTag, EventData);
 
 	LR_INFO(TEXT("[ActivateSkill2] 무기 스킬 발송 완료"));
+}
+
+// (260303) KWB GameState로부터 에테르를 받는 함수
+void ALRPlayerState::OnAetherReceived(float Amount)
+{
+	if (!AttributeSet)
+	{
+		LR_ERROR(TEXT("[PlayerState] AttributeSet이 null입니다"));
+		return;
+	}
+
+	if (Amount <= 0.0f)
+	{
+		return;
+	}
+
+	// Aether 속성 증가
+	float CurrentAether = AttributeSet->GetAether();
+	float NewAether = CurrentAether + Amount;
+
+	AttributeSet->SetAether(NewAether);
 }

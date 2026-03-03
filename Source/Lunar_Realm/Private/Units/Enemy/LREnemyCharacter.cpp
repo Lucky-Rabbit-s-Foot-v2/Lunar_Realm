@@ -32,6 +32,18 @@ ALREnemyCharacter::ALREnemyCharacter()
 
 void ALREnemyCharacter::OnDie()
 {
+	// OnDie() 단일 호출
+	if (!IsDead)
+	{
+		IsDead = true;
+	}
+	else
+	{
+		return;
+	}
+
+	//LR_ERROR(TEXT("======================%s의 OnDie() 함수 실행됨.======================"), *GetName());
+
 	// 게임 스테이트에 에테르 추가
 	if (ALRStageGameState* GameState = GetWorld()->GetGameState<ALRStageGameState>())
 	{
@@ -247,7 +259,7 @@ float ALREnemyCharacter::GetDropAetherAmount() const
 {
 	if (CurrentEnemyID == NAME_None)
 	{
-		LR_WARN(TEXT("Not Valid CurrentEnemyID"));
+		// LR_WARN(TEXT("Not Valid CurrentEnemyID : %s || %s"), *GetName(), *CurrentEnemyID.ToString());
 		return 0.0f;
 	}
 
@@ -383,6 +395,8 @@ void ALREnemyCharacter::OnPoolActivate_Implementation()
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	}
+
+	IsDead = false;
 
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
