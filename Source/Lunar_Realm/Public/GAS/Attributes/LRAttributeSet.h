@@ -17,6 +17,7 @@
  //=============================================================================
  // (260210) KWB 제작. 제반 사항 구현.
  // (260224) KHS 수정, 공통 어트리뷰트 추가
+ // (260303) BJM 수정, 데미치 항목 추가
  // =============================================================================
 UCLASS()
 class LUNAR_REALM_API ULRAttributeSet : public UAttributeSet
@@ -36,5 +37,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "LR|Common")
 	FGameplayAttributeData Speed;
 	ATTRIBUTE_ACCESSORS(ULRAttributeSet, Speed)
+
+	UPROPERTY(BlueprintReadOnly, Category = "LR|Common")
+	FGameplayAttributeData Damage;
+	ATTRIBUTE_ACCESSORS(ULRAttributeSet, Damage)
 	
 };
