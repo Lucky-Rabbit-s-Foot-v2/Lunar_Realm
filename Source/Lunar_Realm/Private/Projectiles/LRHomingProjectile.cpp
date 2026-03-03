@@ -26,26 +26,10 @@ void ALRHomingProjectile::OnSkillObjectInitialized()
 	const FFlightHomingData& HomingData = DataSys->GetFlightData<FFlightHomingData>(InitData.SkillEffectID);
 
 	// 적대 팀 태그 추출
-	UAbilitySystemComponent* InstigatorASC = InitData.InstigatorASC.Get();
-	if (!InstigatorASC)
-	{
-		LR_WARN(TEXT("InstigatorASC is null"));
-		return;
-	}
-
-	FGameplayTag HostileTag;
-	if (InstigatorASC->HasMatchingGameplayTag(LRTags::Team_Player))
-	{
-		HostileTag = LRTags::Team_Enemy;
-	}
-	else if (InstigatorASC->HasMatchingGameplayTag(LRTags::Team_Enemy))
-	{
-		HostileTag = LRTags::Team_Player;
-	}
-
+	FGameplayTag HostileTag = GetHostileTeamTag();
 	if (!HostileTag.IsValid())
 	{
-		LR_INFO(TEXT("[LRHomingProjectile] 유효하지 않은 HostileTag → Linear 전환"));
+		LR_INFO(TEXT("유효하지 않은 HostileTag → Linear 전환"));
 		return;
 	}
 
@@ -54,7 +38,7 @@ void ALRHomingProjectile::OnSkillObjectInitialized()
 
 	if (!Target)
 	{
-		LR_INFO(TEXT("[LRHomingProjectile] 범위 내 적 없음 → Linear 전환"));
+		LR_INFO(TEXT("범위 내 적 없음 → Linear 전환"));
 		return; // bIsHomingProjectile 기본값 false → Linear 유지
 	}
 
@@ -63,7 +47,7 @@ void ALRHomingProjectile::OnSkillObjectInitialized()
 	ProjectileComp->HomingAccelerationMagnitude = HomingData.TurnSpeed;
 	ProjectileComp->HomingTargetComponent = Target->GetRootComponent();
 
-	LR_INFO(TEXT("[LRHomingProjectile] 타겟 지정 성공: %s"), *Target->GetName());
+	LR_INFO(TEXT("타겟 지정 성공: %s"), *Target->GetName());
 }
 
 void ALRHomingProjectile::OnPoolDeactivate_Implementation()
@@ -79,6 +63,7 @@ AActor* ALRHomingProjectile::FindNearestHostile(FGameplayTag HostileTag, float S
 {
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn));
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldDynamic));
 
 	TArray<AActor*> IgnoreActors;
 	IgnoreActors.Add(const_cast<ALRHomingProjectile*>(this));
@@ -94,7 +79,7 @@ AActor* ALRHomingProjectile::FindNearestHostile(FGameplayTag HostileTag, float S
 	UKismetSystemLibrary::SphereOverlapActors(
 		GetWorld(), GetActorLocation(),
 		SearchRadius, ObjectTypes,
-		ALRCharacter::StaticClass(), IgnoreActors, OutActors);
+		nullptr, IgnoreActors, OutActors);
 
 	AActor* Nearest = nullptr;
 	float MinDistSq = FLT_MAX;

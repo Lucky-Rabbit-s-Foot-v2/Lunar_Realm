@@ -6,6 +6,7 @@
 #include "DrawDebugHelpers.h"
 #include "Engine/GameInstance.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "GAS/Tags/LRGameplayTags.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Subsystems/GameDataSubsystem.h"
 #include "Units/LRCharacter.h"
@@ -75,10 +76,33 @@ void ALRArcProjectile::ApplyExplosionDamage()
 	UKismetSystemLibrary::SphereOverlapActors(
 		GetWorld(), GetActorLocation(),
 		CachedExplosionRadius, ObjectTypes,
-		ALRCharacter::StaticClass(), IgnoreActors, OutActors);
+		nullptr, IgnoreActors, OutActors);
 
+	//적대 태그 검출
+	FGameplayTag HostileTag = GetHostileTeamTag();
+	if (!HostileTag.IsValid())
+	{
+		LR_WARN(TEXT("Invalid HostileTag "));
+		return;
+	}
+	
 	for (AActor* Target : OutActors)
 	{
+		//적대 태그가 없으면 무시
+		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Target);
+		if (!TargetASC)
+		{
+			continue;
+		}
+		if (!TargetASC->HasMatchingGameplayTag(HostileTag))
+		{
+			continue;
+		}
+		if (TargetASC->HasMatchingGameplayTag(LRTags::State_Dead))
+		{
+			continue;
+		}
+		
 		float Distance = FVector::Dist(GetActorLocation(), Target->GetActorLocation());
 		float FallOffRatio = 1.f - FMath::Clamp(Distance / CachedExplosionRadius, 0.f, 1.f); //범위에서 가까운 순으로 감쇠데미지
 		float FinalDamage = InitData.Damage * CachedExplosionDamageMultiplier * FallOffRatio;

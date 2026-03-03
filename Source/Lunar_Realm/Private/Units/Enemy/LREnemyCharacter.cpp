@@ -15,6 +15,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GAS/Attributes/LREnemyAttributeSet.h"
 
+#include "Core/Stage/LRStageGameState.h"
 #include "Subsystems/GameDataSubsystem.h"
 #include "Subsystems/PoolingSubsystem.h"
 #include "System/LoggingSystem.h"
@@ -31,7 +32,25 @@ ALREnemyCharacter::ALREnemyCharacter()
 
 void ALREnemyCharacter::OnDie()
 {
-	// TEMP
+	// OnDie() 단일 호출
+	if (!IsDead)
+	{
+		IsDead = true;
+	}
+	else
+	{
+		return;
+	}
+
+	//LR_ERROR(TEXT("======================%s의 OnDie() 함수 실행됨.======================"), *GetName());
+
+	// 게임 스테이트에 에테르 추가
+	if (ALRStageGameState* GameState = GetWorld()->GetGameState<ALRStageGameState>())
+	{
+		float DropAether = GetDropAetherAmount();
+		GameState->AddAether(DropAether);
+	}
+
 	 // 1. AI 비활성화
 	if (AAIController* AIController = Cast<AAIController>(GetController()))
 	{
@@ -236,6 +255,28 @@ void ALREnemyCharacter::ApplyVisualData(const FEnemyStaticData& EnemyData)
 	SetActorScale3D(FVector(FinalScale));
 }
 
+float ALREnemyCharacter::GetDropAetherAmount() const
+{
+	if (CurrentEnemyID == NAME_None)
+	{
+		// LR_WARN(TEXT("Not Valid CurrentEnemyID : %s || %s"), *GetName(), *CurrentEnemyID.ToString());
+		return 0.0f;
+	}
+
+	UGameInstance* GI = GetGameInstance();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+
+	if (!DataSys)
+	{
+		LR_ERROR(TEXT("GameDataSubsystem not found in GetDropAetherAmount"));
+		return 0.0f;
+	}
+
+	const FEnemyStaticData& EnemyData = DataSys->GetEnemyStaticData(CurrentEnemyID);
+
+	return EnemyData.DropAether;
+}
+
 void ALREnemyCharacter::GrantEnemyAbilities()
 {
 	if (!AbilitySystemComponent)
@@ -354,6 +395,8 @@ void ALREnemyCharacter::OnPoolActivate_Implementation()
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	}
+
+	IsDead = false;
 
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
