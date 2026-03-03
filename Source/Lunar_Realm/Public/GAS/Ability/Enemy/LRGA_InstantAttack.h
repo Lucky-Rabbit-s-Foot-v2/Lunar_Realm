@@ -33,5 +33,5 @@ protected:
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Range")
-	float AttackRange = 200.0f; // 공격 가능 거리
+	float AttackRange = 800.0f; // 공격 가능 거리
 };

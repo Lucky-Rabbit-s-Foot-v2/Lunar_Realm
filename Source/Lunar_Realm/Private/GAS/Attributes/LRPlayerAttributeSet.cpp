@@ -7,13 +7,15 @@
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
 #include "System/LoggingSystem.h"
+#include "Subsystems/UIManagerSubsystem.h"
+#include "Engine/GameInstance.h"
 
 ULRPlayerAttributeSet::ULRPlayerAttributeSet()
 {
 	InitHealth(100.0f);
 	InitMaxHealth(100.0f);
 	InitAether(0.0f);
-	InitAttackPower(10.0f);
+	InitAttackPower(4.0f);
 	InitDefense(0.0f);
 }
 
@@ -21,38 +23,95 @@ void ULRPlayerAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 {
 	Super::PreAttributeChange(Attribute, NewValue);
 
+
 	if (Attribute == ULRAttributeSet::GetHealthAttribute())
 	{
-		if (NewValue < GetHealth())
-		{
-			if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetOwningAbilitySystemComponent()->GetAvatarActor()))
-			{
-				if (PC->IsInvincible())
-				{
-					NewValue = GetHealth();
-					LR_INFO(TEXT("무적 상태 데미지 무시"));
-				}
-			}
-		}
 		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxHealth());
 	}
+
+	if (Attribute == ULRAttributeSet::GetDamageAttribute())
+	{
+		if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetOwningAbilitySystemComponent()->GetAvatarActor()))
+		{
+			if (PC->IsInvincible())
+			{
+				NewValue = 0.0f;
+				LR_INFO(TEXT("무적 상태"));
+			}
+		}
+	}
+
+	//if (Attribute == ULRAttributeSet::GetHealthAttribute())
+	//{
+	//	if (NewValue < GetHealth())
+	//	{
+	//		if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetOwningAbilitySystemComponent()->GetAvatarActor()))
+	//		{
+	//			if (PC->IsInvincible())
+	//			{
+	//				NewValue = GetHealth();
+	//				LR_INFO(TEXT("무적 상태 데미지 무시"));
+	//			}
+	//		}
+	//	}
+	//	NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxHealth());
+	//}
 }
 
 void ULRPlayerAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
+
 	Super::PostGameplayEffectExecute(Data);
 
-	LR_WARN(TEXT("[AttributeSet] 데미지 들어옴! 변경된 속성: %s, 변경 후 수치: %f"),
-		*Data.EvaluatedData.Attribute.GetName(), Data.EvaluatedData.Attribute.GetNumericValue(this));
+	if (Data.EvaluatedData.Attribute == ULRAttributeSet::GetDamageAttribute())
+	{
+		float LocalDamageDone = GetDamage();
 
-	if (Data.EvaluatedData.Attribute == ULRAttributeSet::GetHealthAttribute())
+		SetDamage(0.0f);
+
+		if (LocalDamageDone > 0.0f)
+		{
+			float NewHealth = GetHealth() - LocalDamageDone;
+			SetHealth(FMath::Clamp(NewHealth, 0.0f, GetMaxHealth()));
+
+			LR_WARN(TEXT("[AttributeSet] 데미지 %f 적중! 최종 체력: %f"), LocalDamageDone, GetHealth());
+
+			if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetOwningAbilitySystemComponent()->GetAvatarActor()))
+			{
+				if (UGameInstance* GI = PC->GetGameInstance())
+				{
+					if (UUIManagerSubsystem* UIManager = GI->GetSubsystem<UUIManagerSubsystem>())
+					{
+						FVector HitLocation = PC->GetActorLocation() + FVector(0.f, 0.f, 100.f);
+						UIManager->ShowDamageText(LocalDamageDone, HitLocation);
+					}
+				}
+				if (GetHealth() <= 0.0f)
+				{
+					LR_WARN(TEXT("플레이어 사망"));
+				}
+			}
+		}
+	}
+	else if (Data.EvaluatedData.Attribute == ULRAttributeSet::GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
 		LR_INFO(TEXT("[AttributeSet] 체력 Clamp 완료. 최종 체력: %f"), GetHealth());
-
-		if (GetHealth() <= 0.0f)
-		{
-			LR_WARN(TEXT("Player Die - 체력이 0이 되었습니다."));
-		}
 	}
+
+	//Super::PostGameplayEffectExecute(Data);
+
+	//LR_WARN(TEXT("[AttributeSet] 데미지 들어옴 변경된 속성: %s, 변경 후 수치: %f"),
+	//	*Data.EvaluatedData.Attribute.GetName(), Data.EvaluatedData.Attribute.GetNumericValue(this));
+
+	//if (Data.EvaluatedData.Attribute == ULRAttributeSet::GetHealthAttribute())
+	//{
+	//	SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
+	//	LR_INFO(TEXT("[AttributeSet] 체력 Clamp 완료. 최종 체력: %f"), GetHealth());
+
+	//	if (GetHealth() <= 0.0f)
+	//	{
+	//		LR_WARN(TEXT("Player Die - 체력이 0이 되었습니다."));
+	//	}
+	//}
 }

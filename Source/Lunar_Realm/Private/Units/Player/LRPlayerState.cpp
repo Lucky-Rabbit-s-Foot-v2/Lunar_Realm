@@ -61,12 +61,12 @@ void ALRPlayerState::InitializePlayerData()
 
 	// TODO_BJM: SaveGameSubsystem에서 플레이어 데이터 로드
 	// 지금은 임시 데이터 넣음
-	CharacterID = FName("CHAR_ARCHER_01");
+	CharacterID = FName("CHAR_WARRIOR_05");
 	CharacterLevel = FName("1");
 
 	EquippedItems.Add(EEquipmentSlotType::WEAPON, FName(TEXT("EQUIP_MELEE_01")));
 	EquippedItemLevels.Add(EEquipmentSlotType::WEAPON, 1);
-
+	
 	// 스텟 계산
 	InitializeAttributes();
 
@@ -143,6 +143,8 @@ void ALRPlayerState::InitializeAttributes()
 
 	// 테스트용
 	//AttributeSet->SetHealth(10.0f);
+	AttributeSet->InitAttackPower(15.0f);
+	
 
 	UE_LOG(LogTemp, Log, TEXT("Final Stats - HP: %.1f, ATK: %.1f, DEF: %.1f"), FinalHP, FinalAtk, FinalDef);
 

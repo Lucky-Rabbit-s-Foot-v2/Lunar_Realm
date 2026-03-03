@@ -8,9 +8,13 @@
 
 ALRPlayerCameraManager::ALRPlayerCameraManager()
 {
-	FixedRotation = FRotator(-45.0f, 0.0f, 0.0f);
-	FixedX = -1000.0f;
-	FixedZ = 1000.0f;  
+	FixedRotation = FRotator(-30.0f, 0.0f, 0.0f);
+	
+	// 카메라랑 플레이어랑 거리
+	FixedX = -688.0f;
+	FixedZ = 700.0f;  
+
+
 }
 
 void ALRPlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
@@ -48,6 +52,9 @@ void ALRPlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTi
 	}
 
 	OutVT.POV.Rotation = DesiredRot;
-	OutVT.POV.FOV = 90.0f;
+
+	OutVT.POV.ProjectionMode = ECameraProjectionMode::Orthographic;
+	OutVT.POV.OrthoWidth = 1200.0f;
+	//OutVT.POV.FOV = 90.0f;
 
 }

@@ -12,6 +12,7 @@
 
 //=============================================================================
 // (260210) BJM 제작. 카메라 매니저.
+// (260303) BJM 수정. 카메라 위치 고정, Y축 범위 설정
 //=============================================================================
 UCLASS()
 class LUNAR_REALM_API ALRPlayerCameraManager : public APlayerCameraManager
@@ -27,15 +28,15 @@ public:
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Limit")
-	float MinY = -1000.0f;
+	float MinY = -2000.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Limit")
-	float MaxY = 1000.0f;
+	float MaxY = 2000.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Camera Setting")
+	UPROPERTY(EditAnywhere, Category = "Camera Setting")
 	float FixedX = -1000.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Camera Setting")
+	UPROPERTY(EditAnywhere, Category = "Camera Setting")
 	float FixedZ = 800.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Setting")

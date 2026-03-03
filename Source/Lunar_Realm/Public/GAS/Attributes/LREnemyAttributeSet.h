@@ -18,6 +18,7 @@
  // (260210) KWB 멤버 추가(속성, 속성 한계값)
  // (260223) KWB OnDie() 호출 로직 작성
  // (260225) KWB 불필요한 속성값 초기화 코드, 로그 삭제
+ // (260303) BJM 수정, 데미치 항목 추가
  //============================================================================
 UCLASS()
 class LUNAR_REALM_API ULREnemyAttributeSet : public ULRAttributeSet
