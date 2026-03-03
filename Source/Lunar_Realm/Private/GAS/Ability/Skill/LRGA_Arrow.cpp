@@ -36,6 +36,7 @@ void ULRGA_Arrow::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
 
     // DT에서 스킬 데이터 읽기
     UGameInstance* GI = GetWorld()->GetGameInstance();
+	check(GI);
     UGameDataSubsystem* DataSys = GI->GetSubsystem<UGameDataSubsystem>();
     if (!DataSys)
     {
@@ -46,7 +47,7 @@ void ULRGA_Arrow::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
 
     const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillEffectID);
     const FSkillSpawnData& SpawnData = DataSys->GetSkillSpawnData(SkillEffectID);
-	const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillEffectID);
+	const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillID);
 
     //FSkillObjectInitData 채우기
     FSkillObjectInitData InitData;
@@ -54,6 +55,7 @@ void ULRGA_Arrow::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
     InitData.StatusEffectClass = nullptr;  // Arrow는 상태이상 없음
     InitData.InstigatorASC     = GetOwnerASC();
 	InitData.ResourceID		   = SkillData.ResourceID;
+	InitData.SkillEffectID	   = SkillEffectID;
     InitData.Damage            = EffectData.Damage;
     InitData.Speed             = EffectData.Speed;
     InitData.Lifetime          = EffectData.Lifetime;

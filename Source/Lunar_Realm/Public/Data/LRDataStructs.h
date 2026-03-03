@@ -168,7 +168,6 @@ USTRUCT(BlueprintType)
 struct FEquipmentStaticData : public FTableRowBase
 {
 	GENERATED_BODY()
-    
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
 	FName DataID; //EQUIP_FIRE_SWORD
@@ -178,6 +177,9 @@ struct FEquipmentStaticData : public FTableRowBase
     
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
 	FText Description;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Resource")
+	TSoftObjectPtr<UStaticMesh> EquipmentMesh;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Classification")
 	ELRGrade Grade;
@@ -603,62 +605,64 @@ struct FSkillObjectInitData
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSkillSpawnData SpawnData;
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName SkillEffectID;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName ResourceID; 
-};
-
-// Pierce 전용 확장
-USTRUCT(BlueprintType)
-struct FPierceSkillObjectInitData : public FSkillObjectInitData
-{
-	GENERATED_BODY()
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 PierceCount;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float DamageDecay;
 };
-
-// Explode/Arc 전용 확장
-USTRUCT(BlueprintType)
-struct FExplodeSkillObjectInitData : public FSkillObjectInitData
-{
-	GENERATED_BODY()
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float ExplosionRadius;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float ExplosionDamageMultiplier;
-};
-
-// Homing 전용 확장
-USTRUCT(BlueprintType)
-struct FHomingSkillObjectInitData : public FSkillObjectInitData
-{
-	GENERATED_BODY()
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float TurnSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float LockRange;
-};
-
-// Arc 전용 확장
-USTRUCT(BlueprintType)
-struct FArcSkillObjectInitData : public FSkillObjectInitData
-{
-	GENERATED_BODY()
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float ExplosionRadius;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float ExplosionDamageMultiplier;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float LaunchAngle;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float GravityScale;
-};
+//
+// // Pierce 전용 확장
+// USTRUCT(BlueprintType)
+// struct FPierceSkillObjectInitData : public FSkillObjectInitData
+// {
+// 	GENERATED_BODY()
+// 	
+// 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+// 	int32 PierceCount;
+// 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+// 	float DamageDecay;
+// };
+//
+// // Explode/Arc 전용 확장
+// USTRUCT(BlueprintType)
+// struct FExplodeSkillObjectInitData : public FSkillObjectInitData
+// {
+// 	GENERATED_BODY()
+// 	
+// 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+// 	float ExplosionRadius;
+// 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+// 	float ExplosionDamageMultiplier;
+// };
+//
+// // Homing 전용 확장
+// USTRUCT(BlueprintType)
+// struct FHomingSkillObjectInitData : public FSkillObjectInitData
+// {
+// 	GENERATED_BODY()
+// 	
+// 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+// 	float TurnSpeed;
+// 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+// 	float LockRange;
+// };
+//
+// // Arc 전용 확장
+// USTRUCT(BlueprintType)
+// struct FArcSkillObjectInitData : public FSkillObjectInitData
+// {
+// 	GENERATED_BODY()
+// 	
+// 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+// 	float ExplosionRadius;
+// 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+// 	float ExplosionDamageMultiplier;
+// 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+// 	float LaunchAngle;
+// 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+// 	float GravityScale;
+// };
 
 
 // =============================================================================

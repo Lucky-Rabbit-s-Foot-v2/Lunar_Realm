@@ -15,6 +15,7 @@
 // (260210) BJM 카메라매니저 연동
 // (260223) PJB Stage UI 연동
 // (260225) BJM UseSkil 1,2 연동
+// (260227) BJM 위젯과 연동될 무기 관련 함수 추가
 //=============================================================================
 
 class UTouchInterface;
@@ -54,4 +55,18 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
 	TSubclassOf<class ULRPlayerWidget> PlayerWidget;
+
+// 위젯에서 보낸 무기 교체 신호를 받을 함수들
+public:
+	UFUNCTION()
+	void EquipWeapon1();
+
+	UFUNCTION()
+	void EquipWeapon2();
+
+	UFUNCTION()
+	void EquipWeapon3();
+
+	UFUNCTION()
+	void UnequipWeapon();
 };

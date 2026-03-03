@@ -23,9 +23,13 @@ namespace LRTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Arrow_Cooldown, "Ability.Skill.Arrow.Cooldown");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Pierce, "Ability.Skill.Pierce");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Pierce_Cooldown, "Ability.Skill.Pierce.Cooldown");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_HomingArrow, "Ability.Skill.HomingArrow");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_HomingArrow_Cooldown, "Ability.Skill.HomingArrow.Cooldown");
 	
 	//상태 태그
 	UE_DEFINE_GAMEPLAY_TAG(State_Debuff_Burning, "State.Debuff.Burning");
+	UE_DEFINE_GAMEPLAY_TAG(State_Debuff_Shock, "State.Debuff.Shock");
+	UE_DEFINE_GAMEPLAY_TAG(State_Debuff_Freeze, "State.Debuff.Freeze");
 	UE_DEFINE_GAMEPLAY_TAG(State_Dead, "State.Dead");
 	UE_DEFINE_GAMEPLAY_TAG(State_Dashing, "State.Dashing");
 	

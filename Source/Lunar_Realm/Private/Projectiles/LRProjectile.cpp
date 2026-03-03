@@ -22,7 +22,7 @@ ALRProjectile::ALRProjectile()
 	// 충돌체 (루트)
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollision"));
 	SetRootComponent(SphereComp);
-	SphereComp->SetSphereRadius(15.f);
+	SphereComp->SetSphereRadius(100.f);
 	SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	SphereComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	SphereComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
@@ -124,6 +124,8 @@ void ALRProjectile::PlaySpawnEffects()
 		TrailVFXComponent->SetAsset(TrailVFX);
 		TrailVFXComponent->Activate(true);
 	}
+	
+	LR_INFO(TEXT("Skill FX 발동!"));
 }
 
 void ALRProjectile::PlayImpactEffects()
@@ -156,6 +158,7 @@ void ALRProjectile::PlayImpactEffects()
 void ALRProjectile::OnPoolActivate_Implementation()
 {
 	// TODO: 인터페이스 참고
+	bIsDeactivated = false;
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 	SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -164,6 +167,7 @@ void ALRProjectile::OnPoolActivate_Implementation()
 void ALRProjectile::OnPoolDeactivate_Implementation()
 {
 	// TODO: 인터페이스 참고
+	bIsDeactivated = true;
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
 	SphereComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -195,6 +199,16 @@ void ALRProjectile::InitSkillObject(const FSkillObjectInitData& Initdata)
 void ALRProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
+	LR_INFO(TEXT("[OnHit] 충돌 감지 - OtherActor: %s / bIsDeactivated: %s / this: %s"), 
+		OtherActor ? *OtherActor->GetName() : TEXT("NULL"),
+		bIsDeactivated ? TEXT("true") : TEXT("false"),
+		*GetName()); // ← 어떤 투사체 인스턴스인지 확인
+	
+	if (bIsDeactivated)
+	{
+		return;
+	}
+	
 	//자기자신 무시
 	if (!OtherActor || OtherActor == this)
 	{
@@ -210,6 +224,15 @@ void ALRProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPri
 	// 충돌 이펙트 재생
 	PlayImpactEffects();
 	
+	//HitType이 SINGLE일때만 베이스가 직접 데미지 처리
+	//그 외에는 자식의 OnSkillObjectHIt에서 직접 처리
+	//풀 복귀도 OnSkillObjectHit 처리 결과에 따라 부모/자식이 처리하는 로직 전환
+	bool bHandledByChild = !OnSkillObjectHit(OtherActor, Hit);
+	if (bHandledByChild)
+	{
+		return;
+	}
+	
 	//데미지 GE적용
 	if (InitData.DamageEffectClass)
 	{
@@ -222,16 +245,13 @@ void ALRProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPri
 		ApplyEffectToTarget(OtherActor, InitData.StatusEffectClass, 0.f);
 	}
 	
-	//자식 충돌 처리
-	//true반환시 베이스가 직접 풀 복귀. false반환시 자식이 직접 처리
-	if (OnSkillObjectHit(OtherActor, Hit))
-	{
-		OnPoolDeactivate_Implementation();
-	}
+	//풀 복귀
+	OnPoolDeactivate_Implementation();
 }
 
 void ALRProjectile::OnLifeTimeExpired()
 {
+	OnSkillObjectExpired();
 	OnPoolDeactivate_Implementation();
 }
 

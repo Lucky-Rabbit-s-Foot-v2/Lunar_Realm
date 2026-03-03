@@ -60,6 +60,9 @@ protected:
 		TSubclassOf<ALRProjectile> ProjectileClass,
 		const FSkillObjectInitData& InitData);
 	
+	//테스팅 오버로딩
+	void SpawnProjectiles(TSubclassOf<ALRProjectile> ProjectileClass, const FSkillObjectInitData& InitData, FRotator BaseRotation);
+	
 	/*
 	 * GA가 보유한 캐릭터 정보 반환
 	 * @param : ActorInfo
@@ -73,6 +76,12 @@ protected:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "LR|Ability")
 	UAbilitySystemComponent* GetOwnerASC() const;
+	
+	/**
+	 * Instigator의 팀 태그를 기반으로 적대 팀 태그 반환
+	 * @return 적대 팀의 루트 태그
+	 */
+	FGameplayTag GetHostileTeamTag() const;
 	
 protected:
 	UPROPERTY()

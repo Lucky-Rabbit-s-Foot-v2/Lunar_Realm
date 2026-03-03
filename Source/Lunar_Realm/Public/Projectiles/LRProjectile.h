@@ -40,11 +40,18 @@ protected:
 	virtual void OnPoolActivate_Implementation();
 	virtual void OnPoolDeactivate_Implementation();
 	
-	//자식 스킬 타입별 추가 초기화시 오버라이드하여 사용
-	virtual void OnSkillObjectInitialized() {         }
+	//자식 타입별 초기화 처리
+	virtual void OnSkillObjectInitialized() { }
+	//자식 타입별 생명주기 만료 처리
+	virtual void OnSkillObjectExpired() { }
 	//자식 스킬 타입별 충돌 처리 
 	//@return true면 베이스가 풀 복귀, false면 자식이 직접 풀복귀
 	virtual bool OnSkillObjectHit(AActor* OtherActor, const FHitResult& Hit) { return true; }
+	
+	
+	
+	//GE적용 헬퍼
+	void ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> Effect, float DamageValue);
 	
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -61,16 +68,14 @@ public:
 	virtual void InitSkillObject(const FSkillObjectInitData& Initdata) final;
 	
 private:
-	//GE적용 헬퍼
-	void ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> Effect, float DamageValue);
 	//FX 재생 헬퍼
 	void PlaySpawnEffects();
 	void PlayImpactEffects();
 	
 	FTimerHandle LifeTimeTimerHandle;
+	bool bIsDeactivated = false;
 	
 protected:
-	// TODO: Projectile Movement Component 추가
 	UPROPERTY(VisibleAnywhere, Category = "LR|Projectile")
 	TObjectPtr<class USphereComponent> SphereComp;
 	UPROPERTY(VisibleAnywhere, Category = "LR|Projectile")
