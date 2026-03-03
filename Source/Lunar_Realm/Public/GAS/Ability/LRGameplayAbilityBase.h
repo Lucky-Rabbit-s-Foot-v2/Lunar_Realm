@@ -60,6 +60,9 @@ protected:
 		TSubclassOf<ALRProjectile> ProjectileClass,
 		const FSkillObjectInitData& InitData);
 	
+	//테스팅 오버로딩
+	void SpawnProjectiles(TSubclassOf<ALRProjectile> ProjectileClass, const FSkillObjectInitData& InitData, FRotator BaseRotation);
+	
 	/*
 	 * GA가 보유한 캐릭터 정보 반환
 	 * @param : ActorInfo

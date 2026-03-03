@@ -158,6 +158,7 @@ void ALRProjectile::PlayImpactEffects()
 void ALRProjectile::OnPoolActivate_Implementation()
 {
 	// TODO: 인터페이스 참고
+	bIsDeactivated = false;
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 	SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -166,6 +167,7 @@ void ALRProjectile::OnPoolActivate_Implementation()
 void ALRProjectile::OnPoolDeactivate_Implementation()
 {
 	// TODO: 인터페이스 참고
+	bIsDeactivated = true;
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
 	SphereComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -197,6 +199,16 @@ void ALRProjectile::InitSkillObject(const FSkillObjectInitData& Initdata)
 void ALRProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
+	LR_INFO(TEXT("[OnHit] 충돌 감지 - OtherActor: %s / bIsDeactivated: %s / this: %s"), 
+		OtherActor ? *OtherActor->GetName() : TEXT("NULL"),
+		bIsDeactivated ? TEXT("true") : TEXT("false"),
+		*GetName()); // ← 어떤 투사체 인스턴스인지 확인
+	
+	if (bIsDeactivated)
+	{
+		return;
+	}
+	
 	//자기자신 무시
 	if (!OtherActor || OtherActor == this)
 	{

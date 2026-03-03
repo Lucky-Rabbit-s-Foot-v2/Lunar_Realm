@@ -66,6 +66,10 @@ namespace LRTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Arrow_Cooldown); //GE
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Pierce); //GA
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Pierce_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_HomingArrow); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_HomingArrow_Cooldown); //GE
+	
+	
 	
 	//===============================================
 	// 상태 태그(State.*)
