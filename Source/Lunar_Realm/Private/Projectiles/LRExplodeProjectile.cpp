@@ -42,6 +42,7 @@ void ALRExplodeProjectile::ApplyExplosionDamage()
 {
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn));
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldDynamic));
 	
 	TArray<AActor*> IgnoreActors;
 	IgnoreActors.Add(this);
@@ -59,13 +60,31 @@ void ALRExplodeProjectile::ApplyExplosionDamage()
 	UKismetSystemLibrary::SphereOverlapActors(
 		GetWorld(), GetActorLocation(), 
 		CachedExplosionRadius, ObjectTypes,
-		ALRCharacter::StaticClass(), IgnoreActors, OutActors);
+		nullptr, IgnoreActors, OutActors);
 	
+	//적대 태그 검출
+	FGameplayTag HostileTag = GetHostileTeamTag();
+	if (!HostileTag.IsValid())
+	{
+		LR_WARN(TEXT("Invalid HostileTag "));
+		return;
+	}
 
 	
 	//데미지 처리
 	for (AActor* target : OutActors)
 	{
+		//적대 태그가 없으면 무시
+		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(target);
+		if (!TargetASC)
+		{
+			continue;
+		}
+		if (!TargetASC->HasMatchingGameplayTag(HostileTag))
+		{
+			continue;
+		}
+		
 		float distance = FVector::Dist(GetActorLocation(), target->GetActorLocation());
 		float fallOffRatio = 1.f - FMath::Clamp(distance / CachedExplosionRadius, 0.f, 1.f);
 		float finalDamage = InitData.Damage * CachedExplosionDamageMultiplier * fallOffRatio;
