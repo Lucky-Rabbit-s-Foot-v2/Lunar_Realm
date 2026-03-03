@@ -66,6 +66,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "GAS")
 	TObjectPtr<ULRPlayerAttributeSet> AttributeSet;
 
+public:
+	// 플레이어 데이터가 한 번이라도 초기화되었는지 체크하는 변수
+	bool bIsPlayerDataInitialized = false;
+
 protected:
 	FName CharacterID = FName("10101");
 	FName CharacterLevel = FName("1");
