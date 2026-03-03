@@ -11,26 +11,14 @@
 #include "Subsystems/StageManagerSubsystem.h"
 #include "Subsystems/GameDataSubsystem.h"
 
-void ULRStageWidget::NativeConstruct()
-{
-	Super::NativeConstruct();
-
-	if (ULRGameInstance* GI = Cast<ULRGameInstance>(GetWorld()->GetGameInstance()))
-	{
-		OnStageOpenClickedDel.AddDynamic(GI, &ULRGameInstance::OpenNextStage);
-	}
-}
-
-void ULRStageWidget::NativeDestruct()
-{
-	OnStageOpenClickedDel.Clear();
-
-	Super::NativeDestruct();
-}
+#include "Subsystems/UIManagerSubsystem.h"
+#include "UI/Chapter/LRStageReadyWidget.h"
 
 void ULRStageWidget::OnOpenButtonClicked()
 {
-	OnStageOpenClickedDel.Broadcast(StageID);
+	UUIManagerSubsystem* UIManagerSubsystem = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	ULRStageReadyWidget* Widget = UIManagerSubsystem->OpenUI<ULRStageReadyWidget>(StageReadyClass);
+	Widget->SetStageID(StageID);
 }
 
 void ULRStageWidget::BindProperties()

@@ -24,9 +24,12 @@ ALRProjectile::ALRProjectile()
 	SetRootComponent(SphereComp);
 	SphereComp->SetSphereRadius(100.f);
 	SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	SphereComp->SetCollisionObjectType(ECC_GameTraceChannel1); //Projectile 채널
 	SphereComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	SphereComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 	SphereComp->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	SphereComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
+	SphereComp->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
 
 	// 이동 컴포넌트
 	ProjectileComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
@@ -154,6 +157,27 @@ void ALRProjectile::PlayImpactEffects()
 	}
 }
 
+FGameplayTag ALRProjectile::GetHostileTeamTag() const
+{
+	UAbilitySystemComponent* SourceASC = InitData.InstigatorASC.Get();
+	if (!SourceASC)
+	{
+		LR_WARN(TEXT("InstigatorASC is null"));
+		return FGameplayTag::EmptyTag;
+	}
+
+	if (SourceASC->HasMatchingGameplayTag(LRTags::Team_Player))
+	{
+		return LRTags::Team_Enemy;
+	}
+	if (SourceASC->HasMatchingGameplayTag(LRTags::Team_Enemy))
+	{
+		return LRTags::Team_Player;
+	}
+
+	return FGameplayTag::EmptyTag;
+}
+
 
 void ALRProjectile::OnPoolActivate_Implementation()
 {
@@ -166,6 +190,7 @@ void ALRProjectile::OnPoolActivate_Implementation()
 
 void ALRProjectile::OnPoolDeactivate_Implementation()
 {
+	LR_INFO(TEXT("풀 복귀 진입"));
 	// TODO: 인터페이스 참고
 	bIsDeactivated = true;
 	SetActorHiddenInGame(true);
@@ -199,11 +224,11 @@ void ALRProjectile::InitSkillObject(const FSkillObjectInitData& Initdata)
 void ALRProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
-	LR_INFO(TEXT("[OnHit] 충돌 감지 - OtherActor: %s / bIsDeactivated: %s / this: %s"), 
+	LR_INFO(TEXT(" 충돌 감지 - OtherActor: %s / bIsDeactivated: %s / this: %s"),
 		OtherActor ? *OtherActor->GetName() : TEXT("NULL"),
 		bIsDeactivated ? TEXT("true") : TEXT("false"),
 		*GetName()); // ← 어떤 투사체 인스턴스인지 확인
-	
+
 	if (bIsDeactivated)
 	{
 		return;
@@ -220,6 +245,40 @@ void ALRProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPri
 	{
 		return;
 	}
+	
+	//적대 태그 검증
+	FGameplayTag HostileTag = GetHostileTeamTag();
+	if (!HostileTag.IsValid())
+	{
+		LR_WARN(TEXT("[OnHit] HostileTag invalid"));
+		return;
+	}
+
+	UAbilitySystemComponent* OtherASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor);
+	// [임시 로그]
+	LR_INFO(TEXT("[OnHit] OtherASC: %s / HostileTag: %s"),
+		OtherASC ? TEXT("Valid") : TEXT("NULL"),
+		*HostileTag.ToString());
+	// [임시 로그] ASC에 등록된 태그 전체 출력
+	FGameplayTagContainer AllTags;
+	OtherASC->GetOwnedGameplayTags(AllTags);
+	LR_WARN(TEXT("[OnHit] OtherActor 보유 태그: %s"), *AllTags.ToString());
+	if (!OtherASC)
+	{
+		return;
+	}
+	if (!OtherASC->HasMatchingGameplayTag(HostileTag))
+	{
+		LR_WARN(TEXT("[OnHit] HostileTag 불일치 — 무시: %s"), *OtherActor->GetName());
+		return;
+	}
+	// 사망 대상 무시
+    if (OtherASC->HasMatchingGameplayTag(LRTags::State_Dead))
+    {
+        return;
+    }
+	LR_INFO(TEXT("[OnHit] 태그 검사 통과 → 데미지 처리 진입: %s"), *OtherActor->GetName());
+	
 	
 	// 충돌 이펙트 재생
 	PlayImpactEffects();
@@ -246,6 +305,7 @@ void ALRProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPri
 	}
 	
 	//풀 복귀
+	LR_INFO(TEXT("[OnHit] 풀 복귀 시도: %s"), *GetName());
 	OnPoolDeactivate_Implementation();
 }
 

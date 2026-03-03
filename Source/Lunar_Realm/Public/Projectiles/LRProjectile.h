@@ -48,10 +48,10 @@ protected:
 	//@return true면 베이스가 풀 복귀, false면 자식이 직접 풀복귀
 	virtual bool OnSkillObjectHit(AActor* OtherActor, const FHitResult& Hit) { return true; }
 	
-	
-	
 	//GE적용 헬퍼
 	void ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> Effect, float DamageValue);
+	//적대태그 체크 헬퍼
+	FGameplayTag GetHostileTeamTag() const;
 	
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -71,6 +71,7 @@ private:
 	//FX 재생 헬퍼
 	void PlaySpawnEffects();
 	void PlayImpactEffects();
+	
 	
 	FTimerHandle LifeTimeTimerHandle;
 	bool bIsDeactivated = false;

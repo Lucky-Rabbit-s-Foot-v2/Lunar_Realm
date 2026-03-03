@@ -4,21 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRChildWidget.h"
-#include "LRStageWidget.generated.h"
-
+#include "LRPartyLineupWidget.generated.h"
 
 //============================================================================
 /**
- * 각 스테이지 UI 위젯
- * - 스테이지 정보 들고 있어야 함.
+ * 스테이지 준비할 때 표시할 파티 라인업
  */
  //============================================================================
- // (260213) PJB 제작. 제반 사항 구현
+ // (260227) PJB 제작. 제반 사항 구현
  //============================================================================
 
-
 UCLASS()
-class LUNAR_REALM_API ULRStageWidget : public ULRChildWidget
+class LUNAR_REALM_API ULRPartyLineupWidget : public ULRChildWidget
 {
 	GENERATED_BODY()
 	
@@ -28,35 +25,35 @@ public:
 
 	virtual void RefreshUI() override;
 
-	void SetStageID(FName InStageID);
-
-private:
 	UFUNCTION(BlueprintCallable, Category = "LR|UI")
-	void OnOpenButtonClicked();
+	void OnRegroupButtonClicked();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Open;
+	TObjectPtr<class UImage> Img_Main;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UTextBlock> Txt_Name;
+	TObjectPtr<class UImage> Img_Member1;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Star1;
+	TObjectPtr<class UImage> Img_Member2;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Star2;
+	TObjectPtr<class UImage> Img_Member3;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Star3;
+	TObjectPtr<class UImage> Img_Member4;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Base;
+	TObjectPtr<class UImage> Img_Equip1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Chapter")
-	FName StageID;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> Img_Equip2;
 
-private:
-	UPROPERTY(EditAnywhere, Category = "LR|UI")
-	TSubclassOf<class ULRStageReadyWidget> StageReadyClass;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> Img_Equip3;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UButton> Btn_Regroup;
+
 };

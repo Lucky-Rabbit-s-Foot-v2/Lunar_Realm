@@ -24,6 +24,7 @@
 // (260123) KHS 제작. 제반 사항 구현.
 // (260223) PJB 수정. Persistent UI와 Popup UI 로직 개선, 입력 모드 변경 로직 추가.
 // (260224) PJB 수정. UI 레이어 확장. 전체적인 코드 수정 및 최적화.
+// (260303) PJB 수정. 데미지 UI 풀 기능 추가
 // =============================================================================
 
 UCLASS()
@@ -144,6 +145,17 @@ public:
     FORCEINLINE bool HasOpenPopupUI() const { return PopupUIStack.Num() > 0; }
 	FORCEINLINE int GetPopupStackSize() const { return PopupUIStack.Num(); }
     
+	UFUNCTION(BlueprintCallable, Category = "LR|UI|Damage")
+	void ShowDamageText(float Damage, FVector HitLocation);
+	
+	class ULRDamageWidget* GetFreeDamageWidgetFromPool();
+	
+	void ReturnDamageWidgetToPool(ULRDamageWidget* Widget);
+	
+	UFUNCTION(BlueprintCallable, Category = "LR|UI|Damage")
+	void InitializeDamageWidgetPool(int32 PoolSize);
+	
+	void ResetDamageWidgetPool();
 private:
     /** 현재 열려있는 Persistent UI들의 맵 (클래스 -> 인스턴스) */
     UPROPERTY()
@@ -166,6 +178,9 @@ private:
 
 	UPROPERTY()
 	ULRBaseWidget* CurrentPageWidget = nullptr;
+
+	UPROPERTY()
+	TArray<TObjectPtr<ULRDamageWidget>> DamageWidgetPool;
 };
 
 
