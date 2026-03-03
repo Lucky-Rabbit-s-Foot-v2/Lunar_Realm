@@ -271,7 +271,12 @@ void ALRProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPri
 	{
 		LR_WARN(TEXT("[OnHit] HostileTag 불일치 — 무시: %s"), *OtherActor->GetName());
 		return;
-	}
+	
+	// 사망 대상 무시
+    if (OtherASC->HasMatchingGameplayTag(LRTags::State_Dead))
+    {
+        return;
+    }
 	LR_INFO(TEXT("[OnHit] 태그 검사 통과 → 데미지 처리 진입: %s"), *OtherActor->GetName());
 	
 	

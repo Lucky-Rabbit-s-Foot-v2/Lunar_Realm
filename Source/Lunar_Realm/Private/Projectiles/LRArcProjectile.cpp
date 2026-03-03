@@ -6,6 +6,7 @@
 #include "DrawDebugHelpers.h"
 #include "Engine/GameInstance.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "GAS/Tags/LRGameplayTags.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Subsystems/GameDataSubsystem.h"
 #include "Units/LRCharacter.h"
@@ -94,6 +95,10 @@ void ALRArcProjectile::ApplyExplosionDamage()
 			continue;
 		}
 		if (!TargetASC->HasMatchingGameplayTag(HostileTag))
+		{
+			continue;
+		}
+		if (TargetASC->HasMatchingGameplayTag(LRTags::State_Dead))
 		{
 			continue;
 		}
