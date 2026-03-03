@@ -66,7 +66,7 @@ void ALRPlayerState::InitializePlayerData()
 
 	EquippedItems.Add(EEquipmentSlotType::WEAPON, FName(TEXT("EQUIP_MELEE_01")));
 	EquippedItemLevels.Add(EEquipmentSlotType::WEAPON, 1);
-
+	
 	// 스텟 계산
 	InitializeAttributes();
 
@@ -143,6 +143,8 @@ void ALRPlayerState::InitializeAttributes()
 
 	// 테스트용
 	//AttributeSet->SetHealth(10.0f);
+	AttributeSet->InitAttackPower(15.0f);
+	
 
 	UE_LOG(LogTemp, Log, TEXT("Final Stats - HP: %.1f, ATK: %.1f, DEF: %.1f"), FinalHP, FinalAtk, FinalDef);
 
