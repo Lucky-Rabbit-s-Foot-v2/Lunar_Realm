@@ -8,9 +8,13 @@
 
 ALRPlayerCameraManager::ALRPlayerCameraManager()
 {
-	FixedRotation = FRotator(-45.0f, 0.0f, 0.0f);
-	FixedX = -1000.0f;
-	FixedZ = 1000.0f;  
+	FixedRotation = FRotator(-30.0f, 0.0f, 0.0f);
+	
+	// 카메라랑 플레이어랑 거리
+	FixedX = -860.0f;
+	FixedZ = 500.0f;  
+
+
 }
 
 void ALRPlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
