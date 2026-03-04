@@ -25,6 +25,8 @@
 #include "Units/Member/LRMemberAIController.h"
 #include "GAS/Ability/LRGameplayAbilityBase.h"
 
+#include "Actors/Equipment/LREquipmentBase.h"
+
 ALRMemberCharacter::ALRMemberCharacter()
 {
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
@@ -63,6 +65,7 @@ void ALRMemberCharacter::BeginPlay()
 void ALRMemberCharacter::OnHealthChangedNative(const FOnAttributeChangeData& Data)
 {
 	float NewHealth = Data.NewValue;
+	float OldHealth = Data.OldValue;
 
 	if (bIsDead)
 	{
@@ -71,6 +74,14 @@ void ALRMemberCharacter::OnHealthChangedNative(const FOnAttributeChangeData& Dat
 	if (NewHealth <= 0.0f)
 	{
 		Die();
+		return;
+	}
+	if (NewHealth < OldHealth)
+	{
+		if (LoadedHitMontage)
+		{
+			PlayAnimMontage(LoadedHitMontage);
+		}
 	}
 
 	OnHealthChanged(Data.NewValue);
@@ -112,6 +123,7 @@ void ALRMemberCharacter::OnPoolActivate_Implementation()
 	ResetAttributes();
 	ResetAIController();
 
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	LR_INFO(TEXT("Member 풀에서 소환 및 초기화 완료 : %s"), *GetName());
 }
@@ -261,13 +273,24 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 		LR_WARN(TEXT("[%s] ASC가 없어서 스킬을 부여할 수 없음"), *InCharacterID.ToString());
 	}
 
+	// 맴버 매쉬 스케일 적용
 	GetMesh()->SetRelativeScale3D(CharData.MemberScale);
+	
+	// 무기 장착
+	if (CharData.MemberWeaponID != NAME_None)
+	{
+	    UpdateWeaponMesh(CharData.MemberWeaponID);
+	}
 
-	 //if (CharData.MemberWeaponID != NAME_None)
-	 //{
-	 //    UpdateWeaponMesh(CharData.MemberWeaponID);
-	 //}
-
+	// 히트 몽타주 로드 및 캐싱
+	if (!CharData.HitMontage.IsNull())
+	{
+		LoadedHitMontage = CharData.HitMontage.LoadSynchronous();
+	}
+	else
+	{
+		LoadedHitMontage = nullptr;
+	}
 
 	// (참고: 필요하면 여기서 CharData의 스탯을 이용해 체력/공격력 세팅을 추가할 수도 있음)
 	LR_INFO(TEXT("[%s] 캐릭터 데이터 세팅 완료"), *InCharacterID.ToString());
@@ -321,11 +344,30 @@ void ALRMemberCharacter::Die()
 		//Controller->UnPossess();
 	}
 
+	if (AAIController* AICon = Cast<AAIController>(GetController()))
+	{
+		AICon->ClearFocus(EAIFocusPriority::Gameplay);
+		AICon->ClearFocus(EAIFocusPriority::Default);
+
+		if (UBehaviorTreeComponent* MemberBT = Cast<UBehaviorTreeComponent>(AICon->GetBrainComponent()))
+		{
+			MemberBT->StopTree();
+		}
+	}
+
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->bUseControllerDesiredRotation = false;
+
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	GetCharacterMovement()->StopMovementImmediately();
 	GetCharacterMovement()->DisableMovement();
+
+	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
+	{
+		AnimInst->Montage_Stop(0.1f);
+	}
 
 	float ReturnDelay = 3.0f;
 	if (LoadedDeathMontage)
@@ -363,5 +405,41 @@ void ALRMemberCharacter::ReturnSelf()
 	{
 		Destroy();
 		LR_INFO(TEXT("%s 풀 반환 실패"), *GetName());
+	}
+}
+
+void ALRMemberCharacter::UpdateWeaponMesh(FName InWeaponID)
+{
+	if (!WeaponClass)
+	{
+		LR_WARN(TEXT("[%s] WeaponClass가 지정되지 않았습니다. 멤버 블루프린트를 확인하세요!"), *GetName());
+		return;
+	}
+
+	if (!CurrentWeaponActor)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = this;
+
+		CurrentWeaponActor = GetWorld()->SpawnActor<ALREquipmentBase>(WeaponClass, GetActorLocation(), GetActorRotation(), SpawnParams);
+
+		if (CurrentWeaponActor)
+		{
+			CurrentWeaponActor->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
+		}
+	}
+
+	if (CurrentWeaponActor)
+	{
+		bool bSuccess = CurrentWeaponActor->InitEquipment(InWeaponID);
+		if (bSuccess)
+		{
+			LR_INFO(TEXT("[%s] 멤버 무기 업데이트 완료: %s"), *GetName(), *InWeaponID.ToString());
+		}
+		else
+		{
+			LR_WARN(TEXT("[%s] 멤버 무기 업데이트 실패 (DT에 메시가 없거나 ID 오류): %s"), *GetName(), *InWeaponID.ToString());
+		}
 	}
 }
