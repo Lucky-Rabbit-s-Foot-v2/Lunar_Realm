@@ -104,7 +104,17 @@ struct FCharacterStaticData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Skills")
 	TSubclassOf<class ULRGameplayAbilityBase> PlayerBasicAttackAbility;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	TSoftObjectPtr<UAnimMontage> HitMontage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	FVector PlayerScale = FVector(1.0f, 1.0f, 1.0f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	FVector MemberScale = FVector(1.0f, 1.0f, 1.0f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Equipment")
+	FName MemberWeaponID;
 
 };
 
@@ -195,6 +205,8 @@ struct FEquipmentStaticData : public FTableRowBase
     
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Skills")
 	TArray<FName> SkillIDs;
+
+
 	
 };
 

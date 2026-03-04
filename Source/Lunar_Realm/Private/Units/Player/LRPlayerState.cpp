@@ -12,6 +12,7 @@
 #include "GAS/Tags/LRGameplayTags.h"
 #include "Units/Player/LRPlayerCharacter.h"
 #include "Core/Stage/LRStageGameState.h"
+#include "Components/SkeletalMeshComponent.h"
 
 ALRPlayerState::ALRPlayerState()
 {
@@ -81,13 +82,27 @@ void ALRPlayerState::InitializePlayerData()
 
 	UE_LOG(LogTemp, Log, TEXT("[LRPlayerState] 플레이어의 데이터 모두 가져옴"));
 
-	if (EquippedItems.Contains(EEquipmentSlotType::WEAPON))
+	if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetPawn()))
 	{
-		if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetPawn()))
+		UGameInstance* GI = GetGameInstance();
+		UGameDataSubsystem* DataSubsystem = GI->GetSubsystem<UGameDataSubsystem>();
+		const FCharacterStaticData& CharData = DataSubsystem->GetCharacterStaticData(CharacterID);
+
+		PC->GetMesh()->SetRelativeScale3D(CharData.PlayerScale);
+
+		if (EquippedItems.Contains(EEquipmentSlotType::WEAPON))
 		{
 			PC->UpdateWeaponMesh(EquippedItems[EEquipmentSlotType::WEAPON]);
 		}
 	}
+
+	//if (EquippedItems.Contains(EEquipmentSlotType::WEAPON))
+	//{
+	//	if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetPawn()))
+	//	{
+	//		PC->UpdateWeaponMesh(EquippedItems[EEquipmentSlotType::WEAPON]);
+	//	}
+	//}
 }
 
 void ALRPlayerState::InitializeAttributes()
@@ -143,7 +158,7 @@ void ALRPlayerState::InitializeAttributes()
 
 	// 테스트용
 	//AttributeSet->SetHealth(10.0f);
-	AttributeSet->InitAttackPower(15.0f);
+	//AttributeSet->InitAttackPower(15.0f);
 	
 
 	UE_LOG(LogTemp, Log, TEXT("Final Stats - HP: %.1f, ATK: %.1f, DEF: %.1f"), FinalHP, FinalAtk, FinalDef);

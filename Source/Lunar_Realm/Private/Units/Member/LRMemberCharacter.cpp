@@ -261,6 +261,13 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 		LR_WARN(TEXT("[%s] ASC가 없어서 스킬을 부여할 수 없음"), *InCharacterID.ToString());
 	}
 
+	GetMesh()->SetRelativeScale3D(CharData.MemberScale);
+
+	 //if (CharData.MemberWeaponID != NAME_None)
+	 //{
+	 //    UpdateWeaponMesh(CharData.MemberWeaponID);
+	 //}
+
 
 	// (참고: 필요하면 여기서 CharData의 스탯을 이용해 체력/공격력 세팅을 추가할 수도 있음)
 	LR_INFO(TEXT("[%s] 캐릭터 데이터 세팅 완료"), *InCharacterID.ToString());
