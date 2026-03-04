@@ -28,6 +28,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
 
+#include "AIController.h" 
+
 
 
 
@@ -265,6 +267,7 @@ void ALRPlayerCharacter::Input_Charge(const FInputActionValue& Value)
 void ALRPlayerCharacter::OnHealthChangedNative(const FOnAttributeChangeData& Data)
 {
 	float NewHealth = Data.NewValue;
+	float OldHealth = Data.OldValue;
 
 	if (bIsDead)
 	{
@@ -273,6 +276,14 @@ void ALRPlayerCharacter::OnHealthChangedNative(const FOnAttributeChangeData& Dat
 	if (NewHealth <= 0.0f)
 	{
 		Die();
+		return;
+	}
+	if (NewHealth < OldHealth)
+	{
+		if (LoadedHitMontage)
+		{
+			PlayAnimMontage(LoadedHitMontage);
+		}
 	}
 }
 
@@ -283,13 +294,28 @@ void ALRPlayerCharacter::Die()
 
 	LR_INFO(TEXT("플레이어 사망"));
 
+	if (AAIController* AICon = Cast<AAIController>(GetController()))
+	{
+		AICon->ClearFocus(EAIFocusPriority::Gameplay);
+		AICon->ClearFocus(EAIFocusPriority::Default);
+	}
+
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->bUseControllerDesiredRotation = false;
+
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	GetCharacterMovement()->StopMovementImmediately();
 	GetCharacterMovement()->DisableMovement();
 
+	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
+	{
+		AnimInst->Montage_Stop(0.1f);
+	}
+
 	if (AbilitySystemComponent)
 	{
+		AbilitySystemComponent->AddLooseGameplayTag(LRTags::State_Dead);
 		AbilitySystemComponent->CancelAllAbilities();
 	}
 	if (CombatComponent)
@@ -330,6 +356,8 @@ void ALRPlayerCharacter::RespawnPlayer()
 
 	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
 	{
+		ASC->RemoveLooseGameplayTag(LRTags::State_Dead);
+
 		float MaxHP = ASC->GetNumericAttribute(ULRAttributeSet::GetMaxHealthAttribute());
 		ASC->SetNumericAttributeBase(ULRAttributeSet::GetHealthAttribute(), MaxHP);
 		//float MaxHP = ASC->GetNumericAttribute(ULRPlayerAttributeSet::GetMaxHealthAttribute());
@@ -344,6 +372,8 @@ void ALRPlayerCharacter::RespawnPlayer()
 
 	GetWorld()->GetTimerManager().SetTimer(BlinkTimerHandle, this, &ALRPlayerCharacter::OnBlinkTimer, 0.15f, true);
 	GetWorld()->GetTimerManager().SetTimer(InvincibilityTimerHandle, this, &ALRPlayerCharacter::EndInvincibility, 2.0f, false);
+
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	// TODO: 무적 & 깜빡임 효과
 }
