@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
 
@@ -19,7 +19,8 @@ public class Lunar_Realm : ModuleRules
             "Slate", "SlateCore", "UMG",
             "Niagara", "NiagaraCore",
             "VectorVM",
-		});
+            "UnrealEd", "AssetRegistry", "Blutility", "UMGEditor", "RenderCore",
+        });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
