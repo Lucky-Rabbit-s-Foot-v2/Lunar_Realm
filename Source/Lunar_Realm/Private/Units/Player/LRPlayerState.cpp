@@ -61,7 +61,7 @@ void ALRPlayerState::InitializePlayerData()
 
 	// TODO_BJM: SaveGameSubsystem에서 플레이어 데이터 로드
 	// 지금은 임시 데이터 넣음
-	CharacterID = FName("CHAR_WARRIOR_05");
+	CharacterID = FName("Nurse");
 	CharacterLevel = FName("1");
 
 	EquippedItems.Add(EEquipmentSlotType::WEAPON, FName(TEXT("EQUIP_MELEE_01")));
