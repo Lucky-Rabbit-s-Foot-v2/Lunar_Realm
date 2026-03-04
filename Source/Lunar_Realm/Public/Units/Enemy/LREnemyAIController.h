@@ -27,6 +27,7 @@
  // (260204) KWB 제작.
  // (260211) KWB 생성자에서 적대 태그 세팅.
  // (260212) KWB BT 하드 코딩 제거, EnemyCharacter가 StaticData에서 로드 & 설정으로 로직 수정
+ // (260303) KWB 부모 클래스 TryAttackTarget() 함수 Override 구현 추가
  //============================================================================
 
 UCLASS()
@@ -36,4 +37,6 @@ class LUNAR_REALM_API ALREnemyAIController : public ALRAIController
 	
 public:
 	ALREnemyAIController();
+
+	virtual bool TryAttackTarget(AActor* Target) override;
 };

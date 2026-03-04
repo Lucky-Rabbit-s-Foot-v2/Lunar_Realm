@@ -1,4 +1,4 @@
-﻿---,BannerID,ItemType,ItemID,Rarity
+---,BannerID,ItemType,ItemID,Rarity
 1,Hero_Crescent,Hero,CHAR_MAGICIAN_36,Legendary
 2,Hero_Crescent,Hero,CHAR_ARCHER_16,Elite
 3,Hero_Crescent,Hero,CHAR_MAGICIAN_29,Common
@@ -43,7 +43,7 @@
 42,Hero_FullMoon,Hero,CHAR_ARCHER_39,Common
 43,Hero_FullMoon,Hero,CHAR_ARCHER_07,Common
 44,Hero_FullMoon,Hero,CHAR_ARCHER_03,Common
-45,Hero_FullMoon,Hero,CHAR_MAGICIAN_48,Common
+45,Hero_FullMoon,Hero,CHAR_MAGICIAN_48,Legendary
 46,Hero_FullMoon,Hero,CHAR_MAGICIAN_38,Common
 47,Hero_FullMoon,Hero,CHAR_ARCHER_12,Common
 48,Hero_FullMoon,Hero,CHAR_MAGICIAN_17,Common
@@ -98,4 +98,4 @@
 97,Equip_FullMoon,Equipment,EQUIP_ARMOR_12,Unique
 98,Equip_FullMoon,Equipment,EQUIP_MELEE_44,Common
 99,Equip_FullMoon,Equipment,EQUIP_ARMOR_25,Common
-100,Equip_FullMoon,Equipment,EQUIP_HELMET_43,Common
+100,Equip_FullMoon,Equipment,EQUIP_HELMET_43,Legendary
