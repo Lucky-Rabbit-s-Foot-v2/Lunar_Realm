@@ -22,17 +22,45 @@ class LUNAR_REALM_API UTextureUtility : public UAssetActionUtility
 public:
 	UTextureUtility();
 
+	/** 텍스쳐를 좌우 반전 */
+	UFUNCTION(CallInEditor, Category = "LR|Texture Crop")
+	void Crop(class UTexture2D* SourceTex, int32 StartX, int32 StartY, int32 CropWidth, int32 CropHeight);
+
+	/** 텍스쳐를 좌우 반전 */
+	UFUNCTION(CallInEditor, Category = "LR|Texture Flip")
+	void FlipHorizontal(class UTexture2D* SourceTex);
+
+	/** 텍스쳐를 상하 반전 */
+	UFUNCTION(CallInEditor, Category = "LR|Texture Flip")
+	void FlipVertical(class UTexture2D* SourceTex);
+
+	/** 텍스쳐를 반시계방향으로 90도 회전 */
+	UFUNCTION(CallInEditor, Category = "LR|Texture Rotate")
+	void RotateLeft(class UTexture2D* SourceTex);
+
+	/** 텍스쳐를 시계방향으로 90도 회전 */
+	UFUNCTION(CallInEditor, Category = "LR|Texture Rotate")
+	void RotateRight(class UTexture2D* SourceTex);
+
 	/** 텍스쳐를 4분면 대칭하여 병합 */
-	UFUNCTION(CallInEditor, Category = "LR|Texture Tools")
-	void Create4MirroredTexture(class UTexture2D* SourceTex);
-	
-	/** 텍스쳐를 90도 회전 */
-	UFUNCTION(CallInEditor, Category = "LR|Texture Tools")
-	void RotateTexture90(class UTexture2D* SourceTex);
-	
+	UFUNCTION(CallInEditor, Category = "LR|Texture Mirror")
+	void MirroredQuad(class UTexture2D* SourceTex);
+
+	/** 텍스쳐를 좌우 대칭하여 병합 */
+	UFUNCTION(CallInEditor, Category = "LR|Texture Mirror")
+	void MirroredHorizontal(class UTexture2D* SourceTex);
+
+	/** 텍스쳐를 상하 대칭하여 병합 */
+	UFUNCTION(CallInEditor, Category = "LR|Texture Mirror")
+	void MirroredVertical(class UTexture2D* SourceTex);
+
 	/** 텍스쳐 배열을 가로로 병합*/
-	UFUNCTION(CallInEditor, Category = "LR|Texture Tools")
-	void MergeTexturesHorizontally(const TArray<class UTexture2D*>& SelectedTextures);
+	UFUNCTION(CallInEditor, Category = "LR|Texture Merge")
+	void MergeHorizontally(const TArray<class UTexture2D*>& SelectedTextures);
+
+	/** 텍스쳐 배열을 세로로 병합*/
+	UFUNCTION(CallInEditor, Category = "LR|Texture Merge")
+	void MergeVertically(const TArray<class UTexture2D*>& SelectedTextures);
 
 private:
 	/** 렌더링 타겟 생성 */
