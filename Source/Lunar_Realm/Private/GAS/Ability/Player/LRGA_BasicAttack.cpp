@@ -91,7 +91,7 @@ void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
 
 		UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, AttackMontage);
 
-		MontageTask->OnBlendOut.AddDynamic(this, &ULRGA_BasicAttack::OnMontageEnded);
+		//MontageTask->OnBlendOut.AddDynamic(this, &ULRGA_BasicAttack::OnMontageEnded);
 		MontageTask->OnCompleted.AddDynamic(this, &ULRGA_BasicAttack::OnMontageEnded);
 		MontageTask->OnInterrupted.AddDynamic(this, &ULRGA_BasicAttack::OnMontageEnded);
 		MontageTask->OnCancelled.AddDynamic(this, &ULRGA_BasicAttack::OnMontageEnded);
@@ -121,7 +121,7 @@ void ULRGA_BasicAttack::OnHitEventReceived(FGameplayEventData InPayload)
 			if (TargetASC)
 			{
 				TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-				// LR_INFO(TEXT("노티파이 타이밍에 데미지 성공 타겟: %s"), *TargetActor->GetName());
+				LR_INFO(TEXT("노티파이 타이밍에 데미지 성공 타겟: %s"), *TargetActor->GetName());
 			}
 		}
 	}
@@ -134,4 +134,5 @@ void ULRGA_BasicAttack::OnHitEventReceived(FGameplayEventData InPayload)
 void ULRGA_BasicAttack::OnMontageEnded()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	LR_WARN(TEXT("몽타주 종료됨 스킬 끝"));
 }
