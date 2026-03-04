@@ -106,6 +106,10 @@ public:
 public:
 	virtual void Die();
 
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Animation")
+	UAnimMontage* LoadedHitMontage;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	TObjectPtr<UAnimMontage> DeathMontage;

@@ -94,7 +94,10 @@ void ALRPlayerState::InitializePlayerData()
 		{
 			PC->UpdateWeaponMesh(EquippedItems[EEquipmentSlotType::WEAPON]);
 		}
+
+		PC->LoadedHitMontage = CharData.HitMontage.LoadSynchronous();
 	}
+
 
 	//if (EquippedItems.Contains(EEquipmentSlotType::WEAPON))
 	//{
