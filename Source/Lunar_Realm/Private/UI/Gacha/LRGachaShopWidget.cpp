@@ -24,21 +24,28 @@ void ULRGachaShopWidget::NativeConstruct()
 		GachaSys = GI->GetSubsystem<ULRGachaSubsystem>();
 	}
 
-	// ───────────────── 1) 기본 배너 설정 ─────────────────
-	CurrentBannerID = DefaultHeroBannerID;
+	// ───────────────── 1) 복구 목표값(Desired)만 계산 ─────────────────
+	ELRGachaShopTab DesiredTab = ELRGachaShopTab::Hero;
+	FName DesiredBannerID = DefaultHeroBannerID;
 
-	// ───────────────── 2) 리빌에서 돌아온 경우 “배너 복구” ─────────────────
 	if (GachaSys)
 	{
-		FName ReturnBanner;
-		if (GachaSys->ConsumePendingReturnShopBanner(ReturnBanner))
+		// 1순위: RequestOpenShopOnLobbyReturn로 저장된 마지막 배너
+		const FName LastBanner = GachaSys->GetLastShopBanner();
+		if (!LastBanner.IsNone())
 		{
-			if (!ReturnBanner.IsNone())
-			{
-				CurrentBannerID = ReturnBanner;
-			}
+			DesiredBannerID = LastBanner;
+
+			const FString BannerStr = LastBanner.ToString();
+			DesiredTab = BannerStr.StartsWith(TEXT("Equip_"))
+				? ELRGachaShopTab::Equip
+				: ELRGachaShopTab::Hero;
 		}
 	}
+
+	// 여기서는 아직 SetTab 호출하지 말고, 값만 저장
+	CurrentTab = DesiredTab;
+	CurrentBannerID = DesiredBannerID;
 
 	// ───────────────── 3) 버튼 바인딩 ─────────────────
 	if (ButtonHome)
@@ -90,8 +97,13 @@ void ULRGachaShopWidget::NativeConstruct()
 		GachaSys->OnPityChanged.AddUniqueDynamic(this, &ULRGachaShopWidget::HandlePityChanged);
 	}
 
-	// ───────────────── 5) 초기 UI 갱신 ─────────────────
-	RefreshCurrencyTexts();
+	// ───────────────── 5) 최종 탭/배경/천장 갱신은 여기서 딱 1번 ─────────────────
+	SetTab(CurrentTab);
+
+	// ReturnBanner 같은 “세부 배너”까지 유지하려면 다시 덮어씀
+	CurrentBannerID = DesiredBannerID;
+
+	// 표시 천장 확정
 	RefreshPityText();
 
 	// ───────────────── 6) 튕김 복구(안전장치) ─────────────────
@@ -245,14 +257,12 @@ void ULRGachaShopWidget::TryBeginDrawAndOpenReveal(FName BannerID, int32 Count)
 
 void ULRGachaShopWidget::OnClickHeroTab()
 {
-	CurrentBannerID = DefaultHeroBannerID;
-	RefreshPityText();
+	SetTab(ELRGachaShopTab::Hero);
 }
 
 void ULRGachaShopWidget::OnClickEquipTab()
 {
-	CurrentBannerID = DefaultEquipBannerID;
-	RefreshPityText();
+	SetTab(ELRGachaShopTab::Equip);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -347,11 +357,12 @@ void ULRGachaShopWidget::RefreshPityText()
 //  배너 계산 헬퍼
 // ─────────────────────────────────────────────────────────────────────────────
 
+
 bool ULRGachaShopWidget::IsHeroTabSelected() const
 {
-	// 배너 이름이 "Hero_" 로 시작하면 영웅 탭으로 판단(현재 네이밍 규칙 기준)
-	return CurrentBannerID.ToString().StartsWith(TEXT("Hero_"));
+	return CurrentTab == ELRGachaShopTab::Hero;
 }
+
 
 FName ULRGachaShopWidget::MakeBannerIDForTicket(const bool bFullMoon) const
 {
@@ -421,4 +432,27 @@ void ULRGachaShopWidget::OnClickHome()
 
 	// 3) 로비 맵이 아니면 로비로 이동
 	UGameplayStatics::OpenLevel(this, FName(TEXT("Map_Lobby")));
+}
+
+void ULRGachaShopWidget::SetTab(ELRGachaShopTab NewTab)
+{
+	CurrentTab = NewTab;
+
+	// 탭에 따라 “표시용 배너 기준”도 동기화
+	CurrentBannerID = (CurrentTab == ELRGachaShopTab::Hero)
+		? DefaultHeroBannerID
+		: DefaultEquipBannerID;
+
+	// UI 값 갱신(천장/재화 등)
+	RefreshCurrencyTexts();
+	RefreshPityText();
+
+	// BP에게 “배경만” 적용하라고 신호
+	BP_ApplyTabBackground(CurrentTab);
+
+	// 탭 변경이 일어났으면 Subsystem에 마지막 선택 배너 저장
+	if (GachaSys)
+	{
+		GachaSys->SetLastShopBanner(CurrentBannerID);
+	}
 }
