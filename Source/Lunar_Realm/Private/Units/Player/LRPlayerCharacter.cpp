@@ -8,6 +8,8 @@
 #include "Engine/LocalPlayer.h"
 
 #include "Units/Player/LRPlayerState.h"
+#include "Units/Player/LRPlayerController.h"
+#include "UI/InGame/LRPlayerWidget.h"
 #include "AbilitySystemComponent.h"
 
 #include "EnhancedInputComponent.h"
@@ -29,6 +31,7 @@
 #include "TimerManager.h"
 
 #include "AIController.h" 
+
 
 
 
@@ -65,7 +68,7 @@ void ALRPlayerCharacter::BeginPlay()
 	}
 
 	// TODO_BJM: 테스트용으로 임시 배치.
-	TestSummonSlot();
+	//TestSummonSlot();
 }
 
 void ALRPlayerCharacter::PossessedBy(AController* NewController)
@@ -86,6 +89,21 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 		{
 			AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
 				ULRAttributeSet::GetHealthAttribute()).AddUObject(this, &ALRPlayerCharacter::OnHealthChangedNative);
+		}
+
+		// TODO_BJM: 테스트용으로 임시 배치. 추후 덱 데이터 로드 방식 확정되면 제거 예정
+		if (SummonComponent)
+		{
+			TArray<FName> TestDeck = { FName("Anubis"), FName("Maid"), FName("Merry"), FName("Army") };
+			SummonComponent->LoadDeckData(TestDeck);
+		}
+
+		if (ALRPlayerController* PC = Cast<ALRPlayerController>(NewController))
+		{
+			if (ULRPlayerWidget* MyWidget = PC->GetPlayerWidget())
+			{
+				MyWidget->TestSummonPanelRefresh();
+			}
 		}
 
 		UE_LOG(LogTemp, Log, TEXT("GAS Initialized completely in %s"), *GetName());
@@ -190,7 +208,7 @@ void ALRPlayerCharacter::Move(const FInputActionValue& Value)
 
 		float CurrentY = GetActorLocation().Y;
 
-		// TODO : 추후 맵 확정될때 CameraManager의 MinY, MaxY랑 값 맞춰줘야함
+		// TODO_BJM : 추후 맵 확정될때 CameraManager의 MinY, MaxY랑 값 맞춰줘야함
 		float MapMinY = -2000.0f;
 		float MapMaxY = 2000.0f;
 
@@ -308,6 +326,17 @@ void ALRPlayerCharacter::Die()
 	GetCharacterMovement()->StopMovementImmediately();
 	GetCharacterMovement()->DisableMovement();
 
+	if (ALRPlayerController* PC = Cast<ALRPlayerController>(GetController()))
+	{
+		PC->OnPlayerDied();
+
+		if (ULRPlayerWidget* MyWidget = PC->GetPlayerWidget())
+		{
+			MyWidget->TestSummonPanelRefresh();
+		}
+	}
+
+
 	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
 	{
 		AnimInst->Montage_Stop(0.1f);
@@ -360,9 +389,13 @@ void ALRPlayerCharacter::RespawnPlayer()
 
 		float MaxHP = ASC->GetNumericAttribute(ULRAttributeSet::GetMaxHealthAttribute());
 		ASC->SetNumericAttributeBase(ULRAttributeSet::GetHealthAttribute(), MaxHP);
-		//float MaxHP = ASC->GetNumericAttribute(ULRPlayerAttributeSet::GetMaxHealthAttribute());
-		//ASC->SetNumericAttributeBase(ULRPlayerAttributeSet::GetHealthAttribute(), MaxHP);
 	}
+
+	if (ALRPlayerController* PC = Cast<ALRPlayerController>(GetController()))
+	{
+		PC->OnPlayerRespawned(); 
+	}
+
 
 	LR_INFO(TEXT("플레이어 코어에서 부활 완료"));
 

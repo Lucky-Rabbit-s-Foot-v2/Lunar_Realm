@@ -155,8 +155,8 @@ void ALRPlayerState::InitializeAttributes()
 	float FinalAtk = (CharAtk + EquipAtk) * SetAtk_Mul;
 	float FinalDef = (CharDef + EquipDef) * SetDef_Mul;
 
-	AttributeSet->InitHealth(FinalHP);
 	AttributeSet->InitMaxHealth(FinalHP);
+	AttributeSet->InitHealth(FinalHP);
 	AttributeSet->InitAttackPower(FinalAtk);
 
 	// 테스트용

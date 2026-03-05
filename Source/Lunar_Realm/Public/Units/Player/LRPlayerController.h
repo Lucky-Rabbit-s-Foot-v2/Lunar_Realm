@@ -69,4 +69,20 @@ public:
 
 	UFUNCTION()
 	void UnequipWeapon();
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "LR|Player")
+	void OnPlayerDied();
+
+	UFUNCTION(BlueprintCallable, Category = "LR|Player")
+	void OnPlayerRespawned();
+
+protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
+	class UMaterialInterface* DeadStateMaterial;
+
+protected:
+	void SetScreenGrayscale(float InWeight);
+
 };

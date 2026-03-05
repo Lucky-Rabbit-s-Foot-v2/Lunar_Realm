@@ -13,7 +13,9 @@
 #include "UI/InGame/LRSummonPanelWidget.h"
 
 #include "Units/Player/LRPlayerController.h"
+#include "Units/Player/LRPlayerState.h"
 
+#include "Components/RetainerBox.h"
 
 void ULRPlayerWidget::BindProperties()
 {
@@ -75,6 +77,14 @@ void ULRPlayerWidget::BindToController(ALRControllerBase* Controller)
 		OnChangeClickedDel.AddDynamic(PC, &ALRPlayerController::ToggleAutoMode);
 		InitializeGAS(PC->GetAbilitySystemComponent());
 		
+		if (ALRPlayerState* PS = PC->GetPlayerState<ALRPlayerState>())
+		{
+			if (Widget_HealthBar)
+			{
+				Widget_HealthBar->UpdatePlayerIcon(PS->GetCharacterID());
+			}
+		}
+
 		FInputModeGameAndUI InputMode;
 		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 		InputMode.SetHideCursorDuringCapture(false);
@@ -97,4 +107,19 @@ void ULRPlayerWidget::OnPauseButtonClicked()
 {
 	ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(UGameplayStatics::GetGameMode(this));
 	StageGM->OnOpenPauseUI();
+}
+
+void ULRPlayerWidget::UpdateUIOnDeath(bool InIsDead)
+{
+	UMaterialInterface* TargetMat = InIsDead ? Mat_BlackWhite.Get() : nullptr;
+
+	if (Retainer_SkillPanel) Retainer_SkillPanel->SetEffectMaterial(TargetMat);
+	if (Retainer_HealthBar) Retainer_HealthBar->SetEffectMaterial(TargetMat);
+	//if (Retainer_Background) Retainer_Background->SetEffectMaterial(TargetMat);
+
+	if (WBP_SkillPanel) WBP_SkillPanel->SetIsEnabled(!InIsDead);
+
+	if (Btn_Change) Btn_Change->SetIsEnabled(true);
+	if (Btn_Pause) Btn_Pause->SetIsEnabled(true);
+	if (WBP_SummonPanel) WBP_SummonPanel->SetIsEnabled(true);
 }
