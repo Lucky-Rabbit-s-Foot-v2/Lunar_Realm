@@ -48,19 +48,25 @@ void ULREnemyAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 		{
 			float NewHealth = GetHealth() - LocalDamageDone;
 			SetHealth(FMath::Clamp(NewHealth, 0.0f, GetMaxHealth()));
-			if (ALREnemyCharacter* EC = Cast<ALREnemyCharacter>(GetOwningAbilitySystemComponent()->GetAvatarActor()))
+
+			if (ALREnemyCharacter* EnemyChar = Cast<ALREnemyCharacter>(GetOwningAbilitySystemComponent()->GetAvatarActor()))
 			{
-				if (UGameInstance* GI = EC->GetGameInstance())
+				if (GetHealth() > 0.0f)
+				{
+					EnemyChar->PlayAttackedMontage();
+				}
+
+				if (UGameInstance* GI = EnemyChar->GetGameInstance())
 				{
 					if (UUIManagerSubsystem* UIManager = GI->GetSubsystem<UUIManagerSubsystem>())
 					{
-						FVector HitLocation = EC->GetActorLocation() + FVector(0.f, 0.f, 100.f);
+						FVector HitLocation = EnemyChar->GetActorLocation() + FVector(0.f, 0.f, 100.f);
 						UIManager->ShowDamageText(LocalDamageDone, HitLocation);
 					}
 				}
 				if (GetHealth() <= 0.0f)
 				{
-					EC->OnDie();
+					EnemyChar->OnDie();
 				}
 			}
 		}
@@ -70,25 +76,4 @@ void ULREnemyAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
 		// LR_INFO(TEXT("[AttributeSet] 체력 Clamp 완료. 최종 체력: %f"), GetHealth());
 	}
-
-	//if (Data.EvaluatedData.Attribute == GetHealthAttribute())
-	//{
-	//	SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
-
-	//	if (GetHealth() <= 0.0f)
-	//	{
-	//		UAbilitySystemComponent* ASC = Data.Target.AbilityActorInfo.Get()->AbilitySystemComponent.Get();
-	//		if (!ASC)
-	//		{
-	//			return;
-	//		}
-
-	//		AActor* OwnerActor = ASC->GetOwnerActor();
-
-	//		if (ALREnemyCharacter* EnemyChar = Cast<ALREnemyCharacter>(OwnerActor))
-	//		{
-	//			EnemyChar->OnDie();
-	//		}
-	//	}
-	//}
 }
