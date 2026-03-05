@@ -328,12 +328,7 @@ void ALRPlayerCharacter::Die()
 
 	if (ALRPlayerController* PC = Cast<ALRPlayerController>(GetController()))
 	{
-		PC->OnPlayerDied();
-
-		if (ULRPlayerWidget* MyWidget = PC->GetPlayerWidget())
-		{
-			MyWidget->TestSummonPanelRefresh();
-		}
+		PC->OnPlayerDied(RespawnTime);
 	}
 
 

@@ -3,11 +3,13 @@
 
 #include "UI/InGame/LRHealthWidget.h"
 #include "Components/ProgressBar.h"
+#include "Components/TextBlock.h"
 #include "AbilitySystemComponent.h"
 #include "GAS/Attributes/LRPlayerAttributeSet.h"
 #include "GAS/Attributes/LRAttributeSet.h"
 #include "Subsystems/GameDataSubsystem.h"
 #include "Engine/GameInstance.h"
+#include "TimerManager.h"
 
 void ULRHealthWidget::BindToASC(UAbilitySystemComponent* ASC)
 {
@@ -88,5 +90,46 @@ void ULRHealthWidget::UpdatePlayerIcon(FName InCharacterID)
 		{
 			Text_PlayerName->SetText(FText::FromString(CharData.CharacterName));
 		}
+	}
+}
+
+void ULRHealthWidget::StartRespawnTimer(float InRespawnTime)
+{
+	if (Text_RespawnTimer)
+	{
+		CurrentRespawnTime = InRespawnTime;
+		Text_RespawnTimer->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+
+		UpdateRespawnTimerText();
+
+		GetWorld()->GetTimerManager().SetTimer(UI_RespawnTimerHandle, this, &ULRHealthWidget::UpdateRespawnTimerText, 0.1f, true);
+	}
+}
+
+
+void ULRHealthWidget::UpdateRespawnTimerText()
+{
+	CurrentRespawnTime -= 0.1f;
+
+	if (CurrentRespawnTime <= 0.0f)
+	{
+		StopRespawnTimer();
+	}
+	else if (Text_RespawnTimer)
+	{
+		int32 DisplayTime = FMath::CeilToInt(CurrentRespawnTime);
+
+		FString TimeString = FString::Printf(TEXT("%d"), DisplayTime);
+		Text_RespawnTimer->SetText(FText::FromString(TimeString));
+	}
+}
+
+void ULRHealthWidget::StopRespawnTimer()
+{
+	GetWorld()->GetTimerManager().ClearTimer(UI_RespawnTimerHandle);
+
+	if (Text_RespawnTimer)
+	{
+		Text_RespawnTimer->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }

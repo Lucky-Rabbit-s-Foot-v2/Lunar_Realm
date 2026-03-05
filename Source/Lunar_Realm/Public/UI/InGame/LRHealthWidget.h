@@ -57,4 +57,18 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* Text_PlayerName;
+
+protected:
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* Text_RespawnTimer;
+
+	FTimerHandle UI_RespawnTimerHandle;
+	float CurrentRespawnTime;
+
+public:
+	void StartRespawnTimer(float InRespawnTime);
+	void StopRespawnTimer();
+
+protected:
+	void UpdateRespawnTimerText();
 };

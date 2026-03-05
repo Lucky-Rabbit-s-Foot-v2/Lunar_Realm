@@ -124,11 +124,11 @@ void ALRPlayerController::UnequipWeapon()
 	}
 }
 
-void ALRPlayerController::OnPlayerDied()
+void ALRPlayerController::OnPlayerDied(float InRespawnTime)
 {
 	if (ULRPlayerWidget* MyWidget = GetPlayerWidget())
 	{
-		MyWidget->UpdateUIOnDeath(true);
+		MyWidget->UpdateUIOnDeath(true, InRespawnTime);
 	}
 
 	SetVirtualJoystickVisibility(false);

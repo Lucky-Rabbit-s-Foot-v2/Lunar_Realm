@@ -109,17 +109,29 @@ void ULRPlayerWidget::OnPauseButtonClicked()
 	StageGM->OnOpenPauseUI();
 }
 
-void ULRPlayerWidget::UpdateUIOnDeath(bool InIsDead)
+
+void ULRPlayerWidget::UpdateUIOnDeath(bool InIsDead, float InRespawnTime)
 {
 	UMaterialInterface* TargetMat = InIsDead ? Mat_BlackWhite.Get() : nullptr;
 
 	if (Retainer_SkillPanel) Retainer_SkillPanel->SetEffectMaterial(TargetMat);
 	if (Retainer_HealthBar) Retainer_HealthBar->SetEffectMaterial(TargetMat);
-	//if (Retainer_Background) Retainer_Background->SetEffectMaterial(TargetMat);
 
 	if (WBP_SkillPanel) WBP_SkillPanel->SetIsEnabled(!InIsDead);
 
 	if (Btn_Change) Btn_Change->SetIsEnabled(true);
 	if (Btn_Pause) Btn_Pause->SetIsEnabled(true);
 	if (WBP_SummonPanel) WBP_SummonPanel->SetIsEnabled(true);
+
+	if (Widget_HealthBar)
+	{
+		if (InIsDead)
+		{
+			Widget_HealthBar->StartRespawnTimer(InRespawnTime);
+		}
+		else
+		{
+			Widget_HealthBar->StopRespawnTimer();
+		}
+	}
 }

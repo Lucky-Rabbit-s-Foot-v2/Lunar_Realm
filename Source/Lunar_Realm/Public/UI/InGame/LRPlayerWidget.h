@@ -49,7 +49,8 @@ public:
 	void OnPauseButtonClicked();
 
 	UFUNCTION(BlueprintCallable, Category = "LR|UI")
-	void UpdateUIOnDeath(bool InIsDead);
+
+	void UpdateUIOnDeath(bool InIsDead, float InRespawnTime = 0.0f);
 
 private:
 	
@@ -81,9 +82,6 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class URetainerBox> Retainer_HealthBar;
-
-	//UPROPERTY(meta = (BindWidget))
-	//TObjectPtr<class URetainerBox> Retainer_Background;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|UI")
 	TObjectPtr<class UMaterialInterface> Mat_BlackWhite;

@@ -72,7 +72,7 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Player")
-	void OnPlayerDied();
+	void OnPlayerDied(float InRespawnTime);
 
 	UFUNCTION(BlueprintCallable, Category = "LR|Player")
 	void OnPlayerRespawned();
