@@ -50,7 +50,9 @@ void ULRSummonPanelWidget::InitPanel()
 			}
 			else
 			{
-				SlotArray[i]->SetVisibility(ESlateVisibility::Collapsed);
+				//SlotArray[i]->SetVisibility(ESlateVisibility::Collapsed);
+				SlotArray[i]->InitSlot(i, NAME_None);
+				SlotArray[i]->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 			}
 		}
 	}

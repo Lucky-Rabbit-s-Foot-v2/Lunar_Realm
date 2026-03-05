@@ -13,8 +13,9 @@
 void UCollectionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 
+	Collection.InitializeDependency<UGameDataSubsystem>();
 	Collection.InitializeDependency<USaveGameSubsystem>();
-
+	
 	Super::Initialize(Collection);
 
 	//SaveGameSubsystem의 로드완료 이벤트 구독
@@ -22,6 +23,15 @@ void UCollectionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	check(saveGameSys);
 	saveGameSys->OnSaveGameLoadedDel.AddDynamic(this, &UCollectionSubsystem::HandleSaveGameLoaded);
 
+	// 이미 데이터가 있다면 수동으로 핸들러를 호출하여 데이터를 초기화
+	ULRSaveGame* currentSave = saveGameSys->GetCurrentSaveGame();
+	if (currentSave)
+	{
+		
+		HandleSaveGameLoaded(currentSave);
+		LR_INFO(TEXT("Initialized with existing SaveGame data."));
+	}
+	
 	LR_INFO(TEXT("Collection Subsystem Initialized"));
 }
 
@@ -68,9 +78,8 @@ void UCollectionSubsystem::HandleSaveGameLoaded(ULRSaveGame* LoadedSave)
 
 	OwnedEquipmentsArray = LoadedSave->GetOwnedEquipmentsList();
 
-	LR_INFO(TEXT("Collection loaded: %d/%d characters unlocked, %d equipment instances"),
-		LoadedSave->GetOwnedCharactersList().Num(), AllCharacterKeys.Num(),
-		OwnedEquipmentsArray.Num());
+	int32 SavedCount = savedCharacterList.Num();
+	LR_INFO(TEXT("Collection loaded: %d/%d characters unlocked, %d equipment instances"), SavedCount, AllCharacterKeys.Num(), OwnedEquipmentsArray.Num());
 }
 
 void UCollectionSubsystem::SyncToSaveGame()

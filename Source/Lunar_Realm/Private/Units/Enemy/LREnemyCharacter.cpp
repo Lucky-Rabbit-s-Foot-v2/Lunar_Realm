@@ -68,33 +68,8 @@ void ALREnemyCharacter::OnDie()
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
 
-	// 4. 스켈레탈 메시 해제
-	if (USkeletalMeshComponent* MeshComp = GetMesh())
-	{
-		// 메시를 null로 설정하여 완전히 해제
-		MeshComp->SetSkeletalMesh(nullptr);
-
-		// 또는 시각적으로만 숨기려면:
-		// MeshComp->SetVisibility(false);
-		// MeshComp->SetHiddenInGame(true);
-
-		// 물리 비활성화
-		MeshComp->SetSimulatePhysics(false);
-		MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		// 물리 안보이기
-		MeshComp->SetVisibility(false);
-	}
-
-	UPoolingSubsystem* PoolSys = GetWorld() ? GetWorld()->GetSubsystem<UPoolingSubsystem>() : nullptr;
-	if (!PoolSys)
-	{
-		LR_ERROR(TEXT("PoolingSubsystem not found while returning enemy to pool"));
-		return;
-	}
-
-	PoolSys->ReturnToPool(this);
-	LR_DEBUG(TEXT("%s : 에너미 사망 -> 풀로 돌아감"), *GetName());
+	// 4. 사망 몽타주 재생 => 이후 스켈레탈 메시 해제 & 풀 반환 OnDeathMontageEnded -> FinishDeathSequence()에서 처리
+	PlayDeathMontage();
 }
 
 void ALREnemyCharacter::InitializeByEnemyID(FName EnemyID)
@@ -198,7 +173,6 @@ void ALREnemyCharacter::InitializeAttributes(FName EnemyID)
 	GrantEnemyAbilities();
 }
 
-// TODO: 코드 리팩토링 & 정리 필요
 void ALREnemyCharacter::ApplyVisualData(const FEnemyStaticData& EnemyData)
 {
 	USkeletalMeshComponent* MeshComp = GetMesh();
@@ -208,8 +182,6 @@ void ALREnemyCharacter::ApplyVisualData(const FEnemyStaticData& EnemyData)
 		return;
 	}
 
-	// TSoftObjectPtr이므로 LoadSynchronous()로 실제 에셋을 로드한다.
-	// 이미 로드된 에셋이면 즉시 반환되므로 중복 로드 오버헤드는 없다.
 	if (!EnemyData.EnemyMesh.IsNull())
 	{
 		USkeletalMesh* LoadedMesh = EnemyData.EnemyMesh.LoadSynchronous();
@@ -253,6 +225,167 @@ void ALREnemyCharacter::ApplyVisualData(const FEnemyStaticData& EnemyData)
 
 	const float FinalScale = (EnemyData.Scale > KINDA_SMALL_NUMBER) ? EnemyData.Scale : 1.0f;
 	SetActorScale3D(FVector(FinalScale));
+
+	if (!EnemyData.DeathMontage.IsNull())
+	{
+		CachedDeathMontage = EnemyData.DeathMontage.LoadSynchronous();
+		if (!CachedDeathMontage)
+		{
+			LR_WARN(TEXT("Failed to Load Death Montage [ID : %s] / [Name : %s]"), *CurrentEnemyID.ToString(), *GetName());
+		}
+	}
+	else
+	{
+		CachedDeathMontage = nullptr;
+		LR_WARN(TEXT("No Vaild Death Montage In DT [ID : %s] / [Name : %s]"), *CurrentEnemyID.ToString(), *GetName());
+	}
+
+	if (!EnemyData.AttackedMontage.IsNull())
+	{
+		CachedAttackedMontage = EnemyData.AttackedMontage.LoadSynchronous();
+		if (!CachedAttackedMontage)
+		{
+			LR_WARN(TEXT("Failed to Load Attacked Montage [ID : %s] / [Name : %s]"), *CurrentEnemyID.ToString(), *GetName());
+		}
+	}
+	else
+	{
+		CachedAttackedMontage = nullptr;
+		LR_WARN(TEXT("No Vaild Attakced Montage In DT [ID : %s] / [Name : %s]"), *CurrentEnemyID.ToString(), *GetName());
+	}
+}
+
+void ALREnemyCharacter::PlayAttackedMontage()
+{
+	USkeletalMeshComponent* MeshComp = GetMesh();
+	if (!MeshComp)
+	{
+		LR_WARN(TEXT("SKM 컴포넌트에 피격 몽타주 X [ID : %s] / [Name : %s]"), *CurrentEnemyID.ToString(), *GetName());
+		return;
+	}
+
+	UAnimInstance* AnimInstance = MeshComp->GetAnimInstance();
+	if (!AnimInstance)
+	{
+		LR_WARN(TEXT("AnimInstance 피격 몽타주 X [ID : %s] / [Name : %s]"), *CurrentEnemyID.ToString(), *GetName());
+		return;
+	}
+
+	if (!CachedAttackedMontage)
+	{
+		LR_WARN(TEXT("캐싱된 피격 몽타주 X [ID : %s] / [Name : %s]"), *CurrentEnemyID.ToString(), *GetName());
+		return;
+	}
+
+	AnimInstance->OnMontageEnded.RemoveDynamic(this, &ALREnemyCharacter::OnAttackedMontageEnded);
+	AnimInstance->OnMontageEnded.AddDynamic(this, &ALREnemyCharacter::OnAttackedMontageEnded);
+
+	float MontageLength = AnimInstance->Montage_Play(
+		CachedAttackedMontage,
+		1.0f,
+		EMontagePlayReturnType::MontageLength,
+		0.0f,
+		true  // bStopAllMontages => 공격 몽타주보다 높은 우선 순위
+	);
+
+	// TEST : 재생되는거 확인하고 지우기
+	if (MontageLength > 0.0f)
+	{
+		LR_WARN(TEXT("========== [%s] Attacked montage started =========="), *CurrentEnemyID.ToString());
+	}
+}
+
+void ALREnemyCharacter::PlayDeathMontage()
+{
+	USkeletalMeshComponent* MeshComp = GetMesh();
+	if (!MeshComp)
+	{
+		LR_ERROR(TEXT("SKM not found in PlayDeathMontage [ID : %s] / [Name : %s]"), *CurrentEnemyID.ToString(), *GetName());
+		FinishDeathSequence();
+		return;
+	}
+
+	UAnimInstance* AnimInstance = MeshComp->GetAnimInstance();
+	if (!AnimInstance)
+	{
+		LR_ERROR(TEXT("AnimInstance not found in PlayDeathMontage [ID : %s] / [Name : %s]"), *CurrentEnemyID.ToString(), *GetName());
+		FinishDeathSequence();
+		return;
+	}
+
+	if (!CachedDeathMontage)
+	{
+		LR_WARN(TEXT("No DeathMontage cached. [ID : %s] / [Name : %s]"), *CurrentEnemyID.ToString(), *GetName());
+		FinishDeathSequence();
+		return;
+	}
+
+	AnimInstance->OnMontageEnded.RemoveDynamic(this, &ALREnemyCharacter::OnDeathMontageEnded);
+	AnimInstance->OnMontageEnded.AddDynamic(this, &ALREnemyCharacter::OnDeathMontageEnded);
+
+	float MontageLength = AnimInstance->Montage_Play(
+		CachedDeathMontage,
+		1.0f,                                    // PlayRate
+		EMontagePlayReturnType::MontageLength,
+		0.0f,                                    // StartTime
+		true                                     // bStopAllMontages
+	);
+
+	if (MontageLength <= 0.0f)
+	{
+		LR_ERROR(TEXT("Failed to play DeathMontage for  [ID : %s] / [Name : %s]"), *CurrentEnemyID.ToString(), *GetName());
+		FinishDeathSequence();
+	}
+	else
+	{
+		// TEST : 재생되는거 확인하고 지우기
+		LR_ERROR(TEXT("[%s] Death montage started (Length: %.2fs)"), *CurrentEnemyID.ToString(), MontageLength);
+	}
+}
+
+void ALREnemyCharacter::OnAttackedMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	if (UAnimInstance* AnimInstance = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr)
+	{
+		AnimInstance->OnMontageEnded.RemoveDynamic(this, &ALREnemyCharacter::OnAttackedMontageEnded);
+	}
+}
+
+void ALREnemyCharacter::OnDeathMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	if (UAnimInstance* AnimInstance = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr)
+	{
+		AnimInstance->OnMontageEnded.RemoveDynamic(this, &ALREnemyCharacter::OnDeathMontageEnded);
+	}
+
+	if (bInterrupted)
+	{
+		// TEST : 방해 받는 경우 존재하는지 테스트
+		LR_ERROR(TEXT("======= [%s] Death montage interrupted ======="), *CurrentEnemyID.ToString());
+	}
+
+	FinishDeathSequence();
+}
+
+void ALREnemyCharacter::FinishDeathSequence()
+{
+	// 기존 OnDie() 4번 이후 플로우
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		MeshComp->SetSkeletalMesh(nullptr);
+		MeshComp->SetSimulatePhysics(false);
+		MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		MeshComp->SetVisibility(false);
+	}
+
+	UPoolingSubsystem* PoolSys = GetWorld() ? GetWorld()->GetSubsystem<UPoolingSubsystem>() : nullptr;
+	if (!PoolSys)
+	{
+		LR_ERROR(TEXT("PoolingSubsystem not found while returning enemy to pool"));
+		return;
+	}
+
+	PoolSys->ReturnToPool(this);
 }
 
 float ALREnemyCharacter::GetDropAetherAmount() const
@@ -440,6 +573,9 @@ void ALREnemyCharacter::OnPoolDeactivate_Implementation()
 	SetActorLocation(FVector(0.0f, 0.0f, -10000.0f));
 
 	ClearGrantedEnemyAbilities();
+
+	CachedDeathMontage = nullptr;
+	CachedAttackedMontage = nullptr;
 
 	CurrentEnemyID = NAME_None;
 }
