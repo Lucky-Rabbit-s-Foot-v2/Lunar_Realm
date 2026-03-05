@@ -335,10 +335,11 @@ void ULRGachaShopWidget::RefreshPityText()
 		? ELRGachaItemType::Hero
 		: ELRGachaItemType::Equipment;
 
-	const int32 Pity = GachaSys->GetDisplayPityCount(ItemType);
+	const int32 Current = GachaSys->GetDisplayPityCount(ItemType);
+	const int32 Max = 100;
 
 	TextPity->SetText(
-		FText::FromString(FString::Printf(TEXT("보름달 티켓\n천장 카운트 : %d"), Pity))
+		FText::FromString(FString::Printf(TEXT("%d/%d"), Current, Max))
 	);
 }
 
