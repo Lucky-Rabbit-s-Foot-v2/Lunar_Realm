@@ -12,6 +12,7 @@
 
 class UAbilitySystemComponent;
 class ULRPlayerAttributeSet;
+class ALREquipmentBase;
 /**
  * 
  */
@@ -76,8 +77,24 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UAnimMontage> LoadedAttackMontage;
 
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Animation")
+	UAnimMontage* LoadedHitMontage;
+
+
 	FTimerHandle DeadTimerHandle;
 	bool bIsDead = false;
 
+public:
+	void UpdateWeaponMesh(FName InWeaponID);
 
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "LR|Weapon")
+	TSubclassOf<ALREquipmentBase> WeaponClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "LR|Weapon")
+	FName WeaponSocketName = TEXT("WeaponSocket");
+
+	UPROPERTY()
+	ALREquipmentBase* CurrentWeaponActor;
 };
