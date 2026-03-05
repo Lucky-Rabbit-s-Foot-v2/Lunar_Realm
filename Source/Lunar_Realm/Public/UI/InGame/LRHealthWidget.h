@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "UI/Core/LRChildWidget.h"
 #include "GameplayEffectTypes.h"
+#include "Components/Image.h"
+#include "Components/TextBlock.h"
 #include "LRHealthWidget.generated.h"
 
 /**
@@ -40,4 +42,33 @@ private:
 
 	float CurrentHealth = 0.0f;
 	float CurrentMaxHealth = 1.0f;
+
+protected:
+	UPROPERTY()
+	UAbilitySystemComponent* CachedASC;
+
+public:
+	void UpdatePlayerIcon(FName InCharacterID);
+
+
+protected:
+	UPROPERTY(meta = (BindWidget))
+	class UImage* Img_PlayerIcon;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* Text_PlayerName;
+
+protected:
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* Text_RespawnTimer;
+
+	FTimerHandle UI_RespawnTimerHandle;
+	float CurrentRespawnTime;
+
+public:
+	void StartRespawnTimer(float InRespawnTime);
+	void StopRespawnTimer();
+
+protected:
+	void UpdateRespawnTimerText();
 };
