@@ -510,7 +510,9 @@ void ALRMemberCharacter::UpdateWeaponMesh(FName InWeaponID)
 	// 무기가 있으면 소켓에 다시 붙이고 세팅
 	if (CurrentWeaponActor)
 	{
-		CurrentWeaponActor->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponSocketName);
+		CurrentWeaponActor->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
+
+		CurrentWeaponActor->SetActorScale3D(FVector(0.7f, 0.7f, 0.7f));
 
 		CurrentWeaponActor->SetActorHiddenInGame(false);
 		CurrentWeaponActor->SetActorTickEnabled(true);
