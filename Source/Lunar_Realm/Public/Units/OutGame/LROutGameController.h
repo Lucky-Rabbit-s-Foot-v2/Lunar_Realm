@@ -34,6 +34,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
 	TSubclassOf<class ULRGachaShopWidget> GachaShopWidgetClass;
 
-private:
+protected:
+	UPROPERTY(VisibleAnywhere, Category = "LR|UI Party")
 	FName SelectedCharacterID = NAME_None;
 };

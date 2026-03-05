@@ -30,8 +30,9 @@ void ULRBaseWidget::NativeDestruct()
 
 void ULRBaseWidget::NativeOnInitialized()
 {
-	InitializeUI();
+	Super::NativeOnInitialized();
 	RegisterSubWidgets();
+	InitializeUI();
 }
 
 void ULRBaseWidget::InitializeUI()
