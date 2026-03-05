@@ -4,18 +4,18 @@
 #include "UI/Common/LREntryWidget.h"
 
 #include "Components/Image.h"
+#include "Engine/Texture2D.h"
 
 void ULREntryWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
-	
+	TileData = Cast<ULRTileData>(ListItemObject);
+	RefreshData();
 }
 
-void ULREntryWidget::SetData(const FString& InID, UImage* InIcon)
+void ULREntryWidget::RefreshData()
 {
-	ID = InID;
-	
-	if (Img_Icon && InIcon)
+	if (TileData && Img_Icon)
 	{
-		// TODO : 이미지 갱신
+		Img_Icon->SetBrushFromTexture(TileData->GetIcon());
 	}
 }

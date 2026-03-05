@@ -24,6 +24,8 @@ protected:
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
+	virtual void InitializeUI() override;
+
 	UFUNCTION(BlueprintCallable, Category = "LR|UI Events")
 	void OnBackButtonClicked();
 

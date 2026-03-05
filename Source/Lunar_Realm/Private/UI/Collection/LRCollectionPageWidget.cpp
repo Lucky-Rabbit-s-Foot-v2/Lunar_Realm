@@ -9,6 +9,8 @@
 #include "Subsystems/Settings/UIManagerSettings.h"
 #include "Subsystems/UIManagerSubsystem.h"
 
+#include "UI/Collection/LRCollection.h"
+
 void ULRCollectionPageWidget::BindProperties()
 {
 	Super::BindProperties();
@@ -21,6 +23,16 @@ void ULRCollectionPageWidget::UnbindProperties()
 	if (Btn_Back) Btn_Back->OnClicked.Clear();
 
 	Super::UnbindProperties();
+}
+
+void ULRCollectionPageWidget::InitializeUI()
+{
+	Super::Initialize();
+
+	if (Collection)
+	{
+		Collection->InitializeUI();
+	}
 }
 
 void ULRCollectionPageWidget::OnBackButtonClicked()

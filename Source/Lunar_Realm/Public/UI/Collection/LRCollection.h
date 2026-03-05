@@ -19,7 +19,9 @@ class LUNAR_REALM_API ULRCollection : public ULRChildWidget
 {
 	GENERATED_BODY()
 	
-protected:
+public:
+	virtual void InitializeUI() override;
+	
 	virtual void NativeConstruct() override;
 
 	virtual void BindProperties() override;
@@ -31,7 +33,7 @@ protected:
 	UFUNCTION()
 	void OnBtnEquipClicked();
 
-
+protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UWidgetSwitcher> Switcher_Collection;
 

@@ -17,8 +17,8 @@ void ULRLobbyFigureWidget::BindProperties()
 
 	if (Btn_Figure)
 	{
-		Btn_Figure->OnPressed.AddDynamic(this, &ULRLobbyFigureWidget::OnFigurePressed);
-		Btn_Figure->OnReleased.AddDynamic(this, &ULRLobbyFigureWidget::OnFigureReleased);
+		Btn_Figure->OnPressed.AddUniqueDynamic(this, &ULRLobbyFigureWidget::OnFigurePressed);
+		Btn_Figure->OnReleased.AddUniqueDynamic(this, &ULRLobbyFigureWidget::OnFigureReleased);
 	}
 }
 

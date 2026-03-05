@@ -6,6 +6,19 @@
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
 
+#include "UI/Collection/LRCharacterCollection.h"
+#include "UI/Collection/LREquipCollection.h"
+
+void ULRCollection::InitializeUI()
+{
+	Super::InitializeUI();
+	
+	if (CharacterCollection)
+	{
+		CharacterCollection->InitializeUI();
+	}
+}
+
 void ULRCollection::NativeConstruct()
 {
 	Super::NativeConstruct();
