@@ -5,12 +5,11 @@
 
 #include "Components/Button.h"
 
-#include "Units/OutGame/LROutGameController.h"
-
 #include "Engine/GameInstance.h"
 #include "Subsystems/Settings/UIManagerSettings.h"
 #include "Subsystems/UIManagerSubsystem.h"
 
+#include "Units/OutGame/LROutGameController.h"
 #include "UI/Chapter/LRChapterSelectorWidget.h"
 
 void ULRPageSelectorWidget::BindProperties()
@@ -21,6 +20,8 @@ void ULRPageSelectorWidget::BindProperties()
 	if (Btn_Collection) Btn_Collection->OnClicked.AddDynamic(this, &ULRPageSelectorWidget::OnCollectionButtonClicked);
 	if (Btn_Party) Btn_Party->OnClicked.AddDynamic(this, &ULRPageSelectorWidget::OnPartyButtonClicked);
 	if (Btn_Gacha) Btn_Gacha->OnClicked.AddDynamic(this, &ULRPageSelectorWidget::OnGachaButtonClicked);
+
+	SubWidgets.Add(Profile);
 }
 
 void ULRPageSelectorWidget::UnbindProperties()
