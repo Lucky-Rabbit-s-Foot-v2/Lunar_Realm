@@ -71,6 +71,13 @@ class LUNAR_REALM_API ULRGachaSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
+	// 마지막으로 샵에서 선택된 배너(탭 복구용)
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Flow")
+	void SetLastShopBanner(FName InBannerID);
+
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Flow")
+	FName GetLastShopBanner() const;
+
 	// ───────────────── Flow(로비 복귀 처리) ─────────────────
 
 	/** 로비 복귀 시 “샵 자동 오픈” 플래그 끄기(Home 같은 케이스) */
@@ -86,6 +93,14 @@ public:
 
 	/** Shop이 열릴 때 배너 복구용(1회 소비) */
 	bool ConsumePendingReturnShopBanner(FName& OutBannerID);
+
+	// 소비하지 않고 보기만
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Flow")
+	bool PeekPendingReturnShopBanner(FName& OutBannerID) const;
+
+	// 최종 적용 후 수동으로 비우기
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Flow")
+	void ClearPendingReturnShopBanner();
 
 	// ───────────────── 재화 API ─────────────────
 
@@ -174,6 +189,9 @@ protected:
 	TSoftObjectPtr<UDataTable> RarityRateDataTable;
 
 private:
+	// 샵에서 마지막으로 선택된 배너(여기 값으로 탭 복구)
+	FName LastShopBannerID = NAME_None;
+
 	// ───────────────── 맵 로드 후 훅(로비 복귀 자동 UI 처리) ─────────────────
 
 	void HandlePostLoadMapWithWorld(UWorld* LoadedWorld);
