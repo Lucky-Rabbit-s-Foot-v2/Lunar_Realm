@@ -191,8 +191,8 @@ void ALRPlayerCharacter::Move(const FInputActionValue& Value)
 		float CurrentY = GetActorLocation().Y;
 
 		// TODO : 추후 맵 확정될때 CameraManager의 MinY, MaxY랑 값 맞춰줘야함
-		float MapMinY = -1000.0f;
-		float MapMaxY = 1000.0f;
+		float MapMinY = -2000.0f;
+		float MapMaxY = 2000.0f;
 
 		float LimitMin = MapMinY - CurrentY;
 		float LimitMax = MapMaxY - CurrentY;
