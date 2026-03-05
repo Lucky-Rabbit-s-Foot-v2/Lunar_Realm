@@ -12,17 +12,6 @@
 void ULRCollection::InitializeUI()
 {
 	Super::InitializeUI();
-	
-	if (CharacterCollection)
-	{
-		CharacterCollection->InitializeUI();
-	}
-}
-
-void ULRCollection::NativeConstruct()
-{
-	Super::NativeConstruct();
-
 
 	if (Switcher_Collection) Switcher_Collection->SetActiveWidgetIndex(0);
 }
@@ -43,10 +32,19 @@ void ULRCollection::UnbindProperties()
 	Super::UnbindProperties();
 }
 
+void ULRCollection::RegisterSubWidgets()
+{
+	Super::RegisterSubWidgets();
+
+	SubWidgets.Add(CharacterCollection);
+	SubWidgets.Add(EquipCollection);
+}
+
 void ULRCollection::OnBtnCharacterClicked()
 {
 	if(Switcher_Collection)
 	{
+		CharacterCollection->RefreshUI();
 		Switcher_Collection->SetActiveWidgetIndex(0);
 	}
 }
@@ -55,6 +53,7 @@ void ULRCollection::OnBtnEquipClicked()
 {
 	if (Switcher_Collection)
 	{
+		EquipCollection->RefreshUI();
 		Switcher_Collection->SetActiveWidgetIndex(1);
 	}
 }

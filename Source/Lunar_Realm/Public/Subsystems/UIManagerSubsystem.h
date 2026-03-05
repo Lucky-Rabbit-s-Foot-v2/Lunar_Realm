@@ -248,6 +248,8 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
 		case EUILayer::BACKGROUND:
 		case EUILayer::PERSISTENT:
 		{
+			LR_WARN(TEXT("Opening Persistent UI: %s"), *BaseWidget->GetName());
+
 			TSubclassOf<ULRBaseWidget> BaseClassFactory = TargetClassFactory;
 			if (!PersistentUIMap.Contains(BaseClassFactory))
 			{
@@ -267,10 +269,7 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
 		case EUILayer::POPUP:
 		case EUILayer::SYSTEM:
 		{
-			if (PopupUIStack.Num() > 0)
-			{
-				PopupUIStack.Last()->OnFocusLost();
-			}
+			LR_WARN(TEXT("Opening Popup UI: %s"), *BaseWidget->GetName());
 
 			PopupUIStack.Add(BaseWidget);
 			BaseWidget->OpenUI();

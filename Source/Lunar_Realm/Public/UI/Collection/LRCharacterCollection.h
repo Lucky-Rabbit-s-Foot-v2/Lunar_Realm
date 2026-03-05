@@ -21,7 +21,6 @@ class LUNAR_REALM_API ULRCharacterCollection : public ULRChildWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void InitializeUI() override;
 	virtual void RefreshUI() override;
 
 protected:

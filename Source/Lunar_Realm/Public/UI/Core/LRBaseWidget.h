@@ -58,11 +58,17 @@ public:
 	/** 델리게이트 해제를 위해 선언 */
 	virtual void NativeDestruct() override;
 
+	/** 초기화를 위해 선언 */
+	virtual void NativeOnInitialized() override;
+
 	/** UI를 처음 생성할 때 초기화*/
 	virtual void InitializeUI();
 
 	/** UI 를 제거할 때 */
 	virtual void DeinitializeUI();
+
+	/** 서브 위젯 등록 */
+	virtual void RegisterSubWidgets();
 
 	/** 보유한 위젯 바인딩 */
 	virtual void BindProperties();

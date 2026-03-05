@@ -19,13 +19,13 @@ class LUNAR_REALM_API ULRCollection : public ULRChildWidget
 {
 	GENERATED_BODY()
 	
-public:
+public:	
 	virtual void InitializeUI() override;
-	
-	virtual void NativeConstruct() override;
 
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
+
+	virtual void RegisterSubWidgets() override;
 
 	UFUNCTION()
 	void OnBtnCharacterClicked();

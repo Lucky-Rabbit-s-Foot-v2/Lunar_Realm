@@ -25,14 +25,10 @@ void ULRCollectionPageWidget::UnbindProperties()
 	Super::UnbindProperties();
 }
 
-void ULRCollectionPageWidget::InitializeUI()
+void ULRCollectionPageWidget::RegisterSubWidgets()
 {
-	Super::Initialize();
-
-	if (Collection)
-	{
-		Collection->InitializeUI();
-	}
+	SubWidgets.Add(CharacterInfo);
+	SubWidgets.Add(Collection);
 }
 
 void ULRCollectionPageWidget::OnBackButtonClicked()

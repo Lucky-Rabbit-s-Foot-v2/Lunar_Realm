@@ -6,9 +6,16 @@
 #include "UI/Common/LREntryWidget.h"
 #include "LRCharacterEntryWidget.generated.h"
 
+
+// =============================================================================
 /**
- * 
+ * 도감용 캐릭터 타일
+ * - 클릭 시 캐릭터 선택 로직 추가
  */
+ //=============================================================================
+ // (260305) PJB 제작. 
+ //=============================================================================
+
 UCLASS()
 class LUNAR_REALM_API ULRCharacterEntryWidget : public ULREntryWidget
 {

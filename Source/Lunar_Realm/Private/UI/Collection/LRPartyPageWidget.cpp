@@ -9,13 +9,14 @@
 #include "Subsystems/Settings/UIManagerSettings.h"
 #include "Subsystems/UIManagerSubsystem.h"
 
+#include "UI/Collection/LRCollection.h"
+
 
 void ULRPartyPageWidget::BindProperties()
 {
 	Super::BindProperties();
 
 	if (Btn_Back) Btn_Back->OnClicked.AddDynamic(this, &ULRPartyPageWidget::OnBackButtonClicked);
-
 }
 
 void ULRPartyPageWidget::UnbindProperties()
@@ -23,6 +24,14 @@ void ULRPartyPageWidget::UnbindProperties()
 	if (Btn_Back) Btn_Back->OnClicked.Clear();
 
 	Super::UnbindProperties();
+}
+
+void ULRPartyPageWidget::RegisterSubWidgets()
+{
+	Super::RegisterSubWidgets();
+
+	SubWidgets.Add(PartySlot);
+	SubWidgets.Add(Collection);
 }
 
 void ULRPartyPageWidget::OnBackButtonClicked()
