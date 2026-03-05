@@ -20,8 +20,6 @@ void ULRPageSelectorWidget::BindProperties()
 	if (Btn_Collection) Btn_Collection->OnClicked.AddDynamic(this, &ULRPageSelectorWidget::OnCollectionButtonClicked);
 	if (Btn_Party) Btn_Party->OnClicked.AddDynamic(this, &ULRPageSelectorWidget::OnPartyButtonClicked);
 	if (Btn_Gacha) Btn_Gacha->OnClicked.AddDynamic(this, &ULRPageSelectorWidget::OnGachaButtonClicked);
-
-	SubWidgets.Add(Profile);
 }
 
 void ULRPageSelectorWidget::UnbindProperties()
@@ -32,6 +30,13 @@ void ULRPageSelectorWidget::UnbindProperties()
 	if (Btn_Gacha) Btn_Gacha->OnClicked.Clear();
 
 	Super::UnbindProperties();
+}
+
+void ULRPageSelectorWidget::RegisterSubWidgets()
+{
+	Super::RegisterSubWidgets();
+
+	SubWidgets.Add(Profile);
 }
 
 void ULRPageSelectorWidget::OnStageButtonClicked()

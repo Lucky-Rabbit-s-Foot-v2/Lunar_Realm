@@ -22,13 +22,10 @@ class LUNAR_REALM_API ULRChapterSelectorWidget : public ULRPageWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
-
 	virtual void BindProperties() override;	
 	virtual void UnbindProperties() override;
 
-	virtual void RefreshUI() override;
+	virtual void RegisterSubWidgets() override;
 
 	UFUNCTION(BlueprintCallable, Category = "LR|UI")
 	void OnBackButtonClicked();

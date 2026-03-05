@@ -32,14 +32,6 @@ void ULRLobbyWidget::BindProperties()
 
 	if (Btn_Message) Btn_Message->OnClicked.AddDynamic(this, &ULRLobbyWidget::OnMessageButtonClicked);
 	if (Btn_Setting) Btn_Setting->OnClicked.AddDynamic(this, &ULRLobbyWidget::OnSettingButtonClicked);
-
-	SubWidgets.Add(MainCharacter);
-	SubWidgets.Add(Member1);
-	SubWidgets.Add(Member2);
-	SubWidgets.Add(Member3);
-	SubWidgets.Add(Member4);
-	SubWidgets.Add(Currency);
-	SubWidgets.Add(Banner);
 }
 
 void ULRLobbyWidget::UnbindProperties()
@@ -48,6 +40,19 @@ void ULRLobbyWidget::UnbindProperties()
 	Btn_Setting->OnClicked.Clear();
 
 	Super::UnbindProperties();
+}
+
+void ULRLobbyWidget::RegisterSubWidgets()
+{
+	Super::RegisterSubWidgets();
+
+	SubWidgets.Add(MainCharacter);
+	SubWidgets.Add(Member1);
+	SubWidgets.Add(Member2);
+	SubWidgets.Add(Member3);
+	SubWidgets.Add(Member4);
+	SubWidgets.Add(Currency);
+	SubWidgets.Add(Banner);
 }
 
 void ULRLobbyWidget::OnMessageButtonClicked()

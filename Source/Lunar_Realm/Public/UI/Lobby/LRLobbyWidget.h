@@ -25,6 +25,8 @@ public:
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
+	virtual void RegisterSubWidgets() override;
+
 	UFUNCTION()
 	void OnMessageButtonClicked();
 
