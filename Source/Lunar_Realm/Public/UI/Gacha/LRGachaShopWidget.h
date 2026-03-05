@@ -16,6 +16,13 @@ class UButton;
 class UTextBlock;
 class ULRGachaSubsystem;
 
+UENUM(BlueprintType)
+enum class ELRGachaShopTab : uint8
+{
+	Hero,
+	Equip
+};
+
 /**
  * ULRGachaShopWidget (가챠 상점 UI)
  *
@@ -38,6 +45,14 @@ public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
+	// 현재 탭
+	UPROPERTY(BlueprintReadOnly, Category = "LR|Gacha")
+	ELRGachaShopTab CurrentTab = ELRGachaShopTab::Hero;
+
+	// 탭 변경 (BP에서도 호출 가능)
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha")
+	void SetTab(ELRGachaShopTab NewTab);
+
 	/** 현재 선택된 배너 ID */
 	UPROPERTY(BlueprintReadOnly, Category = "LR|Gacha")
 	FName CurrentBannerID;
@@ -51,6 +66,10 @@ public:
 	FName DefaultEquipBannerID = TEXT("Equip_FullMoon");
 
 protected:
+	// BP가 배경만 바꿀 수 있도록 이벤트 제공
+	UFUNCTION(BlueprintImplementableEvent, Category = "LR|Gacha")
+	void BP_ApplyTabBackground(ELRGachaShopTab NewTab);
+
 	// ───────────────── UMG 바인딩 ─────────────────
 
 	UPROPERTY(meta = (BindWidgetOptional))

@@ -93,6 +93,9 @@ void ULRGachaSubsystem::RequestOpenShopOnLobbyReturn(FName InBannerID)
 {
 	bOpenShopOnLobbyReturn = true;
 	PendingReturnShopBannerID = InBannerID;
+
+	// 마지막 선택 배너로도 저장 (위젯이 몇 번 생성돼도 유지)
+	SetLastShopBanner(InBannerID);
 }
 
 void ULRGachaSubsystem::ClearOpenShopOnLobbyReturn()
@@ -1240,4 +1243,33 @@ bool ULRGachaSubsystem::Debug_SimulateBanner(
 	}
 
 	return true;
+}
+
+bool ULRGachaSubsystem::PeekPendingReturnShopBanner(FName& OutBannerID) const
+{
+	if (PendingReturnShopBannerID.IsNone())
+	{
+		return false;
+	}
+
+	OutBannerID = PendingReturnShopBannerID;
+	return true;
+}
+
+void ULRGachaSubsystem::ClearPendingReturnShopBanner()
+{
+	PendingReturnShopBannerID = NAME_None;
+}
+
+void ULRGachaSubsystem::SetLastShopBanner(FName InBannerID)
+{
+	if (!InBannerID.IsNone())
+	{
+		LastShopBannerID = InBannerID;
+	}
+}
+
+FName ULRGachaSubsystem::GetLastShopBanner() const
+{
+	return LastShopBannerID;
 }
