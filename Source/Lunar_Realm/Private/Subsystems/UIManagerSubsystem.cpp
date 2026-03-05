@@ -47,21 +47,17 @@ void UUIManagerSubsystem::NotifyInputModeChange()
 		return;
 	}
 	
-	ULRBaseWidget* TopModalWidget = FindTopModalPopup();
-	if (TopModalWidget)
-	{
-		FInputModeGameAndUI InputMode;
-		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-		InputMode.SetHideCursorDuringCapture(false);
-		InputMode.SetWidgetToFocus(TopModalWidget->TakeWidget());
-		PC->SetInputMode(InputMode);
-		PC->SetShowMouseCursor(true);
-	}
-	else
-	{
-		PC->SetInputMode(FInputModeGameOnly());
-		PC->SetShowMouseCursor(false);
-	}
+	FInputModeGameAndUI InputMode;
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	InputMode.SetHideCursorDuringCapture(false);
+	//InputMode.SetWidgetToFocus(TopModalWidget->TakeWidget());
+	PC->SetInputMode(InputMode);
+	PC->SetShowMouseCursor(true);
+
+	/* 게임 입력 모드 변경
+	PC->SetInputMode(FInputModeGameOnly());
+	PC->SetShowMouseCursor(false);
+	*/
 }
 
 void UUIManagerSubsystem::CloseUIInternal(ULRBaseWidget* Widget)
@@ -291,18 +287,6 @@ void UUIManagerSubsystem::UpdatePopupZOrders()
 			LR_INFO(TEXT("Adding %s to viewport with ZOrder %d"), *Widget->GetName(), NewZOrder);
 		}
 	}
-}
-
-ULRBaseWidget* UUIManagerSubsystem::FindTopModalPopup()
-{
-	for (int32 i = PopupUIStack.Num() - 1; i >= 0; --i)
-	{
-		if (PopupUIStack[i]->bIsModal)
-		{
-			return PopupUIStack[i];
-		}
-	}
-	return nullptr;
 }
 
 void UUIManagerSubsystem::ResetUIState(ULRBaseWidget* Widget)

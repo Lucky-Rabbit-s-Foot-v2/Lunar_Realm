@@ -7,5 +7,4 @@ ULRChildWidget::ULRChildWidget(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
 	UILayer = EUILayer::NONE;
-	bIsModal = false;
 }

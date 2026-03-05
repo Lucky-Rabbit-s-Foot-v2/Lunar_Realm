@@ -52,11 +52,6 @@ private:
 	/** 팝업 UI들의 ZOrder를 현재 스택 상태에 맞게 갱신 */
 	void UpdatePopupZOrders();
 
-	/** 입력 제한 최상단 팝업 찾기
-	* - Popup UI 의 존재 여부를 통해 입력 모드 결정 시 사용
-	*/
-	ULRBaseWidget* FindTopModalPopup();
-
 	/** 각 위젯을 삭제하기 위한 헬퍼 함수 */
 	void ResetUIState(ULRBaseWidget* Widget);
 

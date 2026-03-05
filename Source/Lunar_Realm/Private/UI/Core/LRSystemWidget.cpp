@@ -7,6 +7,4 @@ ULRSystemWidget::ULRSystemWidget(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
 	UILayer = EUILayer::SYSTEM;
-	bIsModal = true;
-	SetIsFocusable(true);
 }

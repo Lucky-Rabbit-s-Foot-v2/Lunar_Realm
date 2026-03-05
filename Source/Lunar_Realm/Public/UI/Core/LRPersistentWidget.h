@@ -37,15 +37,4 @@ class LUNAR_REALM_API ULRPersistentWidget : public ULRBaseWidget
 public:
 	ULRPersistentWidget(const FObjectInitializer& ObjectInitializer);
 
-	virtual void InitializeUI() override;
-	virtual void OpenUI() override;
-
-	class ULRPopupWidget* GetDefaultPopupWidget() { return DefaultPopupWidget; }
-
-private:
-	UPROPERTY(EditDefaultsOnly, Category = "LR|UI|Persistant")
-	TSubclassOf<class ULRPopupWidget> DefaultPopupClass;
-
-	UPROPERTY(VisibleAnywhere)
-	class ULRPopupWidget* DefaultPopupWidget = nullptr;
 };

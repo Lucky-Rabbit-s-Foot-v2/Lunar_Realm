@@ -23,5 +23,4 @@ class LUNAR_REALM_API ULRToolTipWidget : public ULRBaseWidget
 public:
 	ULRToolTipWidget(const FObjectInitializer& ObjectInitializer);
 
-protected:
 };
