@@ -22,6 +22,14 @@ class LUNAR_REALM_API ULRCharacterEntryWidget : public ULREntryWidget
 	GENERATED_BODY()
 	
 public:
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
 
+	UFUNCTION()
+	void OnTileClicked();
+
+protected:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UButton> Btn_Selected;
 
 };

@@ -3,6 +3,7 @@
 
 #include "UI/Common/LREntryWidget.h"
 
+#include "Components/Button.h"
 #include "Components/Image.h"
 #include "Engine/Texture2D.h"
 
