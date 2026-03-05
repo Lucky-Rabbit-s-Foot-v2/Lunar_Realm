@@ -14,6 +14,13 @@
 #include "TimerManager.h"
 #include "Engine/GameInstance.h"
 
+#include "Components/Image.h"
+#include "Materials/MaterialInstanceDynamic.h"
+
+#include "Engine/PostProcessVolume.h"
+#include "Kismet/GameplayStatics.h"
+
+
 ALRPlayerController::ALRPlayerController()
 {
 	PlayerCameraManagerClass = ALRPlayerCameraManager::StaticClass();
@@ -114,6 +121,42 @@ void ALRPlayerController::UnequipWeapon()
 	{
 		PS->UnequipItem(EEquipmentSlotType::WEAPON);
 		LR_INFO(TEXT("[PlayerController] 무기 장착 해제 명령 전송 완료"));
+	}
+}
+
+void ALRPlayerController::OnPlayerDied(float InRespawnTime)
+{
+	if (ULRPlayerWidget* MyWidget = GetPlayerWidget())
+	{
+		MyWidget->UpdateUIOnDeath(true, InRespawnTime);
+	}
+
+	SetVirtualJoystickVisibility(false);
+	SetScreenGrayscale(1.0f);
+}
+
+void ALRPlayerController::OnPlayerRespawned()
+{
+	if (ULRPlayerWidget* MyWidget = GetPlayerWidget())
+	{
+		MyWidget->UpdateUIOnDeath(false);
+	}
+
+	SetVirtualJoystickVisibility(true);
+	SetScreenGrayscale(0.0f);
+}
+
+void ALRPlayerController::SetScreenGrayscale(float InWeight)
+{
+	TArray<AActor*> FoundVolumes;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APostProcessVolume::StaticClass(), FoundVolumes);
+
+	for (AActor* VolumeActor : FoundVolumes)
+	{
+		if (APostProcessVolume* Volume = Cast<APostProcessVolume>(VolumeActor))
+		{
+			Volume->BlendWeight = InWeight;
+		}
 	}
 }
 

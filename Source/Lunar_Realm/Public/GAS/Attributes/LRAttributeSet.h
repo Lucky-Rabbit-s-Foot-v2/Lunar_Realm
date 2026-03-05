@@ -18,6 +18,7 @@
  // (260210) KWB 제작. 제반 사항 구현.
  // (260224) KHS 수정, 공통 어트리뷰트 추가
  // (260303) BJM 수정, 데미치 항목 추가
+ // (260306) BJM 수정, 공격력, 방어력 추가
  // =============================================================================
 UCLASS()
 class LUNAR_REALM_API ULRAttributeSet : public UAttributeSet
@@ -42,4 +43,12 @@ public:
 	FGameplayAttributeData Damage;
 	ATTRIBUTE_ACCESSORS(ULRAttributeSet, Damage)
 	
+	UPROPERTY(BlueprintReadOnly, Category = "LR|Common")
+	FGameplayAttributeData AttackPower;
+	ATTRIBUTE_ACCESSORS(ULRAttributeSet, AttackPower)
+
+		UPROPERTY(BlueprintReadOnly, Category = "LR|Common")
+	FGameplayAttributeData Defense;
+	ATTRIBUTE_ACCESSORS(ULRAttributeSet, Defense)
+
 };

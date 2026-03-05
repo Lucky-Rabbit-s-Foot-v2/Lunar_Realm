@@ -20,6 +20,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnChangeClicked);
 
 class ULRSkillPanelWidget;
+class URetainerBox;
 
 UCLASS()
 class LUNAR_REALM_API ULRPlayerWidget : public ULRPersistentWidget
@@ -47,6 +48,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnPauseButtonClicked();
 
+	UFUNCTION(BlueprintCallable, Category = "LR|UI")
+
+	void UpdateUIOnDeath(bool InIsDead, float InRespawnTime = 0.0f);
+
 private:
 	
 	UFUNCTION(BlueprintCallable)
@@ -71,4 +76,13 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Pause;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class URetainerBox> Retainer_SkillPanel;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class URetainerBox> Retainer_HealthBar;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|UI")
+	TObjectPtr<class UMaterialInterface> Mat_BlackWhite;
 };

@@ -35,13 +35,13 @@ public:
 	FGameplayAttributeData Aether;
 	ATTRIBUTE_ACCESSORS(ULRPlayerAttributeSet, Aether);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Stats")
-	FGameplayAttributeData AttackPower;
-	ATTRIBUTE_ACCESSORS(ULRPlayerAttributeSet, AttackPower);
+	//UPROPERTY(BlueprintReadOnly, Category = "Stats")
+	//FGameplayAttributeData AttackPower;
+	//ATTRIBUTE_ACCESSORS(ULRPlayerAttributeSet, AttackPower);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Stats")
-	FGameplayAttributeData Defense;
-	ATTRIBUTE_ACCESSORS(ULRPlayerAttributeSet, Defense);
+	//UPROPERTY(BlueprintReadOnly, Category = "Stats")
+	//FGameplayAttributeData Defense;
+	//ATTRIBUTE_ACCESSORS(ULRPlayerAttributeSet, Defense);
 
 
 
