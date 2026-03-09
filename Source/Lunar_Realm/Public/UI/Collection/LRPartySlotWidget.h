@@ -9,6 +9,9 @@
 /**
  * 
  */
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPartySlotChanged);
+
 UCLASS()
 class LUNAR_REALM_API ULRPartySlotWidget : public ULRChildWidget
 {
@@ -24,6 +27,9 @@ public:
 	void OnSlotButtonClicked();
 
 	void SetCharacterID(FName InID) { ID = InID; }
+	
+	UPROPERTY(BlueprintAssignable, Category = "LR|UI|Events")
+	FOnPartySlotChanged OnPartySlotChangedDel;
 
 protected:
 	UPROPERTY(meta = (BindWidget))

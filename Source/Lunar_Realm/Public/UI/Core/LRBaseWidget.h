@@ -46,11 +46,11 @@ class LUNAR_REALM_API ULRBaseWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+	ULRBaseWidget(const FObjectInitializer& ObjectInitializer);
+	
 	//=============================================================================
 	// UI 생성/제거 시점
 	//=============================================================================
-
-	ULRBaseWidget(const FObjectInitializer& ObjectInitializer);
 
 	/** 초기화를 위해 선언 */
 	virtual void NativeConstruct() override;
@@ -58,17 +58,8 @@ public:
 	/** 델리게이트 해제를 위해 선언 */
 	virtual void NativeDestruct() override;
 
-	/** 초기화를 위해 선언 */
-	virtual void NativeOnInitialized() override;
-
-	/** UI를 처음 생성할 때 초기화*/
-	virtual void InitializeUI();
-
 	/** UI 를 제거할 때 */
 	virtual void DeinitializeUI();
-
-	/** 서브 위젯 등록 */
-	virtual void RegisterSubWidgets();
 
 	/** 보유한 위젯 바인딩 */
 	virtual void BindProperties();
@@ -77,6 +68,21 @@ public:
 	virtual void UnbindProperties();
 
 	virtual void BindToController(class ALRControllerBase* Controller);
+
+	//=============================================================================
+	// UI 시작 시점
+	//=============================================================================
+	
+	/** 초기화를 위해 선언 */
+	virtual void NativeOnInitialized() override;
+
+	/** UI를 처음 생성할 때 초기화*/
+	virtual void InitializeUI();
+
+	/** 서브 위젯 등록 */
+	virtual void RegisterSubWidgets();
+	
+	virtual void BindSubWidgets();
 
 	//=============================================================================
 	// UI 열림/닫힘, 갱신, 포커스 이벤트

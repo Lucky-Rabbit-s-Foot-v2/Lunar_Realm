@@ -30,7 +30,7 @@ protected:
 	void OnBackButtonClicked();
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRBaseWidget> PartySlot;
+	TObjectPtr<class ULRPartySlotsWidget> PartySlot;
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRCollection> Collection;

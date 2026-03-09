@@ -32,6 +32,7 @@ void ULRPartySlotWidget::RefreshUI()
 {
 	Super::RefreshUI();
 
+	LR_INFO(TEXT("Refreshing Party Slot %d with Character ID: %s"), SlotIndex, *ID.ToString());
 	if (UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>())
 	{
 		const FCharacterStaticData& StaticData = GameDataSubsystem->GetCharacterStaticData(ID);
@@ -48,9 +49,30 @@ void ULRPartySlotWidget::OnSlotButtonClicked()
 
 	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
 	{
+		int32 PreviousSlotIndex = -1;
+
+		TArray<FName> AllPartyCharactersIDs = SaveGameSubsystem->GetAllPartyCharactersIDs();
+		for (int32 i = 0; i < AllPartyCharactersIDs.Num(); i++)
+		{
+			if (AllPartyCharactersIDs[i] == ID)
+			{
+				PreviousSlotIndex = i;
+				break;
+			}
+		}
+
+		if (PreviousSlotIndex != -1)
+		{
+			FName CachedID = SaveGameSubsystem->GetPartyCharacterID(SlotIndex);
+			SaveGameSubsystem->SetPartySlot(PreviousSlotIndex, CachedID);
+		}
 		SaveGameSubsystem->SetPartySlot(SlotIndex, ID);
 	}
 
-	RefreshUI();
+	if (OnPartySlotChangedDel.IsBound())
+	{
+		LR_INFO(TEXT("Party Slot %d changed to Character ID %s"), SlotIndex, *ID.ToString());
+		OnPartySlotChangedDel.Broadcast();
+	}
 }
 

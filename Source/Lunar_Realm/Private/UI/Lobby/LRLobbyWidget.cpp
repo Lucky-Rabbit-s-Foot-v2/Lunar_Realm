@@ -18,7 +18,7 @@ void ULRLobbyWidget::RefreshUI()
 
 	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
 	TArray<FName> PartyCharactersIDs = SaveGameSubsystem->GetAllPartyCharactersIDs();
-	
+
 	MainCharacter->SetFigure(PartyCharactersIDs.IsValidIndex(0) ? PartyCharactersIDs[0] : NAME_None);
 	Member1->SetFigure(PartyCharactersIDs.IsValidIndex(1) ? PartyCharactersIDs[1] : NAME_None);
 	Member2->SetFigure(PartyCharactersIDs.IsValidIndex(2) ? PartyCharactersIDs[2] : NAME_None);

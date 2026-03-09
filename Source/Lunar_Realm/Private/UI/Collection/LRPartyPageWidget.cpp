@@ -9,6 +9,7 @@
 #include "Subsystems/Settings/UIManagerSettings.h"
 #include "Subsystems/UIManagerSubsystem.h"
 
+#include "UI/Collection/LRPartySlotsWidget.h"
 #include "UI/Collection/LRCollection.h"
 
 

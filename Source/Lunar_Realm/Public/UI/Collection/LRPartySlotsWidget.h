@@ -17,7 +17,14 @@ class LUNAR_REALM_API ULRPartySlotsWidget : public ULRChildWidget
 public:
 	virtual void InitializeUI() override;
 	
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
+
+	virtual void BindSubWidgets() override;
 	virtual void RegisterSubWidgets() override;
+
+	UFUNCTION()
+	void RefreshPartySlots();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
