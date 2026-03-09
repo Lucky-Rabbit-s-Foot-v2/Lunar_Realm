@@ -61,3 +61,11 @@ void ULRDamageWidget::DeactivateWidget()
 	SetVisibility(ESlateVisibility::Collapsed);
 }
 
+void ULRDamageWidget::SetDamageColor(FLinearColor InColor)
+{
+	if (Txt_Amount)
+	{
+		Txt_Amount->SetColorAndOpacity(FSlateColor(InColor));
+	}
+}
+

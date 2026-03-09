@@ -33,6 +33,9 @@ public:
 	UFUNCTION()
 	void DeactivateWidget();
 
+	UFUNCTION()
+	void SetDamageColor(FLinearColor InColor);
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UTextBlock> Txt_Amount;

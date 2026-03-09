@@ -60,8 +60,9 @@ void ULREnemyAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 				{
 					if (UUIManagerSubsystem* UIManager = GI->GetSubsystem<UUIManagerSubsystem>())
 					{
-						FVector HitLocation = EnemyChar->GetActorLocation() + FVector(0.f, 0.f, 100.f);
-						UIManager->ShowDamageText(LocalDamageDone, HitLocation);
+						FVector HitLocation = EnemyChar->GetActorLocation() + FVector(0.f, 0.f, 0.f);
+						FLinearColor DamageColor = FLinearColor::White;
+						UIManager->ShowDamageText(LocalDamageDone, HitLocation, DamageColor);
 					}
 				}
 				if (GetHealth() <= 0.0f)

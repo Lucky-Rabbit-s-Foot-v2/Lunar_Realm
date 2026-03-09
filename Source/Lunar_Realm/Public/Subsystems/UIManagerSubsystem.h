@@ -141,7 +141,7 @@ public:
 	FORCEINLINE int GetPopupStackSize() const { return PopupUIStack.Num(); }
     
 	UFUNCTION(BlueprintCallable, Category = "LR|UI|Damage")
-	void ShowDamageText(float Damage, FVector HitLocation);
+	void ShowDamageText(float Damage, FVector HitLocation, FLinearColor InColor);
 	
 	class ULRDamageWidget* GetFreeDamageWidgetFromPool();
 	

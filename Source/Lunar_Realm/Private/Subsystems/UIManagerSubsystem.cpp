@@ -189,10 +189,12 @@ ULRBaseWidget* UUIManagerSubsystem::SwitchPageUIByID(EUIID PageID)
 	return nullptr;
 }
 
-void UUIManagerSubsystem::ShowDamageText(float Damage, FVector HitLocation)
+void UUIManagerSubsystem::ShowDamageText(float Damage, FVector HitLocation, FLinearColor InColor)
 {
 	ULRDamageWidget* DamageUI = GetFreeDamageWidgetFromPool();
     if (!DamageUI) return;
+
+	DamageUI->SetDamageColor(InColor);
 
     APlayerController* PC = GetWorld()->GetFirstPlayerController();
     FVector2D ScreenPosition;

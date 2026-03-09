@@ -66,8 +66,9 @@ void ULRPlayerAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 				{
 					if (UUIManagerSubsystem* UIManager = GI->GetSubsystem<UUIManagerSubsystem>())
 					{
-						FVector HitLocation = PC->GetActorLocation() + FVector(0.f, 0.f, 100.f);
-						UIManager->ShowDamageText(LocalDamageDone, HitLocation);
+						FVector HitLocation = PC->GetActorLocation() + FVector(0.f, 0.f, 0.f);
+						FLinearColor DamageColor = FLinearColor::Red;
+						UIManager->ShowDamageText(LocalDamageDone, HitLocation, DamageColor);
 					}
 				}
 				if (GetHealth() <= 0.0f)
