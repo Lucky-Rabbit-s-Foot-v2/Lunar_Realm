@@ -14,9 +14,6 @@
 #include "Components/UniformGridPanel.h"
 #include "Components/UniformGridSlot.h"
 
-// 테스트 시연용
-#include "Components/TextBlock.h"
-
 #include "Engine/World.h"
 #include "Engine/GameInstance.h"
 
@@ -53,7 +50,6 @@ void ULRGachaRevealWidget::NativeDestruct()
 	// OrbSceneActor 델리게이트 해제
 	if (OrbSceneActor)
 	{
-		OrbSceneActor->OnOrbClicked.RemoveDynamic(this, &ULRGachaRevealWidget::HandleOrbClicked);
 		OrbSceneActor->OnAllOrbsRevealed.RemoveDynamic(this, &ULRGachaRevealWidget::HandleAllOrbsRevealed);
 	}
 
@@ -117,13 +113,6 @@ void ULRGachaRevealWidget::StartReveal(FName InBannerID, const TArray<FLRGachaRe
 	{
 		// “탭해서 열기” 등의 힌트는 시작 시 표시
 		HintText->SetVisibility(ESlateVisibility::Visible);
-	}
-
-	// 테스트 시연용
-	if (Text_DebugOrbIndex)
-	{
-		Text_DebugOrbIndex->SetVisibility(ESlateVisibility::Collapsed);
-		Text_DebugOrbIndex->SetText(FText::GetEmpty());
 	}
 
 	// ── 2) 입력 모드 강제(중요) ───────────────────────────────────
@@ -346,61 +335,6 @@ FReply ULRGachaRevealWidget::NativeOnMouseButtonUp(
 //  OrbSceneActor 델리게이트 핸들러
 // ─────────────────────────────────────────────────────────────────────────────
 
-void ULRGachaRevealWidget::HandleOrbClicked(int32 OrbIndex)
-{
-	// UI 텍스트가 없으면 무시
-	if (!Text_DebugOrbIndex)
-	{
-		return;
-	}
-
-	// 안전장치: 인덱스가 이상하면 숨김 처리
-	if (!CachedResults.IsValidIndex(OrbIndex))
-	{
-		Text_DebugOrbIndex->SetVisibility(ESlateVisibility::Collapsed);
-		return;
-	}
-
-	// OrbIndex -> 결과 배열에서 ItemID 가져오기
-	const FLRGachaResult& Result = CachedResults[OrbIndex];
-	const FName ItemID = Result.ItemID;
-
-	// 텍스트 표시
-	Text_DebugOrbIndex->SetText(FText::FromName(ItemID));
-	Text_DebugOrbIndex->SetVisibility(ESlateVisibility::Visible);
-
-	// 등급별 텍스트 색 적용 (게임에서도 그대로 사용)
-	FLinearColor TextColor = FLinearColor::White;
-	switch (Result.Rarity)
-	{
-	case ELRGachaRarity::Common:    TextColor = FLinearColor(0.8f, 0.8f, 0.8f, 1.f); break;
-	case ELRGachaRarity::Elite:     TextColor = FLinearColor(0.1f, 0.4f, 1.0f, 1.f); break;
-	case ELRGachaRarity::Unique:    TextColor = FLinearColor(0.9f, 0.1f, 0.1f, 1.f); break;
-	case ELRGachaRarity::Epic:      TextColor = FLinearColor(0.5f, 0.1f, 0.9f, 1.f); break;
-	case ELRGachaRarity::Legendary: TextColor = FLinearColor(1.0f, 0.75f, 0.0f, 1.f); break;
-	default: break;
-	}
-	Text_DebugOrbIndex->SetColorAndOpacity(FSlateColor(TextColor));
-
-	if (GetWorld())
-	{
-		GetWorld()->GetTimerManager().ClearTimer(Timer_DebugOrbIndex);
-
-		GetWorld()->GetTimerManager().SetTimer(
-			Timer_DebugOrbIndex,
-			[this]()
-			{
-				if (Text_DebugOrbIndex)
-				{
-					Text_DebugOrbIndex->SetVisibility(ESlateVisibility::Collapsed);
-				}
-			},
-			DebugOrbIndexDisplayTime,
-			false
-		);
-	}
-}
-
 void ULRGachaRevealWidget::HandleAllOrbsRevealed()
 {
 	// 모든 구슬 리빌 완료 플래그만 세팅
@@ -423,7 +357,6 @@ void ULRGachaRevealWidget::FindOrSpawnOrbSceneActor()
 	// 이전 참조가 남아있으면 델리게이트 해제 후 포인터 정리
 	if (OrbSceneActor)
 	{
-		OrbSceneActor->OnOrbClicked.RemoveDynamic(this, &ULRGachaRevealWidget::HandleOrbClicked);
 		OrbSceneActor->OnAllOrbsRevealed.RemoveDynamic(this, &ULRGachaRevealWidget::HandleAllOrbsRevealed);
 		OrbSceneActor = nullptr;
 	}
@@ -451,10 +384,7 @@ void ULRGachaRevealWidget::FindOrSpawnOrbSceneActor()
 	// 3) 델리게이트 구독(중복 방지 위해 Remove 후 AddUnique)
 	if (OrbSceneActor)
 	{
-		OrbSceneActor->OnOrbClicked.RemoveDynamic(this, &ULRGachaRevealWidget::HandleOrbClicked);
 		OrbSceneActor->OnAllOrbsRevealed.RemoveDynamic(this, &ULRGachaRevealWidget::HandleAllOrbsRevealed);
-
-		OrbSceneActor->OnOrbClicked.AddUniqueDynamic(this, &ULRGachaRevealWidget::HandleOrbClicked);
 		OrbSceneActor->OnAllOrbsRevealed.AddUniqueDynamic(this, &ULRGachaRevealWidget::HandleAllOrbsRevealed);
 	}
 }

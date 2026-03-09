@@ -17,9 +17,6 @@ class UWidget;
 class UPanelWidget;
 class ULRGachaResultSlotWidget;
 
-// 테스트 시연용
-class UTextBlock;
-
 /**
  * ULRGachaRevealWidget (가챠 리빌 UI)
  *
@@ -69,20 +66,6 @@ public:
 	void FinishAndClose();
 
 protected:
-	// ───────────────── Debug(테스트 시연용) ─────────────────
-
-/** (UMG Optional) 오브 클릭 시 인덱스 숫자 표시용 텍스트 */
-	UPROPERTY(BlueprintReadOnly, Category = "LR|Gacha|Debug", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
-	TObjectPtr<UTextBlock> Text_DebugOrbIndex;
-
-	/** 디버그 표시 ON/OFF (테스트 끝나면 false 또는 제거) */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Gacha|Debug")
-	bool bEnableDebugOrbIndex = true;
-
-	/** 표시 유지 시간(초) */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Gacha|Debug")
-	float DebugOrbIndexDisplayTime = 1.0f;
-
 	// ───────────────── UMG 바인딩 ─────────────────
 
 	/** 스킵 버튼(단일 버튼): 전체 리빌 → 결과 오버레이 → 로비 복귀 */
@@ -140,8 +123,6 @@ protected:
 	void BuildResultSlots();
 
 private:
-	// 타이머 핸들러(테스트 시연용)
-	FTimerHandle Timer_DebugOrbIndex;
 	// ───────────────── 스킵 버튼 핸들러 ─────────────────
 
 	UFUNCTION()
@@ -151,10 +132,6 @@ private:
 
 	/** 레벨에서 OrbSceneActor를 찾거나, 없으면 스폰 */
 	void FindOrSpawnOrbSceneActor();
-
-	/** 구슬 하나가 탭/리빌 되었을 때 (현재는 확장용 자리) */
-	UFUNCTION()
-	void HandleOrbClicked(int32 OrbIndex);
 
 	/** 모든 구슬 리빌 완료 시 내부 플래그 설정 */
 	UFUNCTION()
