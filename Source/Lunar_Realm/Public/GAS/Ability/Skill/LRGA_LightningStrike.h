@@ -23,8 +23,6 @@ protected:
 		const FGameplayAbilityActivationInfo ActivationInfo) override;
 
 private:
-	// 가장 가까운 적대 액터 탐색
-	AActor* FindNearestHostile(FGameplayTag HostileTag, float SearchRadius) const;
 	// 범위 내 적대 액터들에게 데미지 + 상태이상 적용
 	void ApplyLightningDamage(FVector StrikeLocation, FGameplayTag HostileTag, float Damage);
 
