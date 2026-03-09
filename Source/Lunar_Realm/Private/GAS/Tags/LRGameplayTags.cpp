@@ -13,6 +13,8 @@ namespace LRTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Aether_Charge, "Ability.Aether.Charge");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Heal, "Ability.Skill.Heal");
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Skill_Heal, "Cooldown.Skill.Heal");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_InstantHeal,    "Ability.Skill.InstantHeal");    
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_DurationHeal,   "Ability.Skill.DurationHeal");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Fireball, "Ability.Skill.Fireball");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Fireball_Cooldown, "Ability.Skill.Fireball.Cooldown");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_IceBall, "Ability.Skill.IceBall");
@@ -25,16 +27,19 @@ namespace LRTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Pierce_Cooldown, "Ability.Skill.Pierce.Cooldown");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_HomingArrow, "Ability.Skill.HomingArrow");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_HomingArrow_Cooldown, "Ability.Skill.HomingArrow.Cooldown");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Debuff_Poison,  "Ability.Skill.Debuff.Poison");
 	
 	//상태 태그
 	UE_DEFINE_GAMEPLAY_TAG(State_Debuff_Burning, "State.Debuff.Burning");
 	UE_DEFINE_GAMEPLAY_TAG(State_Debuff_Shock, "State.Debuff.Shock");
 	UE_DEFINE_GAMEPLAY_TAG(State_Debuff_Freeze, "State.Debuff.Freeze");
+	UE_DEFINE_GAMEPLAY_TAG(State_Debuff_Poison, "State.Debuff.Poison");
 	UE_DEFINE_GAMEPLAY_TAG(State_Dead, "State.Dead");
 	UE_DEFINE_GAMEPLAY_TAG(State_Dashing, "State.Dashing");
 	
 	//데이터 태그
 	UE_DEFINE_GAMEPLAY_TAG(Data_Damage, "Data.Damage");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Heal, "Data.Heal");
 	
 	//GC 태그
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Combat_Burn, "GameplayCue.Combat.Burn");

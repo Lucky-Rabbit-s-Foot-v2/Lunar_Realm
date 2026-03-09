@@ -456,7 +456,10 @@ struct FSkillEffectData : public FTableRowBase
 	float Lifetime;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Damage;
+	float Amount; //데미지 or 힐링 amount
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Range; //스킬 사용 범위
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EExpireCondition ExpireCondition;
