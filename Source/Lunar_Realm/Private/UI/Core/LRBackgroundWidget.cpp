@@ -3,12 +3,11 @@
 
 #include "UI/Core/LRBackgroundWidget.h"
 
-#include "Engine/Engine.h"
-#include "Engine/GameViewportClient.h"
+#include "Components/Image.h"
 
 ULRBackgroundWidget::ULRBackgroundWidget(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
 	UILayer = EUILayer::BACKGROUND;
-	bDisableWorldRenderingWhenOpened = false;
+	SetIsFocusable(false);
 }

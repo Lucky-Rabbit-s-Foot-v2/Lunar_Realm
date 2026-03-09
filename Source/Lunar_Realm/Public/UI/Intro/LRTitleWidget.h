@@ -14,8 +14,6 @@
  // (260206) PJB 제작. 타이틀 화면 위젯 기반 구성.
  // =============================================================================
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnChangeLevelRequested);
-
 UCLASS()
 class LUNAR_REALM_API ULRTitleWidget : public ULRPopupWidget
 {
@@ -24,9 +22,6 @@ class LUNAR_REALM_API ULRTitleWidget : public ULRPopupWidget
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
-
-	UPROPERTY(BlueprintAssignable, Category = "LR|UI")
-	FOnChangeLevelRequested OnChangeLevelRequestedDel;
 
 private:
 	UFUNCTION()

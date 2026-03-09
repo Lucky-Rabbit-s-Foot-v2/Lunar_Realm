@@ -20,10 +20,12 @@ class LUNAR_REALM_API ULRLobbyWidget : public ULRPageWidget
 	GENERATED_BODY()
 	
 public:
+	virtual void RefreshUI() override;
+
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
-	virtual void RefreshUI() override;
+	virtual void RegisterSubWidgets() override;
 
 	UFUNCTION()
 	void OnMessageButtonClicked();

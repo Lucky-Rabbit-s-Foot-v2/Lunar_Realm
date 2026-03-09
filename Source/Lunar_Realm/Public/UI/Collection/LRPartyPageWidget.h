@@ -24,11 +24,13 @@ protected:
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
+	virtual void RegisterSubWidgets() override;
+
 	UFUNCTION(BlueprintCallable, Category = "LR|UI Events")
 	void OnBackButtonClicked();
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRBaseWidget> PartySlot;
+	TObjectPtr<class ULRPartySlotsWidget> PartySlot;
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRCollection> Collection;

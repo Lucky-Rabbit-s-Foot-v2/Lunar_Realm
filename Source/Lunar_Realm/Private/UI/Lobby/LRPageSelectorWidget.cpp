@@ -5,12 +5,11 @@
 
 #include "Components/Button.h"
 
-#include "Units/OutGame/LROutGameController.h"
-
 #include "Engine/GameInstance.h"
 #include "Subsystems/Settings/UIManagerSettings.h"
 #include "Subsystems/UIManagerSubsystem.h"
 
+#include "Units/OutGame/LROutGameController.h"
 #include "UI/Chapter/LRChapterSelectorWidget.h"
 
 void ULRPageSelectorWidget::BindProperties()
@@ -31,6 +30,13 @@ void ULRPageSelectorWidget::UnbindProperties()
 	if (Btn_Gacha) Btn_Gacha->OnClicked.Clear();
 
 	Super::UnbindProperties();
+}
+
+void ULRPageSelectorWidget::RegisterSubWidgets()
+{
+	Super::RegisterSubWidgets();
+
+	SubWidgets.Add(Profile);
 }
 
 void ULRPageSelectorWidget::OnStageButtonClicked()

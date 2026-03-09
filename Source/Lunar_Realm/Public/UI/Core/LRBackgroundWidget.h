@@ -27,4 +27,7 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI|Background")
 	bool bDisableWorldRenderingWhenOpened = false;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> Img_Background;
 };

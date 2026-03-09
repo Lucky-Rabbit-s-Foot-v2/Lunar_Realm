@@ -23,11 +23,4 @@ class LUNAR_REALM_API ULRPopupWidget : public ULRBaseWidget
 public:
 	ULRPopupWidget(const FObjectInitializer& ObjectInitializer);
 
-	/** 안드로이드 뒤로가기 버튼이나 ESC 버튼 처리 */
-	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
-
-	virtual void InitializeUI() override;
-
-	virtual void BindToPlayerController(class ALRControllerBase* PC);
-
 };

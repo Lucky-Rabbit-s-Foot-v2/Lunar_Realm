@@ -50,7 +50,7 @@ void ULRGA_Iceball::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
 	InitData.InstigatorASC     = GetOwnerASC();
 	InitData.ResourceID        = SkillData.ResourceID;
 	InitData.SkillEffectID     = SkillEffectID;
-	InitData.Damage            = EffectData.Damage;
+	InitData.Damage            = EffectData.Amount;
 	InitData.Speed             = EffectData.Speed;
 	InitData.Lifetime          = EffectData.Lifetime;
 	InitData.SpawnData         = SpawnData;

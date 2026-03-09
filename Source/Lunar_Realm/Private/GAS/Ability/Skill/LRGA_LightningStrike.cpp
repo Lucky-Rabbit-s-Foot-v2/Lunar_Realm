@@ -83,7 +83,7 @@ void ULRGA_LightningStrike::OnAbilityActivated(const FGameplayAbilitySpecHandle 
 	}
 	
 	//데미지/상태이상 적용
-	ApplyLightningDamage(StrikeLoc, HostileTag, EffectData.Damage);
+	ApplyLightningDamage(StrikeLoc, HostileTag, EffectData.Amount);
 	
 	// ImpactVFX/SFX 재생
 	if (UNiagaraSystem* ImpactVFX = SkillResourceData.ImpactVFX.LoadSynchronous())
@@ -98,57 +98,6 @@ void ULRGA_LightningStrike::OnAbilityActivated(const FGameplayAbilitySpecHandle 
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 }
 
-AActor* ULRGA_LightningStrike::FindNearestHostile(FGameplayTag HostileTag, float SearchRadius) const
-{
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn));
-	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldDynamic));
-
-	TArray<AActor*> IgnoreActors;
-	IgnoreActors.Add(const_cast<ALRCharacter*>(CachedInstigator.Get()));
-
-	
-	// 감지 범위 디버그 구체 그리기 (에디터 빌드에서만)
-#if WITH_EDITOR
-	DrawDebugSphere(
-		GetWorld(), CachedInstigator->GetActorLocation(), SearchRadius,  
-		16, FColor::Green, false, 2.0f );
-#endif
-	
-	TArray<AActor*> OutActors;
-	UKismetSystemLibrary::SphereOverlapActors(
-		GetWorld(),CachedInstigator->GetActorLocation(),
-		SearchRadius, ObjectTypes, AActor::StaticClass(),
-		IgnoreActors,OutActors);
-	
-	AActor* Nearest = nullptr;
-	float MinDistSq = FLT_MAX;
-
-	for (AActor* candidate : OutActors)
-	{
-		UAbilitySystemComponent* CandidateASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(candidate);
-
-		//GAS 오브젝트가 아니거나 적대 태그가 아니면 패스
-		if (!CandidateASC)
-		{
-			continue;
-		}
-		if (!CandidateASC->HasMatchingGameplayTag(HostileTag))
-		{
-			continue;
-		}
-
-		float DistSq = FVector::DistSquared(CachedInstigator->GetActorLocation(), candidate->GetActorLocation());
-
-		if (DistSq < MinDistSq)
-		{
-			MinDistSq = DistSq;
-			Nearest = candidate;
-		}
-	}
-
-	return Nearest;
-}
 
 void ULRGA_LightningStrike::ApplyLightningDamage(FVector StrikeLocation, FGameplayTag HostileTag, float Damage)
 {

@@ -4,6 +4,7 @@
 #include "UI/Intro/LRLoadingWidget.h"
 
 #include "Components/ProgressBar.h"
+
 #include "TimerManager.h"
 
 void ULRLoadingWidget::OpenUI()

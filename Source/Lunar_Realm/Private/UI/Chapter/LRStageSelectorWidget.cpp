@@ -8,30 +8,19 @@
 
 #include "Units/LRControllerBase.h"
 
-void ULRStageSelectorWidget::NativeConstruct()
-{
-	Super::NativeConstruct();
-
-	StageWidgets.Empty();
-	StageWidgets.Add(Stage1);
-	StageWidgets.Add(Stage2);
-	StageWidgets.Add(Stage3);
-	StageWidgets.Add(Stage4);
-	StageWidgets.Add(Stage5);
-}
-
-void ULRStageSelectorWidget::NativeDestruct()
-{
-	StageWidgets.Empty();
-
-	Super::NativeDestruct();
-}
+#include "Engine/GameInstance.h"
+#include "Subsystems/UIManagerSubsystem.h"
 
 void ULRStageSelectorWidget::BindProperties()
 {
 	Super::BindProperties();
 
 	if (Btn_Back) Btn_Back->OnClicked.AddDynamic(this, &ULRStageSelectorWidget::OnBackButtonClicked);
+
+	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
+	{
+		OnCloseUIRequestedDel.AddDynamic(UIManager, &UUIManagerSubsystem::CloseUI);
+	}
 }
 
 void ULRStageSelectorWidget::UnbindProperties()
@@ -41,17 +30,15 @@ void ULRStageSelectorWidget::UnbindProperties()
 	Super::UnbindProperties();
 }
 
-void ULRStageSelectorWidget::RefreshUI()
+void ULRStageSelectorWidget::RegisterSubWidgets()
 {
-	Super::RefreshUI();
+	Super::RegisterSubWidgets();
 
-	for (auto& StageWidget : StageWidgets)
-	{
-		if (StageWidget)
-		{
-			StageWidget->RefreshUI();
-		}
-	}
+	SubWidgets.Add(Stage1);
+	SubWidgets.Add(Stage2);
+	SubWidgets.Add(Stage3);
+	SubWidgets.Add(Stage4);
+	SubWidgets.Add(Stage5);
 }
 
 void ULRStageSelectorWidget::SetStageData(const TArray<FName>& StageIDs)

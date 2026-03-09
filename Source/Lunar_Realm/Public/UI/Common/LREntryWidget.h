@@ -16,6 +16,29 @@
  // (260303) PJB 제작.
  //============================================================================
 
+UCLASS(BlueprintType)
+class LUNAR_REALM_API ULRTileData : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	void SetID(const FName& InID) { ID = InID; }
+	void SetIcon(UTexture2D* InIcon) { Icon = InIcon; }
+
+	UFUNCTION(BlueprintCallable, Category = "LR|Tile Data")
+	FName GetID() const { return ID; }
+
+	UFUNCTION(BlueprintCallable, Category = "LR|Tile Data")
+	UTexture2D* GetIcon() const { return Icon; }
+
+private:
+	UPROPERTY()
+	FName ID;
+
+	UPROPERTY()
+	TObjectPtr<class UTexture2D> Icon;
+};
+
 UCLASS()
 class LUNAR_REALM_API ULREntryWidget : public ULRChildWidget, public IUserObjectListEntry
 {
@@ -24,12 +47,12 @@ class LUNAR_REALM_API ULREntryWidget : public ULRChildWidget, public IUserObject
 public:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 
-	virtual void SetData(const FString& InID, class UImage* InIcon);
+	virtual void RefreshData();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UImage> Img_Icon;
 
-	UPROPERTY(VisibleAnywhere, Category = "LR|EntryWidget")
-	FString ID;
+	UPROPERTY()
+	TObjectPtr<ULRTileData> TileData;
 };

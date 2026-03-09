@@ -5,11 +5,11 @@
 
 #include "Engine/GameInstance.h"
 #include "TimerManager.h"
+
 #include "Components/Image.h"
 
-#include "Kismet/GameplayStatics.h"
 #include "Subsystems/UIManagerSubsystem.h"
-#include "Units/OutGame/LRIntroController.h"
+
 #include "UI/Intro/LRTitleWidget.h"
 
 void ULRIntroWidget::OpenUI()

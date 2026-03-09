@@ -7,6 +7,4 @@ ULRPageWidget::ULRPageWidget(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
 	UILayer = EUILayer::PAGE;
-	bIsModal = true;
-	SetIsFocusable(true);
 }
