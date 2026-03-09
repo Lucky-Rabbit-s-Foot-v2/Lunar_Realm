@@ -3,8 +3,38 @@
 
 #include "UI/Setting/LRSettingWidget.h"
 
+#include "Engine/GameInstance.h"
+
 #include "Components/Button.h"
+
+#include "Subsystems/UIManagerSubsystem.h"
+
 #include "UI/Setting/LRSettingScrollWidget.h"
+
+
+void ULRSettingWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+	
+	if(UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
+	{
+		OnCloseUIRequestedDel.AddUniqueDynamic(UIManager, &UUIManagerSubsystem::CloseUI);
+	}
+}
+
+void ULRSettingWidget::NativeDestruct()
+{
+	OnCloseUIRequestedDel.Clear();
+
+	Super::NativeDestruct();
+}
+
+void ULRSettingWidget::RegisterSubWidgets()
+{
+	Super::RegisterSubWidgets();
+
+	SubWidgets.Add(SettingScrollWidget);
+}
 
 void ULRSettingWidget::BindProperties()
 {

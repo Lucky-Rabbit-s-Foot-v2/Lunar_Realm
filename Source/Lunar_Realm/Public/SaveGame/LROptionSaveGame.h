@@ -33,9 +33,9 @@ public:
 	FGraphicOptionData& GetGraphicOptions() { return GraphicOptions; }
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Options")
+	UPROPERTY(SaveGame)
 	FSoundOptionData SoundOptions;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Options")
+	UPROPERTY(SaveGame)
 	FGraphicOptionData GraphicOptions;
 };

@@ -43,7 +43,6 @@ void ULRLobbyFigureWidget::RefreshUI()
 
 	if (CurrentCharacterID.IsNone())
 	{
-		LR_INFO("[LRLobbyFigureWidget] No CharacterID set for this figure widget.");
 		return;
 	}
 

@@ -16,6 +16,23 @@
  // (260210) PJB 제작. 제반 사항 구현.
  //============================================================================
 
+UENUM(BlueprintType)
+enum class ESettingType : uint8
+{
+	NONE,
+	TEXTURE,
+	SHADOW,
+	ANTI_ALIASING,
+	POST_PROCESSING,
+	VFX,
+	RESOLUTION_SCALE,
+	FRAME_RATE,
+
+	MASTER_SOUND,
+	BGM,
+	SFX,
+};
+
 UCLASS()
 class LUNAR_REALM_API UOptionManagerSubsystem : public UGameInstanceSubsystem
 {
@@ -42,6 +59,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateCurrentOptionSaveGame();
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateOptionValue(ESettingType SettingType, int32 Value);
 
 private:
 	// 저장된 옵션 데이터가 없을 경우 새로 생성.

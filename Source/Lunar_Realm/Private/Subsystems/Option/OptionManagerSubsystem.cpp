@@ -48,6 +48,31 @@ void UOptionManagerSubsystem::UpdateCurrentOptionSaveGame()
 	SaveOptions();
 }
 
+void UOptionManagerSubsystem::UpdateOptionValue(ESettingType SettingType, int32 Value)
+{
+	UGraphicSubsystem* GraphicSubsys = GetGameInstance()->GetSubsystem<UGraphicSubsystem>();
+	USoundSubsystem* SoundSubsys = GetGameInstance()->GetSubsystem<USoundSubsystem>();
+
+	LR_INFO(TEXT("Updating Option Value - Type: %d, Value: %d"), static_cast<uint8>(SettingType), Value);
+
+	switch (SettingType)
+	{
+	case ESettingType::TEXTURE:				GraphicSubsys->SetTextureQuality(static_cast<EGraphicOptionLevel>(Value)); break;
+	case ESettingType::SHADOW:				GraphicSubsys->SetShadowQuality(static_cast<EGraphicOptionLevel>(Value)); break;
+	case ESettingType::ANTI_ALIASING:		GraphicSubsys->SetAntiAliasingQuality(static_cast<EGraphicOptionLevel>(Value)); break;
+	case ESettingType::POST_PROCESSING:		GraphicSubsys->SetPostProcessingQuality(static_cast<EGraphicOptionLevel>(Value)); break;
+	case ESettingType::VFX:					GraphicSubsys->SetVisualEffectQuality(static_cast<EGraphicOptionLevel>(Value)); break;
+	case ESettingType::RESOLUTION_SCALE:	GraphicSubsys->SetResolutionScale(Value); break;
+	case ESettingType::FRAME_RATE:			GraphicSubsys->SetFrameRateLimit(Value); break;
+
+	case ESettingType::MASTER_SOUND:		SoundSubsys->SetVolume(ESoundChannel::Master, Value); break;
+	case ESettingType::BGM:					SoundSubsys->SetVolume(ESoundChannel::BGM, Value); break;
+	case ESettingType::SFX:					SoundSubsys->SetVolume(ESoundChannel::SFX, Value); break;
+
+	default: break;
+	}
+}
+
 void UOptionManagerSubsystem::CreateNewOptionSaveData()
 {
 	CurrentOptionSaveGame = Cast<ULROptionSaveGame>(UGameplayStatics::CreateSaveGameObject(ULROptionSaveGame::StaticClass()));
@@ -79,6 +104,23 @@ void UOptionManagerSubsystem::LoadOptions()
 		{
 			return;
 		}
+
+		FGraphicOptionData LoadedGraphicOptions = CurrentOptionSaveGame->GetGraphicOptions();
+		FSoundOptionData LoadedSoundOptions = CurrentOptionSaveGame->GetSoundOptions();
+
+		LR_INFO(TEXT("Loaded Game Option Successfully - Texture: %d, Shadow: %d, AA: %d, PostProcess: %d, VFX: %d, ResScale: %f, FrameRate: %f, MasterSound: %f, BGM: %f, SFX: %f"),
+			LoadedGraphicOptions.TextureQuality,
+			LoadedGraphicOptions.ShadowQuality,
+			LoadedGraphicOptions.AntiAliasingQuality,
+			LoadedGraphicOptions.PostProcessingQuality,
+			LoadedGraphicOptions.VisualEffectQuality,
+			LoadedGraphicOptions.ResolutionScale,
+			LoadedGraphicOptions.FrameRateLimit,
+			LoadedSoundOptions.MasterVolume,
+			LoadedSoundOptions.BGMVolume,
+			LoadedSoundOptions.SFXVolume
+		);
+
 	}
 	else
 	{

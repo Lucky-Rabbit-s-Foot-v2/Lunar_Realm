@@ -3,9 +3,30 @@
 
 #include "UI/Common/LRNameButtonsWidget.h"
 
+#include "Engine/GameInstance.h"
+
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 
+#include "Subsystems/Option/OptionManagerSubsystem.h"
+
+void ULRNameButtonsWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	if (UOptionManagerSubsystem* OptionManager = GetGameInstance()->GetSubsystem<UOptionManagerSubsystem>())
+	{
+		OnButtonClickedDel.AddUniqueDynamic(OptionManager, &UOptionManagerSubsystem::UpdateOptionValue);
+	}
+	
+}
+
+void ULRNameButtonsWidget::NativeDestruct()
+{
+	OnButtonClickedDel.Clear();
+
+	Super::NativeDestruct();
+}
 
 void ULRNameButtonsWidget::BindProperties()
 {
@@ -25,7 +46,7 @@ void ULRNameButtonsWidget::UnbindProperties()
 	Super::UnbindProperties();
 }
 
-void ULRNameButtonsWidget::SetName(const FText& Name)
+void ULRNameButtonsWidget::SetName(FText Name)
 {
 	if(Txt_Name)
 	{
@@ -35,15 +56,18 @@ void ULRNameButtonsWidget::SetName(const FText& Name)
 
 void ULRNameButtonsWidget::OnLowButtonClicked()
 {
-	OnButtonClickedDel.Broadcast(0);
+	CurrentNumber = 0;
+	OnButtonClickedDel.Broadcast(SettingType, CurrentNumber);
 }
 
 void ULRNameButtonsWidget::OnMediumButtonClicked()
 {
-	OnButtonClickedDel.Broadcast(1);
+	CurrentNumber = 1;
+	OnButtonClickedDel.Broadcast(SettingType, CurrentNumber);
 }
 
 void ULRNameButtonsWidget::OnHighButtonClicked()
 {
-	OnButtonClickedDel.Broadcast(2);
+	CurrentNumber = 2;
+	OnButtonClickedDel.Broadcast(SettingType, CurrentNumber);
 }

@@ -21,13 +21,15 @@ class LUNAR_REALM_API ULRSettingScrollWidget : public ULRChildWidget
 	GENERATED_BODY()
 	
 public:
+	virtual void InitializeUI() override;
+
 	void SetDefaultSettings();
 
 	void SaveAllSettings();
 
+	virtual void RegisterSubWidgets() override;
 
 protected:
-	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRNameButtonsWidget> TextureWidget;
 
