@@ -42,6 +42,16 @@ void ALREnemyCharacter::OnDie()
 		return;
 	}
 
+	// TODO: 사망 몽타주 중단되는 경우 디버그
+	//if (AbilitySystemComponent)
+	//{
+	//	// 필요하다면 모든 GameplayEffect 제거
+	//	FGameplayTagContainer EffectsToRemove;
+	//	EffectsToRemove.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Debuff.Shock")));
+	//	AbilitySystemComponent->RemoveActiveEffectsWithTags(EffectsToRemove);
+	//	AbilitySystemComponent->CancelAllAbilities();
+	//}
+
 	//LR_ERROR(TEXT("======================%s의 OnDie() 함수 실행됨.======================"), *GetName());
 
 	// 게임 스테이트에 에테르 추가
@@ -257,6 +267,11 @@ void ALREnemyCharacter::ApplyVisualData(const FEnemyStaticData& EnemyData)
 
 void ALREnemyCharacter::PlayAttackedMontage()
 {
+	if (IsDead)
+	{
+		return;
+	}
+
 	USkeletalMeshComponent* MeshComp = GetMesh();
 	if (!MeshComp)
 	{
@@ -288,11 +303,11 @@ void ALREnemyCharacter::PlayAttackedMontage()
 		true  // bStopAllMontages => 공격 몽타주보다 높은 우선 순위
 	);
 
-	// TEST : 재생되는거 확인하고 지우기
-	if (MontageLength > 0.0f)
-	{
-		LR_WARN(TEXT("========== [%s] Attacked montage started =========="), *CurrentEnemyID.ToString());
-	}
+	// TEST
+	//if (MontageLength > 0.0f)
+	//{
+	//	LR_WARN(TEXT("========== [%s] Attacked montage started =========="), *CurrentEnemyID.ToString());
+	//}
 }
 
 void ALREnemyCharacter::PlayDeathMontage()
@@ -338,8 +353,9 @@ void ALREnemyCharacter::PlayDeathMontage()
 	}
 	else
 	{
-		// TEST : 재생되는거 확인하고 지우기
-		LR_ERROR(TEXT("[%s] Death montage started (Length: %.2fs)"), *CurrentEnemyID.ToString(), MontageLength);
+		// TEST
+		// LR_ERROR(TEXT("[%s] Death montage started (Length: %.2fs)"), *CurrentEnemyID.ToString(), MontageLength);
+		return;
 	}
 }
 
