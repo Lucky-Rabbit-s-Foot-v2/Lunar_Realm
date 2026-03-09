@@ -53,29 +53,64 @@ void ULRPlayerAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 
 		SetDamage(0.0f);
 
-		if (LocalDamageDone > 0.0f)
+		if (LocalDamageDone != 0.0f)
 		{
 			float NewHealth = GetHealth() - LocalDamageDone;
 			SetHealth(FMath::Clamp(NewHealth, 0.0f, GetMaxHealth()));
 
-			LR_WARN(TEXT("[AttributeSet] 데미지 %f 적중! 최종 체력: %f"), LocalDamageDone, GetHealth());
-
-			if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetOwningAbilitySystemComponent()->GetAvatarActor()))
+			if (LocalDamageDone > 0.0f)
 			{
-				if (UGameInstance* GI = PC->GetGameInstance())
+				LR_WARN(TEXT("[AttributeSet] 데미지 %f 적중 최종 체력: %f"), LocalDamageDone, GetHealth());
+
+				if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetOwningAbilitySystemComponent()->GetAvatarActor()))
 				{
-					if (UUIManagerSubsystem* UIManager = GI->GetSubsystem<UUIManagerSubsystem>())
+					if (UGameInstance* GI = PC->GetGameInstance())
 					{
-						FVector HitLocation = PC->GetActorLocation() + FVector(0.f, 0.f, 100.f);
-						UIManager->ShowDamageText(LocalDamageDone, HitLocation);
+						if (UUIManagerSubsystem* UIManager = GI->GetSubsystem<UUIManagerSubsystem>())
+						{
+							FVector HitLocation = PC->GetActorLocation() + FVector(0.f, 0.f, 100.f);
+							UIManager->ShowDamageText(LocalDamageDone, HitLocation);
+						}
+					}
+					if (GetHealth() <= 0.0f)
+					{
+						LR_WARN(TEXT("플레이어 사망"));
 					}
 				}
-				if (GetHealth() <= 0.0f)
-				{
-					LR_WARN(TEXT("플레이어 사망"));
-				}
+			}
+			else
+			{
+				LR_INFO(TEXT("[AttributeSet] 체력 %f 회복! 최종 체력: %f"), -LocalDamageDone, GetHealth());
 			}
 		}
+
+		//if (LocalDamageDone != 0.0f)
+		//{
+		//	float NewHealth = GetHealth() - LocalDamageDone;
+		//	SetHealth(FMath::Clamp(NewHealth, 0.0f, GetMaxHealth()));
+
+		//	LR_WARN(TEXT("[AttributeSet] 데미지 %f 적중! 최종 체력: %f"), LocalDamageDone, GetHealth());
+
+		//	if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetOwningAbilitySystemComponent()->GetAvatarActor()))
+		//	{
+		//		if (UGameInstance* GI = PC->GetGameInstance())
+		//		{
+		//			if (UUIManagerSubsystem* UIManager = GI->GetSubsystem<UUIManagerSubsystem>())
+		//			{
+		//				FVector HitLocation = PC->GetActorLocation() + FVector(0.f, 0.f, 100.f);
+		//				UIManager->ShowDamageText(LocalDamageDone, HitLocation);
+		//			}
+		//		}
+		//		if (GetHealth() <= 0.0f)
+		//		{
+		//			LR_WARN(TEXT("플레이어 사망"));
+		//		}
+		//	}
+		//}
+		//else
+		//{
+		//	LR_INFO(TEXT("[AttributeSet] 체력 %f 회복! 최종 체력: %f"), -LocalDamageDone, GetHealth());
+		//}
 	}
 	else if (Data.EvaluatedData.Attribute == ULRAttributeSet::GetHealthAttribute())
 	{

@@ -32,6 +32,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Status")
 	void UpdateHealth(float InCurrentHealth, float InMaxHealth);
 
+public:
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UProgressBar> PBar_Health;
@@ -40,8 +43,8 @@ private:
 	void OnHealthChanged(const FOnAttributeChangeData& Data);
 	void OnMaxHealthChanged(const FOnAttributeChangeData& Data);
 
-	float CurrentHealth = 0.0f;
-	float CurrentMaxHealth = 1.0f;
+	//float CurrentHealth = 0.0f;
+	//float CurrentMaxHealth = 1.0f;
 
 protected:
 	UPROPERTY()
@@ -71,4 +74,13 @@ public:
 
 protected:
 	void UpdateRespawnTimerText();
+
+protected:
+	float TargetHealth;
+	float CurrentVisualHealth;
+	float CurrentMaxHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|UI")
+	float InterpSpeed = 10.0f;
+
 };

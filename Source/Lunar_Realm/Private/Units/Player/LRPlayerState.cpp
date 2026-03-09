@@ -286,6 +286,13 @@ void ALRPlayerState::GrantCharacterAbilities()
 			CharacterAbilityHandles.Add(Handle);
 		}
 	}
+	// heal ability 부여
+	if (DefaultHealAbility)
+	{
+		FGameplayAbilitySpec Spec(DefaultHealAbility, 1, INDEX_NONE, this);
+		AbilitySystemComponent->GiveAbility(Spec);
+		LR_INFO(TEXT("[PlayerState] 공용 힐 스킬 장착 완료!"));
+	}
 }
 
 void ALRPlayerState::GrantEquipmentAbilities(EEquipmentSlotType Slot, FName EquipmentID)
