@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRBackgroundWidget.h"
+#include "UI/Core/LRPageWidget.h"
 #include "LRLoadingWidget.generated.h"
 
 // =============================================================================
@@ -16,7 +16,7 @@
  // =============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRLoadingWidget : public ULRBackgroundWidget
+class LUNAR_REALM_API ULRLoadingWidget : public ULRPageWidget
 {
 	GENERATED_BODY()
 
@@ -25,6 +25,7 @@ public:
 	virtual void CloseUI() override;
 	virtual void RefreshUI() override;
 
+	/** 로딩 완료 시 호출되는 함수 */
 	void FinishLoading();
 
 private:

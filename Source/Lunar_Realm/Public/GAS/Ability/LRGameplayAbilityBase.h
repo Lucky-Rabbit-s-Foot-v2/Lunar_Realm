@@ -83,6 +83,14 @@ protected:
 	 */
 	FGameplayTag GetHostileTeamTag() const;
 	
+	/**
+	 * 범위 내 가장 가까운 적대 액터 탐색
+	 * @param HostileTag   적대 팀 루트 태그
+	 * @param SearchRadius 탐색 반경 (cm)
+	 * @return 가장 가까운 적대 액터, 없으면 nullptr
+	 */
+	AActor* FindNearestHostile(FGameplayTag HostileTag, float SearchRadius) const;
+	
 protected:
 	UPROPERTY()
 	TObjectPtr<const ALRCharacter> CachedInstigator;

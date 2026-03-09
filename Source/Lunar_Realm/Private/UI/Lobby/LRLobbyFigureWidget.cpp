@@ -4,12 +4,14 @@
 #include "UI/Lobby/LRLobbyFigureWidget.h"
 
 #include "Engine/GameInstance.h"
-#include "Subsystems/UIManagerSubsystem.h"
-#include "System/LoggingSystem.h"
+#include "Engine/Texture2D.h"
 #include "TimerManager.h"
 
 #include "Components/Button.h"
 #include "Components/Image.h"
+
+#include "Subsystems/UIManagerSubsystem.h"
+#include "Subsystems/GameDataSubsystem.h"
 
 void ULRLobbyFigureWidget::BindProperties()
 {
@@ -17,8 +19,8 @@ void ULRLobbyFigureWidget::BindProperties()
 
 	if (Btn_Figure)
 	{
-		Btn_Figure->OnPressed.AddDynamic(this, &ULRLobbyFigureWidget::OnFigurePressed);
-		Btn_Figure->OnReleased.AddDynamic(this, &ULRLobbyFigureWidget::OnFigureReleased);
+		Btn_Figure->OnPressed.AddUniqueDynamic(this, &ULRLobbyFigureWidget::OnFigurePressed);
+		Btn_Figure->OnReleased.AddUniqueDynamic(this, &ULRLobbyFigureWidget::OnFigureReleased);
 	}
 }
 
@@ -33,6 +35,24 @@ void ULRLobbyFigureWidget::UnbindProperties()
 	}
 
 	Super::UnbindProperties();
+}
+
+void ULRLobbyFigureWidget::RefreshUI()
+{
+	Super::RefreshUI();
+
+	if (CurrentCharacterID.IsNone())
+	{
+		LR_INFO("[LRLobbyFigureWidget] No CharacterID set for this figure widget.");
+		return;
+	}
+
+	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+	const FCharacterStaticData& StaticData = GameDataSubsystem->GetCharacterStaticData(CurrentCharacterID);
+	if (Img_Figure)
+	{
+		Img_Figure->SetBrushFromTexture(StaticData.PortraitIcon.LoadSynchronous());
+	}
 }
 
 void ULRLobbyFigureWidget::OnFigurePressed()
@@ -60,6 +80,11 @@ void ULRLobbyFigureWidget::OnFigureReleased()
 		OnFigureLongReleased();
 	}
 	GetWorld()->GetTimerManager().ClearTimer(LongPressTimerHandle);
+}
+
+void ULRLobbyFigureWidget::SetFigure(FName CharacterID)
+{
+	CurrentCharacterID = CharacterID;
 }
 
 void ULRLobbyFigureWidget::OnFigureClicked()

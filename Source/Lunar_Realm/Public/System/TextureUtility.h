@@ -22,7 +22,9 @@ class LUNAR_REALM_API UTextureUtility : public UAssetActionUtility
 public:
 	UTextureUtility();
 
-	/** 텍스쳐를 좌우 반전 */
+	// TODO: 여러 텍스쳐를 선택하여 4분면으로 병합하는 기능 추가
+
+	/** 텍스쳐를 자르기 */
 	UFUNCTION(CallInEditor, Category = "LR|Texture Crop")
 	void Crop(class UTexture2D* SourceTex, int32 StartX, int32 StartY, int32 CropWidth, int32 CropHeight);
 

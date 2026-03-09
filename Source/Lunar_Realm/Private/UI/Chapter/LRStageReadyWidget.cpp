@@ -10,22 +10,7 @@
 
 #include "Core/LRGameInstance.h"
 
-void ULRStageReadyWidget::NativeConstruct()
-{
-	Super::NativeConstruct();
-
-	if (ULRGameInstance* GI = Cast<ULRGameInstance>(GetWorld()->GetGameInstance()))
-	{
-		OnStageOpenClickedDel.AddDynamic(GI, &ULRGameInstance::OpenNextStage);
-	}
-}
-
-void ULRStageReadyWidget::NativeDestruct()
-{
-	OnStageOpenClickedDel.Clear();
-
-	Super::NativeDestruct();
-}
+#include "Subsystems/UIManagerSubsystem.h"
 
 void ULRStageReadyWidget::BindProperties()
 {
@@ -33,10 +18,17 @@ void ULRStageReadyWidget::BindProperties()
 
 	if (Btn_Entrance) Btn_Entrance->OnClicked.AddDynamic(this, &ULRStageReadyWidget::OnEntranceButtonClicked);
 	if (Btn_Close) Btn_Close->OnClicked.AddDynamic(this, &ULRStageReadyWidget::OnCloseRequested);
+
+	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
+	{
+		OnCloseUIRequestedDel.AddDynamic(UIManager, &UUIManagerSubsystem::CloseUI);
+	}
 }
 
 void ULRStageReadyWidget::UnbindProperties()
 {
+	OnCloseUIRequestedDel.Clear();
+
 	if (Btn_Entrance) Btn_Entrance->OnClicked.Clear();
 	if (Btn_Close) Btn_Close->OnClicked.Clear();
 
@@ -50,6 +42,13 @@ void ULRStageReadyWidget::RefreshUI()
 	StageInfo->RefreshUI();
 }
 
+void ULRStageReadyWidget::RegisterSubWidgets()
+{
+	Super::RegisterSubWidgets();
+	SubWidgets.Add(PartyLineup);
+	SubWidgets.Add(StageInfo);
+}
+
 void ULRStageReadyWidget::SetStageID(FName InStageID)
 {
 	StageID = InStageID;
@@ -58,8 +57,10 @@ void ULRStageReadyWidget::SetStageID(FName InStageID)
 
 void ULRStageReadyWidget::OnEntranceButtonClicked()
 {
-	LR_SCREEN_INFO(TEXT("Stage Entrance Button Clicked. StageID: %s"), *StageID.ToString());
-	OnStageOpenClickedDel.Broadcast(StageID);
+	if (ULRGameInstance* GI = Cast<ULRGameInstance>(GetWorld()->GetGameInstance()))
+	{
+		GI->OpenNextStage(StageID);
+	}
 }
 
 void ULRStageReadyWidget::OnCloseButtonClicked()

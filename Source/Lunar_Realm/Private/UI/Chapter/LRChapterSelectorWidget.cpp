@@ -13,23 +13,6 @@
 #include "UI/Chapter/LRChapterWidget.h"
 #include "UI/Lobby/LRLobbyWidget.h"
 
-void ULRChapterSelectorWidget::NativeConstruct()
-{
-	Super::NativeConstruct();
-	
-	ChapterWidgets.Empty();
-	ChapterWidgets.Add(Chapter1);
-	ChapterWidgets.Add(Chapter2);
-	ChapterWidgets.Add(Chapter3);
-}
-
-void ULRChapterSelectorWidget::NativeDestruct()
-{
-	ChapterWidgets.Empty();
-	
-	Super::NativeDestruct();
-}
-
 void ULRChapterSelectorWidget::BindProperties()
 {
 	Super::BindProperties();
@@ -44,17 +27,13 @@ void ULRChapterSelectorWidget::UnbindProperties()
 	Super::UnbindProperties();
 }
 
-void ULRChapterSelectorWidget::RefreshUI()
+void ULRChapterSelectorWidget::RegisterSubWidgets()
 {
-	Super::RefreshUI();
+	Super::RegisterSubWidgets();
 	
-	for (const auto& ChapterWidget : ChapterWidgets)
-	{
-		if (ChapterWidget)
-		{
-			ChapterWidget->RefreshUI();
-		}
-	}
+	ChapterWidgets.Add(Chapter1);
+	ChapterWidgets.Add(Chapter2);
+	ChapterWidgets.Add(Chapter3);
 }
 
 void ULRChapterSelectorWidget::OnBackButtonClicked()

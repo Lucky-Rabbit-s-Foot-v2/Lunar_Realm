@@ -47,6 +47,10 @@ class LUNAR_REALM_API ULRBaseWidget : public UUserWidget
 	
 public:
 	ULRBaseWidget(const FObjectInitializer& ObjectInitializer);
+	
+	//=============================================================================
+	// UI 생성/제거 시점
+	//=============================================================================
 
 	/** 초기화를 위해 선언 */
 	virtual void NativeConstruct() override;
@@ -54,11 +58,35 @@ public:
 	/** 델리게이트 해제를 위해 선언 */
 	virtual void NativeDestruct() override;
 
+	/** UI 를 제거할 때 */
+	virtual void DeinitializeUI();
+
+	/** 보유한 위젯 바인딩 */
+	virtual void BindProperties();
+
+	/** 보유한 위젯 바인딩 해제 */
+	virtual void UnbindProperties();
+
+	virtual void BindToController(class ALRControllerBase* Controller);
+
+	//=============================================================================
+	// UI 시작 시점
+	//=============================================================================
+	
+	/** 초기화를 위해 선언 */
+	virtual void NativeOnInitialized() override;
+
 	/** UI를 처음 생성할 때 초기화*/
 	virtual void InitializeUI();
 
-	/** UI 를 제거할 때 */
-	virtual void DeinitializeUI();
+	/** 서브 위젯 등록 */
+	virtual void RegisterSubWidgets();
+	
+	virtual void BindSubWidgets();
+
+	//=============================================================================
+	// UI 열림/닫힘, 갱신, 포커스 이벤트
+	//=============================================================================
 
 	/** UI를 활성화하고 화면에 표시 */
 	virtual void OpenUI();
@@ -74,12 +102,6 @@ public:
     
 	/** 이 UI 위에 다른 팝업이 열렸을 때 호출 */
 	virtual void OnFocusLost();
-    
-	/** PlayerController와 위젯을 바인딩하여 UI 이벤트 처리 */
-	virtual void BindToController(class ALRControllerBase* Controller);
-
-	virtual void BindProperties();
-	virtual void UnbindProperties();
 
 	UFUNCTION(BlueprintCallable, Category = "LR|UI Events")
 	virtual void OnCloseRequested();
@@ -104,13 +126,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI Settings")
 	int32 ZOrder = 0;
 
-	/** 뒷 UI 조작 제한 설정 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|UI Settings")
-	bool bIsModal = false;
-
 protected:
 	/** UI 열림/닫힘 상태 */
 	bool bIsOpen = false;
+
+	/** 위젯을 포함하고 있을 경우 관리 */
+	TArray<ULRBaseWidget*> SubWidgets;
 
 	/** bIsFocusable : 키보드/패드 입력을 받을 수 있도록 설정 */
 };

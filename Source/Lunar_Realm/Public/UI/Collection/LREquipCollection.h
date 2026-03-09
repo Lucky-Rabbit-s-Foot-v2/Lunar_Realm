@@ -25,6 +25,6 @@ protected:
 	TObjectPtr<class UTextBlock> Txt_Name;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UTileView> EquipListView;
+	TObjectPtr<class UTileView> EquipTileView;
 
 };

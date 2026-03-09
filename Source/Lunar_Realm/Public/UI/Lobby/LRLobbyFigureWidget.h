@@ -29,6 +29,8 @@ public:
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
+	virtual void RefreshUI() override;
+
 	UPROPERTY(BlueprintAssignable, Category = "LR|UI|Events")
 	FOnFigureClicked OnFigureClickedDel;
 	UPROPERTY(BlueprintAssignable, Category = "LR|UI|Events")
@@ -41,6 +43,8 @@ public:
 
 	UFUNCTION()
 	void OnFigureReleased();
+
+	void SetFigure(FName CharacterID);
 
 private:
 	void OnFigureClicked();

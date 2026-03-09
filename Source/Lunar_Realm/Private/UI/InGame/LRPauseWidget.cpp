@@ -19,6 +19,11 @@ void ULRPauseWidget::BindProperties()
 	if (Btn_Resume) Btn_Resume->OnClicked.AddDynamic(this, &ULRPauseWidget::OnResumeButtonClicked);
 	if (Btn_Setting) Btn_Setting->OnClicked.AddDynamic(this, &ULRPauseWidget::OnSettingButtonClicked);
 	if (Btn_Exit) Btn_Exit->OnClicked.AddDynamic(this, &ULRPauseWidget::OnExitButtonClicked);
+
+	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
+	{
+		OnCloseUIRequestedDel.AddDynamic(UIManager, &UUIManagerSubsystem::CloseUI);
+	}
 }
 
 void ULRPauseWidget::UnbindProperties()

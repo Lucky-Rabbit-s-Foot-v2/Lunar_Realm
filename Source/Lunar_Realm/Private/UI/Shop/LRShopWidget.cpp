@@ -10,9 +10,9 @@
 
 void ULRShopWidget::BindProperties()
 {
-	if (Btn_Close) Btn_Close->OnClicked.AddDynamic(this, &ULRShopWidget::CloseButtonClicked);
-
 	Super::BindProperties();
+
+	if (Btn_Close) Btn_Close->OnClicked.AddDynamic(this, &ULRShopWidget::CloseButtonClicked);
 }
 
 void ULRShopWidget::UnbindProperties()

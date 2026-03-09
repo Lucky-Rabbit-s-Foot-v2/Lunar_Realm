@@ -13,21 +13,3 @@ ULRPersistentWidget::ULRPersistentWidget(const FObjectInitializer& ObjectInitial
 {
 	UILayer = EUILayer::PERSISTENT;
 }
-
-void ULRPersistentWidget::InitializeUI()
-{
-	Super::InitializeUI();
-	UILayer = EUILayer::PERSISTENT;
-}
-
-void ULRPersistentWidget::OpenUI()
-{
-	Super::OpenUI();
-
-	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	
-	if (DefaultPopupClass)
-	{
-		UIManager->OpenUI<ULRPopupWidget>(DefaultPopupClass);
-	}
-}

@@ -6,10 +6,12 @@
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
 
-void ULRCollection::NativeConstruct()
-{
-	Super::NativeConstruct();
+#include "UI/Collection/LRCharacterCollection.h"
+#include "UI/Collection/LREquipCollection.h"
 
+void ULRCollection::InitializeUI()
+{
+	Super::InitializeUI();
 
 	if (Switcher_Collection) Switcher_Collection->SetActiveWidgetIndex(0);
 }
@@ -30,10 +32,19 @@ void ULRCollection::UnbindProperties()
 	Super::UnbindProperties();
 }
 
+void ULRCollection::RegisterSubWidgets()
+{
+	Super::RegisterSubWidgets();
+
+	SubWidgets.Add(CharacterCollection);
+	SubWidgets.Add(EquipCollection);
+}
+
 void ULRCollection::OnBtnCharacterClicked()
 {
 	if(Switcher_Collection)
 	{
+		CharacterCollection->RefreshUI();
 		Switcher_Collection->SetActiveWidgetIndex(0);
 	}
 }
@@ -42,6 +53,7 @@ void ULRCollection::OnBtnEquipClicked()
 {
 	if (Switcher_Collection)
 	{
+		EquipCollection->RefreshUI();
 		Switcher_Collection->SetActiveWidgetIndex(1);
 	}
 }
