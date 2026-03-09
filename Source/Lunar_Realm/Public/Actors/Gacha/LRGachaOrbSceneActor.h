@@ -35,7 +35,6 @@ enum class ELROrbState : uint8
 	Revealed,   // 리빌 완료
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOrbClicked, int32, OrbIndex);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAllOrbsRevealed);
 
 /**
@@ -104,9 +103,6 @@ public:
 	bool IsAllRevealed() const { return RevealedCount >= OrbActors.Num(); }
 
 	// ===== 이벤트(위젯에서 바인딩) ==========================================
-
-	UPROPERTY(BlueprintAssignable, Category = "LR|Gacha|Scene")
-	FOnOrbClicked OnOrbClicked;
 
 	UPROPERTY(BlueprintAssignable, Category = "LR|Gacha|Scene")
 	FOnAllOrbsRevealed OnAllOrbsRevealed;

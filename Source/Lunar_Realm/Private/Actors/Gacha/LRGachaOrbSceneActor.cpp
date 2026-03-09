@@ -284,9 +284,6 @@ void ALRGachaOrbSceneActor::RevealOrb(int32 Index)
 	{
 		OrbActor->PlayReveal();
 	}
-
-	// "클릭됨" 이벤트는 1번만
-	OnOrbClicked.Broadcast(Index);
 }
 
 void ALRGachaOrbSceneActor::SetCenterOrb(int32 NewIndex)
