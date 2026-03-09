@@ -12,6 +12,16 @@
 
 #include "Units/OutGame/LROutGameController.h"
 
+void ULRCharacterEntryWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
+	{
+		OnTileClickedDel.AddDynamic(PC, &ALROutGameController::SetSelectedCharacterID);
+	}
+}
+
 void ULRCharacterEntryWidget::BindProperties()
 {
 	Super::BindProperties();
@@ -28,8 +38,5 @@ void ULRCharacterEntryWidget::UnbindProperties()
 
 void ULRCharacterEntryWidget::OnTileClicked()
 {
-	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
-	{
-		PC->SetSelectedCharacterID(TileData->GetID());
-	}
+	OnTileClickedDel.Broadcast(TileData->GetID());
 }

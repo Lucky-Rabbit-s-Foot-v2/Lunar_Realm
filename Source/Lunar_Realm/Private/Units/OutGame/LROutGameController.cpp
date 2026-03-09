@@ -22,6 +22,12 @@ void ALROutGameController::OpenFirstWidget()
 	UIManager->SwitchPageUIByID(EUIID::LOBBY);
 }
 
+void ALROutGameController::SetSelectedCharacterID(FName InID)
+{
+	SelectedCharacterID = InID;
+	OnSelectedCharacterChangedDel.Broadcast(SelectedCharacterID);
+}
+
 void ALROutGameController::GachaSim(const FString& BannerIdStr, int32 TotalPulls, int32 Seed)
 {
 	UGameInstance* GI = GetGameInstance();

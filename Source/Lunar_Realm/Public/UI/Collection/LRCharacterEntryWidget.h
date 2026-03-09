@@ -16,17 +16,24 @@
  // (260305) PJB 제작. 
  //=============================================================================
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTileClicked, FName, CharacaterID);
+
 UCLASS()
 class LUNAR_REALM_API ULRCharacterEntryWidget : public ULREntryWidget
 {
 	GENERATED_BODY()
 	
 public:
+	virtual void NativeConstruct() override;
+
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
 	UFUNCTION()
 	void OnTileClicked();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnTileClicked OnTileClickedDel;
 
 protected:
 	UPROPERTY(meta = (BindWidget))
