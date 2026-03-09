@@ -77,15 +77,19 @@ private:
 	// ========================================
 	// 소유 도감 데이터(캐릭터/장비 인스턴스)
 	// ========================================
+	UPROPERTY(SaveGame)
 	TMap<FName, FCharacterInstance> OwnedCharacters;
+	UPROPERTY(SaveGame)
 	TArray<FEquipmentInstance> OwnedEquipments;
     
 	// ========================================
 	// 선택된 로드아웃 정보
 	// ========================================
 	// 선택된 캐릭터 파티 정보
+	UPROPERTY(SaveGame)
 	TArray<FName> SelectedCharactersIDs; // 4명[리더, 파티원1, 파티원2, 파티원3]
 	// 선택된 리더 캐릭터 장비 정보
+	UPROPERTY(SaveGame)
 	TArray<FGuid> SelectedEquipmentIDs; // 리더 장비 3개 [무기, 헬멧, 갑옷]
     
 	const int PARTY_SLOT_SIZE = 5;
