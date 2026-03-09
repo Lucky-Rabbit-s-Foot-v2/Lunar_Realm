@@ -5,6 +5,7 @@
 #include "GAS/Attributes/LRPlayerAttributeSet.h"
 #include "AbilitySystemComponent.h"
 #include "Subsystems/GameDataSubsystem.h"
+#include "Subsystems/SaveGameSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/GameInstance.h"
 #include "GameFramework/Pawn.h"
@@ -13,6 +14,7 @@
 #include "Units/Player/LRPlayerCharacter.h"
 #include "Core/Stage/LRStageGameState.h"
 #include "Components/SkeletalMeshComponent.h"
+
 
 ALRPlayerState::ALRPlayerState()
 {
@@ -60,10 +62,30 @@ void ALRPlayerState::InitializePlayerData()
 
 	bIsPlayerDataInitialized = true;
 
-	// TODO_BJM: SaveGameSubsystem에서 플레이어 데이터 로드
-	// 지금은 임시 데이터 넣음
-	CharacterID = FName("Nurse");
-	CharacterLevel = FName("1");
+	
+	UGameInstance* GI = GetGameInstance();
+	USaveGameSubsystem* SaveSys = GI ? GI->GetSubsystem<USaveGameSubsystem>() : nullptr;
+
+	if (SaveSys)
+	{
+		FName LeaderID = SaveSys->GetLeaderCharacterID();
+
+		if (LeaderID != NAME_None)
+		{
+			CharacterID = LeaderID;
+		}
+		else
+		{
+			CharacterID = FName("Nurse");
+		}
+	}
+	else
+	{
+		CharacterID = FName("Nurse");
+	}
+
+	// TODO_BJM : 테스트용으로 임시 배치. 추후 덱 데이터 로드 방식 확정되면 제거 예정
+	CharacterLevel = FName("1");;
 
 	EquippedItems.Add(EEquipmentSlotType::WEAPON, FName(TEXT("EQUIP_MELEE_01")));
 	EquippedItemLevels.Add(EEquipmentSlotType::WEAPON, 1);
@@ -84,9 +106,18 @@ void ALRPlayerState::InitializePlayerData()
 
 	if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetPawn()))
 	{
-		UGameInstance* GI = GetGameInstance();
 		UGameDataSubsystem* DataSubsystem = GI->GetSubsystem<UGameDataSubsystem>();
 		const FCharacterStaticData& CharData = DataSubsystem->GetCharacterStaticData(CharacterID);
+
+		if (USkeletalMesh* LoadedMesh = CharData.CharacterMesh.LoadSynchronous())
+		{
+			PC->GetMesh()->SetSkeletalMesh(LoadedMesh);
+		}
+
+		if (UClass* LoadedAnimBP = CharData.AnimBlueprintClass.LoadSynchronous())
+		{
+			PC->GetMesh()->SetAnimInstanceClass(LoadedAnimBP);
+		}
 
 		PC->GetMesh()->SetRelativeScale3D(CharData.PlayerScale);
 

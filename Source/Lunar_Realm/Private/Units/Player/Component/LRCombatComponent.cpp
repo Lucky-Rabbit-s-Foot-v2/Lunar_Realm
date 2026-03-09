@@ -438,7 +438,7 @@ bool ULRCombatComponent::TryExcuteSkill(ALRCharacter* InOwnerCharacter)
 		FGameplayTag SkillTag = SkillData.SkillTag;
 
 		const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillData.SkillEffectID);
-		float RealAttackRange = EffectData.AttackRange;
+		float RealAttackRange = EffectData.Range;
 		UE_LOG(LogTemp, Log, TEXT("[TryExecuteSkill] 검사 중인 스킬 ID: %s | 태그: %s | 사거리: %.1f"),
 			*SkillID.ToString(), *SkillTag.ToString(), RealAttackRange);
 

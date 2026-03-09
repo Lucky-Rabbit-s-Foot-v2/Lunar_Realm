@@ -31,7 +31,7 @@
 #include "TimerManager.h"
 
 #include "AIController.h" 
-
+#include "Subsystems/SaveGameSubsystem.h"
 
 
 
@@ -94,8 +94,33 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 		// TODO_BJM: 테스트용으로 임시 배치. 추후 덱 데이터 로드 방식 확정되면 제거 예정
 		if (SummonComponent)
 		{
-			TArray<FName> TestDeck = { FName("Anubis"), FName("Maid"), FName("Merry"), FName("Army") };
-			SummonComponent->LoadDeckData(TestDeck);
+			if (SummonComponent)
+			{
+				TArray<FName> RealDeck;
+
+				UGameInstance* GI = GetGameInstance();
+				USaveGameSubsystem* SaveSys = GI ? GI->GetSubsystem<USaveGameSubsystem>() : nullptr;
+
+				if (SaveSys)
+				{
+					// 저장된 전체 파티 목록 (최대 5명)
+					TArray<FName> AllSlots = SaveSys->GetAllPartyCharactersIDs();
+
+					// 리더(0번)를 제외하고 1번부터 덱에 추가
+					for (int32 i = 1; i < AllSlots.Num(); ++i)
+					{
+						RealDeck.Add(AllSlots[i]);
+					}
+				}
+
+				// 안전장치: 에디터에서 바로 켜서 세이브 데이터가 비어있을 경우
+				if (RealDeck.IsEmpty())
+				{
+					RealDeck = { FName("Anubis"), FName("Maid"), FName("Merry"), FName("Army") };
+				}
+
+				SummonComponent->LoadDeckData(RealDeck);
+			}
 		}
 
 		if (ALRPlayerController* PC = Cast<ALRPlayerController>(NewController))
@@ -300,9 +325,21 @@ void ALRPlayerCharacter::OnHealthChangedNative(const FOnAttributeChangeData& Dat
 	{
 		if (LoadedHitMontage)
 		{
+			// 피격 모션 재생
 			PlayAnimMontage(LoadedHitMontage);
+
+			//  맞았으니 지금 쓰던 평타(기본 공격) 스킬 강제 취소!
+			if (AbilitySystemComponent)
+			{
+				FGameplayTagContainer CancelTags;
+				CancelTags.AddTag(LRTags::Ability_Combat_BasicShoot);
+
+				// 해당 태그를 가진 진행 중인 스킬을 즉시 EndAbility 시킴
+				AbilitySystemComponent->CancelAbilities(&CancelTags);
+			}
 		}
 	}
+
 }
 
 void ALRPlayerCharacter::Die()
