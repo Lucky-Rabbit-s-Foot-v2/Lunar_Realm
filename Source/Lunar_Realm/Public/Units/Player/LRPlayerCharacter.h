@@ -109,6 +109,8 @@ public:
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Animation")
 	UAnimMontage* LoadedHitMontage;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Animation")
+	UAnimMontage* LoadedDeathMontage;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")

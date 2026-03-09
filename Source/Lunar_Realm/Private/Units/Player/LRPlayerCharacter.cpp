@@ -383,9 +383,14 @@ void ALRPlayerCharacter::Die()
 	{
 		CombatComponent->SetActive(false);
 	}
-	if (DeathMontage)
+	if (LoadedDeathMontage)
 	{
-		PlayAnimMontage(DeathMontage);
+		PlayAnimMontage(LoadedDeathMontage);
+		LR_INFO(TEXT("사망 몽타주 재생 성공"));
+	}
+	else
+	{
+		LR_WARN(TEXT("사망 몽타주가 비어있어서 재생할 수 없음"));
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(RespawnTimerHandle, this, &ALRPlayerCharacter::RespawnPlayer, RespawnTime, false);

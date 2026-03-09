@@ -127,6 +127,7 @@ void ALRPlayerState::InitializePlayerData()
 		}
 
 		PC->LoadedHitMontage = CharData.HitMontage.LoadSynchronous();
+		PC->LoadedDeathMontage = CharData.DeathMontage.LoadSynchronous();
 	}
 
 
