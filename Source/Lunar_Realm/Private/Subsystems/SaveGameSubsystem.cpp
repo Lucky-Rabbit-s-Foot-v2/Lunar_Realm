@@ -26,7 +26,7 @@ void USaveGameSubsystem::CreateNewSaveGame()
 	CurrentSaveGame->InitializeNewPlayerDefaults();
 
 #if WITH_EDITOR
-	// //테스트용 데이터......
+	// //테스트용 데이터......	
 	// //도감 보유 캐릭터 정보
 	// CurrentSaveGame->OwnedCharacters.Add(10102, FPlayerCharacterInstance(10102, 10)); //리더
 	// CurrentSaveGame->OwnedCharacters.Add(10301, FPlayerCharacterInstance(10301, 3)); //파티원 1
