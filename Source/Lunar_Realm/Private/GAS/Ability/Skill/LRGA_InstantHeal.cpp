@@ -61,6 +61,13 @@ void ULRGA_InstantHeal::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
         return;
     }
 
+	if (!HealEffectClass)
+	{
+		LR_WARN(TEXT("HealEffectClass 미설정"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+	
     const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillEffectID);
 
     // TargetASC에 Instant Heal GE 적용

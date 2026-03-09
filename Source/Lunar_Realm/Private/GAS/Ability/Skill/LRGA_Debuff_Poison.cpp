@@ -52,7 +52,7 @@ void ULRGA_Debuff_Poison::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 
     const FSkillEffectData& EffectData   = DataSys->GetSkillEffectData(SkillEffectID);
 
-    // 가장 가까운 플레이어 탐색 (베이스 헬퍼 사용)
+    // 가장 가까운 적대 액터 탐색 (베이스 헬퍼 사용)
     AActor* Target = FindNearestHostile(HostileTag, EffectData.Range);
     if (!Target)
     {
@@ -69,10 +69,9 @@ void ULRGA_Debuff_Poison::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
         return;
     }
 
-    // 대상이 이미 독 상태면 중복 적용 안 함
-    if (TargetASC->HasMatchingGameplayTag(LRTags::State_Debuff_Poison))
+    // 대상이 사망했으면 적용 안함.
+    if (TargetASC->HasMatchingGameplayTag(LRTags::State_Dead))
     {
-        LR_INFO(TEXT("이미 독 상태 — 중복 적용 스킵"));
         EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
         return;
     }
@@ -84,8 +83,15 @@ void ULRGA_Debuff_Poison::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
         return;
     }
 
-    // 에너미 ASC 기준으로 GE 스펙 생성 후 플레이어에게 적용
+    // 에너미 ASC 기준으로 GE 스펙 생성 후 타겟 적용
     UAbilitySystemComponent* SourceASC = GetOwnerASC();
+	if (!SourceASC)
+	{
+		LR_WARN(TEXT("SourceASC 없음"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+	
     FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
     FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(PoisonEffectClass, 1.f, Context);
 
