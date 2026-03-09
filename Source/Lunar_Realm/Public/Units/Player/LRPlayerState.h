@@ -71,6 +71,10 @@ protected:
 	TObjectPtr<ULRPlayerAttributeSet> AttributeSet;
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Abilities")
+	TSubclassOf<UGameplayAbility> DefaultHealAbility;
+
+public:
 	// 플레이어 데이터가 한 번이라도 초기화되었는지 체크하는 변수
 	bool bIsPlayerDataInitialized = false;
 
@@ -89,4 +93,9 @@ protected:
 	// 부여된 스킬 핸들 관리
 	TMap<EEquipmentSlotType, TArray<FGameplayAbilitySpecHandle>> EquipmentAbilityHandles;
 	TArray<FGameplayAbilitySpecHandle> CharacterAbilityHandles;
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "LR | Combat")
+	TArray<FName> GetEquippedAutoSkillIDs() const;
 };
+

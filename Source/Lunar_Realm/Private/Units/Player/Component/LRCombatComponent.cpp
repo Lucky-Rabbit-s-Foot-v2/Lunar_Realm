@@ -3,6 +3,8 @@
 
 #include "Units/Player/Component/LRCombatComponent.h"
 #include "Units/LRCharacter.h"
+#include "Units/Player/LRPlayerState.h"
+
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/DecalComponent.h"
@@ -19,6 +21,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "Components/PrimitiveComponent.h"
+
 
 ULRCombatComponent::ULRCombatComponent()
 {
@@ -37,11 +40,11 @@ void ULRCombatComponent::BeginPlay()
 	if (AllBases.Num() > 0)
 	{
 		CachedEnemyBase = AllBases[0];
-		UE_LOG(LogTemp, Log, TEXT("[Combat] 적 기지 캐싱 완료: %s"), *CachedEnemyBase->GetName());
+		LR_INFO(TEXT("[Combat] 적 기지 캐싱 완료: %s"), *CachedEnemyBase->GetName());
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Combat] 맵에 'Enemy.Structure.Core' 태그를 가진 액터가 없음."));
+		LR_WARN(TEXT("[Combat] 맵에 'Enemy.Structure.Core' 태그를 가진 액터가 없음."));
 	}
 
 	float RandomDelay = FMath::RandRange(0.1f, 0.3f);
@@ -87,7 +90,7 @@ void ULRCombatComponent::TickComponent(float InDeltaTime, ELevelTick InTickType,
 void ULRCombatComponent::SetAutoMode(bool bInEnableAuto)
 {
 	CombatState = bInEnableAuto ? EAutoCombatState::Auto : EAutoCombatState::Manual;
-	UE_LOG(LogTemp, Log, TEXT("전투모드 변경: %s"), bInEnableAuto ? TEXT("AUTO") : TEXT("MANUAL"));
+	LR_INFO(TEXT("전투모드 변경: %s"), bInEnableAuto ? TEXT("AUTO") : TEXT("MANUAL"));
 
 	if (!bInEnableAuto)
 	{
@@ -114,7 +117,7 @@ void ULRCombatComponent::UpdateWeaponInfo(FName InWeaponID)
 	else if (ItemType == ELRItemType::RANGED) AttackRange = 800.0f;
 	else AttackRange = 100.0f;
 
-	UE_LOG(LogTemp, Log, TEXT("무기설정 ID: %s, Range: %.1f"), *InWeaponID.ToString(), AttackRange);
+	LR_INFO(TEXT("무기설정 ID: %s, Range: %.1f"), *InWeaponID.ToString(), AttackRange);
 }
 
 
@@ -137,10 +140,23 @@ void ULRCombatComponent::OnCombatLogicTimer()
 
 void ULRCombatComponent::ProcessCombatLogic(ALRCharacter* InOwnerCharacter, float InDeltaTime)
 {
-	bool bInRange = IsTargetInRange();
+	bool bInBasicAttackRange = IsTargetInRange();
 	AController* OwnerController = InOwnerCharacter->GetController();
 
-	if (bInRange)
+	if (CombatState == EAutoCombatState::Auto)
+	{
+		if (TryExcuteSkill(InOwnerCharacter))
+		{
+			if (OwnerController)
+			{
+				OwnerController->StopMovement();
+				return;
+			}
+		}
+	}
+
+
+	if (bInBasicAttackRange)
 	{
 		if (OwnerController)
 		{
@@ -229,7 +245,7 @@ void ULRCombatComponent::AttemptAction(float InDeltaTime)
 	UAbilitySystemComponent* ASC = ASCInterface->GetAbilitySystemComponent();
 	if (!ASC)
 	{
-		UE_LOG(LogTemp, Error, TEXT("공격 실패: ASC가 NULL. Owner: %s"), *OwnerCharacter->GetName());
+		LR_ERROR(TEXT("공격 실패: ASC가 NULL. Owner: %s"), *OwnerCharacter->GetName());
 		return;
 	}
 
@@ -240,7 +256,7 @@ void ULRCombatComponent::AttemptAction(float InDeltaTime)
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
 		OwnerCharacter, LRTags::Ability_Combat_BasicShoot, EventData);
 
-	UE_LOG(LogTemp, Log, TEXT("공격 성공 / 타겟 : %s"), *CurrentTarget->GetName());
+	LR_INFO(TEXT("공격 성공 / 타겟 : %s"), *CurrentTarget->GetName());
 	CurrentAttackCooldown = 1.0f;
 }
 
@@ -390,4 +406,90 @@ FGameplayTag ULRCombatComponent::GetEnemyRootTag() const
 	if (MyTag.MatchesTag(LRTags::Team_Enemy))       return LRTags::Team_Player;
 
 	return FGameplayTag();
+}
+
+bool ULRCombatComponent::TryExcuteSkill(ALRCharacter* InOwnerCharacter)
+{
+	if (!CurrentTarget) return false;
+
+	IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(InOwnerCharacter);
+	if (!ASCInterface) return false;
+	UAbilitySystemComponent* ASC = ASCInterface->GetAbilitySystemComponent();
+
+	ALRPlayerState* PS = InOwnerCharacter->GetPlayerState<ALRPlayerState>();
+	if (!PS) return false;
+
+	UGameInstance* GI = GetWorld()->GetGameInstance();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+	if (!DataSys) return false;
+
+	// PlayerState에서 장착된 스킬 ID 목록을 받아옴
+	TArray<FName> EquippedSkillIDs = PS->GetEquippedAutoSkillIDs();
+
+	if (EquippedSkillIDs.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TryExecuteSkill] 장착된 스킬 ID가 없음 PlayerState 확인 요망"));
+		return false;
+	}
+
+	for (const FName& SkillID : EquippedSkillIDs)
+	{
+		const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillID);
+		FGameplayTag SkillTag = SkillData.SkillTag;
+
+		const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillData.SkillEffectID);
+		float RealAttackRange = EffectData.Range;
+		UE_LOG(LogTemp, Log, TEXT("[TryExecuteSkill] 검사 중인 스킬 ID: %s | 태그: %s | 사거리: %.1f"),
+			*SkillID.ToString(), *SkillTag.ToString(), RealAttackRange);
+
+		float DistSq = FVector::DistSquared(InOwnerCharacter->GetActorLocation(), CurrentTarget->GetActorLocation());
+		float RangeSq = RealAttackRange * RealAttackRange;
+
+		if (DistSq <= RangeSq)
+		{
+
+			FGameplayEventData EventData;
+			EventData.Instigator = InOwnerCharacter;
+			EventData.Target = CurrentTarget;
+
+			int32 TriggeredCount = ASC->HandleGameplayEvent(SkillTag, &EventData);
+
+			if (TriggeredCount > 0)
+			{
+				UE_LOG(LogTemp, Log, TEXT("오토 스킬 발동 성공 태그: %s | 사거리: %.1f"), *SkillTag.ToString(), RealAttackRange);
+				return true;
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[TryExecuteSkill] 발동 실패 : %s"), *SkillTag.ToString());
+			}
+		}
+	}
+
+	//for (const FName& SkillID : EquippedSkillIDs)
+	//{
+	//	// 스킬 기본 데이터 가져오기 (태그, 이펙트 ID)
+	//	const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillID);
+	//	FGameplayTag SkillTag = SkillData.SkillTag;
+
+	//	// 스킬 이펙트 데이터 가져오기 (AttackRange)
+	//	const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillData.SkillEffectID);
+
+	//	float RealAttackRange = EffectData.AttackRange;
+
+	//	// 적이 스킬 사거리 안에 있는지 체크
+	//	float DistSq = FVector::DistSquared(InOwnerCharacter->GetActorLocation(), CurrentTarget->GetActorLocation());
+	//	if (DistSq <= (RealAttackRange * RealAttackRange))
+	//	{
+	//		FGameplayTagContainer TagContainer(SkillTag);
+
+	//		// 발동
+	//		if (ASC->TryActivateAbilitiesByTag(TagContainer))
+	//		{
+	//			LR_INFO(TEXT("[AutoCombat] 오토 스킬 발동 성공: %s (사거리: %.1f)"), *SkillTag.ToString(), RealAttackRange);
+	//			return true;
+	//		}
+	//	}
+	//}
+	return false;
 }
