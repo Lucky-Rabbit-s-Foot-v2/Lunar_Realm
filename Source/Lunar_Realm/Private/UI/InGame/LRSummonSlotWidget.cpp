@@ -25,7 +25,7 @@ void ULRSummonSlotWidget::NativeConstruct()
 		SummonComp = OwningPawn->GetComponentByClass<ULRSummonComponent>();
 		if (SummonComp)
 		{
-			SummonComp->OnUnitSummoned.AddDynamic(this, &ULRSummonSlotWidget::OnSummonedEvent);
+			SummonComp->OnUnitSummoned.AddUniqueDynamic(this, &ULRSummonSlotWidget::OnSummonedEvent);
 		}
 	}
 }
