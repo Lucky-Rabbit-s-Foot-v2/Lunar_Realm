@@ -457,6 +457,9 @@ struct FSkillEffectData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Damage;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float AttackRange;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EExpireCondition ExpireCondition;
