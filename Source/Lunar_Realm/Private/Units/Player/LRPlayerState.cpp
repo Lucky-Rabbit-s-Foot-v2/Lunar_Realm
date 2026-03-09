@@ -417,3 +417,34 @@ void ALRPlayerState::OnAetherReceived(float Amount)
 
 	AttributeSet->SetAether(NewAether);
 }
+
+TArray<FName> ALRPlayerState::GetEquippedAutoSkillIDs() const
+{
+	TArray<FName> SkillIDsToReturn;
+
+	UGameInstance* GI = GetGameInstance();
+	if (!GI) return SkillIDsToReturn;
+
+	UGameDataSubsystem* DataSubsystem = GI->GetSubsystem<UGameDataSubsystem>();
+	if (!DataSubsystem) return SkillIDsToReturn;
+
+	// 캐릭터 스킬 ID 가져오기
+	TArray<FName> CharSkillIDs = DataSubsystem->GetCharacterSkillIDs(CharacterID);
+	if (CharSkillIDs.IsValidIndex(0))
+	{
+		SkillIDsToReturn.Add(CharSkillIDs[0]);
+	}
+
+	// 무기 스킬 ID 가져오기
+	if (EquippedItems.Contains(EEquipmentSlotType::WEAPON))
+	{
+		FName WeaponID = EquippedItems[EEquipmentSlotType::WEAPON];
+		TArray<FName> EquipSkillIDs = DataSubsystem->GetEquipmentSkillIDs(WeaponID);
+		if (EquipSkillIDs.IsValidIndex(0))
+		{
+			SkillIDsToReturn.Add(EquipSkillIDs[0]);
+		}
+	}
+
+	return SkillIDsToReturn;;
+}

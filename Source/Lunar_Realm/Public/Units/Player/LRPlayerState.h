@@ -89,4 +89,8 @@ protected:
 	// 부여된 스킬 핸들 관리
 	TMap<EEquipmentSlotType, TArray<FGameplayAbilitySpecHandle>> EquipmentAbilityHandles;
 	TArray<FGameplayAbilitySpecHandle> CharacterAbilityHandles;
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "LR | Combat")
+	TArray<FName> GetEquippedAutoSkillIDs() const;
 };
