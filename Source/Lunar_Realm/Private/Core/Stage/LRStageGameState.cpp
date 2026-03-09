@@ -9,17 +9,6 @@
 void ALRStageGameState::BeginPlay()
 {
 	Super::BeginPlay();
-
-	UStageManagerSubsystem* StageManager = GetGameInstance()->GetSubsystem<UStageManagerSubsystem>();
-
-	const FStageSpawnerData& SpawnerData = StageManager->GetCurrentStageSpawnerData();
-
-	LR_SCREEN_INFO(TEXT("Current Stage Spawner Data: Spawnable Enemies Count = %d, Spawn Interval = %f"), SpawnerData.SpawnableEnemies.Num(), SpawnerData.SpawnInterval);
-
-
-	const FStageRewardData& RewardData = StageManager->GetCurrentStageRewardData();
-	LR_SCREEN_INFO(TEXT("Current Stage Reward Data: Gold = %d, Normal Tickets = %d, Enhance Tickets = %d"), RewardData.Gold, RewardData.NormalTicket, RewardData.EnhanceTicket);
-
 }
 
 void ALRStageGameState::AddAether(float Amount)
@@ -30,8 +19,6 @@ void ALRStageGameState::AddAether(float Amount)
 	}
 
 	CurrentAether += Amount;
-
-	LR_DEBUG(TEXT("GameState: Aether added %.1f, Total: %.1f"), Amount, CurrentAether);
 
 	if (OnAetherChanged.IsBound())
 	{
