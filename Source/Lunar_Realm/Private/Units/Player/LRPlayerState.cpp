@@ -12,6 +12,7 @@
 #include "GAS/Tags/LRGameplayTags.h"
 #include "Units/Player/LRPlayerCharacter.h"
 #include "Core/Stage/LRStageGameState.h"
+#include "Components/SkeletalMeshComponent.h"
 
 ALRPlayerState::ALRPlayerState()
 {
@@ -61,7 +62,7 @@ void ALRPlayerState::InitializePlayerData()
 
 	// TODO_BJM: SaveGameSubsystem에서 플레이어 데이터 로드
 	// 지금은 임시 데이터 넣음
-	CharacterID = FName("CHAR_WARRIOR_05");
+	CharacterID = FName("Nurse");
 	CharacterLevel = FName("1");
 
 	EquippedItems.Add(EEquipmentSlotType::WEAPON, FName(TEXT("EQUIP_MELEE_01")));
@@ -81,13 +82,30 @@ void ALRPlayerState::InitializePlayerData()
 
 	UE_LOG(LogTemp, Log, TEXT("[LRPlayerState] 플레이어의 데이터 모두 가져옴"));
 
-	if (EquippedItems.Contains(EEquipmentSlotType::WEAPON))
+	if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetPawn()))
 	{
-		if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetPawn()))
+		UGameInstance* GI = GetGameInstance();
+		UGameDataSubsystem* DataSubsystem = GI->GetSubsystem<UGameDataSubsystem>();
+		const FCharacterStaticData& CharData = DataSubsystem->GetCharacterStaticData(CharacterID);
+
+		PC->GetMesh()->SetRelativeScale3D(CharData.PlayerScale);
+
+		if (EquippedItems.Contains(EEquipmentSlotType::WEAPON))
 		{
 			PC->UpdateWeaponMesh(EquippedItems[EEquipmentSlotType::WEAPON]);
 		}
+
+		PC->LoadedHitMontage = CharData.HitMontage.LoadSynchronous();
 	}
+
+
+	//if (EquippedItems.Contains(EEquipmentSlotType::WEAPON))
+	//{
+	//	if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetPawn()))
+	//	{
+	//		PC->UpdateWeaponMesh(EquippedItems[EEquipmentSlotType::WEAPON]);
+	//	}
+	//}
 }
 
 void ALRPlayerState::InitializeAttributes()
@@ -137,13 +155,13 @@ void ALRPlayerState::InitializeAttributes()
 	float FinalAtk = (CharAtk + EquipAtk) * SetAtk_Mul;
 	float FinalDef = (CharDef + EquipDef) * SetDef_Mul;
 
-	AttributeSet->InitHealth(FinalHP);
 	AttributeSet->InitMaxHealth(FinalHP);
+	AttributeSet->InitHealth(FinalHP);
 	AttributeSet->InitAttackPower(FinalAtk);
 
 	// 테스트용
 	//AttributeSet->SetHealth(10.0f);
-	AttributeSet->InitAttackPower(15.0f);
+	//AttributeSet->InitAttackPower(15.0f);
 	
 
 	UE_LOG(LogTemp, Log, TEXT("Final Stats - HP: %.1f, ATK: %.1f, DEF: %.1f"), FinalHP, FinalAtk, FinalDef);

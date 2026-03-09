@@ -3,9 +3,11 @@
 
 #include "GAS/Ability/LRGameplayAbilityBase.h"
 
+#include "DrawDebugHelpers.h"
 #include "Data/LRDataStructs.h"
 #include "Data/LREnumType.h"
 #include "GAS/Tags/LRGameplayTags.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Projectiles/LRProjectile.h"
 #include "Units/LRCharacter.h"
 
@@ -218,4 +220,68 @@ FGameplayTag ULRGameplayAbilityBase::GetHostileTeamTag() const
 	}
 	
 	return FGameplayTag::EmptyTag;
+}
+
+AActor* ULRGameplayAbilityBase::FindNearestHostile(FGameplayTag HostileTag, float SearchRadius) const
+{
+	if (!CachedInstigator)
+	{
+		LR_WARN(TEXT("CachedInstigator 없음"));
+		return nullptr;
+	}
+	
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn));
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldDynamic));
+
+	TArray<AActor*> IgnoreActors;
+	IgnoreActors.Add(const_cast<ALRCharacter*>(CachedInstigator.Get()));
+
+	
+	// 감지 범위 디버그 구체 그리기 (에디터 빌드에서만)
+#if WITH_EDITOR
+	DrawDebugSphere(
+		GetWorld(), CachedInstigator->GetActorLocation(), SearchRadius,  
+		16, FColor::Green, false, 2.0f );
+#endif
+	
+	TArray<AActor*> OutActors;
+	UKismetSystemLibrary::SphereOverlapActors(
+		GetWorld(),CachedInstigator->GetActorLocation(),
+		SearchRadius, ObjectTypes, AActor::StaticClass(),
+		IgnoreActors,OutActors);
+	
+	AActor* Nearest = nullptr;
+	float MinDistSq = FLT_MAX;
+
+	for (AActor* candidate : OutActors)
+	{
+		UAbilitySystemComponent* CandidateASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(candidate);
+
+		//GAS 오브젝트가 아니거나 적대 태그가 아니면 패스
+		if (!CandidateASC)
+		{
+			continue;
+		}
+		if (!CandidateASC->HasMatchingGameplayTag(HostileTag))
+		{
+			continue;
+		}
+		
+		//대상이 죽음 상태이면 패스
+		if (CandidateASC->HasMatchingGameplayTag(LRTags::State_Dead))
+		{
+			continue;
+		}
+
+		float DistSq = FVector::DistSquared(CachedInstigator->GetActorLocation(), candidate->GetActorLocation());
+
+		if (DistSq < MinDistSq)
+		{
+			MinDistSq = DistSq;
+			Nearest = candidate;
+		}
+	}
+
+	return Nearest;
 }

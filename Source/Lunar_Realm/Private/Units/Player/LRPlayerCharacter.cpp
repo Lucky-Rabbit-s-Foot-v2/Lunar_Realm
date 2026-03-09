@@ -8,6 +8,8 @@
 #include "Engine/LocalPlayer.h"
 
 #include "Units/Player/LRPlayerState.h"
+#include "Units/Player/LRPlayerController.h"
+#include "UI/InGame/LRPlayerWidget.h"
 #include "AbilitySystemComponent.h"
 
 #include "EnhancedInputComponent.h"
@@ -27,6 +29,9 @@
 #include "Structures/Core/LRPlayerCore.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
+
+#include "AIController.h" 
+
 
 
 
@@ -63,7 +68,7 @@ void ALRPlayerCharacter::BeginPlay()
 	}
 
 	// TODO_BJM: 테스트용으로 임시 배치.
-	TestSummonSlot();
+	//TestSummonSlot();
 }
 
 void ALRPlayerCharacter::PossessedBy(AController* NewController)
@@ -84,6 +89,21 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 		{
 			AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
 				ULRAttributeSet::GetHealthAttribute()).AddUObject(this, &ALRPlayerCharacter::OnHealthChangedNative);
+		}
+
+		// TODO_BJM: 테스트용으로 임시 배치. 추후 덱 데이터 로드 방식 확정되면 제거 예정
+		if (SummonComponent)
+		{
+			TArray<FName> TestDeck = { FName("Anubis"), FName("Maid"), FName("Merry"), FName("Army") };
+			SummonComponent->LoadDeckData(TestDeck);
+		}
+
+		if (ALRPlayerController* PC = Cast<ALRPlayerController>(NewController))
+		{
+			if (ULRPlayerWidget* MyWidget = PC->GetPlayerWidget())
+			{
+				MyWidget->TestSummonPanelRefresh();
+			}
 		}
 
 		UE_LOG(LogTemp, Log, TEXT("GAS Initialized completely in %s"), *GetName());
@@ -188,9 +208,9 @@ void ALRPlayerCharacter::Move(const FInputActionValue& Value)
 
 		float CurrentY = GetActorLocation().Y;
 
-		// TODO : 추후 맵 확정될때 CameraManager의 MinY, MaxY랑 값 맞춰줘야함
-		float MapMinY = -1000.0f;
-		float MapMaxY = 1000.0f;
+		// TODO_BJM : 추후 맵 확정될때 CameraManager의 MinY, MaxY랑 값 맞춰줘야함
+		float MapMinY = -2000.0f;
+		float MapMaxY = 2000.0f;
 
 		float LimitMin = MapMinY - CurrentY;
 		float LimitMax = MapMaxY - CurrentY;
@@ -265,6 +285,7 @@ void ALRPlayerCharacter::Input_Charge(const FInputActionValue& Value)
 void ALRPlayerCharacter::OnHealthChangedNative(const FOnAttributeChangeData& Data)
 {
 	float NewHealth = Data.NewValue;
+	float OldHealth = Data.OldValue;
 
 	if (bIsDead)
 	{
@@ -273,6 +294,14 @@ void ALRPlayerCharacter::OnHealthChangedNative(const FOnAttributeChangeData& Dat
 	if (NewHealth <= 0.0f)
 	{
 		Die();
+		return;
+	}
+	if (NewHealth < OldHealth)
+	{
+		if (LoadedHitMontage)
+		{
+			PlayAnimMontage(LoadedHitMontage);
+		}
 	}
 }
 
@@ -283,13 +312,34 @@ void ALRPlayerCharacter::Die()
 
 	LR_INFO(TEXT("플레이어 사망"));
 
+	if (AAIController* AICon = Cast<AAIController>(GetController()))
+	{
+		AICon->ClearFocus(EAIFocusPriority::Gameplay);
+		AICon->ClearFocus(EAIFocusPriority::Default);
+	}
+
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->bUseControllerDesiredRotation = false;
+
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	GetCharacterMovement()->StopMovementImmediately();
 	GetCharacterMovement()->DisableMovement();
 
+	if (ALRPlayerController* PC = Cast<ALRPlayerController>(GetController()))
+	{
+		PC->OnPlayerDied(RespawnTime);
+	}
+
+
+	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
+	{
+		AnimInst->Montage_Stop(0.1f);
+	}
+
 	if (AbilitySystemComponent)
 	{
+		AbilitySystemComponent->AddLooseGameplayTag(LRTags::State_Dead);
 		AbilitySystemComponent->CancelAllAbilities();
 	}
 	if (CombatComponent)
@@ -330,11 +380,17 @@ void ALRPlayerCharacter::RespawnPlayer()
 
 	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
 	{
+		ASC->RemoveLooseGameplayTag(LRTags::State_Dead);
+
 		float MaxHP = ASC->GetNumericAttribute(ULRAttributeSet::GetMaxHealthAttribute());
 		ASC->SetNumericAttributeBase(ULRAttributeSet::GetHealthAttribute(), MaxHP);
-		//float MaxHP = ASC->GetNumericAttribute(ULRPlayerAttributeSet::GetMaxHealthAttribute());
-		//ASC->SetNumericAttributeBase(ULRPlayerAttributeSet::GetHealthAttribute(), MaxHP);
 	}
+
+	if (ALRPlayerController* PC = Cast<ALRPlayerController>(GetController()))
+	{
+		PC->OnPlayerRespawned(); 
+	}
+
 
 	LR_INFO(TEXT("플레이어 코어에서 부활 완료"));
 
@@ -344,6 +400,8 @@ void ALRPlayerCharacter::RespawnPlayer()
 
 	GetWorld()->GetTimerManager().SetTimer(BlinkTimerHandle, this, &ALRPlayerCharacter::OnBlinkTimer, 0.15f, true);
 	GetWorld()->GetTimerManager().SetTimer(InvincibilityTimerHandle, this, &ALRPlayerCharacter::EndInvincibility, 2.0f, false);
+
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	// TODO: 무적 & 깜빡임 효과
 }

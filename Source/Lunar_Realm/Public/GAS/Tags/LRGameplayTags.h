@@ -54,6 +54,8 @@ namespace LRTags
 	// Heal GA태그
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Heal);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Skill_Heal);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_InstantHeal); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_DurationHeal); //GA
 	
 	//스킬 GA/GE 태그
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Fireball); //GA
@@ -68,6 +70,8 @@ namespace LRTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Pierce_Cooldown); //GE
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_HomingArrow); //GA
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_HomingArrow_Cooldown); //GE
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Debuff_Poison); //GA
 	
 	
 	
@@ -84,6 +88,8 @@ namespace LRTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Debuff_Shock);
 	//빙결 상태(Freeze) <- GE_Freeze가 빙결 상태 부여
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Debuff_Freeze);
+	//중독 상태(Poison) <- GE_Poison이 중독 상태 부여
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Debuff_Poison);
 	//사망 상태(Dead) <- 체력 0이면 부여
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Dead);
 	//대시 상태(Dashing)
@@ -101,6 +107,7 @@ namespace LRTags
 	// Data Tag에 Data.*타입 세팅 잊지말기
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Damage);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Heal);
 	
 	//===============================================
 	// GC 태그

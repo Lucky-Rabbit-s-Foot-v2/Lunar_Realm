@@ -6,6 +6,7 @@
 #include "Units/LRCharacter.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
+#include "Animation/AnimMontage.h"
 #include "LREnemyCharacter.generated.h"
 
 class ULREnemyAttributeSet;
@@ -52,6 +53,8 @@ public:
 	virtual void OnPoolActivate_Implementation() override;
 	virtual void OnPoolDeactivate_Implementation() override;
 
+	void PlayAttackedMontage();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -59,6 +62,24 @@ protected:
 	void InitializeAttributes(FName EnemyID);
 
 	void ApplyVisualData(const struct FEnemyStaticData& EnemyData);
+
+	void PlayDeathMontage();
+
+	UFUNCTION()
+	void OnAttackedMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	UFUNCTION()
+	void OnDeathMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	// 몽타주 완료 후 호출되는 후속 처리 함수
+	void FinishDeathSequence();
+
+protected:
+	UPROPERTY()
+	TObjectPtr<UAnimMontage> CachedAttackedMontage;
+
+	UPROPERTY()
+	TObjectPtr<UAnimMontage> CachedDeathMontage;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|ASC")

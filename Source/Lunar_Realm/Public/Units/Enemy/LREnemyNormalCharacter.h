@@ -15,6 +15,7 @@
  */
  //============================================================================
  // (260204) KWB 제작.
+ // (260305) KWB 에너미 스폰, 사망 시 태그 관리를 위한 로직 추가
  //============================================================================
 UCLASS()
 class LUNAR_REALM_API ALREnemyNormalCharacter : public ALREnemyCharacter
@@ -23,4 +24,7 @@ class LUNAR_REALM_API ALREnemyNormalCharacter : public ALREnemyCharacter
 	
 public:
 	ALREnemyNormalCharacter();
+
+	virtual void OnPoolActivate_Implementation() override;
+	virtual void OnPoolDeactivate_Implementation() override;
 };

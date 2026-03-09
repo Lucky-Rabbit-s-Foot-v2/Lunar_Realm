@@ -3,12 +3,13 @@
 
 #include "GAS/Ability/Player/LRMMC_Damage.h"
 #include "GAS/Attributes/LRPlayerAttributeSet.h"
+#include "GAS/Attributes/LRAttributeSet.h"
 
 
 ULRMMC_Damage::ULRMMC_Damage()
 {
 	// Source의 AttackPower를 캡처하겠다고 세팅
-	AttackPowerDef = FGameplayEffectAttributeCaptureDefinition(ULRPlayerAttributeSet::GetAttackPowerAttribute(), EGameplayEffectAttributeCaptureSource::Source, true);
+	AttackPowerDef = FGameplayEffectAttributeCaptureDefinition(ULRAttributeSet::GetAttackPowerAttribute(), EGameplayEffectAttributeCaptureSource::Source, true);
 
 	// 캡처 목록에 등록
 	RelevantAttributesToCapture.Add(AttackPowerDef);

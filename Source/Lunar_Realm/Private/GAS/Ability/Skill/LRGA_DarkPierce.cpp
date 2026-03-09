@@ -51,7 +51,7 @@ void ULRGA_DarkPierce::OnAbilityActivated(const FGameplayAbilitySpecHandle Handl
 	InitData.InstigatorASC     = GetOwnerASC();
 	InitData.ResourceID        = SkillData.ResourceID;
 	InitData.SkillEffectID     = SkillEffectID;
-	InitData.Damage            = EffectData.Damage;
+	InitData.Damage            = EffectData.Amount;
 	InitData.Speed             = EffectData.Speed;
 	InitData.Lifetime          = EffectData.Lifetime;
 	InitData.SpawnData         = SpawnData;
