@@ -76,6 +76,9 @@ private:
 	bool IsTargetInRange() const;
 	FGameplayTag GetEnemyRootTag() const;
 
+protected:
+	bool TryExcuteSkill(ALRCharacter* InOwnerCharacter);
+
 	// ============================================================================
 	// 멤버 변수 (Properties)
 	// ============================================================================

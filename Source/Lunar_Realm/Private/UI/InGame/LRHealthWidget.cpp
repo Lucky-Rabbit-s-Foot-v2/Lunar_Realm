@@ -23,10 +23,12 @@ void ULRHealthWidget::BindToASC(UAbilitySystemComponent* ASC)
 	bool bFoundHealth = false;
 	bool bFoundMaxHealth = false;
 
-	CurrentHealth = CachedASC->GetNumericAttribute(ULRAttributeSet::GetHealthAttribute());
+	TargetHealth = CachedASC->GetNumericAttribute(ULRAttributeSet::GetHealthAttribute());
 	CurrentMaxHealth = CachedASC->GetNumericAttribute(ULRAttributeSet::GetMaxHealthAttribute());
 
-	UpdateHealth(CurrentHealth, CurrentMaxHealth);
+	CurrentVisualHealth = TargetHealth;
+
+	UpdateHealth(CurrentVisualHealth, CurrentMaxHealth);
 
 	CachedASC->GetGameplayAttributeValueChangeDelegate(ULRAttributeSet::GetHealthAttribute())
 		.AddUObject(this, &ULRHealthWidget::OnHealthChanged);
@@ -44,14 +46,25 @@ void ULRHealthWidget::UpdateHealth(float InCurrentHealth, float InMaxHealth)
 	}
 }
 
+void ULRHealthWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	if (!FMath::IsNearlyEqual(CurrentVisualHealth, TargetHealth, 0.1f))
+	{
+		CurrentVisualHealth = FMath::FInterpTo(CurrentVisualHealth, TargetHealth, InDeltaTime, InterpSpeed);
+		UpdateHealth(CurrentVisualHealth, CurrentMaxHealth);
+	}
+}
+
 void ULRHealthWidget::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
-	CurrentHealth = Data.NewValue;
+	TargetHealth = Data.NewValue;
 	if (CachedASC)
 	{
 		CurrentMaxHealth = CachedASC->GetNumericAttribute(ULRAttributeSet::GetMaxHealthAttribute());
 	}
-	UpdateHealth(CurrentHealth, CurrentMaxHealth);
+	//UpdateHealth(CurrentHealth, CurrentMaxHealth);
 }
 
 void ULRHealthWidget::OnMaxHealthChanged(const FOnAttributeChangeData& Data)
@@ -59,9 +72,9 @@ void ULRHealthWidget::OnMaxHealthChanged(const FOnAttributeChangeData& Data)
 	CurrentMaxHealth = Data.NewValue;
 	if (CachedASC)
 	{
-		CurrentMaxHealth = CachedASC->GetNumericAttribute(ULRAttributeSet::GetHealthAttribute());
+		TargetHealth = CachedASC->GetNumericAttribute(ULRAttributeSet::GetHealthAttribute());
 	}
-	UpdateHealth(CurrentHealth, CurrentMaxHealth);
+	//UpdateHealth(CurrentHealth, CurrentMaxHealth);
 }
 
 void ULRHealthWidget::UpdatePlayerIcon(FName InCharacterID)
