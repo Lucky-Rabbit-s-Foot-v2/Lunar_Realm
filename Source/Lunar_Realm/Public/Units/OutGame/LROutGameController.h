@@ -16,6 +16,8 @@
  // (260219) PJB 수정. HUD 제거, 소스 코드 이관.
  //=============================================================================
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSelectedCharacterChanged, FName, NewCharacterID);
+
 UCLASS()
 class LUNAR_REALM_API ALROutGameController : public ALRControllerBase
 {
@@ -24,8 +26,13 @@ class LUNAR_REALM_API ALROutGameController : public ALRControllerBase
 public:
 	virtual void OpenFirstWidget() override;
 
-	void SetSelectedCharacterID(FName InID) { SelectedCharacterID = InID; }
+	UFUNCTION(BlueprintCallable)
+	void SetSelectedCharacterID(FName InID);
+
 	FName GetSelectedCharacterID() { return SelectedCharacterID; }
+
+	UPROPERTY(BlueprintAssignable)
+	FOnSelectedCharacterChanged OnSelectedCharacterChangedDel;
 
 	// 콘솔 명령어로 캐릭터나 장비가 활률대로 나오는지 확인하는 함수
 	UFUNCTION(Exec)
