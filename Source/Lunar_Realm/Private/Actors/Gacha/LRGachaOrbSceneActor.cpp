@@ -42,6 +42,17 @@ ALRGachaOrbSceneActor::ALRGachaOrbSceneActor()
 void ALRGachaOrbSceneActor::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// BP에서 조정된 최종 기본값을 저장
+	if (CameraBoom)
+	{
+		DefaultCameraBoomRelativeLocation = CameraBoom->GetRelativeLocation();
+	}
+
+	if (CameraComp)
+	{
+		DefaultCameraFOV = CameraComp->FieldOfView;
+	}
 }
 
 void ALRGachaOrbSceneActor::Tick(float DeltaTime)
@@ -50,6 +61,7 @@ void ALRGachaOrbSceneActor::Tick(float DeltaTime)
 
 	UpdateCarouselTransforms(DeltaTime);
 	UpdateMoonSequence(DeltaTime);
+	UpdateCameraBreathing(DeltaTime);
 }
 
 // ==========================================================================
@@ -272,9 +284,6 @@ void ALRGachaOrbSceneActor::RevealOrb(int32 Index)
 	{
 		OrbActor->PlayReveal();
 	}
-
-	// "클릭됨" 이벤트는 1번만
-	OnOrbClicked.Broadcast(Index);
 }
 
 void ALRGachaOrbSceneActor::SetCenterOrb(int32 NewIndex)
@@ -428,6 +437,40 @@ void ALRGachaOrbSceneActor::UpdateMoonSequence(float DeltaTime)
 	if (Progress >= 1.f)
 	{
 		bMoonMoving = false;
+	}
+}
+
+void ALRGachaOrbSceneActor::UpdateCameraBreathing(float DeltaTime)
+{
+	if (!bEnableCameraBreathing || !CameraBoom)
+	{
+		return;
+	}
+
+	CameraBreathElapsed += DeltaTime;
+
+	// 기본 호흡: 아주 느린 Sine
+	const float Wave = FMath::Sin(CameraBreathElapsed * CameraBreathSpeed * 2.f * PI);
+
+	// 2차 웨이브를 아주 약하게 섞어서 기계적이지 않게
+	const float WaveSecondary = FMath::Sin(CameraBreathElapsed * CameraBreathSpeed * 0.5f * 2.f * PI);
+
+	FVector NewLocation = DefaultCameraBoomRelativeLocation;
+
+	// 위아래 호흡
+	NewLocation.Z += Wave * CameraBreathAmplitudeZ;
+
+	// 아주 약한 측면 흔들림
+	NewLocation.Y += WaveSecondary * CameraBreathAmplitudeY;
+
+	CameraBoom->SetRelativeLocation(NewLocation);
+
+	// 선택: FOV도 아주 미세하게
+	if (bEnableCameraFOVBreathing && CameraComp)
+	{
+		const float FOVWave = (Wave * 0.5f) + 0.5f; // 0~1로 변환
+		const float NewFOV = DefaultCameraFOV + ((FOVWave - 0.5f) * 2.f * CameraBreathFOVAmplitude);
+		CameraComp->SetFieldOfView(NewFOV);
 	}
 }
 
