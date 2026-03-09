@@ -226,6 +226,41 @@ private:
 	/** 달 이동 중인지 여부 */
 	bool bMoonMoving = false;
 
+	// ===== Camera Breathing ==================================================
+
+/** 카메라 미세 호흡 연출 활성화 여부 */
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Camera|Breathing")
+	bool bEnableCameraBreathing = true;
+
+	/** 위아래 호흡 크기 */
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Camera|Breathing")
+	float CameraBreathAmplitudeZ = 6.f;
+
+	/** 좌우/앞뒤 미세 흔들림 크기 */
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Camera|Breathing")
+	float CameraBreathAmplitudeY = 2.f;
+
+	/** 호흡 속도 */
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Camera|Breathing")
+	float CameraBreathSpeed = 0.35f;
+
+	/** FOV 미세 변화 사용 여부 */
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Camera|Breathing")
+	bool bEnableCameraFOVBreathing = false;
+
+	/** FOV 변화 크기 */
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Camera|Breathing")
+	float CameraBreathFOVAmplitude = 1.0f;
+
+	/** 호흡 시작 후 누적 시간 */
+	float CameraBreathElapsed = 0.f;
+
+	/** CameraBoom 기본 위치 */
+	FVector DefaultCameraBoomRelativeLocation = FVector::ZeroVector;
+
+	/** Camera 기본 FOV */
+	float DefaultCameraFOV = 0.f;
+
 	// ===== Internal Functions =============================================
 
 	/** OrbActors/OrbStates 초기화 및 스폰 */
@@ -253,4 +288,7 @@ private:
 	 * @param OutStepCount 실제 이동하게 될 칸 수 (못 찾으면 0)
 	 */
 	int32 FindNextUnrevealedIndex(int32 StartIndex, int32 IndexStep, int32& OutStepCount) const;
+
+	/** 카메라 미세 호흡(Tick) */
+	void UpdateCameraBreathing(float DeltaTime);
 };
