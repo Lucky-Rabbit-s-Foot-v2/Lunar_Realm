@@ -1,7 +1,7 @@
-,SkillEffectID,StatusEffectID,FlightType,HitType,Damage,Speed,LifeTime,ExpireCondition
-1,EFFECT_FIREBALL,STATUS_BURN,Explode,Area,30,800,5,OnExplosion
-2,EFFECT_ICEBALL,STATUS_FREEZE,Arc,Area,20,600,4,OnExplosion
-3,EFFECT_LIGHTNING,STATUS_SHOCK,Homing,Single,15,1200,5,OnHit
-4,EFFECT_ARROW,None,Linear,Single,25,1500,3,OnHit
-5,EFFECT_PIERCE,None,Pierce,Pierce,20,1000,3,OnPierceCount
-6,EFFECT_HOMING_ARROW,None,Homing,Single,10,1200,5,OnHit
+﻿,SkillEffectID,StatusEffectID,FlightType,HitType,Damage,Speed,LifeTime,AttackRange,ExpireCondition
+1,EFFECT_FIREBALL,STATUS_BURN,Explode,Area,30,800,5,400,OnExplosion
+2,EFFECT_ICEBALL,STATUS_FREEZE,Arc,Area,20,600,4,800,OnExplosion
+3,EFFECT_LIGHTNING,STATUS_SHOCK,Homing,Single,15,1200,5,500,OnHit
+4,EFFECT_ARROW,None,Linear,Single,25,1500,3,400,OnHit
+5,EFFECT_PIERCE,None,Pierce,Pierce,20,1000,3,600,OnPierceCount
+6,EFFECT_HOMING_ARROW,None,Homing,Single,10,1200,5,450,OnHit
