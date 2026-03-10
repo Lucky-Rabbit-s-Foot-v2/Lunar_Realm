@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "GAS/Ability/Skill/LRGA_Iceball.h"
@@ -19,6 +19,8 @@ ULRGA_Iceball::ULRGA_Iceball()
 	
 	SkillID = "SKILL_ICEBALL";
 	SkillEffectID = "EFFECT_ICEBALL";
+
+	CooldownTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Skill.IceBall.Cooldown")));
 }
 
 void ULRGA_Iceball::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,

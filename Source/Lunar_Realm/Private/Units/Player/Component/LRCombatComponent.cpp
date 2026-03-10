@@ -388,12 +388,6 @@ bool ULRCombatComponent::IsTargetInRange() const
 
 	return DistSq <= AttackRangeSq;
 
-	//ALRCharacter* OwnerCharacter = GetOwnerCharacter();
-	//if (!OwnerCharacter || !CurrentTarget) return false;
-
-	//float DistSq = FVector::DistSquared(OwnerCharacter->GetActorLocation(), CurrentTarget->GetActorLocation());
-	//float AttackRangeSq = AttackRange * AttackRange;
-	//return DistSq <= AttackRangeSq;
 }
 
 FGameplayTag ULRCombatComponent::GetEnemyRootTag() const
@@ -428,7 +422,7 @@ bool ULRCombatComponent::TryExcuteSkill(ALRCharacter* InOwnerCharacter)
 
 	if (EquippedSkillIDs.Num() == 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TryExecuteSkill] 장착된 스킬 ID가 없음 PlayerState 확인 요망"));
+		//LR_WARN(TEXT("[TryExecuteSkill] 장착된 스킬 ID가 없음 PlayerState 확인 요망"));
 		return false;
 	}
 
@@ -439,8 +433,8 @@ bool ULRCombatComponent::TryExcuteSkill(ALRCharacter* InOwnerCharacter)
 
 		const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillData.SkillEffectID);
 		float RealAttackRange = EffectData.Range;
-		UE_LOG(LogTemp, Log, TEXT("[TryExecuteSkill] 검사 중인 스킬 ID: %s | 태그: %s | 사거리: %.1f"),
-			*SkillID.ToString(), *SkillTag.ToString(), RealAttackRange);
+		//LR_INFO(TEXT("[TryExecuteSkill] 검사 중인 스킬 ID: %s | 태그: %s | 사거리: %.1f"),
+		//	*SkillID.ToString(), *SkillTag.ToString(), RealAttackRange);
 
 		float DistSq = FVector::DistSquared(InOwnerCharacter->GetActorLocation(), CurrentTarget->GetActorLocation());
 		float RangeSq = RealAttackRange * RealAttackRange;
@@ -456,40 +450,15 @@ bool ULRCombatComponent::TryExcuteSkill(ALRCharacter* InOwnerCharacter)
 
 			if (TriggeredCount > 0)
 			{
-				UE_LOG(LogTemp, Log, TEXT("오토 스킬 발동 성공 태그: %s | 사거리: %.1f"), *SkillTag.ToString(), RealAttackRange);
+				//LR_INFO(TEXT("오토 스킬 발동 성공 태그: %s | 사거리: %.1f"), *SkillTag.ToString(), RealAttackRange);
 				return true;
 			}
 			else
 			{
-				UE_LOG(LogTemp, Warning, TEXT("[TryExecuteSkill] 발동 실패 : %s"), *SkillTag.ToString());
+				//LR_WARN(TEXT("[TryExecuteSkill] 발동 실패 : %s"), *SkillTag.ToString());
 			}
 		}
 	}
 
-	//for (const FName& SkillID : EquippedSkillIDs)
-	//{
-	//	// 스킬 기본 데이터 가져오기 (태그, 이펙트 ID)
-	//	const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillID);
-	//	FGameplayTag SkillTag = SkillData.SkillTag;
-
-	//	// 스킬 이펙트 데이터 가져오기 (AttackRange)
-	//	const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillData.SkillEffectID);
-
-	//	float RealAttackRange = EffectData.AttackRange;
-
-	//	// 적이 스킬 사거리 안에 있는지 체크
-	//	float DistSq = FVector::DistSquared(InOwnerCharacter->GetActorLocation(), CurrentTarget->GetActorLocation());
-	//	if (DistSq <= (RealAttackRange * RealAttackRange))
-	//	{
-	//		FGameplayTagContainer TagContainer(SkillTag);
-
-	//		// 발동
-	//		if (ASC->TryActivateAbilitiesByTag(TagContainer))
-	//		{
-	//			LR_INFO(TEXT("[AutoCombat] 오토 스킬 발동 성공: %s (사거리: %.1f)"), *SkillTag.ToString(), RealAttackRange);
-	//			return true;
-	//		}
-	//	}
-	//}
 	return false;
 }
