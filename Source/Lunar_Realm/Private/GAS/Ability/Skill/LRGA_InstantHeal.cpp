@@ -17,6 +17,10 @@ ULRGA_InstantHeal::ULRGA_InstantHeal()
     TriggerData.TriggerTag = LRTags::Ability_Skill_InstantHeal;
     TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
     AbilityTriggers.Add(TriggerData);
+	
+	// DT참조키
+	SkillID = "SKILL_INSTANT_HEAL";
+	SkillEffectID = "EFFECT_INSTANT_HEAL";
 }
 
 void ULRGA_InstantHeal::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)

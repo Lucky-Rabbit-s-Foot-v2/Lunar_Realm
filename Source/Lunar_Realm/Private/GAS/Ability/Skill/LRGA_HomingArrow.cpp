@@ -13,6 +13,9 @@ ULRGA_HomingArrow::ULRGA_HomingArrow()
 	TriggerData.TriggerTag = LRTags::Ability_Skill_HomingArrow;
 	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
 	AbilityTriggers.Add(TriggerData);
+	
+	SkillID = "SKILL_HOMING_ARROW";
+	SkillEffectID = "EFFECT_HOMING_ARROW";
 }
 
 void ULRGA_HomingArrow::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,

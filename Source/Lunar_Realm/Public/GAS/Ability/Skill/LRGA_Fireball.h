@@ -30,9 +30,4 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
 	TSubclassOf<UGameplayEffect> StatusEffectClass; // GE_Burn
 
-	//DT 참조 키
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
-	FName SkillEffectID = "EFFECT_FIREBALL";
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
-	FName SkillID = "SKILL_FIREBALL";
 };

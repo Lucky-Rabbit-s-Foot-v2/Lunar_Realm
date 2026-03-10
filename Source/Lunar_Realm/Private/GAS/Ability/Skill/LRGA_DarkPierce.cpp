@@ -17,6 +17,11 @@ ULRGA_DarkPierce::ULRGA_DarkPierce()
 	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
 
 	AbilityTriggers.Add(TriggerData);
+	
+	
+	//DT참조키
+	SkillID = "SKILL_PIERCE";
+	SkillEffectID = "EFFECT_PIERCE";
 }
 
 void ULRGA_DarkPierce::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,

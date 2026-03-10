@@ -33,10 +33,5 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
     TSubclassOf<UGameplayEffect> HealEffectClass;
 
-	// DT_SkillStaticData의 RowName
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
-	FName SkillID = "SKILL_INSTANT_HEAL";
-    // DT_SkillEffect의 RowName
-    UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
-    FName SkillEffectID = "EFFECT_INSTANT_HEAL";
+	
 };

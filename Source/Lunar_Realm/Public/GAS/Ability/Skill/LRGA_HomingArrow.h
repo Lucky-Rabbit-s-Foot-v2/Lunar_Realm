@@ -40,8 +40,5 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
-	FName SkillEffectID = "EFFECT_HOMING_ARROW";
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
-	FName SkillID = "SKILL_HOMING_ARROW";
+	
 };

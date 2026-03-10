@@ -19,6 +19,10 @@ ULRGA_Arrow::ULRGA_Arrow()
 	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
 	
 	AbilityTriggers.Add(TriggerData);
+	
+	//DT 참조 키
+	SkillID = "SKILL_ARROW";
+	SkillEffectID = "EFFECT_ARROW";
 }
 
 void ULRGA_Arrow::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,

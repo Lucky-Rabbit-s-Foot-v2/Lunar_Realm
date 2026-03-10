@@ -16,6 +16,9 @@ ULRGA_Iceball::ULRGA_Iceball()
 	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
 
 	AbilityTriggers.Add(TriggerData);
+	
+	SkillID = "SKILL_ICEBALL";
+	SkillEffectID = "EFFECT_ICEBALL";
 }
 
 void ULRGA_Iceball::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,

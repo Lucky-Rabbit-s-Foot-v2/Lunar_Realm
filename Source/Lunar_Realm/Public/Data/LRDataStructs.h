@@ -375,12 +375,6 @@ struct FSkillStaticData : public FTableRowBase
 	TArray<TSoftClassPtr<UGameplayAbility>> GrantedAbilities;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSoftObjectPtr<UGameplayEffect> CoolTimeGE;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSoftObjectPtr<UGameplayEffect> CostGE;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTag SkillTag; //스킬 태그
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -460,6 +454,9 @@ struct FSkillEffectData : public FTableRowBase
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Range; //스킬 사용 범위
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Cooldown; //스킬 쿨타임 GE 사용 간격.
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EExpireCondition ExpireCondition;

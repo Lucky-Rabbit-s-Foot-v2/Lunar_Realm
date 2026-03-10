@@ -16,6 +16,10 @@ ULRGA_DurationalHeal::ULRGA_DurationalHeal()
 	TriggerData.TriggerTag = LRTags::Ability_Skill_DurationHeal;
 	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
 	AbilityTriggers.Add(TriggerData);
+	
+	//DT 참조키
+	SkillEffectID = "EFFECT_DURATION_HEAL";
+	SkillID = "SKILL_DURATION_HEAL";
 }
 
 void ULRGA_DurationalHeal::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)

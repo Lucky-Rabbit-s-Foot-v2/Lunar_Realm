@@ -42,10 +42,5 @@ protected:
 	//데미지 GE
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
-	//DT 참조 키
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
-	FName SkillEffectID = "EFFECT_ARROW";
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
-	FName SkillID = "SKILL_ARROW";
 	
 };

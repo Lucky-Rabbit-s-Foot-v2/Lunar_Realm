@@ -33,9 +33,4 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
 	TSubclassOf<UGameplayEffect> StatusEffectClass; // GE_Shock
 
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
-	FName SkillEffectID = "EFFECT_LIGHTNING";
-
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
-	FName SkillID = "SKILL_LIGHTNING";
 };

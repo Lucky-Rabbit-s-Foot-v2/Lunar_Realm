@@ -19,6 +19,10 @@ ULRGA_Fireball::ULRGA_Fireball()
 	
 	AbilityTriggers.Add(TriggerData);
 
+	
+	//DT 참조 키
+	SkillID = "SKILL_FIREBALL";
+	SkillEffectID = "EFFECT_FIREBALL";
 }
 
 void ULRGA_Fireball::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,

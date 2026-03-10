@@ -33,8 +33,4 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
 	TSubclassOf<UGameplayEffect> HealEffectClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
-	FName SkillID = "SKILL_DURATION_HEAL";
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
-	FName SkillEffectID = "EFFECT_DURATION_HEAL";
 };

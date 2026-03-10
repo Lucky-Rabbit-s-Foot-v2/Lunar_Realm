@@ -51,6 +51,18 @@ protected:
 	const FGameplayAbilityActorInfo* ActorInfo, 
 	const FGameplayAbilityActivationInfo ActivationInfo);
 	
+	/*
+	* SkillID 기준으로 CoolTimeGE를 로드해 SelfASC에 적용
+	*  Cooldown 수치는 FSkillEffectData.Cooldown에서 SetByCaller로 주입
+	 */
+	virtual void ApplyCooldown(
+		const FGameplayAbilitySpecHandle Handle, 
+		const FGameplayAbilityActorInfo* ActorInfo, 
+		const FGameplayAbilityActivationInfo ActivationInfo) const override;
+	
+	// GetCooldownTags 오버라이드
+	virtual const FGameplayTagContainer* GetCooldownTags() const override { return &CooldownTagContainer; }
+	
 	/**
 	 * SpawnData 기반으로 투사체를 스폰하는 공통 헬퍼
 	 * @param ProjectileClass  스폰할 투사체 클래스
@@ -91,11 +103,17 @@ protected:
 	 */
 	AActor* FindNearestHostile(FGameplayTag HostileTag, float SearchRadius) const;
 	
+	
 protected:
 	UPROPERTY()
 	TObjectPtr<const ALRCharacter> CachedInstigator;
 	UPROPERTY()
 	TObjectPtr<const AActor> CachedTarget;
 	
+	FGameplayTagContainer CooldownTagContainer;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
+	FName SkillID = NAME_None;
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
+	FName SkillEffectID = NAME_None;
 };

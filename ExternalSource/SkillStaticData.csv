@@ -1,11 +1,11 @@
-﻿---,SkillID,SkillEffectID,ResourceID,GrantedAbilities,CoolTimeGE,CostGE,SkillTag,SkillName,Description
-1,SKILL_FIREBALL,EFFECT_FIREBALL,RESOURCE_FIREBALL,"(""/Game/GAS/GA/GA_Fireball.GA_Fireball_C"")",None,None,"(TagName=""Ability.Skill.Fireball"")",Fireball,"NSLOCTEXT(""DT_SkillStaticData [4518A1C11067EAAF570FE7EFD15D5713]"", ""1_Description"", ""Fireball"")"
-2,SKILL_ICEBALL,EFFECT_ICEBALL,RESOURCE_ICEBALL,"(""/Game/GAS/GA/GA_Iceball.GA_Iceball_C"")",None,None,"(TagName=""Ability.Skill.IceBall"")",Iceball,"NSLOCTEXT(""DT_SkillStaticData [4518A1C11067EAAF570FE7EFD15D5713]"", ""2_Description"", ""Iceball"")"
-3,SKILL_LIGHTNING,EFFECT_LIGHTNING,RESOURCE_LIGHTNING,"(""/Game/GAS/GA/GA_LightningStrike.GA_LightningStrike_C"")",None,None,"(TagName=""Ability.Skill.Lightning"")",Lightning,"NSLOCTEXT(""DT_SkillStaticData [4518A1C11067EAAF570FE7EFD15D5713]"", ""3_Description"", ""Lightning"")"
-4,SKILL_ARROW,EFFECT_ARROW,RESOURCE_ARROW,"(""/Game/GAS/GA/GA_Arrow.GA_Arrow_C"")",None,None,"(TagName=""Ability.Skill.Arrow"")",Arrow,"NSLOCTEXT(""DT_SkillStaticData [4518A1C11067EAAF570FE7EFD15D5713]"", ""4_Description"", ""Arrow"")"
-5,SKILL_PIERCE,EFFECT_PIERCE,RESOURCE_PIERCE,"(""/Game/GAS/GA/GA_DarkPierce.GA_DarkPierce_C"")",None,None,"(TagName=""Ability.Skill.Pierce"")",Pierce,"NSLOCTEXT(""DT_SkillStaticData [4518A1C11067EAAF570FE7EFD15D5713]"", ""5_Description"", ""Pierce"")"
-6,SKILL_HOMING_ARROW,EFFECT_HOMING_ARROW,RESOURCE_HOMING_ARROW,"(""/Game/GAS/GA/GA_HomingArrow.GA_HomingArrow_C"")",None,None,"(TagName=""Ability.Skill.HomingArrow"")",HomingArrow,"NSLOCTEXT(""[4518A1C11067EAAF570FE7EFD15D5713]"", ""469836AD44399B23D26019BCF6B0202B"", ""HomingArrow"")"
-7,SKILL_INSTANT_ATTACK,EFFECT_INSTANT_ATTACK,RESOURCE_INSTANT_ATTACK,"(""/Game/Test/KWB/BPS/GAS/GA_BP_InstantAttack.GA_BP_InstantAttack_C"")",None,None,"(TagName="""")",,
-8,SKILL_INSTANT_HEAL,EFFECT_INSTANT_HEAL,RESOURCE_INSTANT_HEAL,,None,None,"(TagName="""")",Instant Heal,
-9,SKILL_DURATION_HEAL,EFFECT_DURATION_HEAL,RESOURCE_DURATION_HEAL,,None,None,"(TagName="""")",Duration Heal,
-10,SKILL_DEBUFF_POISON,EFFECT_DEBUFF_POISON,RESOURCE_DEBUFF_POISON,,None,None,"(TagName="""")",Debuff_Poison,
+﻿---,SkillID,SkillEffectID,ResourceID,GrantedAbilities,SkillTag,SkillName,Description
+1,SKILL_FIREBALL,EFFECT_FIREBALL,RESOURCE_FIREBALL,"(""/Game/GAS/GA/GA_Fireball.GA_Fireball_C"")","(TagName=""Ability.Skill.Fireball"")",Fireball,"NSLOCTEXT(""DT_SkillStaticData [4518A1C11067EAAF570FE7EFD15D5713]"", ""1_Description"", ""Fireball"")"
+2,SKILL_ICEBALL,EFFECT_ICEBALL,RESOURCE_ICEBALL,"(""/Game/GAS/GA/GA_Iceball.GA_Iceball_C"")","(TagName=""Ability.Skill.IceBall"")",Iceball,"NSLOCTEXT(""DT_SkillStaticData [4518A1C11067EAAF570FE7EFD15D5713]"", ""2_Description"", ""Iceball"")"
+3,SKILL_LIGHTNING,EFFECT_LIGHTNING,RESOURCE_LIGHTNING,"(""/Game/GAS/GA/GA_LightningStrike.GA_LightningStrike_C"")","(TagName=""Ability.Skill.Lightning"")",Lightning,"NSLOCTEXT(""DT_SkillStaticData [4518A1C11067EAAF570FE7EFD15D5713]"", ""3_Description"", ""Lightning"")"
+4,SKILL_ARROW,EFFECT_ARROW,RESOURCE_ARROW,"(""/Game/GAS/GA/GA_Arrow.GA_Arrow_C"")","(TagName=""Ability.Skill.Arrow"")",Arrow,"NSLOCTEXT(""DT_SkillStaticData [4518A1C11067EAAF570FE7EFD15D5713]"", ""4_Description"", ""Arrow"")"
+5,SKILL_PIERCE,EFFECT_PIERCE,RESOURCE_PIERCE,"(""/Game/GAS/GA/GA_DarkPierce.GA_DarkPierce_C"")","(TagName=""Ability.Skill.Pierce"")",Pierce,"NSLOCTEXT(""DT_SkillStaticData [4518A1C11067EAAF570FE7EFD15D5713]"", ""5_Description"", ""Pierce"")"
+6,SKILL_HOMING_ARROW,EFFECT_HOMING_ARROW,RESOURCE_HOMING_ARROW,"(""/Game/GAS/GA/GA_HomingArrow.GA_HomingArrow_C"")","(TagName=""Ability.Skill.HomingArrow"")",HomingArrow,"NSLOCTEXT(""[4518A1C11067EAAF570FE7EFD15D5713]"", ""469836AD44399B23D26019BCF6B0202B"", ""HomingArrow"")"
+7,SKILL_INSTANT_ATTACK,EFFECT_INSTANT_ATTACK,RESOURCE_INSTANT_ATTACK,"(""/Game/Test/KWB/BPS/GAS/GA_BP_InstantAttack.GA_BP_InstantAttack_C"")","(TagName="""")",,
+8,SKILL_INSTANT_HEAL,EFFECT_INSTANT_HEAL,RESOURCE_INSTANT_HEAL,,"(TagName="""")",Instant Heal,
+9,SKILL_DURATION_HEAL,EFFECT_DURATION_HEAL,RESOURCE_DURATION_HEAL,,"(TagName="""")",Duration Heal,
+10,SKILL_DEBUFF_POISON,EFFECT_DEBUFF_POISON,RESOURCE_DEBUFF_POISON,,"(TagName="""")",Debuff_Poison,

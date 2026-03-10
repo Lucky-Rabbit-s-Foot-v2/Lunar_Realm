@@ -73,6 +73,7 @@ namespace LRTags
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Debuff_Poison); //GA
 	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Skill_Common);
 	
 	
 	//===============================================
@@ -108,6 +109,7 @@ namespace LRTags
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Damage);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Heal);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Cooldown);
 	
 	//===============================================
 	// GC 태그

@@ -17,6 +17,10 @@ ULRGA_Debuff_Poison::ULRGA_Debuff_Poison()
     TriggerData.TriggerTag = LRTags::Ability_Skill_Debuff_Poison;
     TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
     AbilityTriggers.Add(TriggerData);
+	
+	//DT참조키
+	SkillID = "SKILL_DEBUFF_POISON";
+	SkillEffectID = "EFFECT_DEBUFF_POISON";
 }
 
 void ULRGA_Debuff_Poison::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)

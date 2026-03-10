@@ -19,6 +19,10 @@ ULRGA_LightningStrike::ULRGA_LightningStrike()
 	TriggerData.TriggerTag = LRTags::Ability_Skill_Lightning;
 	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
 	AbilityTriggers.Add(TriggerData);
+	
+	//DT 참조키
+	SkillID = "SKILL_LIGHTNING";
+	SkillEffectID = "EFFECT_LIGHTNING";
 }
 
 void ULRGA_LightningStrike::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,

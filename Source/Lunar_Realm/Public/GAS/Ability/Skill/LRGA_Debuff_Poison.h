@@ -31,10 +31,5 @@ protected:
 	// 에디터에서 GE_Debuff_Poison 에셋 지정
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
 	TSubclassOf<UGameplayEffect> PoisonEffectClass;
-
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
-	FName SkillEffectID = "EFFECT_DEBUFF_POISON";
-
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Skill")
-	FName SkillID = "SKILL_DEBUFF_POISON";
+	
 };

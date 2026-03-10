@@ -6,18 +6,21 @@
 #include "DrawDebugHelpers.h"
 #include "Data/LRDataStructs.h"
 #include "Data/LREnumType.h"
+#include "Engine/GameInstance.h"
 #include "GAS/Tags/LRGameplayTags.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Projectiles/LRProjectile.h"
+#include "Subsystems/GameDataSubsystem.h"
 #include "Units/LRCharacter.h"
 
 ULRGameplayAbilityBase::ULRGameplayAbilityBase()
 {
 	//기본 인스턴스 정책은 액터별 처리
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	
 	//멀티플레이 어빌리티 실행 정책은 클라이언트 예측 실행 후 서버 확정 방식
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+
+	CooldownTagContainer.AddTag(FGameplayTag::RequestGameplayTag("Cooldown.Skill.Common"));
 }
 
 void ULRGameplayAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -32,6 +35,7 @@ void ULRGameplayAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 		CachedTarget = TriggerEventData->Target.Get();
 	}
 	
+	CommitAbilityCooldown(Handle, ActorInfo, ActivationInfo, false);
 	OnAbilityActivated(Handle, ActorInfo, ActivationInfo);
 }
 
@@ -41,8 +45,38 @@ void ULRGameplayAbilityBase::OnAbilityActivated(const FGameplayAbilitySpecHandle
 	//자식 GA들의 실질적인 로직 구성.(Super 필요없음)
 }
 
+void ULRGameplayAbilityBase::ApplyCooldown(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
+{
+	LR_INFO(TEXT("[ApplyCooldown] 진입 — SkillEffectID: %s"), *SkillEffectID.ToString());
+	
+	UGameplayEffect* CooldownGE = GetCooldownGameplayEffect();
+	if (!CooldownGE)
+	{
+		return;
+	}
+
+	UGameDataSubsystem* DataSys = GetWorld()->GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+	if (!DataSys)
+	{
+		return;
+	}
+
+	const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillEffectID);
+	if (EffectData.Cooldown <= 0.f)
+	{
+		return;
+	}
+
+	FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(Handle, ActorInfo, ActivationInfo, CooldownGameplayEffectClass);
+	SpecHandle.Data->SetByCallerTagMagnitudes.Add(LRTags::Data_Cooldown, EffectData.Cooldown);
+	
+	FActiveGameplayEffectHandle ActiveHandle = ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
+	LR_INFO(TEXT("[ApplyCooldown] GE 적용 완료"));
+}
+
 void ULRGameplayAbilityBase::SpawnProjectiles(TSubclassOf<ALRProjectile> ProjectileClass,
-	const FSkillObjectInitData& InitData)
+                                              const FSkillObjectInitData& InitData)
 {
 	if (!CachedInstigator || !ProjectileClass)
     {
