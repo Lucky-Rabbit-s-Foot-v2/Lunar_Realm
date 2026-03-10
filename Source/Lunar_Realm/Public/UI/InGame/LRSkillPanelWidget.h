@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRBaseWidget.h"
+#include "Components/Image.h"
 #include "LRSkillPanelWidget.generated.h"
 
 /**
@@ -56,4 +57,14 @@ protected:
 
 	UFUNCTION()
 	void OnPotionClicked();
+
+public:
+	void UpdateSkillIcons(FName InPlayerSkillID, FName InWeaponSkillID);
+
+//protected:
+//	UPROPERTY(meta = (BindWidget))
+//	UImage* Img_Skill1;
+//
+//	UPROPERTY(meta = (BindWidget))
+//	UImage* Img_Skill2;
 };

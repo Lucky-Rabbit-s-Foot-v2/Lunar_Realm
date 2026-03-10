@@ -128,6 +128,12 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 			if (ULRPlayerWidget* MyWidget = PC->GetPlayerWidget())
 			{
 				MyWidget->TestSummonPanelRefresh();
+				TArray<FName> EquippedSkills = PS->GetEquippedAutoSkillIDs();
+
+				FName PlayerSkill = EquippedSkills.IsValidIndex(0) ? EquippedSkills[0] : NAME_None;
+				FName WeaponSkill = EquippedSkills.IsValidIndex(1) ? EquippedSkills[1] : NAME_None;
+
+				MyWidget->RefreshSkillPanelIcons(PlayerSkill, WeaponSkill);
 			}
 		}
 

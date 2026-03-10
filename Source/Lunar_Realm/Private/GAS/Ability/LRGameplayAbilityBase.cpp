@@ -12,6 +12,7 @@
 #include "Projectiles/LRProjectile.h"
 #include "Subsystems/GameDataSubsystem.h"
 #include "Units/LRCharacter.h"
+#include "AbilitySystemComponent.h"
 
 ULRGameplayAbilityBase::ULRGameplayAbilityBase()
 {
@@ -20,7 +21,10 @@ ULRGameplayAbilityBase::ULRGameplayAbilityBase()
 	//멀티플레이 어빌리티 실행 정책은 클라이언트 예측 실행 후 서버 확정 방식
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 
-	CooldownTagContainer.AddTag(FGameplayTag::RequestGameplayTag("Cooldown.Skill.Common"));
+	// BJM_추가 : 죽었을때 발동 막기 추가
+	ActivationBlockedTags.AddTag(LRTags::State_Dead);
+
+	//CooldownTagContainer.AddTag(FGameplayTag::RequestGameplayTag("Cooldown.Skill.Common"));
 }
 
 void ULRGameplayAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -68,8 +72,10 @@ void ULRGameplayAbilityBase::ApplyCooldown(const FGameplayAbilitySpecHandle Hand
 
 	FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(Handle, ActorInfo, ActivationInfo, CooldownGameplayEffectClass);
 	SpecHandle.Data->SetByCallerTagMagnitudes.Add(LRTags::Data_Cooldown, EffectData.Cooldown);
-	
+	// BJM_추가 : CooldownTagContainer에 태그가 있다면 SpecHandle에 추가하여 적용
+	SpecHandle.Data->DynamicGrantedTags.AppendTags(CooldownTagContainer);
 	FActiveGameplayEffectHandle ActiveHandle = ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
+	
 }
 
 void ULRGameplayAbilityBase::SpawnProjectiles(TSubclassOf<ALRProjectile> ProjectileClass,
@@ -316,3 +322,4 @@ AActor* ULRGameplayAbilityBase::FindNearestHostile(FGameplayTag HostileTag, floa
 
 	return Nearest;
 }
+

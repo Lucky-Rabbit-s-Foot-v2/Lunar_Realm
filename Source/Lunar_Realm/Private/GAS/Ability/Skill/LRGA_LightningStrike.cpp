@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "GAS/Ability/Skill/LRGA_LightningStrike.h"
@@ -22,7 +22,8 @@ ULRGA_LightningStrike::ULRGA_LightningStrike()
 	
 	//DT 참조키
 	SkillID = "SKILL_LIGHTNING";
-	SkillEffectID = "EFFECT_LIGHTNING";
+	SkillEffectID = "EFFECT_LIGHTNING"; 
+	CooldownTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Lightning.Cooldown")));
 }
 
 void ULRGA_LightningStrike::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
