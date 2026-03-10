@@ -19,6 +19,7 @@
  // (260223) KWB OnDie() 호출 로직 작성
  // (260225) KWB 불필요한 속성값 초기화 코드, 로그 삭제
  // (260303) BJM 수정, 데미치 항목 추가
+ // (260310) BJM 수정, 부모 클래스에서 겹치는 함수 통합
  //============================================================================
 UCLASS()
 class LUNAR_REALM_API ULREnemyAttributeSet : public ULRAttributeSet
@@ -30,8 +31,12 @@ public:
 	ULREnemyAttributeSet();
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
-	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+	//virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 	
+protected:
+	virtual void OnDamageExecuted(float InDamageDone, const FGameplayEffectModCallbackData& Data) override;
+
+public:
 	UPROPERTY(BlueprintReadOnly, Category = "LR|Spec")
 	FGameplayAttributeData Attack;
 	ATTRIBUTE_ACCESSORS(ULREnemyAttributeSet, Attack)

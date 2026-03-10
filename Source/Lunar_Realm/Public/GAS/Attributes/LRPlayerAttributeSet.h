@@ -24,24 +24,21 @@ class LUNAR_REALM_API ULRPlayerAttributeSet : public ULRAttributeSet
 	GENERATED_BODY()
 	
 public:
-	ULRPlayerAttributeSet();
+	//ULRPlayerAttributeSet();
 
 	// virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
-	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+	//virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 	
+protected:
+	virtual FLinearColor GetDamageTextColor(float InDamage) const override;
+	virtual void OnDamageExecuted(float InDamageDone, const FGameplayEffectModCallbackData& Data) override;
+
+public:
 	UPROPERTY(BlueprintReadOnly, Category = "Stats")
 	FGameplayAttributeData Aether;
 	ATTRIBUTE_ACCESSORS(ULRPlayerAttributeSet, Aether);
-
-	//UPROPERTY(BlueprintReadOnly, Category = "Stats")
-	//FGameplayAttributeData AttackPower;
-	//ATTRIBUTE_ACCESSORS(ULRPlayerAttributeSet, AttackPower);
-
-	//UPROPERTY(BlueprintReadOnly, Category = "Stats")
-	//FGameplayAttributeData Defense;
-	//ATTRIBUTE_ACCESSORS(ULRPlayerAttributeSet, Defense);
 
 
 
