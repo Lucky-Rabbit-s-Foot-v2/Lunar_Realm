@@ -21,6 +21,9 @@ ULRGA_InstantAttack::ULRGA_InstantAttack()
 	TriggerData.TriggerTag = LRTags::Ability_Combat_BasicShoot;
 	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
 	AbilityTriggers.Add(TriggerData);
+
+	SkillEffectID = "EFFECT_INSTANT_ATTACK";
+	SkillID = "SKILL_INSTANT_ATTACK";
 }
 
 
@@ -49,6 +52,7 @@ void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 
 	if (!TargetActor)
 	{
+		LR_WARN(TEXT("타겟 없음!!"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
@@ -62,17 +66,12 @@ void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 		return;
 	}
 
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
-	{
-		// 쿨다운 등 Commit 체크 => 실패시 종료
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-
 	// 3. 타겟의 ASC 가져오기
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 	if (!TargetASC || !DamageEffectClass)
 	{
+		LR_WARN(TEXT("타켓 Asc 못 찾음!!"));
+
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
