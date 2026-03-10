@@ -1,4 +1,4 @@
-,StatusEffectID,StatusType,GameplayTag,StackLimit,StackPolicy
-1,STATUS_BURN,DEBUFF,State.Debuff.Burn,5,AggregateByTarget
-2,STATUS_FREEZE,DEBUFF,State.Debuff.Freeze,1,Replace
-3,STATUS_SHOCK,DEBUFF,State.Debuff.Shock,3,AggregateByTarget
+---,StatusEffectID,StatusType,GameplayTag,StatusEffectGE,StackLimit,StackPolicy
+1,"STATUS_BURN","DEBUFF","(TagName=""State.Debuff.Burning"")","None","5","AggregateByTarget"
+2,"STATUS_FREEZE","DEBUFF","(TagName=""State.Debuff.Freeze"")","None","1","Replace"
+3,"STATUS_SHOCK","DEBUFF","(TagName=""State.Debuff.Shock"")","None","3","AggregateByTarget"

@@ -48,8 +48,6 @@ void ULRGameplayAbilityBase::OnAbilityActivated(const FGameplayAbilitySpecHandle
 void ULRGameplayAbilityBase::ApplyCooldown(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
 {
-	LR_INFO(TEXT("[ApplyCooldown] 진입 — SkillEffectID: %s"), *SkillEffectID.ToString());
-	
 	UGameplayEffect* CooldownGE = GetCooldownGameplayEffect();
 	if (!CooldownGE)
 	{
@@ -72,7 +70,6 @@ void ULRGameplayAbilityBase::ApplyCooldown(const FGameplayAbilitySpecHandle Hand
 	SpecHandle.Data->SetByCallerTagMagnitudes.Add(LRTags::Data_Cooldown, EffectData.Cooldown);
 	
 	FActiveGameplayEffectHandle ActiveHandle = ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
-	LR_INFO(TEXT("[ApplyCooldown] GE 적용 완료"));
 }
 
 void ULRGameplayAbilityBase::SpawnProjectiles(TSubclassOf<ALRProjectile> ProjectileClass,
