@@ -224,11 +224,11 @@ bool ALRAIController::TryAttackTarget(AActor* Target)
 		return false;
 	}
 
-	const float CurrentTime = GetWorld()->GetTimeSeconds();
-	if (CurrentTime - LastAttackTime < AttackCooldown)
-	{
-		return false;
-	}
+	//const float CurrentTime = GetWorld()->GetTimeSeconds();
+	//if (CurrentTime - LastAttackTime < AttackCooldown)
+	//{
+	//	return false;
+	//}
 
 	APawn* MyPawn = GetPawn();
 	if (!MyPawn)
