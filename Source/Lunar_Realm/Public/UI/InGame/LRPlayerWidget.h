@@ -57,6 +57,9 @@ private:
 	UFUNCTION(BlueprintCallable)
 	void OnChangeClicked();
 
+public:
+	void RefreshSkillPanelIcons(FName InPlayerSkillID, FName InWeaponSkillID);
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Change;

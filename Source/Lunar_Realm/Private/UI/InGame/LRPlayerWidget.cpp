@@ -103,6 +103,7 @@ void ULRPlayerWidget::OnChangeClicked()
 	OnChangeClickedDel.Broadcast();
 }
 
+
 void ULRPlayerWidget::OnPauseButtonClicked()
 {
 	ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(UGameplayStatics::GetGameMode(this));
@@ -133,5 +134,13 @@ void ULRPlayerWidget::UpdateUIOnDeath(bool InIsDead, float InRespawnTime)
 		{
 			Widget_HealthBar->StopRespawnTimer();
 		}
+	}
+}
+
+void ULRPlayerWidget::RefreshSkillPanelIcons(FName InPlayerSkillID, FName InWeaponSkillID)
+{
+	if (WBP_SkillPanel)
+	{
+		WBP_SkillPanel->UpdateSkillIcons(InPlayerSkillID, InWeaponSkillID);
 	}
 }
