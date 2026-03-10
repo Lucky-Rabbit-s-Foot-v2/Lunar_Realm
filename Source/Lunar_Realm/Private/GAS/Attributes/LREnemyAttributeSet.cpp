@@ -15,10 +15,6 @@ void ULREnemyAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribut
 {
 	Super::PreAttributeChange(Attribute, NewValue);
 
-	if (Attribute == GetHealthAttribute())
-	{
-		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxHealth());
-	}
 	if (Attribute == GetAttackAttribute())
 	{
 		NewValue = FMath::Clamp(NewValue, 0.0f, MaxAttack);
@@ -28,53 +24,23 @@ void ULREnemyAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribut
 	{
 		NewValue = FMath::Clamp(NewValue, 0.0f, MaxSpeed);
 	}
-	if(Attribute == GetDamageAttribute())
-	{
-		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxHealth());
-	}
+
 }
 
-void ULREnemyAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
+void ULREnemyAttributeSet::OnDamageExecuted(float InDamageDone, const FGameplayEffectModCallbackData& Data)
 {
-	Super::PostGameplayEffectExecute(Data);
-
-	if (Data.EvaluatedData.Attribute == ULRAttributeSet::GetDamageAttribute())
+	if (InDamageDone > 0.0f)
 	{
-		float LocalDamageDone = GetDamage();
-
-		SetDamage(0.0f);
-
-		if (LocalDamageDone > 0.0f)
+		if (ALREnemyCharacter* EnemyChar = Cast<ALREnemyCharacter>(GetOwningAbilitySystemComponent()->GetAvatarActor()))
 		{
-			float NewHealth = GetHealth() - LocalDamageDone;
-			SetHealth(FMath::Clamp(NewHealth, 0.0f, GetMaxHealth()));
-
-			if (ALREnemyCharacter* EnemyChar = Cast<ALREnemyCharacter>(GetOwningAbilitySystemComponent()->GetAvatarActor()))
+			if (GetHealth() > 0.0f)
 			{
-				if (GetHealth() > 0.0f)
-				{
-					EnemyChar->PlayAttackedMontage();
-				}
-
-				if (UGameInstance* GI = EnemyChar->GetGameInstance())
-				{
-					if (UUIManagerSubsystem* UIManager = GI->GetSubsystem<UUIManagerSubsystem>())
-					{
-						FVector HitLocation = EnemyChar->GetActorLocation() + FVector(0.f, 0.f, 0.f);
-						FLinearColor DamageColor = FLinearColor::White;
-						UIManager->ShowDamageText(LocalDamageDone, HitLocation, DamageColor);
-					}
-				}
-				if (GetHealth() <= 0.0f)
-				{
-					EnemyChar->OnDie();
-				}
+				EnemyChar->PlayAttackedMontage();
+			}
+			else
+			{
+				EnemyChar->OnDie();
 			}
 		}
-	}
-	else if (Data.EvaluatedData.Attribute == ULRAttributeSet::GetHealthAttribute())
-	{
-		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
-		// LR_INFO(TEXT("[AttributeSet] 체력 Clamp 완료. 최종 체력: %f"), GetHealth());
 	}
 }

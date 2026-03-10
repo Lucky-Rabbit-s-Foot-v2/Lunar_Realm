@@ -19,6 +19,7 @@
  // (260224) KHS 수정, 공통 어트리뷰트 추가
  // (260303) BJM 수정, 데미치 항목 추가
  // (260306) BJM 수정, 공격력, 방어력 추가
+ // (260310) BJM 수정, 자식 클래스에서 겹치는 함수 통합
  // =============================================================================
 UCLASS()
 class LUNAR_REALM_API ULRAttributeSet : public UAttributeSet
@@ -50,5 +51,17 @@ public:
 		UPROPERTY(BlueprintReadOnly, Category = "LR|Common")
 	FGameplayAttributeData Defense;
 	ATTRIBUTE_ACCESSORS(ULRAttributeSet, Defense)
+
+public:
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+
+protected:
+	virtual FLinearColor GetDamageTextColor(float InDamage) const
+	{
+		return (InDamage < 0.0f) ? FLinearColor::Green : FLinearColor::White;
+	}
+
+	virtual void OnDamageExecuted(float InDamageDone, const FGameplayEffectModCallbackData& Data) {}
 
 };
