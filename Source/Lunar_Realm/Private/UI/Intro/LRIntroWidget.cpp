@@ -26,10 +26,6 @@ void ULRIntroWidget::RefreshUI()
 	Img_1->SetVisibility(ESlateVisibility::Hidden);
 	Img_2->SetVisibility(ESlateVisibility::Hidden);
 	Img_3->SetVisibility(ESlateVisibility::Hidden);
-
-	Img_1->SetIsEnabled(false);
-	Img_2->SetIsEnabled(false);
-	Img_3->SetIsEnabled(false);
 }
 
 void ULRIntroWidget::OpenTitleScreen()
