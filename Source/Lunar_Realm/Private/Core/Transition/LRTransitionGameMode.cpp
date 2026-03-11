@@ -22,7 +22,7 @@ void ALRTransitionGameMode::BeginPlay()
 		{
 			FLatentActionInfo LatentInfo;
 			LatentInfo.CallbackTarget = this;
-			LatentInfo.ExecutionFunction = FName("OnLevelPreloaded");
+			LatentInfo.ExecutionFunction = FName("OnLevelPreloadCompleted");
 			LatentInfo.Linkage = 0;
 			LatentInfo.UUID = FMath::Rand();
 
@@ -31,7 +31,7 @@ void ALRTransitionGameMode::BeginPlay()
 	}
 }
 
-void ALRTransitionGameMode::OnLevelPreloaded()
+void ALRTransitionGameMode::OnLevelPreloadCompleted()
 {
 	ALRTransitionController* Controller = Cast<ALRTransitionController>(UGameplayStatics::GetPlayerController(this, 0));
 	if (Controller)
@@ -50,7 +50,7 @@ void ALRTransitionGameMode::OnLevelPreloaded()
 		{
 			UGameplayStatics::OpenLevel(this, TargetLevelName);
 		},
-		1.f,
+		PreloadDuration,
 		false
 	);
 }
