@@ -9,7 +9,6 @@
 #include "BehaviorTree/BlackboardComponent.h"
 
 #include "GAS/Tags/LRGameplayTags.h"
-#include "GameFramework/CharacterMovementComponent.h"	// TEST : 속도 체크용
 #include "GameplayTagAssetInterface.h"
 
 #include "Navigation/CrowdFollowingComponent.h"
