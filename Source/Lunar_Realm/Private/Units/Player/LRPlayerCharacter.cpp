@@ -213,6 +213,7 @@ UAbilitySystemComponent* ALRPlayerCharacter::GetAbilitySystemComponent() const
 
 void ALRPlayerCharacter::ToggleAutoMode()
 {
+	bIsAutoMode = !bIsAutoMode;
 	if (CombatComponent)
 	{
 		CombatComponent->ToggleAutoMode();
