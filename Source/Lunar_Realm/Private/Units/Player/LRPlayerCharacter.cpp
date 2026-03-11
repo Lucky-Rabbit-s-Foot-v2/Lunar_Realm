@@ -387,6 +387,7 @@ void ALRPlayerCharacter::Die()
 	}
 	if (CombatComponent)
 	{
+		CombatComponent->ClearTarget();
 		CombatComponent->SetActive(false);
 	}
 	if (LoadedDeathMontage)
@@ -422,6 +423,10 @@ void ALRPlayerCharacter::RespawnPlayer()
 		if (UAnimInstance* AnimInst = MeshComp->GetAnimInstance())
 		{
 			AnimInst->StopAllMontages(0.0f);
+		}
+		if (CombatComponent)
+		{
+			CombatComponent->SetActive(true);
 		}
 	}
 

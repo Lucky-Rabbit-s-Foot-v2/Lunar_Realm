@@ -79,7 +79,7 @@ void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 	}
 
 	// 4. GameplayEffect 즉시 적용!
-
+	// (260310) BJM_수정 : TargetASC -> SourceASC로 변경
 	UAbilitySystemComponent* SourceASC = ActorInfo->AbilitySystemComponent.Get();
 	if (!SourceASC) return;
 
