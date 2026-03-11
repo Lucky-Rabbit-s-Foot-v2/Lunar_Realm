@@ -76,6 +76,9 @@ private:
 	bool IsTargetInRange() const;
 	FGameplayTag GetEnemyRootTag() const;
 
+public:
+	void ClearTarget();
+
 protected:
 	bool TryExcuteSkill(ALRCharacter* InOwnerCharacter);
 
@@ -100,5 +103,8 @@ protected:
 
 	float CurrentAttackCooldown = 1.0f;
 	FTimerHandle CombatLogicTimerHandle;
+
+private:
+	float AutoSkillDelay = 0.0f;
 
 };

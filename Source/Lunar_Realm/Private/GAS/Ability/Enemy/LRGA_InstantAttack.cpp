@@ -24,6 +24,8 @@ ULRGA_InstantAttack::ULRGA_InstantAttack()
 
 	SkillEffectID = "EFFECT_INSTANT_ATTACK";
 	SkillID = "SKILL_INSTANT_ATTACK";
+
+	CooldownTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Combat.BasicShoot.Cooldown")));
 }
 
 
@@ -77,15 +79,20 @@ void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 	}
 
 	// 4. GameplayEffect 즉시 적용!
-	FGameplayEffectContextHandle EffectContext = TargetASC->MakeEffectContext();
-	EffectContext.AddSourceObject(ActorInfo->AvatarActor.Get());
+	// (260310) BJM_수정 : TargetASC -> SourceASC로 변경
+	UAbilitySystemComponent* SourceASC = ActorInfo->AbilitySystemComponent.Get();
+	if (!SourceASC) return;
 
-	FGameplayEffectSpecHandle SpecHandle = TargetASC->MakeOutgoingSpec(
+	FGameplayEffectContextHandle EffectContext = SourceASC->MakeEffectContext();
+	EffectContext.AddSourceObject(ActorInfo->AvatarActor.Get());
+	EffectContext.AddInstigator(ActorInfo->AvatarActor.Get(), ActorInfo->AvatarActor.Get());
+
+	FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(
 		DamageEffectClass, 1.0f, EffectContext);
 
 	if (SpecHandle.IsValid())
 	{
-		TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		SourceASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 	}
 
 	// 5. 즉시 종료!
