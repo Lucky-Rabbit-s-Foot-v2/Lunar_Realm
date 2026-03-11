@@ -14,6 +14,8 @@
 #include "Units/Player/LRPlayerCharacter.h"
 #include "Core/Stage/LRStageGameState.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Units/Player/LRPlayerController.h"
+#include "UI/InGame/LRPlayerWidget.h"
 
 
 ALRPlayerState::ALRPlayerState()
@@ -85,9 +87,9 @@ void ALRPlayerState::InitializePlayerData()
 	}
 
 	// TODO_BJM : 테스트용으로 임시 배치. 추후 덱 데이터 로드 방식 확정되면 제거 예정
-	CharacterLevel = FName("1");;
+	CharacterLevel = FName("50");;
 
-	EquippedItems.Add(EEquipmentSlotType::WEAPON, FName(TEXT("EQUIP_MELEE_01")));
+	//EquippedItems.Add(EEquipmentSlotType::WEAPON, FName(TEXT("EQUIP_MELEE_01")));
 	EquippedItemLevels.Add(EEquipmentSlotType::WEAPON, 1);
 	
 	// 스텟 계산
@@ -216,6 +218,20 @@ void ALRPlayerState::EquipItem(EEquipmentSlotType Slot, FName ItemID)
 		if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetPawn()))
 		{
 			PC->UpdateWeaponMesh(ItemID);
+
+			if (ALRPlayerController* PlayerController = Cast<ALRPlayerController>(PC->GetController()))
+			{
+				if (ULRPlayerWidget* MyWidget = PlayerController->GetPlayerWidget())
+				{
+					// 최신화된 장착 스킬 ID 목록 다시 가져오기
+					TArray<FName> EquippedSkills = GetEquippedAutoSkillIDs();
+
+					FName PlayerSkill = EquippedSkills.IsValidIndex(0) ? EquippedSkills[0] : NAME_None;
+					FName WeaponSkill = EquippedSkills.IsValidIndex(1) ? EquippedSkills[1] : NAME_None;
+
+					MyWidget->RefreshSkillPanelIcons(PlayerSkill, WeaponSkill);
+				}
+			}
 		}
 	}
 }

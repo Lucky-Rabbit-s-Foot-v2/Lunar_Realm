@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "GAS/Ability/Skill/LRGA_Fireball.h"
@@ -23,6 +23,8 @@ ULRGA_Fireball::ULRGA_Fireball()
 	//DT 참조 키
 	SkillID = "SKILL_FIREBALL";
 	SkillEffectID = "EFFECT_FIREBALL";
+
+	CooldownTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Fireball.Cooldown")));
 }
 
 void ULRGA_Fireball::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,

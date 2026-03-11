@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "GAS/Ability/Skill/LRGA_DarkPierce.h"
@@ -22,6 +22,8 @@ ULRGA_DarkPierce::ULRGA_DarkPierce()
 	//DT참조키
 	SkillID = "SKILL_PIERCE";
 	SkillEffectID = "EFFECT_PIERCE";
+
+	CooldownTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Pierce.Cooldown")));
 }
 
 void ULRGA_DarkPierce::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,

@@ -91,7 +91,7 @@ void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
 
 		UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, AttackMontage);
 
-		//MontageTask->OnBlendOut.AddDynamic(this, &ULRGA_BasicAttack::OnMontageEnded);
+		MontageTask->OnBlendOut.AddDynamic(this, &ULRGA_BasicAttack::OnMontageEnded);
 		MontageTask->OnCompleted.AddDynamic(this, &ULRGA_BasicAttack::OnMontageEnded);
 		MontageTask->OnInterrupted.AddDynamic(this, &ULRGA_BasicAttack::OnMontageEnded);
 		MontageTask->OnCancelled.AddDynamic(this, &ULRGA_BasicAttack::OnMontageEnded);

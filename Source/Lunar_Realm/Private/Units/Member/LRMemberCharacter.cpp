@@ -322,9 +322,12 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 	// 스탯 가져와서 적용하기
 	if (DataSys && MemberAttributeSet)
 	{
-		float CharHP = DataSys->GetCharacterFinalStat(InCharacterID, ELRStatusType::HP, 1);
-		float CharAtk = DataSys->GetCharacterFinalStat(InCharacterID, ELRStatusType::ATK, 1);
-		float CharDef = DataSys->GetCharacterFinalStat(InCharacterID, ELRStatusType::DEF, 1);
+		//TODO_BJM : 레벨 시스템이 구현되면 MemberLevel을 캐릭터의 실제 레벨로 바꿔야 함
+		int32 MemberLevel = 1;
+
+		float CharHP = DataSys->GetCharacterFinalStat(InCharacterID, ELRStatusType::HP, MemberLevel);
+		float CharAtk = DataSys->GetCharacterFinalStat(InCharacterID, ELRStatusType::ATK, MemberLevel);
+		float CharDef = DataSys->GetCharacterFinalStat(InCharacterID, ELRStatusType::DEF, MemberLevel);
 
 		float EquipHP = 0.0f; float EquipAtk = 0.0f; float EquipDef = 0.0f;
 		float SetHP_Mul = 1.0f; float SetAtk_Mul = 1.0f; float SetDef_Mul = 1.0f;

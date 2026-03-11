@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "GAS/Ability/Skill/LRGA_Arrow.h"
@@ -23,6 +23,8 @@ ULRGA_Arrow::ULRGA_Arrow()
 	//DT 참조 키
 	SkillID = "SKILL_ARROW";
 	SkillEffectID = "EFFECT_ARROW";
+
+	CooldownTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Arrow.Cooldown")));
 }
 
 void ULRGA_Arrow::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
