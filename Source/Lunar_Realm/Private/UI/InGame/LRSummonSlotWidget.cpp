@@ -169,9 +169,9 @@ void ULRSummonSlotWidget::SetSlotVisuals(const FCharacterStaticData* Data)
 	SummonCost = Data->SummonCost;
 	TotalCooldown = Data->SummonCooldown; 
 
-	if (Img_Icon && !Data->PortraitIcon.IsNull())
+	if (Img_Icon && !Data->CharacterTexture.IsNull())
 	{
-		Img_Icon->SetBrushFromTexture(Data->PortraitIcon.LoadSynchronous());
+		Img_Icon->SetBrushFromTexture(Data->CharacterTexture.LoadSynchronous());
 	}
 
 	if (Txt_Cost)
