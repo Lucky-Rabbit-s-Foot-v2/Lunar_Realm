@@ -166,7 +166,7 @@ void ALREnemyCharacter::InitializeAttributes(FName EnemyID)
 	const FEnemyStaticData& EnemyData = DataSys->GetEnemyStaticData(EnemyID);
 
 	AttributeSet->InitHealth(static_cast<float>(EnemyData.MaxHealth));
-	AttributeSet->InitAttack(static_cast<float>(EnemyData.Attack));
+	AttributeSet->InitAttackPower(static_cast<float>(EnemyData.Attack));
 	AttributeSet->InitSpeed(static_cast<float>(EnemyData.Speed));
 
 	// MaxHealth 한계치도 데이터 기반으로 갱신
@@ -376,8 +376,8 @@ void ALREnemyCharacter::OnDeathMontageEnded(UAnimMontage* Montage, bool bInterru
 
 	if (bInterrupted)
 	{
-		// TEST : 방해 받는 경우 존재하는지 테스트
-		LR_ERROR(TEXT("======= [%s] Death montage interrupted ======="), *CurrentEnemyID.ToString());
+		// TODO: 사망 몽타주 중단되는 원인 찾기
+		//LR_ERROR(TEXT("======= [%s] Death montage interrupted ======="), *CurrentEnemyID.ToString());
 	}
 
 	FinishDeathSequence();

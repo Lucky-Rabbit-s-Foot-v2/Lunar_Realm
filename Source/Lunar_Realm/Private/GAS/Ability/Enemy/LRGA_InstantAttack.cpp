@@ -92,7 +92,7 @@ void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 
 	if (SpecHandle.IsValid())
 	{
-		SourceASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 	}
 
 	// 5. 즉시 종료!
