@@ -88,4 +88,19 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|UI")
 	TObjectPtr<class UMaterialInterface> Mat_BlackWhite;
+
+	// 오토모드 제어용
+protected:
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* Txt_Auto;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI|AutoMode")
+	class UTexture2D* Tex_AutoOn;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI|AutoMode")
+	class UTexture2D* Tex_AutoOff;
+
+public:
+	void UpdateAutoButtonVisual(bool InbIsAutoMode);
+
 };
