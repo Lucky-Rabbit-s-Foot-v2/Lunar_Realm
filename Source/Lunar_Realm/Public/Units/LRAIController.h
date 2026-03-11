@@ -48,6 +48,7 @@ namespace LRBBKeys
  // (260224) KWB 컨트롤러 풀링 시스템 적용을 위한 인터페이스 구현 추가
  // (260225) KWB 주석 처리된 미사용 코드 제거
  // (260303) KWB Enemy, Member 각기 다른 스킬 사용을 위한 TryAttackTarget() 함수 가상 함수화
+ // (260311) KWB 크라우드 우회 매니저 사용한 군중 회피 시스템 적용
  //============================================================================
 UCLASS()	
 class LUNAR_REALM_API ALRAIController : public ADetourCrowdAIController, public ILRPoolableInterface

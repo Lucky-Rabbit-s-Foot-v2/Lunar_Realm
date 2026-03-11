@@ -9,7 +9,10 @@
 #include "BehaviorTree/BlackboardComponent.h"
 
 #include "GAS/Tags/LRGameplayTags.h"
+#include "GameFramework/CharacterMovementComponent.h"	// TEST : 속도 체크용
 #include "GameplayTagAssetInterface.h"
+
+#include "Navigation/CrowdFollowingComponent.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -63,6 +66,31 @@ void ALRAIController::OnPossess(APawn* InPawn)
 	if (!InPawn)
 	{
 		return;
+	}
+
+	if (UCrowdFollowingComponent* CrowdComp =
+		Cast<UCrowdFollowingComponent>(GetPathFollowingComponent()))
+	{
+		CrowdComp->SetCrowdSimulationState(ECrowdSimulationState::Enabled);
+
+		CrowdComp->SetCrowdObstacleAvoidance(true, true);
+		CrowdComp->SetCrowdAvoidanceQuality(ECrowdAvoidanceQuality::High, true);
+
+		CrowdComp->SetCrowdSeparation(true, true);
+		CrowdComp->SetCrowdSeparationWeight(350.f, true); // 필요시 해당 수치 조절
+
+		CrowdComp->SetCrowdAnticipateTurns(true, true);
+		CrowdComp->SetCrowdOptimizeVisibility(true, true);
+		CrowdComp->SetCrowdOptimizeTopology(true, true);
+
+		CrowdComp->SetCrowdCollisionQueryRange(600.0f, true);
+		CrowdComp->SetCrowdAvoidanceRangeMultiplier(1.2f, true);
+
+		CrowdComp->SetCrowdSlowdownAtGoal(false, true);
+	}
+	else
+	{
+		LR_WARN(TEXT("[%s] CrowdFollowingComponent Cast 실패"), *GetName());
 	}
 
 	// 태그 유효성 검사
