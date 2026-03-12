@@ -9,6 +9,8 @@
 #include "Subsystems/GameDataSubsystem.h"
 #include "Subsystems/Gacha/LRGachaSubsystem.h"
 
+#include "Kismet/GameplayStatics.h"
+
 #include "Engine/GameInstance.h"
 #include "Engine/Texture2D.h"
 
@@ -31,6 +33,48 @@ void ULRGachaResultSlotWidget::SetupWithResult(const FLRGachaResult& InResult)
 	{
 		const FLinearColor BaseDark(0.1f, 0.1f, 0.1f, 1.f);
 		Border_Background->SetBrushColor(RarityColor * 0.4f + BaseDark);
+	}
+}
+
+// 결과 슬롯이 화면에 추가된 직후 호출되는 등장 연출 시작점
+void ULRGachaResultSlotWidget::PlayAppearEffect()
+{
+	// 1) BP 애니메이션 / BP 연출 실행
+	BP_PlayAppearEffect(CachedResult);
+
+	// 2) 등급별 사운드 선택
+	USoundBase* PlaySound = nullptr;
+
+	switch (CachedResult.Rarity)
+	{
+	case ELRGachaRarity::N:
+		PlaySound = AppearSoundN;
+		break;
+
+	case ELRGachaRarity::R:
+		PlaySound = AppearSoundR;
+		break;
+
+	case ELRGachaRarity::SR:
+		PlaySound = AppearSoundSR;
+		break;
+
+	case ELRGachaRarity::SSR:
+		PlaySound = AppearSoundSSR;
+		break;
+
+	case ELRGachaRarity::UR:
+		PlaySound = AppearSoundUR;
+		break;
+
+	default:
+		break;
+	}
+
+	// 3) 사운드 재생
+	if (PlaySound)
+	{
+		UGameplayStatics::PlaySound2D(this, PlaySound);
 	}
 }
 
