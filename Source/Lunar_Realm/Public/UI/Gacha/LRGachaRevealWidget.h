@@ -97,6 +97,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Result")
 	TSubclassOf<ULRGachaResultSlotWidget> ResultSlotWidgetClass;
 
+	/** 최종 결과 슬롯이 하나씩 등장하는 간격 */
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Result")
+	float ResultSlotAppearInterval = 0.12f;
+
 	// ───────────────── 3D 씬 연동 ─────────────────
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Scene")
@@ -140,9 +144,17 @@ protected:
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
-	void BuildResultSlots();
 
 private:
+	/** 최종 결과 슬롯을 한 번에 즉시 생성하는 기본 함수 */
+	void BuildResultSlots();
+
+	/** 최종 결과 슬롯을 일정 간격으로 하나씩 생성하는 순차 연출용 함수 */
+	void BuildResultSlotsSequential();
+
+	/** 순차 생성 중 다음 결과 슬롯 1개를 실제로 생성하는 함수 */
+	void SpawnNextResultSlot();
+
 	// ───────────────── 스킵 버튼 핸들러 ─────────────────
 
 	UFUNCTION()
@@ -197,6 +209,16 @@ private:
 	bool bIsPointerDown = false;
 	FVector2D PointerDownPosition = FVector2D::ZeroVector;
 	float SwipeMinDistance = 30.f;
+
+	/** 최종 결과 슬롯 순차 생성을 반복 호출하는 타이머 */
+	FTimerHandle TimerSequentialResultSlots;
+
+	/** 다음에 생성할 결과 슬롯 인덱스 */
+	int32 NextResultSlotIndex = 0;
+
+	/** 순차 등장 연출에 사용하는 결과 슬롯 위젯 캐시 */
+	UPROPERTY()
+	TArray<TObjectPtr<ULRGachaResultSlotWidget>> CachedResultSlotWidgets;
 
 	// ───────────────── 카메라 복원용 ─────────────────
 
