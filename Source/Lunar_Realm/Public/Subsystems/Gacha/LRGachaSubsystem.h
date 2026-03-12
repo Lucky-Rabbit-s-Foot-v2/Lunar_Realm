@@ -184,6 +184,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Reveal")
 	bool BuildRevealPresentationData(const FLRGachaResult& Result, FLRGachaRevealPresentationData& OutData) const;
 
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Reveal")
+	UTexture2D* GetResultSlotTexture(FName ItemID, ELRGachaItemType ItemType) const;
+
 protected:
 	// ───────────────── DataTable Soft Reference(에디터 지정 가능) ─────────────────
 

@@ -370,6 +370,20 @@ bool ULRGachaSubsystem::GetRevealVisualRow(
 	return false;
 }
 
+UTexture2D* ULRGachaSubsystem::GetResultSlotTexture(FName ItemID, ELRGachaItemType ItemType) const
+{
+	FLRGachaRevealVisualRow RevealRow;
+	if (GetRevealVisualRow(ItemID, ItemType, RevealRow))
+	{
+		if (!RevealRow.ResultSlotTexture.IsNull())
+		{
+			return RevealRow.ResultSlotTexture.LoadSynchronous();
+		}
+	}
+
+	return nullptr;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  리빌 화면 표시 데이터 구성
 // ─────────────────────────────────────────────────────────────────────────────
