@@ -43,13 +43,15 @@ void ULRStageSelectorWidget::RegisterSubWidgets()
 
 void ULRStageSelectorWidget::SetStageData(const TArray<FName>& StageIDs)
 {
-	for (int32 i = 0; i < StageIDs.Num() && i < StageWidgets.Num(); ++i)
+	for (int32 i = 0; i < StageIDs.Num() && i < SubWidgets.Num(); ++i)
 	{
-		if (StageWidgets[i])
+		if (ULRStageWidget* StageWidget = Cast<ULRStageWidget>(SubWidgets[i]))
 		{
-			StageWidgets[i]->SetStageID(StageIDs[i]);
+			StageWidget->SetStageID(StageIDs[i]);
 		}
 	}
+
+	RefreshUI();
 }
 
 void ULRStageSelectorWidget::OnBackButtonClicked()

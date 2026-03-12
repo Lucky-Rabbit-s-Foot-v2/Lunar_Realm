@@ -50,7 +50,4 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Back;
-
-	UPROPERTY(VisibleAnywhere, Category = "LR|UI")
-	TArray<TObjectPtr<ULRStageWidget>> StageWidgets;
 };
