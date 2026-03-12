@@ -15,6 +15,7 @@
 #include "Engine/GameInstance.h"
 #include "GAS/Attributes/LRPlayerAttributeSet.h"
 #include "Kismet/GameplayStatics.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 void ULRSummonSlotWidget::NativeConstruct()
 {
@@ -26,6 +27,10 @@ void ULRSummonSlotWidget::NativeConstruct()
 		if (SummonComp)
 		{
 			SummonComp->OnUnitSummoned.AddUniqueDynamic(this, &ULRSummonSlotWidget::OnSummonedEvent);
+		}
+		if (Img_Cooldown)
+		{
+			CooldownMID = Img_Cooldown->GetDynamicMaterial();
 		}
 	}
 }
@@ -100,10 +105,10 @@ void ULRSummonSlotWidget::OnSummonedEvent(int32 InSlotIndex, float InCooldownTim
 	CurrentCooldown = InCooldownTime;
 	TotalCooldown = InCooldownTime;
 
-	if (PB_Cooldown)
-	{
-		PB_Cooldown->SetVisibility(ESlateVisibility::HitTestInvisible);
-	}
+	//if (PB_Cooldown)
+	//{
+	//	PB_Cooldown->SetVisibility(ESlateVisibility::HitTestInvisible);
+	//}
 }
 
 void ULRSummonSlotWidget::OnSummonButtonClicked()
@@ -129,21 +134,38 @@ void ULRSummonSlotWidget::UpdateCooldownState(float InDeltaTime)
 {
 	if (CurrentCooldown <= 0.0f)
 	{
-		if (PB_Cooldown && PB_Cooldown->GetVisibility() != ESlateVisibility::Hidden)
+		//if (PB_Cooldown && PB_Cooldown->GetVisibility() != ESlateVisibility::Hidden)
+		//{
+		//	PB_Cooldown->SetVisibility(ESlateVisibility::Hidden);
+		//}
+		if (Img_Cooldown && Img_Cooldown->GetVisibility() != ESlateVisibility::Hidden)
 		{
-			PB_Cooldown->SetVisibility(ESlateVisibility::Hidden);
+			Img_Cooldown->SetVisibility(ESlateVisibility::Hidden);
 		}
 		return;
 	}
 
 	CurrentCooldown -= InDeltaTime;
 
-	if (PB_Cooldown)
+	// 쿨타임 UI 켜기
+	if (Img_Cooldown && Img_Cooldown->GetVisibility() != ESlateVisibility::SelfHitTestInvisible)
 	{
-		// 비율 계산 (0.0 ~ 1.0)
-		float Percent = FMath::Clamp(CurrentCooldown / TotalCooldown, 0.0f, 1.0f);
-		PB_Cooldown->SetPercent(Percent);
+		Img_Cooldown->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	}
+
+	// 머티리얼의 Percent 파라미터에 남은 비율(0.0 ~ 1.0) 전달하기
+	if (CooldownMID)
+	{
+		float Percent = FMath::Clamp(CurrentCooldown / TotalCooldown, 0.0f, 1.0f);
+		CooldownMID->SetScalarParameterValue(FName("Percent"), Percent);
+	}
+
+	//if (PB_Cooldown)
+	//{
+	//	// 비율 계산 (0.0 ~ 1.0)
+	//	float Percent = FMath::Clamp(CurrentCooldown / TotalCooldown, 0.0f, 1.0f);
+	//	PB_Cooldown->SetPercent(Percent);
+	//}
 }
 
 void ULRSummonSlotWidget::UpdateButtonState()
@@ -169,13 +191,34 @@ void ULRSummonSlotWidget::SetSlotVisuals(const FCharacterStaticData* Data)
 	SummonCost = Data->SummonCost;
 	TotalCooldown = Data->SummonCooldown; 
 
-	if (Img_Icon && !Data->PortraitIcon.IsNull())
+	// 캐릭터 아이콘
+	if (Img_Icon && !Data->CharacterTexture.IsNull())
 	{
-		Img_Icon->SetBrushFromTexture(Data->PortraitIcon.LoadSynchronous());
+		Img_Icon->SetBrushFromTexture(Data->CharacterTexture.LoadSynchronous());
 	}
 
+	// 코스트 텍스트 적용
 	if (Txt_Cost)
 	{
 		Txt_Cost->SetText(FText::AsNumber((int32)SummonCost));
+	}
+
+	// 등급별 테두리
+	if (Img_Border)
+	{
+		ELRGrade CharacterRarity = Data->Grade;
+
+		if (UTexture2D** FoundTexture = RarityBorderMap.Find(CharacterRarity))
+		{
+			if (*FoundTexture)
+			{
+				Img_Border->SetBrushFromTexture(*FoundTexture);
+				Img_Border->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+			}
+		}
+		else
+		{
+			Img_Border->SetVisibility(ESlateVisibility::Collapsed);
+		}
 	}
 }

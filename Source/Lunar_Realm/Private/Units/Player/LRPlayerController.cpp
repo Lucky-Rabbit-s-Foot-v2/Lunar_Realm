@@ -166,6 +166,12 @@ void ALRPlayerController::ToggleAutoMode()
 	if (MyCharacter)
 	{
 		MyCharacter->ToggleAutoMode();
+
+		if (ULRPlayerWidget* MyWidget = GetPlayerWidget())
+		{
+			bool bIsAutoNow = MyCharacter->GetAutoMode();
+			MyWidget->UpdateAutoButtonVisual(bIsAutoNow);
+		}
 	}
 }
 
