@@ -20,17 +20,17 @@ class LUNAR_REALM_API ULRTitleWidget : public ULRPopupWidget
 	GENERATED_BODY()
 	
 protected:
-	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
 
 private:
 	UFUNCTION()
 	void OnClickedStartButton();
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "LR|LevelStreaming")
-	FName LobbyLevelName = FName("Map_Lobby");
-
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> Img_BG;
+	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Start;
 };

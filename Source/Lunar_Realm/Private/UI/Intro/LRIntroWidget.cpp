@@ -12,6 +12,19 @@
 
 #include "UI/Intro/LRTitleWidget.h"
 
+#include "Units/OutGame/LRIntroController.h"
+
+
+void ULRIntroWidget::BindToController(ALRControllerBase* Controller)
+{
+	Super::BindToController(Controller);
+
+	if (ALRIntroController* IntroController = Cast<ALRIntroController>(Controller))
+	{
+		OnTitleOpenRequestedDel.AddUniqueDynamic(IntroController, &ALRIntroController::OpenTitleScreen);
+	}
+}
+
 void ULRIntroWidget::OpenUI()
 {
 	Super::OpenUI();
@@ -26,12 +39,6 @@ void ULRIntroWidget::RefreshUI()
 	Img_1->SetVisibility(ESlateVisibility::Hidden);
 	Img_2->SetVisibility(ESlateVisibility::Hidden);
 	Img_3->SetVisibility(ESlateVisibility::Hidden);
-}
-
-void ULRIntroWidget::OpenTitleScreen()
-{
-	UUIManagerSubsystem* UIManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->OpenUI<ULRTitleWidget>(TitleWidgetClass);
 }
 
 void ULRIntroWidget::PlayIntroAnimation()
@@ -59,7 +66,7 @@ void ULRIntroWidget::OnFinishedIntroAnim()
 		TimerHandle,
 		[this]()
 		{
-			OpenTitleScreen();
+			OnTitleOpenRequestedDel.Broadcast();
 		},
 		0.5f,
 		false

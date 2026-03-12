@@ -3,13 +3,25 @@
 
 #include "Units/OutGame/LRIntroController.h"
 
-#include "UI/Intro/LRIntroWidget.h"
-
 #include "Subsystems/UIManagerSubsystem.h"
 #include "Subsystems/Settings/UIManagerSettings.h"
 
+#include "UI/Core/LRBackgroundWidget.h"
+
+#include "UI/Intro/LRIntroWidget.h"
+
 void ALRIntroController::OpenFirstWidget()
 {
-	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->OpenUIByID(EUIID::INTRO);
+	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
+	{
+		UIManager->OpenUIByID(EUIID::INTRO);
+	}
+}
+
+void ALRIntroController::OpenTitleScreen()
+{
+	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
+	{
+		UIManager->OpenUIByID(EUIID::TITLE);
+	}
 }

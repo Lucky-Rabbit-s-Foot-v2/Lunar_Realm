@@ -2,31 +2,36 @@
 
 
 #include "UI/Intro/LRTitleWidget.h"
+#include "UI/Core/LRBackgroundWidget.h"
 
 #include "Kismet/GameplayStatics.h"
 
 #include "Components/Button.h"
+#include "Components/Image.h"
 
 #include "Core/LRGameInstance.h"
 
-void ULRTitleWidget::NativeConstruct()
+#include "Subsystems/UIManagerSubsystem.h"
+
+
+void ULRTitleWidget::BindProperties()
 {
-	Super::NativeConstruct();
-	
+	Super::BindProperties();
+
 	if (Btn_Start)
 	{
 		Btn_Start->OnClicked.AddDynamic(this, &ULRTitleWidget::OnClickedStartButton);
 	}
 }
 
-void ULRTitleWidget::NativeDestruct()
+void ULRTitleWidget::UnbindProperties()
 {
 	if (Btn_Start)
 	{
 		Btn_Start->OnClicked.Clear();
 	}
 
-	Super::NativeDestruct();
+	Super::UnbindProperties();
 }
 
 void ULRTitleWidget::OnClickedStartButton()

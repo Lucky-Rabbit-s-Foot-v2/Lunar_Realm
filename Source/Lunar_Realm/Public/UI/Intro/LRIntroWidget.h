@@ -17,6 +17,8 @@
  // =============================================================================
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnIntroAnimFinished);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTitleOpenRequested);
+
 
 UCLASS()
 class LUNAR_REALM_API ULRIntroWidget : public ULRPageWidget
@@ -24,13 +26,17 @@ class LUNAR_REALM_API ULRIntroWidget : public ULRPageWidget
 	GENERATED_BODY()
 	
 public:
+	virtual void BindToController(class ALRControllerBase* Controller) override;
+
 	virtual void OpenUI() override;
 	virtual void RefreshUI() override;
 	
-	void OpenTitleScreen();
-
-	UPROPERTY(BlueprintAssignable, Category = "LR|UI")
+	UPROPERTY(BlueprintAssignable, Category = "LR|Intro")
 	FOnIntroAnimFinished OnIntroAnimFinishedDel;
+
+	UPROPERTY(BlueprintAssignable, Category = "LR|Intro")
+	FOnTitleOpenRequested OnTitleOpenRequestedDel;
+
 
 private:
 	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
