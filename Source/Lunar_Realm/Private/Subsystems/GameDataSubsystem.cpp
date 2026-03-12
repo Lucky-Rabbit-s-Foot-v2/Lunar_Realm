@@ -288,8 +288,8 @@ float UGameDataSubsystem::GetCharacterFinalStat(FName CharacterID, ELRStatusType
 	float multiplier = GetStatusMultiplier(CharacterID, StatusType); //스탯 승수
 	float finalStat = baseStat * multiplier; //최종 스탯
 	
-	LR_INFO(TEXT("CharacterID : %s, Stat : %s, Level : %d, Base = %.1f * Mult = %.2f = %.1f"), 
-		*CharacterID.ToString(), *StatTypeToName(StatusType).ToString(), CharacterLevel, baseStat, multiplier, finalStat);
+//	LR_INFO(TEXT("CharacterID : %s, Stat : %s, Level : %d, Base = %.1f * Mult = %.2f = %.1f"), 
+//		*CharacterID.ToString(), *StatTypeToName(StatusType).ToString(), CharacterLevel, baseStat, multiplier, finalStat);
 	
 	return finalStat;
 }
