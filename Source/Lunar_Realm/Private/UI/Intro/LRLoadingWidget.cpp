@@ -7,6 +7,9 @@
 
 #include "TimerManager.h"
 
+#include "Components/Throbber.h"
+#include "Components/Image.h"
+
 void ULRLoadingWidget::OpenUI()
 {
 	Super::OpenUI();
@@ -14,8 +17,8 @@ void ULRLoadingWidget::OpenUI()
 	GetWorld()->GetTimerManager().SetTimer(
 		LoadingTimerHandle,
 		this,
-		&ULRLoadingWidget::UpdateProgressBar,
-		0.01f,
+		&ULRLoadingWidget::UpdateLoadingAnimation,
+		TimerInterval,
 		true
 	);
 }
@@ -31,6 +34,9 @@ void ULRLoadingWidget::RefreshUI()
 {
 	Super::RefreshUI();
 	
+	CurrentRotation = 0.f;
+	AnimationTime = 0.f;
+
 	ElapsedTime = 0.f;
 	Progress = 0.f;
 	if (Bar_Loading)
@@ -40,8 +46,29 @@ void ULRLoadingWidget::RefreshUI()
 	GetWorld()->GetTimerManager().ClearTimer(LoadingTimerHandle);
 }
 
-void ULRLoadingWidget::UpdateProgressBar()
+void ULRLoadingWidget::UpdateLoadingAnimation()
 {
+	AnimationTime += TimerInterval;
+
+	if (Img_Gear)
+	{
+		CurrentRotation += RotationPerSecond * TimerInterval; 
+		if (CurrentRotation >= 360.f) 
+		{
+			CurrentRotation -= 360.f;
+		}
+
+		Img_Gear->SetRenderTransformAngle(CurrentRotation);
+	}
+
+	if (Img_Icon)
+	{
+		float CurrentWobbleAngle = FMath::Sin(AnimationTime * WobbleFrequency) * WobbleAngle;
+		Img_Icon->SetRenderTransformAngle(CurrentWobbleAngle);
+	}
+
+
+
 	if (Bar_Loading)
 	{
 		float RemainingTime = TotalDuration - ElapsedTime;
@@ -62,8 +89,6 @@ void ULRLoadingWidget::UpdateProgressBar()
 
 void ULRLoadingWidget::FinishLoading()
 {
-	GetWorld()->GetTimerManager().ClearTimer(LoadingTimerHandle);
-
 	Progress = 1.f;
 	if (Bar_Loading)
 	{
