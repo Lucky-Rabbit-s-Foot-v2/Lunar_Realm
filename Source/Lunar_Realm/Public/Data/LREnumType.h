@@ -47,12 +47,12 @@ UENUM(BlueprintType)
 enum class ELRGrade : uint8
 {
 	NONE = 0,
-	BASIC = 1,
-	ELITE = 2,
-	UNIQUE = 3,
-	EPIC = 4,
-	LEGEND = 5,
-	
+	N = 1,
+	R = 2,
+	SR = 3,
+	SSR = 4,
+	UR = 5,
+
 	MAX = 6 UMETA(Hidden)
 };
 
@@ -189,11 +189,11 @@ enum class ELRGachaItemType : uint8
 UENUM(BlueprintType)
 enum class ELRGachaRarity : uint8
 {
-	Common    UMETA(DisplayName = "1성(일반)"),
-	Elite     UMETA(DisplayName = "2성(엘리트)"),
-	Unique    UMETA(DisplayName = "3성(유니크)"),
-	Epic      UMETA(DisplayName = "4성(에픽)"),
-	Legendary UMETA(DisplayName = "5성(전설)"),
+	N   UMETA(DisplayName = "N"),
+	R   UMETA(DisplayName = "R"),
+	SR  UMETA(DisplayName = "SR"),
+	SSR UMETA(DisplayName = "SSR"),
+	UR  UMETA(DisplayName = "UR"),
 };
 
 UENUM(BlueprintType)
