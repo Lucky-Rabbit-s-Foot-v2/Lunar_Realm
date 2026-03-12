@@ -5,11 +5,11 @@
 
 #include "UI/Common/LRCurrencyViewWidget.h"
 
-void ULRCurrencyWidget::RefreshUI()
+void ULRCurrencyWidget::RegisterSubWidgets()
 {
-	Super::RefreshUI();
-
-	GoldView->RefreshUI();
-	CrescentView->RefreshUI();
-	FullMoonView->RefreshUI();
+	Super::RegisterSubWidgets();
+	
+	SubWidgets.Add(GoldView);
+	SubWidgets.Add(CrescentView);
+	SubWidgets.Add(FullMoonView);
 }

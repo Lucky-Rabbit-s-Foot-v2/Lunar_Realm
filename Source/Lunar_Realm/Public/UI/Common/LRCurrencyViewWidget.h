@@ -30,6 +30,9 @@ private:
 	UFUNCTION()
 	void OnCurrencyAddClicked();
 
+	void SetIconByType();
+	FName TypeToID();
+
 protected:
 	// 재화 아이콘
 	UPROPERTY(meta = (BindWidget))
@@ -44,7 +47,4 @@ protected:
 private:
 	UPROPERTY(EditAnywhere, Category = "LR|Currency")
 	ELRCurrencyType CurrencyType = ELRCurrencyType::Gold;
-
-	UPROPERTY(EditAnywhere, Category = "LR|UI")
-	TSubclassOf<class ULRShopWidget> ShopWidgetClass;
 };

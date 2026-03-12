@@ -20,7 +20,7 @@ class LUNAR_REALM_API ULRCurrencyWidget : public ULRPersistentWidget
 	GENERATED_BODY()
 
 public:
-	virtual void RefreshUI() override;
+	virtual void RegisterSubWidgets() override;
 
 protected:
 	UPROPERTY(meta = (BindWidget))
