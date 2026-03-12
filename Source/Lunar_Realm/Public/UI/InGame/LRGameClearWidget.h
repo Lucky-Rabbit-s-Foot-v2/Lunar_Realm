@@ -24,6 +24,8 @@ public:
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
+	virtual void InitializeUI() override;
+
 	UFUNCTION(BlueprintCallable)
 	void OnNextStageButtonClicked();
 
@@ -36,5 +38,8 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Exit;
+protected:
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	class UWidgetAnimation* victory;
 
 };

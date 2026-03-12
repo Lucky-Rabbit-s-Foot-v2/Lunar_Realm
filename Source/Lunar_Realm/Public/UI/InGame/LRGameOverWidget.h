@@ -33,6 +33,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnExitButtonClicked();
 
+	virtual void InitializeUI() override;
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Regroup;
@@ -42,5 +44,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Exit;
+
+protected:
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	class UWidgetAnimation* Fail;
 
 };
