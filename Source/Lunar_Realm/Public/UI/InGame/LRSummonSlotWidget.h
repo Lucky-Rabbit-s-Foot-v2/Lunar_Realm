@@ -21,6 +21,7 @@ class UImage;
 class UProgressBar;
 class UTextBlock;
 class ULRSummonComponent;
+class UMaterialInstanceDynamic;
 
 UCLASS()
 class LUNAR_REALM_API ULRSummonSlotWidget : public ULRChildWidget
@@ -44,8 +45,8 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Img_Icon;
 
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UProgressBar> PB_Cooldown;
+	//UPROPERTY(meta = (BindWidget))
+	//TObjectPtr<UProgressBar> PB_Cooldown;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> Txt_Cost;
@@ -72,4 +73,20 @@ private:
 	void UpdateButtonState();
 	void SetSlotVisuals(const FCharacterStaticData* Data);
 
+protected:
+	UPROPERTY(meta = (BindWidget))
+	class UImage* Img_Cooldown;
+
+	UPROPERTY()
+	class UMaterialInstanceDynamic* CooldownMID;
+
+protected:
+	// 에디터에서 등급별 테두리 이미지를 세팅할 TMap (키값은 FName, Enum이 있다면 Enum 추천!)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI|SummonSlot")
+	TMap<ELRGrade, UTexture2D*> RarityBorderMap;
+
+private:
+	// 위젯에서 만든 테두리 이미지 바인딩
+	UPROPERTY(meta = (BindWidget))
+	class UImage* Img_Border;
 };

@@ -16,6 +16,7 @@
 #include "Units/Player/LRPlayerState.h"
 
 #include "Components/RetainerBox.h"
+#include "Engine/Texture2D.h"
 
 void ULRPlayerWidget::BindProperties()
 {
@@ -142,5 +143,43 @@ void ULRPlayerWidget::RefreshSkillPanelIcons(FName InPlayerSkillID, FName InWeap
 	if (WBP_SkillPanel)
 	{
 		WBP_SkillPanel->UpdateSkillIcons(InPlayerSkillID, InWeaponSkillID);
+	}
+}
+
+void ULRPlayerWidget::UpdateAutoButtonVisual(bool InbIsAutoMode)
+{
+	if (Btn_Change)
+	{
+		FButtonStyle NewButtonStyle = Btn_Change->GetStyle();
+		UTexture2D* TargetTex = InbIsAutoMode ? Tex_AutoOn : Tex_AutoOff;
+
+		if (TargetTex)
+		{
+			NewButtonStyle.Normal.SetResourceObject(TargetTex);
+			NewButtonStyle.Hovered.SetResourceObject(TargetTex);
+			NewButtonStyle.Pressed.SetResourceObject(TargetTex);
+			Btn_Change->SetStyle(NewButtonStyle);
+		}
+	}
+
+	if (Txt_Auto)
+	{
+		FSlateFontInfo FontInfo = Txt_Auto->GetFont();
+		FontInfo.OutlineSettings.OutlineSize = 2; 
+
+		if (InbIsAutoMode)
+		{
+			Txt_Auto->SetColorAndOpacity(FSlateColor(FLinearColor::White));
+
+			FontInfo.OutlineSettings.OutlineColor = FLinearColor(0.0f, 0.7f, 1.0f, 1.0f);
+		}
+		else
+		{
+			Txt_Auto->SetColorAndOpacity(FSlateColor(FLinearColor(1.0f, 1.0f, 1.0f, 0.4f)));
+
+			FontInfo.OutlineSettings.OutlineColor = FLinearColor(0.0f, 0.0f, 0.0f, 0.4f);
+		}
+
+		Txt_Auto->SetFont(FontInfo);
 	}
 }

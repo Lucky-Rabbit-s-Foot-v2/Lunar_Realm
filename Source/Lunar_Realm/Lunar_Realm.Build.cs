@@ -19,6 +19,7 @@ public class Lunar_Realm : ModuleRules
             "Slate", "SlateCore", "UMG",
             "Niagara", "NiagaraCore",
             "VectorVM",
+            "MediaAssets",
             "UnrealEd", "AssetRegistry", "Blutility", "UMGEditor", "RenderCore",
         });
 

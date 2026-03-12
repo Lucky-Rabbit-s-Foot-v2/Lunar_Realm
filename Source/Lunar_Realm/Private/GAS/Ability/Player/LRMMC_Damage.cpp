@@ -24,6 +24,14 @@ float ULRMMC_Damage::CalculateBaseMagnitude_Implementation(const FGameplayEffect
 	float AttackPower = 0.0f;
 	GetCapturedAttributeMagnitude(AttackPowerDef, InSpec, EvaluationParameters, AttackPower);
 
+	AActor* SourceActor = InSpec.GetContext().GetInstigator();
+
+	LR_INFO(TEXT("[MMC_Damage] 소스 : %s | 계산된 공격력: %.1f"),
+		SourceActor ? *SourceActor->GetName() : TEXT("NULL"),
+		AttackPower);
+
+
+
 	// 오차범위 적용 로직
 	float MinDamage = AttackPower * 0.85f;
 	float MaxDamage = AttackPower * 1.15f;

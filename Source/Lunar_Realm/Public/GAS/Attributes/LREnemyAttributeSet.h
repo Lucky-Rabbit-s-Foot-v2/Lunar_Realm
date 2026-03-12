@@ -18,8 +18,9 @@
  // (260210) KWB 멤버 추가(속성, 속성 한계값)
  // (260223) KWB OnDie() 호출 로직 작성
  // (260225) KWB 불필요한 속성값 초기화 코드, 로그 삭제
- // (260303) BJM 수정, 데미치 항목 추가
+ // (260303) BJM 수정, 데미지 항목 추가
  // (260310) BJM 수정, 부모 클래스에서 겹치는 함수 통합
+ // (260311) KWB 수정, 공격력 멤버 부모 클래스 사용으로 변경 (Attack 멤버 삭제)
  //============================================================================
 UCLASS()
 class LUNAR_REALM_API ULREnemyAttributeSet : public ULRAttributeSet
@@ -31,17 +32,11 @@ public:
 	ULREnemyAttributeSet();
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
-	//virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 	
 protected:
 	virtual void OnDamageExecuted(float InDamageDone, const FGameplayEffectModCallbackData& Data) override;
 
 public:
-	UPROPERTY(BlueprintReadOnly, Category = "LR|Spec")
-	FGameplayAttributeData Attack;
-	ATTRIBUTE_ACCESSORS(ULREnemyAttributeSet, Attack)
-
-
 	// 속성값 한계치
 	UPROPERTY(BlueprintReadWrite, Category = "LR|Spec|Limits")
 	float MaxAttack = 500.0f;

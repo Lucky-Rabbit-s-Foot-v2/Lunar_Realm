@@ -61,7 +61,14 @@ void ULRCombatComponent::BeginPlay()
 void ULRCombatComponent::TickComponent(float InDeltaTime, ELevelTick InTickType, FActorComponentTickFunction* InThisTickFunction)
 {
 	Super::TickComponent(InDeltaTime, InTickType, InThisTickFunction);
-
+	
+	// 오토모드시 스킬 자연스럽게 딜레이 넣음
+	if (AutoSkillDelay > 0.0f)
+	{
+		AutoSkillDelay -= InDeltaTime;
+	}
+	
+	// 기본공격 쿨다운
 	if (CurrentAttackCooldown > 0.0f)
 	{
 		CurrentAttackCooldown -= InDeltaTime;
@@ -127,6 +134,16 @@ void ULRCombatComponent::UpdateWeaponInfo(FName InWeaponID)
 
 void ULRCombatComponent::OnCombatLogicTimer()
 {
+	ALRCharacter* OwnerCharacter = GetOwnerCharacter();
+	if (!OwnerCharacter || IsTargetDead(OwnerCharacter))
+	{
+		if (CurrentTarget != nullptr)
+		{
+			ClearTarget();
+		}
+		return;
+	}
+
 	CheckAndClearDeadTarget();
 
 	bool bIsManualMode = (CombatState == EAutoCombatState::Manual);
@@ -402,8 +419,23 @@ FGameplayTag ULRCombatComponent::GetEnemyRootTag() const
 	return FGameplayTag();
 }
 
+void ULRCombatComponent::ClearTarget()
+{
+	CurrentTarget = nullptr;
+	ALRCharacter* OwnerCharacter = GetOwnerCharacter();
+	if (OwnerCharacter && OwnerCharacter->GetController())
+	{
+		OwnerCharacter->GetController()->StopMovement();
+	}
+}
+
 bool ULRCombatComponent::TryExcuteSkill(ALRCharacter* InOwnerCharacter)
 {
+	if (AutoSkillDelay > 0.0f)
+	{
+		return false;
+	}
+
 	if (!CurrentTarget) return false;
 
 	IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(InOwnerCharacter);
@@ -451,6 +483,7 @@ bool ULRCombatComponent::TryExcuteSkill(ALRCharacter* InOwnerCharacter)
 			if (TriggeredCount > 0)
 			{
 				//LR_INFO(TEXT("오토 스킬 발동 성공 태그: %s | 사거리: %.1f"), *SkillTag.ToString(), RealAttackRange);
+				AutoSkillDelay = 2.0f;
 				return true;
 			}
 			else

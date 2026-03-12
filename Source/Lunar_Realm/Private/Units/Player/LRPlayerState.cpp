@@ -87,7 +87,7 @@ void ALRPlayerState::InitializePlayerData()
 	}
 
 	// TODO_BJM : 테스트용으로 임시 배치. 추후 덱 데이터 로드 방식 확정되면 제거 예정
-	CharacterLevel = FName("1");;
+	CharacterLevel = FName("10");;
 
 	//EquippedItems.Add(EEquipmentSlotType::WEAPON, FName(TEXT("EQUIP_MELEE_01")));
 	EquippedItemLevels.Add(EEquipmentSlotType::WEAPON, 1);

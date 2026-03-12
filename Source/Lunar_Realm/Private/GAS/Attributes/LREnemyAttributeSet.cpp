@@ -15,7 +15,7 @@ void ULREnemyAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribut
 {
 	Super::PreAttributeChange(Attribute, NewValue);
 
-	if (Attribute == GetAttackAttribute())
+	if (Attribute == GetAttackPowerAttribute())
 	{
 		NewValue = FMath::Clamp(NewValue, 0.0f, MaxAttack);
 	}
