@@ -1,5 +1,4 @@
-﻿// LRGachaSubsystem.h
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -21,16 +20,17 @@ class ULRSaveGame;
  * ULRGachaSubsystem (가챠 전담 GameInstanceSubsystem)
  *
  * 역할
- * - DataTable 로드/캐시: 배너 / 풀 / 중복 보상 / 등급 확률
+ * - DataTable 로드/캐시: 배너 / 풀 / 중복 보상 / 등급 확률 / 리빌 비주얼
  * - 재화 차감/지급: CurrencySubsystem 연동
  * - 천장(피티) 카운트 저장/갱신: SaveGame 연동
  * - 트랜잭션 기반 뽑기: Begin / Commit / Cancel
  * - 중복 처리: 골드 전환
  * - UI 편의: 델리게이트 브로드캐스트 + PendingReveal 캐시
- * - 디버그: 로그/화면 출력, 시뮬레이션
+ * - 리빌 화면용 표시 데이터 구성
  *
- * - UI/Actor는 “이 Subsystem의 API만” 호출하면 된다.
- * - 뽑기 결과/지급/저장은 이 Subsystem에서만 변경하는 것을 원칙으로 한다.
+ * 원칙
+ * - 결과 확정/저장/지급은 이 Subsystem에서만 처리
+ * - UI/Actor는 이 Subsystem의 API를 통해서만 데이터를 받도록 유지
  */
 
  // ───────────────── UI 갱신 델리게이트 ─────────────────
@@ -42,7 +42,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGachaFinished, FName, BannerID, 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGachaTxnStateChanged, ELRGachaTxnState, NewState);
 
 // ───────────────── 시뮬레이션 결과 구조체 ─────────────────
-
 USTRUCT(BlueprintType)
 struct FLRGachaSimSummary
 {
@@ -50,16 +49,14 @@ struct FLRGachaSimSummary
 
 	UPROPERTY(BlueprintReadOnly) int32 TotalPulls = 0;
 
-	// 등급별 카운트(1~5성 느낌의 표시)
 	UPROPERTY(BlueprintReadOnly) int32 Count1 = 0;
 	UPROPERTY(BlueprintReadOnly) int32 Count2 = 0;
 	UPROPERTY(BlueprintReadOnly) int32 Count3 = 0;
 	UPROPERTY(BlueprintReadOnly) int32 Count4 = 0;
 	UPROPERTY(BlueprintReadOnly) int32 Count5 = 0;
 
-	// 천장 관련 통계
-	UPROPERTY(BlueprintReadOnly) int32 PityTriggered = 0;        // 천장 강제 픽 횟수
-	UPROPERTY(BlueprintReadOnly) int32 MaxNoLegendaryStreak = 0; // 5성(전설) 안 나온 최대 연속
+	UPROPERTY(BlueprintReadOnly) int32 PityTriggered = 0;
+	UPROPERTY(BlueprintReadOnly) int32 MaxNoLegendaryStreak = 0;
 
 	/** 로그 출력용 한 줄 요약 문자열 */
 	FString ToString() const;
@@ -71,34 +68,33 @@ class LUNAR_REALM_API ULRGachaSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
-	// 마지막으로 샵에서 선택된 배너(탭 복구용)
+	// ───────────────── Flow(로비 복귀 처리) ─────────────────
+
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Flow")
 	void SetLastShopBanner(FName InBannerID);
 
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Flow")
 	FName GetLastShopBanner() const;
 
-	// ───────────────── Flow(로비 복귀 처리) ─────────────────
-
-	/** 로비 복귀 시 “샵 자동 오픈” 플래그 끄기(Home 같은 케이스) */
+	/** 로비 복귀 시 샵 자동 오픈 플래그 끄기(Home 같은 케이스) */
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Flow")
 	void ClearOpenShopOnLobbyReturn();
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 
-	/** 리빌 끝나고 로비로 돌아갈 때 Shop 자동 오픈 요청 */
+	/** 리빌 종료 후 로비로 복귀할 때 샵 자동 오픈 요청 */
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Flow")
 	void RequestOpenShopOnLobbyReturn(FName InBannerID);
 
 	/** Shop이 열릴 때 배너 복구용(1회 소비) */
 	bool ConsumePendingReturnShopBanner(FName& OutBannerID);
 
-	// 소비하지 않고 보기만
+	/** 소비하지 않고 보기만 */
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Flow")
 	bool PeekPendingReturnShopBanner(FName& OutBannerID) const;
 
-	// 최종 적용 후 수동으로 비우기
+	/** 수동 초기화 */
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Flow")
 	void ClearPendingReturnShopBanner();
 
@@ -161,10 +157,15 @@ public:
 	FName GetBannerIdBySelection(ELRGachaItemType ItemType, ELRGachaTicketType TicketType) const;
 
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Draw")
-	bool BeginDrawBySelection(ELRGachaItemType ItemType, ELRGachaTicketType TicketType, int32 DrawCount,
-		FGuid& OutTxnId, TArray<FLRGachaResult>& OutResults);
+	bool BeginDrawBySelection(
+		ELRGachaItemType ItemType,
+		ELRGachaTicketType TicketType,
+		int32 DrawCount,
+		FGuid& OutTxnId,
+		TArray<FLRGachaResult>& OutResults
+	);
 
-	/** 천장 표시용(FullMoon 배너 기준) */
+	/** FullMoon 기준 천장 표시용 */
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Pity")
 	int32 GetDisplayPityCount(ELRGachaItemType ItemType) const;
 
@@ -173,8 +174,21 @@ public:
 	void SetPendingReveal(FName InBannerID, const FGuid& InTxnId, const TArray<FLRGachaResult>& InResults);
 	bool ConsumePendingReveal(FName& OutBannerID, FGuid& OutTxnId, TArray<FLRGachaResult>& OutResults);
 
+	// ───────────────── 리빌 화면 표시 데이터 구성 ─────────────────
+
+	/**
+	 * 결과 1개를 리빌 화면 표시용 데이터로 구성
+	 * - 리빌 전용 DT 우선
+	 * - 비어 있으면 Character/Equipment StaticData의 기본 이미지 fallback
+	 */
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Reveal")
+	bool BuildRevealPresentationData(const FLRGachaResult& Result, FLRGachaRevealPresentationData& OutData) const;
+
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Reveal")
+	UTexture2D* GetResultSlotTexture(FName ItemID, ELRGachaItemType ItemType) const;
+
 protected:
-	// ───────────────── DataTable Soft Reference(에디터에서 지정) ─────────────────
+	// ───────────────── DataTable Soft Reference(에디터 지정 가능) ─────────────────
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Data")
 	TSoftObjectPtr<UDataTable> BannerDataTable;
@@ -188,8 +202,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Data")
 	TSoftObjectPtr<UDataTable> RarityRateDataTable;
 
+	/** 가챠 리빌 연출 전용 비주얼 DT */
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Data")
+	TSoftObjectPtr<UDataTable> RevealVisualDataTable;
+
 private:
-	// 샵에서 마지막으로 선택된 배너(여기 값으로 탭 복구)
+	// 샵에서 마지막으로 선택된 배너(탭 복구용)
 	FName LastShopBannerID = NAME_None;
 
 	// ───────────────── 맵 로드 후 훅(로비 복귀 자동 UI 처리) ─────────────────
@@ -206,6 +224,7 @@ private:
 	UPROPERTY() UDataTable* LoadedPoolDT = nullptr;
 	UPROPERTY() UDataTable* LoadedDupRewardDT = nullptr;
 	UPROPERTY() UDataTable* LoadedRarityRateDT = nullptr;
+	UPROPERTY() UDataTable* LoadedRevealVisualDT = nullptr;
 
 	// SaveGame slot index(단일 사용자 가정)
 	const uint32 UserIndex = 0;
@@ -214,15 +233,25 @@ private:
 	bool bTxnInProgress = false;
 
 	// 결과만 뽑고(지급X) FLRGachaResult 배열 구성
-	bool RollResults_NoApply(const FLRGachaBannerRow& Banner, const TArray<FLRGachaPoolRow>& Pool,
-		int32 DrawCount, int32& InOutPityCounter, TArray<FLRGachaResult>& OutResults);
+	bool RollResults_NoApply(
+		const FLRGachaBannerRow& Banner,
+		const TArray<FLRGachaPoolRow>& Pool,
+		int32 DrawCount,
+		int32& InOutPityCounter,
+		TArray<FLRGachaResult>& OutResults
+	);
 
 	// ───────────────── 내부 헬퍼(데이터 조회/선택) ─────────────────
 
 	void LoadDataTables();
+
 	bool GetBannerRow(FName BannerID, FLRGachaBannerRow& OutRow) const;
 	void GetPoolRowsForBanner(FName BannerID, TArray<FLRGachaPoolRow>& OutRows) const;
 	void GetRarityRateRowsForBanner(FName BannerID, ELRGachaItemType ItemType, TArray<FLRGachaRarityRateRow>& OutRows) const;
+
+	/** 리빌 비주얼 DT에서 ItemID 기준 Row 찾기 */
+	bool GetRevealVisualRow(FName ItemID, ELRGachaItemType ItemType, FLRGachaRevealVisualRow& OutRow) const;
+
 	bool PickRarityByRates(FName BannerID, ELRGachaItemType ItemType, ELRGachaRarity& OutRarity) const;
 	bool PickOneFromPoolUniform(const TArray<FLRGachaPoolRow>& Pool, FLRGachaPoolRow& OutPicked) const;
 	bool PickOneFromPoolByRarity(const TArray<FLRGachaPoolRow>& Pool, ELRGachaRarity TargetRarity, FLRGachaPoolRow& OutPicked) const;
@@ -233,7 +262,7 @@ private:
 	// 컬렉션 반영(신규 여부 반환)
 	bool TryAddToCollection(const FLRGachaResult& Result, bool& bOutWasNew);
 
-	// 천장 카운트 조작(현재 로직상 직접 호출은 제한적)
+	// 천장 카운트 조작
 	void IncrementPity(FName BannerID);
 	void ResetPity(FName BannerID);
 

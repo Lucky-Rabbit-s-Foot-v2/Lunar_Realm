@@ -7,7 +7,10 @@
 #include "Components/Border.h"
 
 #include "Subsystems/GameDataSubsystem.h"
+#include "Subsystems/Gacha/LRGachaSubsystem.h"
+
 #include "Engine/GameInstance.h"
+#include "Engine/Texture2D.h"
 
 void ULRGachaResultSlotWidget::SetupWithResult(const FLRGachaResult& InResult)
 {
@@ -21,13 +24,11 @@ void ULRGachaResultSlotWidget::SetupWithResult(const FLRGachaResult& InResult)
 
 	if (Image_RarityFrame)
 	{
-		// 프레임 TintColor만 변경
 		Image_RarityFrame->SetColorAndOpacity(RarityColor);
 	}
 
 	if (Border_Background)
 	{
-		// 배경은 등급색 + 어두운 톤 섞어서 살짝 그라데이션 느낌
 		const FLinearColor BaseDark(0.1f, 0.1f, 0.1f, 1.f);
 		Border_Background->SetBrushColor(RarityColor * 0.4f + BaseDark);
 	}
@@ -37,36 +38,115 @@ FLinearColor ULRGachaResultSlotWidget::GetColorByRarity(ELRGachaRarity Rarity) c
 {
 	switch (Rarity)
 	{
-	case ELRGachaRarity::Common:    return FLinearColor(0.8f, 0.8f, 0.8f, 1.f);   // 흰/회색
-	case ELRGachaRarity::Elite:     return FLinearColor(0.1f, 0.4f, 1.0f, 1.f);   // 파랑
-	case ELRGachaRarity::Unique:    return FLinearColor(0.9f, 0.1f, 0.1f, 1.f);   // 빨강
-	case ELRGachaRarity::Epic:      return FLinearColor(0.5f, 0.1f, 0.9f, 1.f);   // 보라
-	case ELRGachaRarity::Legendary: return FLinearColor(1.0f, 0.75f, 0.0f, 1.f);  // 금색
-	default:                        return FLinearColor::White;
+	case ELRGachaRarity::N:   return FLinearColor(0.65f, 0.65f, 0.65f, 1.f); // 회색
+	case ELRGachaRarity::R:   return FLinearColor(0.55f, 1.00f, 0.35f, 1.f); // 연두색
+	case ELRGachaRarity::SR:  return FLinearColor(0.15f, 0.45f, 1.00f, 1.f); // 파란색
+	case ELRGachaRarity::SSR: return FLinearColor(0.60f, 0.20f, 0.90f, 1.f); // 보라색
+	case ELRGachaRarity::UR:  return FLinearColor(1.00f, 0.78f, 0.10f, 1.f); // 황금색
+	default:                  return FLinearColor::White;
 	}
 }
 
 void ULRGachaResultSlotWidget::SetupNameAndIcon()
 {
-	// 지금은 간단히 ItemID 기반 이름만 표시.
-	// 나중에 GameDataSubsystem에서 StaticData를 가져와
-	// 한글 이름 / 아이콘 Texture를 세팅하는 식으로 확장.
-
-	// 이름
-	if (Text_Name)
+	UGameInstance* GI = GetGameInstance();
+	if (!GI)
 	{
-		// 임시: ItemID를 문자열로 노출
-		Text_Name->SetText(FText::FromName(CachedResult.ItemID));
+		if (Text_Name)
+		{
+			Text_Name->SetText(FText::FromName(CachedResult.ItemID));
+		}
+		return;
 	}
 
-	// 아이콘
-	if (Image_Icon)
+	UGameDataSubsystem* GameDataSys = GI->GetSubsystem<UGameDataSubsystem>();
+	ULRGachaSubsystem* GachaSys = GI->GetSubsystem<ULRGachaSubsystem>();
+
+	if (!GameDataSys)
 	{
-		// TODO:
-		//  GameDataSubsystem에서 Hero/Equip StaticData를 가져와서
-		//  UTexture2D* IconTexture 를 얻은 뒤
-		//  Image_Icon->SetBrushFromTexture(IconTexture); 호출.
-		//
-		// 지금은 아이콘이 없으므로 기본/투명 상태 유지.
+		if (Text_Name)
+		{
+			Text_Name->SetText(FText::FromName(CachedResult.ItemID));
+		}
+		return;
+	}
+
+	UTexture2D* SlotTexture = nullptr;
+
+	// 1) 가챠 전용 DT 결과 슬롯 이미지 우선 사용
+	if (GachaSys)
+	{
+		SlotTexture = GachaSys->GetResultSlotTexture(CachedResult.ItemID, CachedResult.ItemType);
+	}
+
+	if (CachedResult.ItemType == ELRGachaItemType::Hero)
+	{
+		const FCharacterStaticData& CharData = GameDataSys->GetCharacterStaticData(CachedResult.ItemID);
+
+		if (Text_Name)
+		{
+			if (!CharData.CharacterName.IsEmpty())
+			{
+				Text_Name->SetText(FText::FromString(CharData.CharacterName));
+			}
+			else
+			{
+				Text_Name->SetText(FText::FromName(CachedResult.ItemID));
+			}
+		}
+
+		if (Image_Icon)
+		{
+			// 2) fallback: PortraitIcon -> CharacterTexture
+			if (!SlotTexture)
+			{
+				if (!CharData.PortraitIcon.IsNull())
+				{
+					SlotTexture = CharData.PortraitIcon.LoadSynchronous();
+				}
+				else if (!CharData.CharacterTexture.IsNull())
+				{
+					SlotTexture = CharData.CharacterTexture.LoadSynchronous();
+				}
+			}
+
+			if (SlotTexture)
+			{
+				Image_Icon->SetBrushFromTexture(SlotTexture);
+			}
+		}
+	}
+	else
+	{
+		const FEquipmentStaticData& EquipData = GameDataSys->GetEquipmentStaticData(CachedResult.ItemID);
+
+		if (Text_Name)
+		{
+			if (!EquipData.EquipmentName.IsEmpty())
+			{
+				Text_Name->SetText(FText::FromString(EquipData.EquipmentName));
+			}
+			else
+			{
+				Text_Name->SetText(FText::FromName(CachedResult.ItemID));
+			}
+		}
+
+		if (Image_Icon)
+		{
+			// 2) fallback: EquipmentTexture
+			if (!SlotTexture)
+			{
+				if (!EquipData.EquipmentTexture.IsNull())
+				{
+					SlotTexture = EquipData.EquipmentTexture.LoadSynchronous();
+				}
+			}
+
+			if (SlotTexture)
+			{
+				Image_Icon->SetBrushFromTexture(SlotTexture);
+			}
+		}
 	}
 }
