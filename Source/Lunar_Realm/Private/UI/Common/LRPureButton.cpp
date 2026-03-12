@@ -16,7 +16,7 @@ void ULRPureButton::SynchronizeProperties()
 
 void ULRPureButton::ApplyTransparentStyle()
 {
-	FButtonStyle TransparentStyle = WidgetStyle;
+	FButtonStyle TransparentStyle = GetStyle();
 
 	FSlateBrush TransparentBrush;
 	TransparentBrush.DrawAs = ESlateBrushDrawType::NoDrawType;
@@ -27,5 +27,5 @@ void ULRPureButton::ApplyTransparentStyle()
 	TransparentStyle.SetPressed(TransparentBrush);
 
 	SetStyle(TransparentStyle);
-	BackgroundColor = FLinearColor(0.f, 0.f, 0.f, 0.f);
+	SetBackgroundColor(FLinearColor(0.f, 0.f, 0.f, 0.f));
 }

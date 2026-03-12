@@ -9,7 +9,7 @@
 /**
  * 배경이 투명하고 클릭 영역만 존재하는 투명 버튼 클래스
  */
-UCLASS()
+UCLASS(meta = (BlueprintSpawnableComponent))
 class LUNAR_REALM_API ULRPureButton : public UButton
 {
 	GENERATED_BODY()
