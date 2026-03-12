@@ -35,7 +35,7 @@
 // (260220) BJM GA항목 추가
 // (260224) KHS 스킬효과 데이터 추가.
 // (260225) BJM 플레이어가 직접 조종할 때 쓸 단일 평타 GA
-// (260310) PYI 가챠 리빌 연출 전용 데이터 추가
+// (260312) PYI 가챠 리빌 연출 전용 데이터 추가
 // =============================================================================
 
 USTRUCT(BlueprintType)
@@ -898,7 +898,7 @@ struct FCurrencyStaticData : public FTableRowBase
 
 // =============================================================================
 // (260210) PYI 제작
-// (260310) PYI 가챠 리빌 연출 전용 데이터 추가
+// (260312) PYI 가챠 리빌 연출 전용 데이터 추가
 // =============================================================================
 // Gacha Data Structs (Banner/Pool/Rate/DuplicateReward/Result/Txn)
 // =============================================================================
@@ -1070,6 +1070,11 @@ struct FLRGachaRevealVisualRow : public FTableRowBase
 	// 비어 있으면 Character/Equipment StaticData의 기본 이미지 사용
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<UTexture2D> RevealTexture;
+
+	// 최종 결과창 슬롯에 표시할 이미지
+	// 비어 있으면 기존 StaticData 이미지로 fallback
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UTexture2D> ResultSlotTexture;
 
 	// 나중에 영상 리빌 사용할 경우 확장용
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

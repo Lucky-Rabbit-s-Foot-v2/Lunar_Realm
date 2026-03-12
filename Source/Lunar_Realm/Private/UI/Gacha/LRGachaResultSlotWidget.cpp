@@ -7,6 +7,7 @@
 #include "Components/Border.h"
 
 #include "Subsystems/GameDataSubsystem.h"
+#include "Subsystems/Gacha/LRGachaSubsystem.h"
 
 #include "Engine/GameInstance.h"
 #include "Engine/Texture2D.h"
@@ -59,6 +60,8 @@ void ULRGachaResultSlotWidget::SetupNameAndIcon()
 	}
 
 	UGameDataSubsystem* GameDataSys = GI->GetSubsystem<UGameDataSubsystem>();
+	ULRGachaSubsystem* GachaSys = GI->GetSubsystem<ULRGachaSubsystem>();
+
 	if (!GameDataSys)
 	{
 		if (Text_Name)
@@ -66,6 +69,14 @@ void ULRGachaResultSlotWidget::SetupNameAndIcon()
 			Text_Name->SetText(FText::FromName(CachedResult.ItemID));
 		}
 		return;
+	}
+
+	UTexture2D* SlotTexture = nullptr;
+
+	// 1) 가챠 전용 DT 결과 슬롯 이미지 우선 사용
+	if (GachaSys)
+	{
+		SlotTexture = GachaSys->GetResultSlotTexture(CachedResult.ItemID, CachedResult.ItemType);
 	}
 
 	if (CachedResult.ItemType == ELRGachaItemType::Hero)
@@ -86,20 +97,22 @@ void ULRGachaResultSlotWidget::SetupNameAndIcon()
 
 		if (Image_Icon)
 		{
-			UTexture2D* IconTexture = nullptr;
-
-			if (!CharData.PortraitIcon.IsNull())
+			// 2) fallback: PortraitIcon -> CharacterTexture
+			if (!SlotTexture)
 			{
-				IconTexture = CharData.PortraitIcon.LoadSynchronous();
+				if (!CharData.PortraitIcon.IsNull())
+				{
+					SlotTexture = CharData.PortraitIcon.LoadSynchronous();
+				}
+				else if (!CharData.CharacterTexture.IsNull())
+				{
+					SlotTexture = CharData.CharacterTexture.LoadSynchronous();
+				}
 			}
-			else if (!CharData.CharacterTexture.IsNull())
-			{
-				IconTexture = CharData.CharacterTexture.LoadSynchronous();
-			}
 
-			if (IconTexture)
+			if (SlotTexture)
 			{
-				Image_Icon->SetBrushFromTexture(IconTexture);
+				Image_Icon->SetBrushFromTexture(SlotTexture);
 			}
 		}
 	}
@@ -121,12 +134,18 @@ void ULRGachaResultSlotWidget::SetupNameAndIcon()
 
 		if (Image_Icon)
 		{
-			if (!EquipData.EquipmentTexture.IsNull())
+			// 2) fallback: EquipmentTexture
+			if (!SlotTexture)
 			{
-				if (UTexture2D* IconTexture = EquipData.EquipmentTexture.LoadSynchronous())
+				if (!EquipData.EquipmentTexture.IsNull())
 				{
-					Image_Icon->SetBrushFromTexture(IconTexture);
+					SlotTexture = EquipData.EquipmentTexture.LoadSynchronous();
 				}
+			}
+
+			if (SlotTexture)
+			{
+				Image_Icon->SetBrushFromTexture(SlotTexture);
 			}
 		}
 	}
