@@ -8,8 +8,10 @@
 #include "Data/LREnumType.h"
 #include "Engine/DataTable.h"
 #include "Engine/SkeletalMesh.h"
+#include "Engine/Texture2D.h"
 #include "NiagaraSystem.h"
 #include "Sound/SoundBase.h"
+#include "MediaSource.h"
 #include "LRDataStructs.generated.h"
 
 
@@ -33,6 +35,7 @@
 // (260220) BJM GA항목 추가
 // (260224) KHS 스킬효과 데이터 추가.
 // (260225) BJM 플레이어가 직접 조종할 때 쓸 단일 평타 GA
+// (260310) PYI 가챠 리빌 연출 전용 데이터 추가
 // =============================================================================
 
 USTRUCT(BlueprintType)
@@ -852,8 +855,14 @@ struct FStageStaticData : public FTableRowBase
 
 // =============================================================================
 // (260210) PYI 제작
+// (260310) PYI 가챠 리빌 연출 전용 데이터 추가
 // =============================================================================
 // Gacha Data Structs (Banner/Pool/Rate/DuplicateReward/Result/Txn)
+// =============================================================================
+// Gacha Reveal Visual Data
+// - 가챠 리빌 연출 전용 데이터
+// - 게임 정적 데이터(Character/Equipment StaticData)와 분리하여 관리
+// - 배경 / 리빌 전용 이미지 / 영상 확장 포인트 포함
 // =============================================================================
 
 // 배너(뽑기) 설정 DataTable
@@ -884,7 +893,7 @@ struct FLRGachaBannerRow : public FTableRowBase
 	int32 PityThreshold = 100;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ELRGachaRarity PityGuaranteedRarity = ELRGachaRarity::Legendary;
+	ELRGachaRarity PityGuaranteedRarity = ELRGachaRarity::UR;
 };
 
 // 배너 풀 DT
@@ -903,7 +912,7 @@ struct FLRGachaPoolRow : public FTableRowBase
 	FName ItemID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ELRGachaRarity Rarity = ELRGachaRarity::Common;
+	ELRGachaRarity Rarity = ELRGachaRarity::N;
 };
 
 // 중복 보상(등급별 골드 전환량) DT
@@ -913,7 +922,7 @@ struct FLRGachaDuplicateRewardRow : public FTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ELRGachaRarity Rarity = ELRGachaRarity::Common;
+	ELRGachaRarity Rarity = ELRGachaRarity::N;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 GoldAmount = 10;
@@ -932,7 +941,7 @@ struct FLRGachaResult
 	FName ItemID;
 
 	UPROPERTY(SaveGame, BlueprintReadOnly)
-	ELRGachaRarity Rarity = ELRGachaRarity::Common;
+	ELRGachaRarity Rarity = ELRGachaRarity::N;
 
 	UPROPERTY(SaveGame, BlueprintReadOnly)
 	bool bIsNew = false;
@@ -957,7 +966,7 @@ struct FLRGachaRarityRateRow : public FTableRowBase
 	ELRGachaItemType ItemType = ELRGachaItemType::Hero;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ELRGachaRarity Rarity = ELRGachaRarity::Common;
+	ELRGachaRarity Rarity = ELRGachaRarity::N;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Rate = 0.0f;
@@ -995,4 +1004,65 @@ struct FLRGachaPendingTransaction
 
 	UPROPERTY(SaveGame, BlueprintReadOnly)
 	ELRGachaTxnState State = ELRGachaTxnState::None;
+};
+
+// 리빌 연출용 DataTable Row
+USTRUCT(BlueprintType)
+struct FLRGachaRevealVisualRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	// 실제 가챠 결과 ItemID와 동일하게 사용
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName ItemID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ELRGachaItemType ItemType = ELRGachaItemType::Hero;
+
+	// 리빌 화면 배경
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UTexture2D> BackgroundTexture;
+
+	// 리빌 메인 이미지
+	// 비어 있으면 Character/Equipment StaticData의 기본 이미지 사용
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UTexture2D> RevealTexture;
+
+	// 나중에 영상 리빌 사용할 경우 확장용
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bUseVideo = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UMediaSource> RevealVideoSource;
+};
+
+// UI/리빌 위젯으로 넘기는 런타임 데이터
+USTRUCT(BlueprintType)
+struct FLRGachaRevealPresentationData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly)
+	FName ItemID = NAME_None;
+
+	UPROPERTY(BlueprintReadOnly)
+	ELRGachaItemType ItemType = ELRGachaItemType::Hero;
+
+	UPROPERTY(BlueprintReadOnly)
+	ELRGachaRarity Rarity = ELRGachaRarity::N;
+
+	UPROPERTY(BlueprintReadOnly)
+	FText DisplayName;
+
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UTexture2D> BackgroundTexture = nullptr;
+
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UTexture2D> MainTexture = nullptr;
+
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UMediaSource> VideoSource = nullptr;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bUseVideo = false;
 };

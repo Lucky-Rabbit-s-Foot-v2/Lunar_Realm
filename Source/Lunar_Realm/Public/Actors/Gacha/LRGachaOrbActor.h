@@ -24,30 +24,23 @@
  *
  * [역할]
  * - 1개의 가챠 구슬(Orb)에 대한 연출 담당 액터
- *   - 실루엣 → 원본 머티리얼 복원 + 이미시브(구슬이 스스로 빛을 내는 정도 값) 상승 애니메이션
- *   - 등급별 색/사운드/이펙트 재생
- *   - 포커스 상태(캐러셀 중앙) 처리
+ * - 구슬 자체 연출만 담당하며, 캐릭터/장비 리빌 화면은 담당하지 않음
  *
- * [C++ 담당]
- * - 실루엣 머티리얼 교체 / Delay 후 원본 복원
- * - Tick 기반 이미시브 애니메이션
- * - 나이아가라 이펙트 스폰 타이밍
- * - 사운드 재생 타이밍
- * - SetFocused를 통한 아우라 강도 조절
+ * [현재 리빌 플로우]
+ * - SetupOrb : 결과 1개를 받아 구슬 등급색/Idle Aura 초기화
+ * - PlayRevealToCenter :
+ *   1) 화면 중앙(목표 위치)으로 이동
+ *   2) 이미시브 상승
+ *   3) 버스트/사운드 재생
+ *   4) 구슬 숨김
+ *   5) SceneActor에게 "이제 리빌 화면 표시 가능" 신호 전달
  *
- * [BP 서브클래스 담당: 에셋 & 수치 바인딩]
- * - OrbMesh / OrbMaterial / SilhouetteMaterial
- * - IdleAuraSystem / RevealBurstSystem
- * - SoundCommon ~ SoundLegendary
- * - SilhouetteDuration, EmissiveDuration, FocusedScale, DefaultScale
- * - EmissiveCommon ~ EmissiveLegendary
- *
- * [BP 이벤트]
- * - BP_OnRevealFinished : 리빌 완료 후 카메라/추가 연출
+ * [구조 분리 이유]
+ * - 구슬은 실루엣 효과를 사용하지 않음
+ * - 캐릭터/장비 실루엣 → 컬러 복원은 UMG 리빌 화면에서 처리
  */
 
- // ───────────────── Orb Reveal Finished Delegate ─────────────────
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOrbRevealFinished, int32, OrbIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnOrbRevealFinished, int32, OrbIndex, const FLRGachaResult&, Result);
 
 UCLASS(BlueprintType, Blueprintable)
 class LUNAR_REALM_API ALRGachaOrbActor : public AActor
@@ -65,7 +58,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Orb")
 	int32 GetOrbIndex() const { return OrbIndex; }
 
-	/** 리빌 연출 완료 시 브로드캐스트 (SceneActor에서 수신) */
+	/** 리빌 연출 완료 시 SceneActor로 알림 */
 	UPROPERTY(BlueprintAssignable, Category = "LR|Gacha|Orb")
 	FOnOrbRevealFinished OnOrbRevealFinished;
 
@@ -79,15 +72,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Orb")
 	void SetupOrb(const FLRGachaResult& InResult);
 
-	/** 실루엣 → 리빌 애니메이션 시작 */
+	/** 구슬 리빌 시작 : 중앙 이동 → 발광 → 숨김 */
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Orb")
-	void PlayReveal();
+	void PlayRevealToCenter(const FVector& InTargetWorldLocation);
 
 	/** 캐러셀에서 포커스 여부 (아우라 강도 등) */
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Orb")
 	void SetFocused(bool bFocused);
 
-	/** 등급 → Orb 컬러 (씬 전체에서 통일해 쓰고 싶을 때) */
+	/** 등급 → Orb 컬러 */
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Orb")
 	static FLinearColor GetOrbColorByRarity(ELRGachaRarity Rarity);
 
@@ -112,10 +105,6 @@ protected:
 	/** 구슬 기본 머티리얼 (OrbColor / EmissiveStrength 파라미터 필요) */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
 	TObjectPtr<UMaterialInterface> OrbMaterial;
-
-	/** 실루엣(실루엣 연출용) 머티리얼 */
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
-	TObjectPtr<UMaterialInterface> SilhouetteMaterial;
 
 	/** 기본 아이들 아우라 나이아가라 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
@@ -143,13 +132,17 @@ protected:
 
 	// ===== Tuning Parameters (BP에서 조정) ===============================
 
-	/** 실루엣 유지 시간 */
+	/** 중앙으로 이동하는 시간 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
-	float SilhouetteDuration = 0.6f;
+	float MoveToCenterDuration = 0.45f;
 
 	/** 이미시브 상승 애니메이션 시간 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
-	float EmissiveDuration = 1.5f;
+	float EmissiveDuration = 0.4f;
+
+	/** 중앙 도착 후 유지 시간 */
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
+	float HoldAtCenterDuration = 0.15f;
 
 	/** 머티리얼 컬러 파라미터 이름 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
@@ -175,11 +168,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
 	float EmissiveLegendary = 10.0f;
 
-	// ===== BP Events (카메라/외부 연출만) ================================
+	/** 중앙 이동 중 약간 확대할 배율 */
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
+	float RevealScaleMultiplier = 1.25f;
 
-	/** 리빌 전체 연출이 끝났을 때 호출 (카메라 줌/카트씬 등 BP에서 구현) */
+	// ===== BP Events ======================================================
+
+	/** 중앙 이동 시작 시 BP 추가 연출용 */
 	UFUNCTION(BlueprintImplementableEvent, Category = "LR|Gacha|Orb")
-	void BP_OnRevealFinished(ELRGachaRarity Rarity, const FLRGachaResult& Result);
+	void BP_OnRevealStarted(const FLRGachaResult& Result);
 
 private:
 	/** 캐러셀에서 이 Orb가 담당하는 인덱스 */
@@ -195,14 +192,26 @@ private:
 	UPROPERTY()
 	TObjectPtr<UMaterialInstanceDynamic> DynMat;
 
+	/** 초기 위치/스케일 (리빌 시작 전 상태 복원용) */
+	FVector CachedStartLocation = FVector::ZeroVector;
+	FVector CachedStartScale = FVector(1.f);
+
+	/** 중앙 목표 위치 */
+	FVector RevealTargetLocation = FVector::ZeroVector;
+
 	/** 이미시브 애니메이션 진행도(0~1) */
 	float EmissiveAlpha = 0.f;
 
-	/** Tick에서 이미시브 갱신 중인지 여부 */
-	bool bEmissiveAnimating = false;
+	/** 중앙 이동 진행도(0~1) */
+	float MoveAlpha = 0.f;
 
-	/** 실루엣 유지 타이머 핸들 */
-	FTimerHandle TimerSilhouette;
+	/** 상태 플래그 */
+	bool bRevealMoving = false;
+	bool bEmissiveAnimating = false;
+	bool bRevealFinished = false;
+
+	/** 중앙 유지 후 종료용 타이머 */
+	FTimerHandle TimerFinishReveal;
 
 	// ===== Internal Functions =============================================
 
@@ -215,12 +224,12 @@ private:
 	/** 등급 → 사운드 에셋 */
 	USoundBase* GetSoundByRarity(ELRGachaRarity Rarity) const;
 
-	/** 실루엣 시작 처리 */
-	void PlaySilhouette_Internal();
-
-	/** SilhouetteDuration 경과 후 호출 */
-	void OnSilhouetteFinished();
+	/** 중앙 이동 종료 처리 */
+	void OnMoveToCenterFinished();
 
 	/** 이미시브 애니메이션 종료 처리 */
 	void OnEmissiveFinished();
+
+	/** 실제 리빌 완료 처리 */
+	void FinishReveal();
 };
