@@ -48,10 +48,8 @@ void ULRChapterWidget::OnOpenButtonClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	ULRStageSelectorWidget* StageSelectorWidget = UIManager->OpenUI<ULRStageSelectorWidget>(StageSelectorWidgetClass);
-	
-	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
-	TArray<FName> StageIDs = GameDataSubsystem->GetAllStageIDsByChapterID(ChapterID);
-	StageSelectorWidget->SetStageData(StageIDs);
+
+	StageSelectorWidget->SetChapterID(ChapterID);
 
 	UIManager->OpenUI<ULRStageSelectorWidget>(StageSelectorWidgetClass);
 }

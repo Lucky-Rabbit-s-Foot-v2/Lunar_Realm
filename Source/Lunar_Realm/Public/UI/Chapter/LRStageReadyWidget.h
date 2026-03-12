@@ -43,6 +43,8 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRStageInfoWidget> StageInfo;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UButton> Btn_EmptyPoint;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Entrance;

@@ -43,8 +43,14 @@ void ULRStageInfoWidget::SetStageDataByID(FName InStageID)
 			}
 		}
 	}
+
+	Reward1->SetRewardType(ELRCurrencyType::Gold);
 	Reward1->SetRewardAmount(StageData.RewardGold);
+
+	Reward2->SetRewardType(ELRCurrencyType::CrescentTicket);
 	Reward2->SetRewardAmount(StageData.RewardNormalTicket);
+	
+	Reward3->SetRewardType(ELRCurrencyType::FullMoonTicket);
 	Reward3->SetRewardAmount(StageData.RewardEnhanceTicket);
 }
 

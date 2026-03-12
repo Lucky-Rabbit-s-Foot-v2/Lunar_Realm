@@ -4,12 +4,14 @@
 #include "UI/Chapter/LRStageSelectorWidget.h"
 
 #include "Components/Button.h"
+#include "Components/Image.h"
 #include "UI/Chapter/LRStageWidget.h"
 
 #include "Units/LRControllerBase.h"
 
 #include "Engine/GameInstance.h"
 #include "Subsystems/UIManagerSubsystem.h"
+#include "Subsystems/GameDataSubsystem.h"
 
 void ULRStageSelectorWidget::BindProperties()
 {
@@ -41,6 +43,20 @@ void ULRStageSelectorWidget::RegisterSubWidgets()
 	SubWidgets.Add(Stage5);
 }
 
+void ULRStageSelectorWidget::SetChapterID(FName InID)
+{
+	CurrentChapterID = InID;
+
+	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+	const FChapterStaticData& ChapterData = GameDataSubsystem->GetChapterStaticData(CurrentChapterID);
+	Img_BG->SetBrushFromTexture(ChapterData.ChapterBackground.LoadSynchronous());
+
+	TArray<FName> StageIDs = GameDataSubsystem->GetAllStageIDsByChapterID(CurrentChapterID);
+	SetStageData(StageIDs);
+
+	RefreshUI();
+}
+
 void ULRStageSelectorWidget::SetStageData(const TArray<FName>& StageIDs)
 {
 	for (int32 i = 0; i < StageIDs.Num() && i < SubWidgets.Num(); ++i)
@@ -50,8 +66,6 @@ void ULRStageSelectorWidget::SetStageData(const TArray<FName>& StageIDs)
 			StageWidget->SetStageID(StageIDs[i]);
 		}
 	}
-
-	RefreshUI();
 }
 
 void ULRStageSelectorWidget::OnBackButtonClicked()

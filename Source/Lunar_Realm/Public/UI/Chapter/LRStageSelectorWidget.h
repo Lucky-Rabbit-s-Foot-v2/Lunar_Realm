@@ -26,6 +26,8 @@ public:
 
 	virtual void RegisterSubWidgets() override;
 
+	void SetChapterID(FName InChapterID);
+
 	UFUNCTION(BlueprintCallable)
 	void SetStageData(const TArray<FName>& StageIDs);
 
@@ -33,6 +35,9 @@ public:
 	void OnBackButtonClicked();
 
 protected:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> Img_BG;
+
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRStageWidget> Stage1;
 
@@ -50,4 +55,7 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Back;
+
+private:
+	FName CurrentChapterID;
 };

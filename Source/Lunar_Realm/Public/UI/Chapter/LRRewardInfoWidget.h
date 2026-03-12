@@ -23,6 +23,7 @@ class LUNAR_REALM_API ULRRewardInfoWidget : public ULRChildWidget
 public:
 	virtual void RefreshUI() override;
 
+	virtual void SetRewardType(ELRCurrencyType InCurrencyType);
 	virtual void SetRewardAmount(const int32 InAmount);
 
 protected:
@@ -36,5 +37,6 @@ protected:
 	TObjectPtr<class UTextBlock> Txt_Amount;
 
 private:
+	ELRCurrencyType CurrencyType = ELRCurrencyType::Gold;
 	int32 RewardAmount = 0;
 };

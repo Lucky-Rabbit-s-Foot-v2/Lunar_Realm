@@ -16,8 +16,9 @@ void ULRStageReadyWidget::BindProperties()
 {
 	Super::BindProperties();
 
-	if (Btn_Entrance) Btn_Entrance->OnClicked.AddDynamic(this, &ULRStageReadyWidget::OnEntranceButtonClicked);
-	if (Btn_Close) Btn_Close->OnClicked.AddDynamic(this, &ULRStageReadyWidget::OnCloseRequested);
+	if (Btn_EmptyPoint) Btn_EmptyPoint->OnClicked.AddUniqueDynamic(this, &ULRStageReadyWidget::OnCloseRequested);
+	if (Btn_Entrance) Btn_Entrance->OnClicked.AddUniqueDynamic(this, &ULRStageReadyWidget::OnEntranceButtonClicked);
+	if (Btn_Close) Btn_Close->OnClicked.AddUniqueDynamic(this, &ULRStageReadyWidget::OnCloseRequested);
 
 	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
 	{
@@ -29,6 +30,7 @@ void ULRStageReadyWidget::UnbindProperties()
 {
 	OnCloseUIRequestedDel.Clear();
 
+	if (Btn_EmptyPoint) Btn_EmptyPoint->OnClicked.Clear();
 	if (Btn_Entrance) Btn_Entrance->OnClicked.Clear();
 	if (Btn_Close) Btn_Close->OnClicked.Clear();
 
