@@ -14,6 +14,7 @@ void ALRIntroController::OpenFirstWidget()
 {
 	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
 	{
+		UIManager->OpenUIByID(EUIID::BACKGROUND);
 		UIManager->OpenUIByID(EUIID::INTRO);
 	}
 }
