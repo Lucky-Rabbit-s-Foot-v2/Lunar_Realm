@@ -1,0 +1,4 @@
+---,DataID,CurrencyType,CurrencyImage
+1,"GOLD","Gold","/Game/Assets/BlackStromAsset/UI/Icon/Icon_Basics/Icon_Gold.Icon_Gold"
+2,"CRESCENT","CrescentTicket","/Game/Assets/BlackStromAsset/UI/Icon/Icon_ShopGoods/Icon_Shop_Charge/ProductImageGold_03.ProductImageGold_03"
+3,"FULLMOON","FullMoonTicket","/Game/Assets/BlackStromAsset/UI/Icon/Icon_ShopGoods/Icon_Shop_Charge/ProductImageGold_05.ProductImageGold_05"

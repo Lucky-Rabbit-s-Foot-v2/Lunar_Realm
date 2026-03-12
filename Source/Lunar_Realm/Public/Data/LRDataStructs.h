@@ -852,6 +852,49 @@ struct FStageStaticData : public FTableRowBase
 };
 
 
+ //=============================================================================
+ // (260312) PJB 제작.
+ // =============================================================================
+
+USTRUCT(BlueprintType)
+struct FChapterStaticData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
+	FName DataID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
+	FText ChapterName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spawn")
+	TArray<FName> StageDataIDs;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spawn")
+	TSoftObjectPtr<UTexture2D> ChapterThumbnail;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spawn")
+	TSoftObjectPtr<UTexture2D> ChapterBackground;
+
+};
+
+
+USTRUCT(BlueprintType)
+struct FCurrencyStaticData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
+	FName DataID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
+	ELRCurrencyType CurrencyType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Spawn")
+	TSoftObjectPtr<UTexture2D> CurrencyImage;
+
+};
+
 
 // =============================================================================
 // (260210) PYI 제작
