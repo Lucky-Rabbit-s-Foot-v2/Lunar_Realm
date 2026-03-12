@@ -45,3 +45,14 @@ void ULRGameOverWidget::OnExitButtonClicked()
 	ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode());
 	StageGM->OnExitStage();
 }
+
+void ULRGameOverWidget::InitializeUI()
+{
+	Super::InitializeUI();
+
+	if (Fail)
+	{
+		PlayAnimation(Fail);
+	}
+
+}

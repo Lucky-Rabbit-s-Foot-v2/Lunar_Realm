@@ -27,6 +27,15 @@ void ULRGameClearWidget::UnbindProperties()
 	Super::UnbindProperties();
 }
 
+void ULRGameClearWidget::InitializeUI()
+{
+	Super::InitializeUI();
+	if (victory)
+	{
+		PlayAnimation(victory);
+	}
+}
+
 void ULRGameClearWidget::OnNextStageButtonClicked()
 {
 	ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode());
