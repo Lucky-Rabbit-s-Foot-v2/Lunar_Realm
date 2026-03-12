@@ -29,6 +29,8 @@ public:
 	
 	virtual void RefreshUI() override;
 
+	void SetChapterID(FName InChapterID);
+
 	UPROPERTY(BlueprintAssignable, Category = "LR|Event")
 	FOnChapterOpenClicked OnChapterOpenClickedDel;
 

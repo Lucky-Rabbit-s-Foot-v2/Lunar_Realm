@@ -31,7 +31,17 @@ void ULRChapterWidget::RefreshUI()
 {
 	Super::RefreshUI();
 
-	Txt_Name->SetText(FText::FromName(ChapterID));
+	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+	const FChapterStaticData& ChapterData = GameDataSubsystem->GetChapterStaticData(ChapterID);
+	
+	Img_Icon->SetBrushFromTexture(ChapterData.ChapterThumbnail.LoadSynchronous());
+	Txt_Name->SetText(ChapterData.ChapterName);
+}
+
+void ULRChapterWidget::SetChapterID(FName InChapterID)
+{
+	ChapterID = InChapterID;
+	RefreshUI();
 }
 
 void ULRChapterWidget::OnOpenButtonClicked()

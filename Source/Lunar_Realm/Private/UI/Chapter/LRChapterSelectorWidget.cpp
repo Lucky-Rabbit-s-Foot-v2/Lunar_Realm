@@ -13,6 +13,14 @@
 #include "UI/Chapter/LRChapterWidget.h"
 #include "UI/Lobby/LRLobbyWidget.h"
 
+void ULRChapterSelectorWidget::InitializeUI()
+{
+	Super::InitializeUI();
+	Chapter1->SetChapterID(FName("LAKE"));
+	Chapter2->SetChapterID(FName("OCEAN"));
+	Chapter3->SetChapterID(FName("DESERT"));
+}
+
 void ULRChapterSelectorWidget::BindProperties()
 {
 	Super::BindProperties();

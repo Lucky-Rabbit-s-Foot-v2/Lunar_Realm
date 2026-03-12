@@ -57,16 +57,12 @@ void ULRCurrencyViewWidget::OnCurrencyAddClicked()
 
 void ULRCurrencyViewWidget::SetIconByType()
 {
-	LR_SCREEN_INFO(TEXT("Setting icon for currency type: %d"), static_cast<int32>(CurrencyType));
 	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
 	if (Img_Icon)
 	{
 		FName CurrencyID = TypeToID();
-		LR_SCREEN_INFO(TEXT("Mapped currency type %d to CurrencyID: %s"), static_cast<int32>(CurrencyType), *CurrencyID.ToString());
 		const FCurrencyStaticData& CurrencyData = GameDataSubsystem->GetCurrencyStaticData(CurrencyID);
-		LR_SCREEN_INFO(TEXT("Retrieved static data for CurrencyID %s: Name=%s, Icon=%s"), *CurrencyID.ToString(), *CurrencyData.CurrencyImage.ToString(), *CurrencyData.CurrencyImage.GetAssetName());
 		UTexture2D* IconTexture = CurrencyData.CurrencyImage.LoadSynchronous();
-		LR_SCREEN_INFO(TEXT("Loaded icon texture for currency type %d: %s\n\n"), static_cast<int32>(CurrencyType), *GetNameSafe(IconTexture));
 		Img_Icon->SetBrushFromTexture(IconTexture);
 	}
 }

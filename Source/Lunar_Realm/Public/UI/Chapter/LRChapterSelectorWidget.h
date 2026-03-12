@@ -22,6 +22,8 @@ class LUNAR_REALM_API ULRChapterSelectorWidget : public ULRPageWidget
 	GENERATED_BODY()
 	
 public:
+	virtual void InitializeUI() override;
+
 	virtual void BindProperties() override;	
 	virtual void UnbindProperties() override;
 
