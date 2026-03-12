@@ -5,7 +5,9 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "BehaviorTree/BehaviorTree.h"
+#include "Engine/GameInstance.h"
 #include "GAS/Tags/LRGameplayTags.h"
+#include "Subsystems/GameDataSubsystem.h"
 #include "Units/LRCharacter.h"
 
 
@@ -45,4 +47,21 @@ bool ALREnemyAIController::TryAttackTarget(AActor* Target)
 		EventData);
 
 	return true;
+}
+
+void ALREnemyAIController::InitializeFromEnemyData(FName EnemyID)
+{
+	UGameInstance* GI = GetWorld() ? GetWorld()->GetGameInstance() : nullptr;
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+	if (!DataSys)
+	{
+		LR_WARN(TEXT("[%s] InitializeFromEnemyData: No valid GameDataSubsystem"), *GetName());
+		return;
+	}
+
+	const FEnemyStaticData& EnemyData = DataSys->GetEnemyStaticData(EnemyID);
+	AttackRange = EnemyData.AttackRange;
+
+	// TEST
+	LR_INFO(TEXT("[%s] AttackRange 설정값: %f"), *EnemyID.ToString(), AttackRange);
 }

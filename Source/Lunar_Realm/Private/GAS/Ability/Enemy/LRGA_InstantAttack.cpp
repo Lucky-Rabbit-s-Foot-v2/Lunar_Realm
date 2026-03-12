@@ -32,25 +32,10 @@ ULRGA_InstantAttack::ULRGA_InstantAttack()
 void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	// 1. 타겟 찾기 (Controller에서!)
-	AActor* TargetActor = nullptr;
-
-	if (ActorInfo && ActorInfo->AvatarActor.IsValid())
-	{
-		APawn* OwnerPawn = Cast<APawn>(ActorInfo->AvatarActor.Get());
-		if (OwnerPawn)
-		{
-			ALRAIController* AIController = Cast<ALRAIController>(OwnerPawn->GetController());
-			if (AIController)
-			{
-				UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent();
-				if (BlackboardComp)
-				{
-					TargetActor = Cast<AActor>(BlackboardComp->GetValueAsObject("TargetActor"));
-				}
-			}
-		}
-	}
+	// 1. 타겟 찾기 (LRGameplayAbilityBase를 통해 캐싱된 타겟으로 설정)
+	const AActor* TargetActor = Cast<const AActor>(CachedTarget);
+	// TEST
+	LR_INFO(TEXT("[InstantAttack] TargetActor: %s"), TargetActor ? *TargetActor->GetName() : TEXT("NULL"));
 
 	if (!TargetActor)
 	{
@@ -69,10 +54,16 @@ void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 	}
 
 	// 3. 타겟의 ASC 가져오기
-	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(const_cast<AActor*>(TargetActor));
+	// TEST
+	LR_INFO(TEXT("[InstantAttack] TargetASC: %s"), TargetASC ? TEXT("Valid") : TEXT("NULL"));
 	if (!TargetASC || !DamageEffectClass)
 	{
 		LR_WARN(TEXT("타켓 Asc 못 찾음!!"));
+		// TEST
+		LR_WARN(TEXT("[InstantAttack] 실패 - ASC: %s / DamageEffect: %s"),
+			TargetASC ? TEXT("Valid") : TEXT("NULL"),
+			DamageEffectClass ? TEXT("Valid") : TEXT("NULL"));
 
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;

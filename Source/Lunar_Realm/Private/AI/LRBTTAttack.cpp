@@ -12,6 +12,9 @@
 ULRBTTAttack::ULRBTTAttack()
 {
 	NodeName = TEXT("LR Attack");
+
+	// Object 타입 키만 드롭다운에 표시되도록 필터 설정
+	TargetKey.AddObjectFilter(this, GET_MEMBER_NAME_CHECKED(ULRBTTAttack, TargetKey), AActor::StaticClass());
 }
 
 EBTNodeResult::Type ULRBTTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -37,7 +40,7 @@ EBTNodeResult::Type ULRBTTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 		return EBTNodeResult::Failed;
 	}
 
-	AActor* TargetActor = Cast<AActor>(BB->GetValueAsObject(LRBBKeys::TargetActor));
+	AActor* TargetActor = Cast<AActor>(BB->GetValueAsObject(TargetKey.SelectedKeyName));
 	if (!TargetActor)
 	{
 		LR_WARN(TEXT("[%s] : No Valid Target Actor Exist! => Check Level"), *GetName());
@@ -55,14 +58,6 @@ EBTNodeResult::Type ULRBTTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 
 	const float DistToTarget = FVector::Dist(MyLoc, TargetLoc);
 	const float CurrentAttackRange = AIController->GetAttackRange();
-
-	//// 사거리 체크
-	//const float DistToTarget = FVector::Dist(
-	//	MyPawn->GetActorLocation(),
-	//	TargetActor->GetActorLocation()
-	//);
-
-	//const float CurrentAttackRange = AIController->GetAttackRange();
 
 	if (DistToTarget > CurrentAttackRange)
 	{

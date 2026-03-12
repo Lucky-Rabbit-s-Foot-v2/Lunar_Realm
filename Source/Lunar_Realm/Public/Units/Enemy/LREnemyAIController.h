@@ -28,6 +28,7 @@
  // (260211) KWB 생성자에서 적대 태그 세팅.
  // (260212) KWB BT 하드 코딩 제거, EnemyCharacter가 StaticData에서 로드 & 설정으로 로직 수정
  // (260303) KWB 부모 클래스 TryAttackTarget() 함수 Override 구현 추가
+ // (260312) KWB BT 설정을 위한 데이터 초기화 함수 추가
  //============================================================================
 
 UCLASS()
@@ -39,4 +40,6 @@ public:
 	ALREnemyAIController();
 
 	virtual bool TryAttackTarget(AActor* Target) override;
+
+	void InitializeFromEnemyData(FName EnemyID);
 };

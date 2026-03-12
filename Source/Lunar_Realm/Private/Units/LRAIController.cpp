@@ -76,13 +76,13 @@ void ALRAIController::OnPossess(APawn* InPawn)
 		CrowdComp->SetCrowdAvoidanceQuality(ECrowdAvoidanceQuality::High, true);
 
 		CrowdComp->SetCrowdSeparation(true, true);
-		CrowdComp->SetCrowdSeparationWeight(350.f, true); // 필요시 해당 수치 조절
+		CrowdComp->SetCrowdSeparationWeight(400.f, true); // 필요시 해당 수치 조절
 
 		CrowdComp->SetCrowdAnticipateTurns(true, true);
 		CrowdComp->SetCrowdOptimizeVisibility(true, true);
 		CrowdComp->SetCrowdOptimizeTopology(true, true);
 
-		CrowdComp->SetCrowdCollisionQueryRange(600.0f, true);
+		CrowdComp->SetCrowdCollisionQueryRange(700.0f, true);
 		CrowdComp->SetCrowdAvoidanceRangeMultiplier(1.2f, true);
 
 		CrowdComp->SetCrowdSlowdownAtGoal(false, true);
@@ -250,12 +250,6 @@ bool ALRAIController::TryAttackTarget(AActor* Target)
 	{
 		return false;
 	}
-
-	//const float CurrentTime = GetWorld()->GetTimeSeconds();
-	//if (CurrentTime - LastAttackTime < AttackCooldown)
-	//{
-	//	return false;
-	//}
 
 	APawn* MyPawn = GetPawn();
 	if (!MyPawn)

@@ -19,9 +19,11 @@ class UBlackboardComponent;
  */
 namespace LRBBKeys
 {
-	inline const FName TargetActor = TEXT("TargetActor");			 // Object (AActor* -> 베이스 클래스)
-	inline const FName TargetCore = TEXT("TargetCore");				 // Object (AActor*)
-	inline const FName HasNearbyHostile = TEXT("HasNearbyHostile");  // Bool
+	inline const FName TargetActor = TEXT("TargetActor");				// Object (AActor* -> 베이스 클래스)
+	inline const FName TargetCore = TEXT("TargetCore");					// Object (AActor*)
+	inline const FName HasNearbyHostile = TEXT("HasNearbyHostile");		// Bool
+	inline const FName CoreInRange = TEXT("CoreInRange");				// Bool
+	inline const FName CurrentPhase = TEXT("CurrentPhase");				// Int
 }
 
 /**
@@ -49,6 +51,7 @@ namespace LRBBKeys
  // (260225) KWB 주석 처리된 미사용 코드 제거
  // (260303) KWB Enemy, Member 각기 다른 스킬 사용을 위한 TryAttackTarget() 함수 가상 함수화
  // (260311) KWB 크라우드 우회 매니저 사용한 군중 회피 시스템 적용
+ // (260312) KWB 에너미 타입 세분화를 위한 BBKey, 보스 현재 페이즈 구분을 위한 BBKey 추가
  //============================================================================
 UCLASS()	
 class LUNAR_REALM_API ALRAIController : public ADetourCrowdAIController, public ILRPoolableInterface

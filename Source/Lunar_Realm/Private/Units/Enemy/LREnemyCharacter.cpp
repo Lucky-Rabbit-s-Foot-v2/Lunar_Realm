@@ -84,11 +84,6 @@ void ALREnemyCharacter::OnDie()
 
 void ALREnemyCharacter::InitializeByEnemyID(FName EnemyID)
 {
-	// TEMP : #55 안움직이는 버그 수정 때 필요
-	//LR_INFO(TEXT("[%s] InitializeByEnemyID - Controller: %s"),
-	//	*GetName(),
-	//	GetController() ? *GetController()->GetName() : TEXT("NULL"));
-
 	CurrentEnemyID = EnemyID;
 
 	// 데이터 서브시스템에서 전체 에너미 데이터 조회
@@ -117,6 +112,11 @@ void ALREnemyCharacter::InitializeByEnemyID(FName EnemyID)
 		{
 			if (ALRAIController* AICtrl = Cast<ALRAIController>(GetController()))
 			{
+				if (ALREnemyAIController* EnemyAICtrl = Cast<ALREnemyAIController>(AICtrl))
+				{
+					EnemyAICtrl->InitializeFromEnemyData(EnemyID);
+				}
+
 				AICtrl->InitializeBehaviorTree(BT);
 			}
 			else
@@ -302,12 +302,6 @@ void ALREnemyCharacter::PlayAttackedMontage()
 		0.0f,
 		true  // bStopAllMontages => 공격 몽타주보다 높은 우선 순위
 	);
-
-	// TEST
-	//if (MontageLength > 0.0f)
-	//{
-	//	LR_WARN(TEXT("========== [%s] Attacked montage started =========="), *CurrentEnemyID.ToString());
-	//}
 }
 
 void ALREnemyCharacter::PlayDeathMontage()
@@ -353,8 +347,6 @@ void ALREnemyCharacter::PlayDeathMontage()
 	}
 	else
 	{
-		// TEST
-		// LR_ERROR(TEXT("[%s] Death montage started (Length: %.2fs)"), *CurrentEnemyID.ToString(), MontageLength);
 		return;
 	}
 }
@@ -408,7 +400,7 @@ float ALREnemyCharacter::GetDropAetherAmount() const
 {
 	if (CurrentEnemyID == NAME_None)
 	{
-		// LR_WARN(TEXT("Not Valid CurrentEnemyID : %s || %s"), *GetName(), *CurrentEnemyID.ToString());
+		LR_WARN(TEXT("Not Valid CurrentEnemyID : %s || %s"), *GetName(), *CurrentEnemyID.ToString());
 		return 0.0f;
 	}
 
