@@ -26,6 +26,10 @@ void ULRPureButton::ApplyTransparentStyle()
 	TransparentStyle.SetHovered(TransparentBrush);
 	TransparentStyle.SetPressed(TransparentBrush);
 
+	FMargin NoPadding(0.f);
+	TransparentStyle.SetNormalPadding(NoPadding);
+	TransparentStyle.SetPressedPadding(NoPadding);
+
 	SetStyle(TransparentStyle);
 	SetBackgroundColor(FLinearColor(0.f, 0.f, 0.f, 0.f));
 }

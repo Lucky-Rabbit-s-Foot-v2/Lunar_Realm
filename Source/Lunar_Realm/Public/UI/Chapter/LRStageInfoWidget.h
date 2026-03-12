@@ -20,6 +20,8 @@ class LUNAR_REALM_API ULRStageInfoWidget : public ULRChildWidget
 	GENERATED_BODY()
 	
 public:
+	void RegisterSubWidgets() override;
+	
 	void SetStageDataByID(FName InStageID);
 
 protected:
@@ -46,4 +48,7 @@ protected:
 
 private:
 	FName CurrentStageID;
+
+	TArray<class ULREnemyInfo*> EnemyInfos;
+	TArray<class ULRRewardInfoWidget*> RewardInfos;
 };
