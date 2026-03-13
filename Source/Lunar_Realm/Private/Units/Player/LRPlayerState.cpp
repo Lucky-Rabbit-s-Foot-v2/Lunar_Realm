@@ -17,7 +17,7 @@
 #include "Units/Player/LRPlayerController.h"
 #include "UI/InGame/LRPlayerWidget.h"
 #include "UI/InGame/LRSkillPanelWidget.h"
-
+#include "Animation/AnimInstance.h"
 
 ALRPlayerState::ALRPlayerState()
 {
