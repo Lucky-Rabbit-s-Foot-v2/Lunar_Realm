@@ -15,6 +15,11 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 
+#include "MediaPlayer.h"
+#include "MediaTexture.h"
+
+#include "Materials/MaterialInstanceDynamic.h"
+
 #include "Engine/Texture2D.h"
 #include "Engine/World.h"
 #include "Engine/GameInstance.h"
@@ -91,6 +96,8 @@ void ULRGachaRevealWidget::StartReveal(FName InBannerID, const TArray<FLRGachaRe
 	bAllRevealed = false;
 	bResultOverlayShown = false;
 	bPresentationVisible = false;
+	bPresentationUsingVideo = false;
+	bCurrentPresentationIsLast = false;
 
 	bIsPointerDown = false;
 	PointerDownPosition = FVector2D::ZeroVector;
@@ -330,12 +337,12 @@ void ULRGachaRevealWidget::OnClickSkip()
 		return;
 	}
 
-	// 개별 리빌 화면이 떠 있으면 먼저 닫기
+	// 개별 리빌 화면이 떠 있으면 닫고, 마지막이면 결과창으로
 	if (bPresentationVisible)
 	{
 		HidePresentation();
 
-		if (bAllRevealed)
+		if (!bResultOverlayShown)
 		{
 			BuildResultSlotsSequential();
 			BP_OnAllRevealed(CachedResults);
@@ -346,17 +353,18 @@ void ULRGachaRevealWidget::OnClickSkip()
 				ResultOverlay->SetVisibility(ESlateVisibility::Visible);
 			}
 		}
-
 		return;
 	}
 
-	if (!bAllRevealed)
-	{
-		OrbSceneActor->SkipAllReveal();
-	}
-
+	// 아직 전체 리빌이 안 끝났으면 캐릭터/영상 리빌은 전부 생략하고 결과창으로 직행
 	if (!bResultOverlayShown)
 	{
+		if (!bAllRevealed)
+		{
+			OrbSceneActor->SkipAllReveal();
+			bAllRevealed = true;
+		}
+
 		BuildResultSlotsSequential();
 		BP_OnAllRevealed(CachedResults);
 		bResultOverlayShown = true;
@@ -403,8 +411,8 @@ FReply ULRGachaRevealWidget::NativeOnMouseButtonUp(
 	{
 		HidePresentation();
 
-		// 마지막 구슬까지 열린 상태면 바로 결과창으로 전환
-		if (bAllRevealed)
+		// 마지막 프레젠테이션이거나 전체 리빌이 끝난 상태면 결과창 표시
+		if (bCurrentPresentationIsLast || bAllRevealed)
 		{
 			if (!bResultOverlayShown)
 			{
@@ -459,15 +467,17 @@ void ULRGachaRevealWidget::HandleAllOrbsRevealed()
 
 void ULRGachaRevealWidget::HandleRevealPresentationRequested(int32 OrbIndex, const FLRGachaResult& Result)
 {
-	ShowPresentation(Result);
+	ShowPresentation(OrbIndex, Result);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  개별 리빌 화면 표시/종료
 // ─────────────────────────────────────────────────────────────────────────────
 
-void ULRGachaRevealWidget::ShowPresentation(const FLRGachaResult& Result)
+void ULRGachaRevealWidget::ShowPresentation(int32 OrbIndex, const FLRGachaResult& Result)
 {
+	bCurrentPresentationIsLast = (OrbIndex >= CachedResults.Num() - 1);
+
 	UGameInstance* GI = GetGameInstance();
 	if (!GI)
 	{
@@ -486,7 +496,28 @@ void ULRGachaRevealWidget::ShowPresentation(const FLRGachaResult& Result)
 	// 표시 데이터 구성 실패해도 최소한 ItemID 텍스트는 보이도록 fallback 허용
 	GachaSys->BuildRevealPresentationData(Result, CurrentPresentationData);
 
+	bPresentationUsingVideo = CurrentPresentationData.bUseVideo;
+
 	ApplyPresentationDataToWidgets(CurrentPresentationData);
+
+	// 영상이면 반복 재생 시작
+	if (bPresentationUsingVideo)
+	{
+		if (RevealMediaPlayer && CurrentPresentationData.VideoSource)
+		{
+			RevealMediaPlayer->Close();
+			RevealMediaPlayer->OpenSource(CurrentPresentationData.VideoSource);
+			RevealMediaPlayer->SetLooping(true);
+			RevealMediaPlayer->Play();
+		}
+	}
+	else
+	{
+		if (RevealMediaPlayer)
+		{
+			RevealMediaPlayer->Close();
+		}
+	}
 
 	bPresentationVisible = true;
 
@@ -517,6 +548,18 @@ void ULRGachaRevealWidget::HidePresentation()
 		PresentationOverlay->SetVisibility(ESlateVisibility::Collapsed);
 	}
 
+	if (RevealMediaPlayer)
+	{
+		RevealMediaPlayer->Close();
+	}
+
+	if (Image_RevealVideo)
+	{
+		Image_RevealVideo->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+	bPresentationUsingVideo = false;
+
 	if (OrbSceneActor)
 	{
 		OrbSceneActor->NotifyPresentationClosed();
@@ -527,24 +570,33 @@ void ULRGachaRevealWidget::HidePresentation()
 
 void ULRGachaRevealWidget::ApplyPresentationDataToWidgets(const FLRGachaRevealPresentationData& InData)
 {
+	const bool bUseVideo = InData.bUseVideo && InData.VideoSource != nullptr;
+
 	// 배경
 	if (Image_RevealBackground)
 	{
 		UTexture2D* FinalBackgroundTexture = nullptr;
 
-		// 1순위: 위젯에 설정한 공통 배경
-		if (bUseCommonRevealBackground && !CommonRevealBackgroundTexture.IsNull())
+		if (!bUseVideo)
 		{
-			FinalBackgroundTexture = CommonRevealBackgroundTexture.LoadSynchronous();
+			// 1순위: 공통 배경
+			if (bUseCommonRevealBackground && !CommonRevealBackgroundTexture.IsNull())
+			{
+				FinalBackgroundTexture = CommonRevealBackgroundTexture.LoadSynchronous();
+			}
+
+			// 2순위: 개별 배경
+			if (!FinalBackgroundTexture && InData.BackgroundTexture)
+			{
+				FinalBackgroundTexture = InData.BackgroundTexture;
+			}
 		}
 
-		// 2순위: 결과별 개별 배경(DT)
-		if (!FinalBackgroundTexture && InData.BackgroundTexture)
+		if (bUseVideo)
 		{
-			FinalBackgroundTexture = InData.BackgroundTexture;
+			Image_RevealBackground->SetVisibility(ESlateVisibility::Collapsed);
 		}
-
-		if (FinalBackgroundTexture)
+		else if (FinalBackgroundTexture)
 		{
 			Image_RevealBackground->SetBrushFromTexture(FinalBackgroundTexture);
 			Image_RevealBackground->SetVisibility(ESlateVisibility::Visible);
@@ -558,12 +610,14 @@ void ULRGachaRevealWidget::ApplyPresentationDataToWidgets(const FLRGachaRevealPr
 	// 실루엣
 	if (Image_RevealSilhouette)
 	{
-		if (InData.MainTexture)
+		if (bUseVideo)
+		{
+			Image_RevealSilhouette->SetVisibility(ESlateVisibility::Collapsed);
+		}
+		else if (InData.MainTexture)
 		{
 			Image_RevealSilhouette->SetBrushFromTexture(InData.MainTexture);
 			Image_RevealSilhouette->SetVisibility(ESlateVisibility::Visible);
-
-			// 검은 실루엣 처리
 			Image_RevealSilhouette->SetColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 1.f));
 		}
 		else
@@ -575,12 +629,14 @@ void ULRGachaRevealWidget::ApplyPresentationDataToWidgets(const FLRGachaRevealPr
 	// 컬러 메인
 	if (Image_RevealMain)
 	{
-		if (InData.MainTexture)
+		if (bUseVideo)
+		{
+			Image_RevealMain->SetVisibility(ESlateVisibility::Collapsed);
+		}
+		else if (InData.MainTexture)
 		{
 			Image_RevealMain->SetBrushFromTexture(InData.MainTexture);
 			Image_RevealMain->SetVisibility(ESlateVisibility::Visible);
-
-			// 시작 시 투명 → BP 애니메이션 또는 후속 확장으로 자연스럽게 노출
 			Image_RevealMain->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 1.f));
 		}
 		else
@@ -605,7 +661,42 @@ void ULRGachaRevealWidget::ApplyPresentationDataToWidgets(const FLRGachaRevealPr
 	// 플래시 이미지
 	if (Image_RevealFlash)
 	{
-		Image_RevealFlash->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 0.f));
+		if (bUseVideo)
+		{
+			Image_RevealFlash->SetVisibility(ESlateVisibility::Collapsed);
+		}
+		else
+		{
+			Image_RevealFlash->SetVisibility(ESlateVisibility::Visible);
+			Image_RevealFlash->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 0.f));
+		}
+	}
+
+	// 영상 레이어
+	if (Image_RevealVideo)
+	{
+		if (bUseVideo)
+		{
+			Image_RevealVideo->SetVisibility(ESlateVisibility::Visible);
+
+			if (RevealVideoMaterial && RevealMediaTexture)
+			{
+				if (!RevealVideoMID)
+				{
+					RevealVideoMID = UMaterialInstanceDynamic::Create(RevealVideoMaterial, this);
+				}
+
+				if (RevealVideoMID)
+				{
+					RevealVideoMID->SetTextureParameterValue(TEXT("VideoTexture"), RevealMediaTexture);
+					Image_RevealVideo->SetBrushFromMaterial(RevealVideoMID);
+				}
+			}
+		}
+		else
+		{
+			Image_RevealVideo->SetVisibility(ESlateVisibility::Collapsed);
+		}
 	}
 }
 
