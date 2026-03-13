@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Common/LREntryWidget.h"
+#include "UI/Core/LREntryWidget.h"
 
 #include "Components/Button.h"
 #include "Components/Image.h"
