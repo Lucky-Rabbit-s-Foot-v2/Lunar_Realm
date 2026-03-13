@@ -21,16 +21,17 @@ void ULRSummonSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	if (Img_Cooldown)
+	{
+		CooldownMID = Img_Cooldown->GetDynamicMaterial();
+	}
+
 	if (APawn* OwningPawn = GetOwningPlayerPawn())
 	{
 		SummonComp = OwningPawn->GetComponentByClass<ULRSummonComponent>();
 		if (SummonComp)
 		{
 			SummonComp->OnUnitSummoned.AddUniqueDynamic(this, &ULRSummonSlotWidget::OnSummonedEvent);
-		}
-		if (Img_Cooldown)
-		{
-			CooldownMID = Img_Cooldown->GetDynamicMaterial();
 		}
 	}
 }
@@ -134,10 +135,6 @@ void ULRSummonSlotWidget::UpdateCooldownState(float InDeltaTime)
 {
 	if (CurrentCooldown <= 0.0f)
 	{
-		//if (PB_Cooldown && PB_Cooldown->GetVisibility() != ESlateVisibility::Hidden)
-		//{
-		//	PB_Cooldown->SetVisibility(ESlateVisibility::Hidden);
-		//}
 		if (Img_Cooldown && Img_Cooldown->GetVisibility() != ESlateVisibility::Hidden)
 		{
 			Img_Cooldown->SetVisibility(ESlateVisibility::Hidden);
@@ -160,12 +157,6 @@ void ULRSummonSlotWidget::UpdateCooldownState(float InDeltaTime)
 		CooldownMID->SetScalarParameterValue(FName("Percent"), Percent);
 	}
 
-	//if (PB_Cooldown)
-	//{
-	//	// 비율 계산 (0.0 ~ 1.0)
-	//	float Percent = FMath::Clamp(CurrentCooldown / TotalCooldown, 0.0f, 1.0f);
-	//	PB_Cooldown->SetPercent(Percent);
-	//}
 }
 
 void ULRSummonSlotWidget::UpdateButtonState()
