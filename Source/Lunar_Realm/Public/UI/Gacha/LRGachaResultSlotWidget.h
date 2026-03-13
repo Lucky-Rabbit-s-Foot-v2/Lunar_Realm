@@ -116,4 +116,7 @@ protected:
 
 	/** 이름/아이콘 세팅용 헬퍼 – 나중에 GameDataSubsystem 연동 예정 */
 	void SetupNameAndIcon();
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> Image_NewBadge;
 };

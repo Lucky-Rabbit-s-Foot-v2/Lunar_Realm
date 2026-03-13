@@ -34,6 +34,11 @@ void ULRGachaResultSlotWidget::SetupWithResult(const FLRGachaResult& InResult)
 		const FLinearColor BaseDark(0.1f, 0.1f, 0.1f, 1.f);
 		Border_Background->SetBrushColor(RarityColor * 0.4f + BaseDark);
 	}
+
+	if (Image_NewBadge)
+	{
+		Image_NewBadge->SetVisibility(CachedResult.bIsNew ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+	}
 }
 
 // 결과 슬롯이 화면에 추가된 직후 호출되는 등장 연출 시작점
