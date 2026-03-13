@@ -132,7 +132,6 @@ public:
 	template<typename T>
 	ULRBaseWidget* SwitchPageUI(TSubclassOf<T> TargetClassFactory);
 
-
 	ULRBaseWidget* OpenUIByID(EUIID UIID);
 	ULRBaseWidget* SwitchPageUIByID(EUIID PageID);
 
@@ -140,6 +139,11 @@ public:
     FORCEINLINE bool HasOpenPopupUI() const { return PopupUIStack.Num() > 0; }
 	FORCEINLINE int GetPopupStackSize() const { return PopupUIStack.Num(); }
     
+	UFUNCTION(BlueprintCallable, Category = "LR|UI|Background")
+	void ShowBackgroundUI();
+	UFUNCTION(BlueprintCallable, Category = "LR|UI|Background")
+	void HideBackgroundUI();
+
 	UFUNCTION(BlueprintCallable, Category = "LR|UI|Damage")
 	void ShowDamageText(float Damage, FVector HitLocation, FLinearColor InColor);
 	
@@ -173,6 +177,9 @@ private:
 
 	UPROPERTY()
 	ULRBaseWidget* CurrentPageWidget = nullptr;
+
+	UPROPERTY()
+	ULRBaseWidget* BackgroundWidget = nullptr;
 
 	UPROPERTY()
 	TArray<TObjectPtr<ULRDamageWidget>> DamageWidgetPool;
@@ -246,10 +253,16 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
 	switch (BaseWidget->UILayer)
 	{
 		case EUILayer::BACKGROUND:
+			BackgroundWidget = BaseWidget;
+			BaseWidget->OpenUI();
+			if (!BaseWidget->IsInViewport())
+			{
+				int32 ZOrder = CalculateZOrder(BaseWidget);
+				BaseWidget->AddToViewport(ZOrder);
+			}
+			break;
 		case EUILayer::PERSISTENT:
 		{
-			LR_WARN(TEXT("Opening Persistent UI: %s"), *BaseWidget->GetName());
-
 			TSubclassOf<ULRBaseWidget> BaseClassFactory = TargetClassFactory;
 			if (!PersistentUIMap.Contains(BaseClassFactory))
 			{
@@ -269,8 +282,6 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
 		case EUILayer::POPUP:
 		case EUILayer::SYSTEM:
 		{
-			LR_WARN(TEXT("Opening Popup UI: %s"), *BaseWidget->GetName());
-
 			PopupUIStack.Add(BaseWidget);
 			BaseWidget->OpenUI();
 			if (!BaseWidget->IsInViewport())

@@ -9,6 +9,7 @@
 #include "Engine/GameInstance.h"
 #include "Engine/Texture2D.h"
 #include "Styling/SlateTypes.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 
 void ULRSkillPanelWidget::NativeConstruct()
@@ -18,6 +19,44 @@ void ULRSkillPanelWidget::NativeConstruct()
 	if (Btn_Skill1) Btn_Skill1->OnClicked.AddUniqueDynamic(this, &ULRSkillPanelWidget::OnSkill1Clicked);
 	if (Btn_Skill2) Btn_Skill2->OnClicked.AddUniqueDynamic(this, &ULRSkillPanelWidget::OnSkill2Clicked);
 	if (Btn_Potion) Btn_Potion->OnClicked.AddUniqueDynamic(this, &ULRSkillPanelWidget::OnPotionClicked);
+	
+	if (Img_Cooldown1)
+	{
+		Mat_Cooldown1 = Img_Cooldown1->GetDynamicMaterial();
+		if (Mat_Cooldown1) Mat_Cooldown1->SetScalarParameterValue(FName("Percent"), 0.0f);
+	}
+	if (Img_Cooldown2)
+	{
+		Mat_Cooldown2 = Img_Cooldown2->GetDynamicMaterial();
+		if (Mat_Cooldown2) Mat_Cooldown2->SetScalarParameterValue(FName("Percent"), 0.0f);
+	}
+}
+
+void ULRSkillPanelWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	// 스킬 1번 쿨타임
+	if (CurrentCD1 > 0.0f)
+	{
+		CurrentCD1 -= InDeltaTime;
+		if (Mat_Cooldown1)
+		{
+			float Percent = FMath::Clamp(CurrentCD1 / MaxCD1, 0.0f, 1.0f);
+			Mat_Cooldown1->SetScalarParameterValue(FName("Percent"), Percent);
+		}
+	}
+
+	// 스킬 2번 쿨타임
+	if (CurrentCD2 > 0.0f)
+	{
+		CurrentCD2 -= InDeltaTime;
+		if (Mat_Cooldown2)
+		{
+			float Percent = FMath::Clamp(CurrentCD2 / MaxCD2, 0.0f, 1.0f);
+			Mat_Cooldown2->SetScalarParameterValue(FName("Percent"), Percent);
+		}
+	}
 }
 
 void ULRSkillPanelWidget::NativeDestruct()
@@ -42,12 +81,29 @@ void ULRSkillPanelWidget::BindToController(ALRControllerBase* Controller)
 	}
 }
 
+
+void ULRSkillPanelWidget::StartSkillCooldown(int32 SkillIndex, float InCooldownTime)
+{
+	if (SkillIndex == 1)
+	{
+		MaxCD1 = InCooldownTime;
+		CurrentCD1 = InCooldownTime;
+	}
+	else if (SkillIndex == 2)
+	{
+		MaxCD2 = InCooldownTime;
+		CurrentCD2 = InCooldownTime;
+	}
+}
+
 void ULRSkillPanelWidget::OnSkill1Clicked() 
 { 
+	if (CurrentCD1 > 0.0f) return; 
 	OnSkill1ClickedDel.Broadcast(); 
 }
 void ULRSkillPanelWidget::OnSkill2Clicked() 
 { 
+	if (CurrentCD2 > 0.0f) return; 
 	OnSkill2ClickedDel.Broadcast(); 
 }
 void ULRSkillPanelWidget::OnPotionClicked() 
@@ -61,38 +117,31 @@ void ULRSkillPanelWidget::UpdateSkillIcons(FName InPlayerSkillID, FName InWeapon
 	UGameDataSubsystem* DataSubsystem = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
 	if (!DataSubsystem) return;
 
-	// 중복 방지용 람다 헬퍼 함수: 스킬 ID랑 버튼을 주면 버튼 스타일을 바꿔줌
 	auto ApplyIconToButtonLambda = [&](FName InSkillID, UButton* InTargetButton)
 		{
 			if (InSkillID == NAME_None || !InTargetButton) return;
 
-			// 1. 스킬 데이터에서 리소스 ID 추출
+			// 스킬 데이터에서 리소스 ID 추출
 			const FSkillStaticData& SkillData = DataSubsystem->GetSkillStaticData(InSkillID);
 			FName ResourceID = SkillData.ResourceID;
 
 			if (ResourceID == NAME_None) return;
 
-			// 2. 리소스 ID로 리소스 데이터(이미지) 추출
+			// 리소스 ID로 리소스 데이터(이미지) 추출
 			const FSkillResourceData& ResourceData = DataSubsystem->GetSkillResourceData(ResourceID);
 
-			// 3. 버튼 자체의 스타일에 이미지 덮어쓰기
+			// 버튼 자체의 스타일에 이미지 덮어쓰기
 			if (!ResourceData.SkillIcon.IsNull())
 			{
 				UTexture2D* LoadedIcon = ResourceData.SkillIcon.LoadSynchronous();
 				if (LoadedIcon)
 				{
-					// ★ 여기가 핵심! 버튼의 현재 스타일을 복사해옴
 					FButtonStyle NewStyle = InTargetButton->GetStyle();
 
-					// 평상시, 마우스 오버, 클릭 시의 이미지를 전부 로드한 아이콘으로 변경
 					NewStyle.Normal.SetResourceObject(LoadedIcon);
 					NewStyle.Hovered.SetResourceObject(LoadedIcon);
 					NewStyle.Pressed.SetResourceObject(LoadedIcon);
 
-					// (선택) 만약 버튼 크기에 맞게 꽉 채우고 싶다면 이미지 사이즈를 세팅할 수도 있어!
-					// NewStyle.Normal.ImageSize = FVector2D(LoadedIcon->GetSizeX(), LoadedIcon->GetSizeY());
-
-					// 수정한 스타일을 버튼에 최종 적용!
 					InTargetButton->SetStyle(NewStyle);
 				}
 			}

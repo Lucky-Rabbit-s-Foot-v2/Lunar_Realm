@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRChildWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 #include "GameplayEffectTypes.h"
 #include "LRAetherWidget.generated.h"
 
@@ -19,7 +19,7 @@ class UTextBlock;
 class UAbilirtySystemComponent;
 
 UCLASS()
-class LUNAR_REALM_API ULRAetherWidget : public ULRChildWidget
+class LUNAR_REALM_API ULRAetherWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
 	

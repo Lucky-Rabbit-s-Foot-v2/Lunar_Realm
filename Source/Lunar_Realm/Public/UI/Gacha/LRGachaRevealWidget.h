@@ -1,5 +1,4 @@
-﻿// LRGachaRevealWidget.h
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -15,30 +14,25 @@ class ALRGachaOrbSceneActor;
 class UButton;
 class UWidget;
 class UPanelWidget;
+class UImage;
+class UTextBlock;
+class UMediaPlayer;
+class UMediaTexture;
 class ULRGachaResultSlotWidget;
+class UMaterialInterface;
+class UMaterialInstanceDynamic;
 
 /**
  * ULRGachaRevealWidget (가챠 리빌 UI)
  *
  * 역할
- * - “가챠 결과를 뽑는 곳”이 아님. (결과는 Subsystem에서 이미 확정됨)
- * - 리빌 맵(GachaRevealMap)에서:
- *   1) OrbSceneActor(3D 연출 액터)를 찾거나 스폰한다.
- *   2) OrbSceneActor에 결과 배열(CachedResults)을 주입한다.
- *   3) 유저 입력(탭/스와이프)을 받아 OrbSceneActor에게 전달한다.
- *   4) 스킵/결과 오버레이/로비 복귀(샵 자동 오픈 요청)를 처리한다.
+ * - OrbSceneActor(3D 연출)와 UI 리빌 화면(실루엣/컬러 복원)을 연결
+ * - 개별 구슬 완료 후 캐릭터/장비 리빌 화면 표시
+ * - 탭/스와이프/스킵/최종 결과창 처리
  *
- * 설계
- * - 3D 연출(OrbSceneActor)과 UI(이 위젯)를 분리한다.
- * - 스킵은 ButtonSkip “하나”로만 처리한다. (복잡한 SkipState 제거)
- * - 두 번째 리빌에서 클릭이 안 먹는 문제 방지:
- *   -> ForceUIInputNextTick()로 입력 모드를 Game+UI로 강제한다.
- *
- * BP 이벤트
- * - BP_OnRevealStarted(DrawCount):
- *     1회/10회 분기 UI / 애니메이션 시작 트리거
- * - BP_OnAllRevealed(Results):
- *     결과 오버레이 표시(최종 애니/사운드) 트리거
+ * 화면 분리
+ * - 3D 구슬/달/카메라 : OrbSceneActor
+ * - 실루엣/컬러/배경/텍스트 : 이 위젯
  */
 UCLASS()
 class LUNAR_REALM_API ULRGachaRevealWidget : public ULRBaseWidget
@@ -46,12 +40,8 @@ class LUNAR_REALM_API ULRGachaRevealWidget : public ULRBaseWidget
 	GENERATED_BODY()
 
 public:
-	// ───────────────── UUserWidget 오버라이드 ─────────────────
-
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
-
-	// ───────────────── 외부 진입점(호출 API) ─────────────────
 
 	/** (리빌 맵 HUD에서 호출) 트랜잭션 ID 포함 리빌 시작 */
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Reveal")
@@ -68,61 +58,152 @@ public:
 protected:
 	// ───────────────── UMG 바인딩 ─────────────────
 
-	/** 스킵 버튼(단일 버튼): 전체 리빌 → 결과 오버레이 → 로비 복귀 */
 	UPROPERTY(BlueprintReadOnly, Category = "LR|Gacha|Reveal", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
 	TObjectPtr<UButton> ButtonSkip;
 
-	/** 안내 텍스트(예: “구슬을 탭해서 열기”) */
 	UPROPERTY(BlueprintReadOnly, Category = "LR|Gacha|Reveal", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
 	TObjectPtr<UWidget> HintText;
 
-	/** 결과 오버레이 루트(BP에서 Visibility/애니 제어 가능) */
 	UPROPERTY(BlueprintReadOnly, Category = "LR|Gacha|Reveal", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
 	TObjectPtr<UWidget> ResultOverlay;
 
-	// ───────────────── 결과 슬롯 UI ─────────────────
+	/** 개별 캐릭터/장비 리빌 화면 루트 */
+	UPROPERTY(BlueprintReadOnly, Category = "LR|Gacha|Reveal", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	TObjectPtr<UWidget> PresentationOverlay;
 
-	/** 결과 슬롯들을 담을 컨테이너(UniformGrid/VerticalBox 등 자유) */
+	/** 리빌 배경 이미지 */
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> Image_RevealBackground;
+
+	/** 모든 유닛 공통으로 사용할 리빌 배경 이미지 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Common")
+	TSoftObjectPtr<UTexture2D> CommonRevealBackgroundTexture;
+
+	/** 공통 배경을 우선 사용할지 여부 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Common")
+	bool bUseCommonRevealBackground = true;
+
+	/** 실루엣 이미지 */
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> Image_RevealSilhouette;
+
+	/** 컬러 최종 이미지 */
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> Image_RevealMain;
+
+	/** 영상 출력용 이미지 (MediaTexture 머티리얼 브러시 사용) */
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> Image_RevealVideo;
+
+	/** 플래시용 흰 이미지 (없어도 동작은 가능) */
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> Image_RevealFlash;
+
+	/** 이름 텍스트 */
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> Text_RevealName;
+
+	/** 등급 이미지 */
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> Image_RarityBadge;
+
+	/** 결과 슬롯 컨테이너 */
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UPanelWidget> ResultSlotContainer;
 
-	/** 슬롯 위젯 클래스(WBP_GachaResultSlot 지정) */
+	/** 슬롯 위젯 클래스 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Result")
 	TSubclassOf<ULRGachaResultSlotWidget> ResultSlotWidgetClass;
 
+	/** 최종 결과 슬롯이 하나씩 등장하는 간격 */
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Result")
+	float ResultSlotAppearInterval = 0.12f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Rarity")
+	TSoftObjectPtr<UTexture2D> RarityTextureN;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Rarity")
+	TSoftObjectPtr<UTexture2D> RarityTextureR;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Rarity")
+	TSoftObjectPtr<UTexture2D> RarityTextureSR;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Rarity")
+	TSoftObjectPtr<UTexture2D> RarityTextureSSR;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Rarity")
+	TSoftObjectPtr<UTexture2D> RarityTextureUR;
+
 	// ───────────────── 3D 씬 연동 ─────────────────
 
-	/** 레벨에 없을 경우 C++에서 스폰할 OrbSceneActor BP 클래스 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Scene")
 	TSubclassOf<ALRGachaOrbSceneActor> OrbSceneActorClass;
 
+	// ───────────────── 영상 확장(선택) ─────────────────
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Video")
+	TObjectPtr<UMediaPlayer> RevealMediaPlayer;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Video")
+	TObjectPtr<UMediaTexture> RevealMediaTexture;
+
+	// ───────────────── 애니메이션 설정 ─────────────────
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Reveal|Settings")
+	float PresentationFlashDuration = 0.15f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Reveal|Settings")
+	float PresentationSilhouetteHold = 0.25f;
+
 	// ───────────────── BP 이벤트 ─────────────────
 
-	/** 모든 구슬 리빌 완료(스킵 포함) 시: 결과 나열 UI 표시용 */
 	UFUNCTION(BlueprintImplementableEvent, Category = "LR|Gacha|Reveal")
 	void BP_OnAllRevealed(const TArray<FLRGachaResult>& Results);
 
-	/** 리빌 시작 시 호출 (DrawCount로 1회/10회 분기) */
 	UFUNCTION(BlueprintImplementableEvent, Category = "LR|Gacha|Reveal")
 	void BP_OnRevealStarted(int32 DrawCount);
 
-	// ───────────────── 입력 모드 유틸 ─────────────────
+	/** 개별 리빌 화면이 열릴 때 BP 추가 연출용 */
+	UFUNCTION(BlueprintImplementableEvent, Category = "LR|Gacha|Reveal")
+	void BP_OnPresentationOpened(const FLRGachaRevealPresentationData& PresentationData);
 
-	/** 다음 틱에 Game+UI 모드로 입력 세팅 (두 번째 리빌 클릭 미작동 방지) */
+	/** 개별 리빌 화면이 닫힐 때 BP 추가 연출용 */
+	UFUNCTION(BlueprintImplementableEvent, Category = "LR|Gacha|Reveal")
+	void BP_OnPresentationClosed();
+
 	UFUNCTION(BlueprintCallable)
 	void ForceUIInputNextTick();
-
-	// ───────────────── 마우스/터치 입력 ─────────────────
 
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
-	// ───────────────── 결과 슬롯 생성 ─────────────────
-
-	/** CachedResults를 기반으로 ResultSlotContainer에 슬롯 위젯 생성 */
-	void BuildResultSlots();
 
 private:
+	UTexture2D* GetRarityTextureByRarity(ELRGachaRarity Rarity) const;
+
+	/** MediaTexture를 UI에 표시할 머티리얼 */
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Reveal|Video")
+	TObjectPtr<UMaterialInterface> RevealVideoMaterial;
+
+	/** 런타임 생성 영상 머티리얼 인스턴스 */
+	UPROPERTY()
+	TObjectPtr<UMaterialInstanceDynamic> RevealVideoMID;
+
+	/** 현재 프레젠테이션이 영상 모드인지 */
+	bool bPresentationUsingVideo = false;
+
+	/** 현재 표시 중인 프레젠테이션이 마지막 결과인지 */
+	bool bCurrentPresentationIsLast = false;
+
+	/** 최종 결과 슬롯을 한 번에 즉시 생성하는 기본 함수 */
+	void BuildResultSlots();
+
+	/** 최종 결과 슬롯을 일정 간격으로 하나씩 생성하는 순차 연출용 함수 */
+	void BuildResultSlotsSequential();
+
+	/** 순차 생성 중 다음 결과 슬롯 1개를 실제로 생성하는 함수 */
+	void SpawnNextResultSlot();
+
 	// ───────────────── 스킵 버튼 핸들러 ─────────────────
 
 	UFUNCTION()
@@ -130,16 +211,24 @@ private:
 
 	// ───────────────── OrbSceneActor 연동 ─────────────────
 
-	/** 레벨에서 OrbSceneActor를 찾거나, 없으면 스폰 */
 	void FindOrSpawnOrbSceneActor();
 
-	/** 모든 구슬 리빌 완료 시 내부 플래그 설정 */
 	UFUNCTION()
 	void HandleAllOrbsRevealed();
 
+	UFUNCTION()
+	void HandleRevealPresentationRequested(int32 OrbIndex, const FLRGachaResult& Result);
+
+	// ───────────────── 개별 리빌 화면 제어 ─────────────────
+
+	void ShowPresentation(int32 OrbIndex, const FLRGachaResult& Result);
+	void HidePresentation();
+
+	/** PresentationData를 UMG에 반영 */
+	void ApplyPresentationDataToWidgets(const FLRGachaRevealPresentationData& InData);
+
 	// ───────────────── UI 닫기 ─────────────────
 
-	/** UIManager가 있으면 CloseUI, 없으면 RemoveFromParent 폴백 */
 	void CloseSelf();
 
 private:
@@ -148,32 +237,40 @@ private:
 	UPROPERTY()
 	TObjectPtr<ALRGachaOrbSceneActor> OrbSceneActor;
 
-	/** 이번 뽑기의 전체 결과 배열 */
 	TArray<FLRGachaResult> CachedResults;
-
-	/** 어떤 배너에서 뽑았는지(Hero_FullMoon 등) */
 	FName CachedBannerID;
-
-	/** 서버 검증/로그 확장용 트랜잭션 ID(현재는 캐시만) */
 	FGuid CachedTxnId;
 
-	/** 모든 구슬 리빌 완료 여부 */
 	bool bAllRevealed = false;
-
-	/** 결과 오버레이가 이미 표시되었는지 */
 	bool bResultOverlayShown = false;
+
+	/** 개별 캐릭터/장비 리빌 화면 표시 중 여부 */
+	bool bPresentationVisible = false;
+
+	/** 현재 화면에 표시 중인 결과 */
+	FLRGachaResult CurrentPresentationResult;
+
+	/** 현재 화면 표시용 데이터 */
+	FLRGachaRevealPresentationData CurrentPresentationData;
 
 	// ───────────────── 스와이프 입력 상태 ─────────────────
 
 	bool bIsPointerDown = false;
 	FVector2D PointerDownPosition = FVector2D::ZeroVector;
-
-	/** 스와이프로 인식할 최소 이동 거리(px) */
 	float SwipeMinDistance = 30.f;
+
+	/** 최종 결과 슬롯 순차 생성을 반복 호출하는 타이머 */
+	FTimerHandle TimerSequentialResultSlots;
+
+	/** 다음에 생성할 결과 슬롯 인덱스 */
+	int32 NextResultSlotIndex = 0;
+
+	/** 순차 등장 연출에 사용하는 결과 슬롯 위젯 캐시 */
+	UPROPERTY()
+	TArray<TObjectPtr<ULRGachaResultSlotWidget>> CachedResultSlotWidgets;
 
 	// ───────────────── 카메라 복원용 ─────────────────
 
-	/** OrbSceneActor로 ViewTarget 변경 전의 원래 ViewTarget */
 	UPROPERTY()
 	TObjectPtr<AActor> PreviousViewTarget = nullptr;
 };

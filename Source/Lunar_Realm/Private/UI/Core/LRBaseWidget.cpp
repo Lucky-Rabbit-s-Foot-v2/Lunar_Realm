@@ -11,7 +11,6 @@ ULRBaseWidget::ULRBaseWidget(const FObjectInitializer& ObjectInitializer)
 	ZOrder = 0;
 
 	bIsOpen = false;
-	SetIsFocusable(true);
 }
 
 void ULRBaseWidget::NativeConstruct()
@@ -20,7 +19,6 @@ void ULRBaseWidget::NativeConstruct()
 	BindProperties();
 	BindSubWidgets();
 	RegisterSubWidgets();
-	BindToController(Cast<ALRControllerBase>(GetOwningPlayer()));
 }
 
 void ULRBaseWidget::NativeDestruct()
@@ -34,6 +32,7 @@ void ULRBaseWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
+	BindToController(Cast<ALRControllerBase>(GetOwningPlayer()));
 	RegisterSubWidgets();
 	InitializeUI();
 	RefreshUI();
@@ -52,6 +51,7 @@ void ULRBaseWidget::DeinitializeUI()
 void ULRBaseWidget::RegisterSubWidgets()
 {
 	// 자식 클래스에서 오버라이드하여 서브 위젯 등록 로직 구현
+	SubWidgets.Empty();
 }
 
 void ULRBaseWidget::BindSubWidgets()
@@ -61,7 +61,6 @@ void ULRBaseWidget::BindSubWidgets()
 void ULRBaseWidget::BindProperties()
 {
 	// 자식 클래스에서 오버라이드하여 프로퍼티 바인딩 로직 구현
-	SubWidgets.Empty();
 }
 
 void ULRBaseWidget::UnbindProperties()
@@ -78,10 +77,10 @@ void ULRBaseWidget::BindToController(ALRControllerBase* Controller)
 void ULRBaseWidget::OpenUI()
 {
 	// 자식 클래스에서 오버라이드하여 추가 로직 구현
-	RefreshUI();
-
 	bIsOpen = true;
 	SetVisibility(ESlateVisibility::Visible);
+	
+	RefreshUI();
 }
 
 void ULRBaseWidget::CloseUI()
@@ -89,7 +88,7 @@ void ULRBaseWidget::CloseUI()
 	// 자식 클래스에서 오버라이드하여 추가 로직 구현
 	bIsOpen = false;
 	SetVisibility(ESlateVisibility::Collapsed); 
-	// Hidden ->Collapsed : Hidden 은 연산 진행 / Collapsed 는 연산 X
+	// Hidden -> Collapsed : Hidden 은 연산 진행 / Collapsed 는 연산 X
 }
 
 void ULRBaseWidget::RefreshUI()

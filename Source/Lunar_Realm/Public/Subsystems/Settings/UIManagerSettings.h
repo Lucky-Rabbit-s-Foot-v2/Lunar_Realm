@@ -19,6 +19,7 @@ UENUM(BlueprintType)
 enum class EUIID : uint8
 {
 	NONE,
+	BACKGROUND,
 	INTRO,
 	TITLE,
 	LOADING,
@@ -33,6 +34,7 @@ enum class EUIID : uint8
 	GAMEOVER,
 	GAMECLEAR,
 	DAMAGEPOPUP,
+	INGAME,
 };
 
 UCLASS(Config = Game, defaultconfig, meta = (DisplayName = "UI Manager Settings"))

@@ -9,14 +9,22 @@
 
 void ULRAetherWidget::BindToASC(UAbilitySystemComponent* ASC)
 {
+	LR_WARN(TEXT("1Binding Health Bar Widget to ASC"));
+
 	if (!ASC) return;
+	
+	LR_WARN(TEXT("2Binding Health Bar Widget to ASC"));
 
 	bool bFound = false;
 	float CurrentAether = ASC->GetGameplayAttributeValue(ULRPlayerAttributeSet::GetAetherAttribute(), bFound);
 	UpdateAether(CurrentAether);
+	LR_WARN(TEXT("3Binding Health Bar Widget to ASC"));
 
 	ASC->GetGameplayAttributeValueChangeDelegate(ULRPlayerAttributeSet::GetAetherAttribute())
 		.AddUObject(this, &ULRAetherWidget::OnAetherChanged);
+
+	LR_WARN(TEXT("4Binding Health Bar Widget to ASC"));
+
 }
 
 void ULRAetherWidget::UpdateAether(float Amount)

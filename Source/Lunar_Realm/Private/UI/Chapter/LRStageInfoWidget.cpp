@@ -11,6 +11,13 @@
 #include "Engine/GameInstance.h"
 #include "Subsystems/GameDataSubsystem.h"
 
+void ULRStageInfoWidget::RegisterSubWidgets()
+{
+	Super::RegisterSubWidgets();
+	EnemyInfos = { Enemy1, Enemy2, Enemy3 };
+	RewardInfos = { Reward1, Reward2, Reward3 };
+}
+
 void ULRStageInfoWidget::SetStageDataByID(FName InStageID)
 {
 	CurrentStageID = InStageID;
@@ -20,12 +27,30 @@ void ULRStageInfoWidget::SetStageDataByID(FName InStageID)
 
 	Txt_StageName->SetText(StageData.StageName);
 
-	Enemy1->SetEnemyID(StageData.SpawnEnemyIDs.IsValidIndex(0) ? StageData.SpawnEnemyIDs[0] : NAME_None);
-	Enemy2->SetEnemyID(StageData.SpawnEnemyIDs.IsValidIndex(1) ? StageData.SpawnEnemyIDs[1] : NAME_None);
-	Enemy3->SetEnemyID(StageData.SpawnEnemyIDs.IsValidIndex(2) ? StageData.SpawnEnemyIDs[1] : NAME_None);
+	for (int32 i = 0; i < EnemyInfos.Num(); ++i)
+	{
+		if (EnemyInfos[i])
+		{
+			FName EnemyID = StageData.SpawnEnemyIDs.IsValidIndex(i) ? StageData.SpawnEnemyIDs[i] : NAME_None;
+			if(EnemyID == NAME_None)
+			{
+				EnemyInfos[i]->SetVisibility(ESlateVisibility::Hidden);
+			}
+			else
+			{
+				EnemyInfos[i]->SetVisibility(ESlateVisibility::Visible);
+				EnemyInfos[i]->SetEnemyID(EnemyID);
+			}
+		}
+	}
 
+	Reward1->SetRewardType(ELRCurrencyType::Gold);
 	Reward1->SetRewardAmount(StageData.RewardGold);
+
+	Reward2->SetRewardType(ELRCurrencyType::CrescentTicket);
 	Reward2->SetRewardAmount(StageData.RewardNormalTicket);
+	
+	Reward3->SetRewardType(ELRCurrencyType::FullMoonTicket);
 	Reward3->SetRewardAmount(StageData.RewardEnhanceTicket);
 }
 

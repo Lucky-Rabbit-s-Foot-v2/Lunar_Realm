@@ -9,6 +9,8 @@
 #include "Data/LRDataStructs.h"
 #include "Data/LREnumType.h"
 
+#include "Sound/SoundBase.h"
+
 #include "LRGachaResultSlotWidget.generated.h"
 
 class UImage;
@@ -43,6 +45,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|ResultSlot")
 	void SetupWithResult(const FLRGachaResult& InResult);
 
+	/* 결과 슬롯이 화면에 생성된 직후 호출되는 등장 연출 시작 함수.*/
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|ResultSlot")
+	void PlayAppearEffect();
+
 	/** 현재 슬롯이 보여주는 결과 (BP에서 읽어 쓰기용) */
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|ResultSlot")
 	const FLRGachaResult& GetResult() const { return CachedResult; }
@@ -66,6 +72,37 @@ protected:
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UBorder> Border_Background;
 
+	/** 등장 사운드 - N 등급 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|ResultSlot|Appear")
+	TObjectPtr<USoundBase> AppearSoundN;
+
+	/** 등장 사운드 - R 등급 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|ResultSlot|Appear")
+	TObjectPtr<USoundBase> AppearSoundR;
+
+	/** 등장 사운드 - SR 등급 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|ResultSlot|Appear")
+	TObjectPtr<USoundBase> AppearSoundSR;
+
+	/** 등장 사운드 - SSR 등급 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|ResultSlot|Appear")
+	TObjectPtr<USoundBase> AppearSoundSSR;
+
+	/** 등장 사운드 - UR 등급 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|ResultSlot|Appear")
+	TObjectPtr<USoundBase> AppearSoundUR;
+
+	/**
+	 * 결과 슬롯 등장 시 BP에서 추가 연출을 구현하는 이벤트.
+	 * - UMG 애니메이션 재생
+	 * - 플래시 이미지 표시
+	 * - 나이아가라 / VFX 재생
+	 * - 등급별 연출 분기
+	 * 등을 위젯 BP에서 자유롭게 확장할 수 있음
+	 */
+	UFUNCTION(BlueprintImplementableEvent, Category = "LR|Gacha|ResultSlot|Appear")
+	void BP_PlayAppearEffect(const FLRGachaResult& Result);
+
 	// ─── 내부 데이터 ────────────────────────────────────────────────
 
 	/** 이 슬롯이 표현하는 뽑기 결과 */
@@ -79,4 +116,7 @@ protected:
 
 	/** 이름/아이콘 세팅용 헬퍼 – 나중에 GameDataSubsystem 연동 예정 */
 	void SetupNameAndIcon();
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> Image_NewBadge;
 };

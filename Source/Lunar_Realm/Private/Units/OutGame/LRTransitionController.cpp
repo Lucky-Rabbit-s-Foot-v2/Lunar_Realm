@@ -6,7 +6,6 @@
 #include "Subsystems/UIManagerSubsystem.h"
 #include "Subsystems/Settings/UIManagerSettings.h"
 #include "UI/Core/LRPersistentWidget.h"
-#include "UI/Intro/LRLoadingWidget.h"
 
 void ALRTransitionController::OpenFirstWidget()
 {
@@ -19,7 +18,7 @@ void ALRTransitionController::FinishLoading()
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	if (LoadingWidgetClass)
 	{
-		ULRLoadingWidget* LoadingWidgetInstance = UIManager->GetOrCreateWidget<ULRLoadingWidget>(LoadingWidgetClass);
+		ULRLoadingPageWidget* LoadingWidgetInstance = UIManager->GetOrCreateWidget<ULRLoadingPageWidget>(LoadingWidgetClass);
 		LoadingWidgetInstance->FinishLoading();
 	}
 	else

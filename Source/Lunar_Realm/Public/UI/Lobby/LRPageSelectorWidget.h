@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRChildWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 #include "LRPageSelectorWidget.generated.h"
 
 
@@ -16,7 +16,7 @@
  //============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRPageSelectorWidget : public ULRChildWidget
+class LUNAR_REALM_API ULRPageSelectorWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
 	

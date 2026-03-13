@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRChildWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 #include "Data/LRDataStructs.h"
 #include "LRSummonSlotWidget.generated.h"
 
@@ -24,7 +24,7 @@ class ULRSummonComponent;
 class UMaterialInstanceDynamic;
 
 UCLASS()
-class LUNAR_REALM_API ULRSummonSlotWidget : public ULRChildWidget
+class LUNAR_REALM_API ULRSummonSlotWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
 	

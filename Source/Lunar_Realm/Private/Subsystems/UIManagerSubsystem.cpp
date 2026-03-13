@@ -5,7 +5,11 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "UI/InGame/LRDamageWidget.h"
+#include "UI/Core/LRDamageWidget.h"
+
+#include "UI/Core/LRBackgroundWidget.h"
+
+#include "Subsystems/Settings/UIManagerSettings.h"
 
 void UUIManagerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -30,11 +34,11 @@ int32 UUIManagerSubsystem::CalculateZOrder(ULRBaseWidget* Widget) const
 	switch (Widget->UILayer)
 	{
 		case EUILayer::BACKGROUND:	return DefaultZOrder;
-		case EUILayer::PAGE:		return 25 + DefaultZOrder;
+		case EUILayer::PAGE:		return 10 + DefaultZOrder;
 		case EUILayer::PERSISTENT:	return 50 + DefaultZOrder;
 		case EUILayer::POPUP:		return 100 + PopupUIStack.Num();
-		case EUILayer::TOOLTIP:		return 500 + DefaultZOrder;
-		case EUILayer::SYSTEM:		return 900 + PopupUIStack.Num();
+		case EUILayer::TOOLTIP:		return 800 + DefaultZOrder;
+		case EUILayer::SYSTEM:		return 1000 + PopupUIStack.Num();
 		default:					return DefaultZOrder;
 	}
 }
@@ -187,6 +191,46 @@ ULRBaseWidget* UUIManagerSubsystem::SwitchPageUIByID(EUIID PageID)
 	}
 
 	return nullptr;
+}
+
+void UUIManagerSubsystem::ShowBackgroundUI()
+{
+	if (BackgroundWidget)
+	{
+		BackgroundWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		BackgroundWidget = OpenUIByID(EUIID::BACKGROUND);
+		if (BackgroundWidget)
+		{
+			BackgroundWidget->SetVisibility(ESlateVisibility::Visible);
+		}
+		else
+		{
+			LR_INFO(TEXT("Failed to open Background UI"));
+		}
+	}
+}
+
+void UUIManagerSubsystem::HideBackgroundUI()
+{
+	if (BackgroundWidget)
+	{
+		BackgroundWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	else
+	{
+		BackgroundWidget = OpenUIByID(EUIID::BACKGROUND);
+		if (BackgroundWidget)
+		{
+			BackgroundWidget->SetVisibility(ESlateVisibility::Collapsed);
+		}
+		else
+		{
+			LR_INFO(TEXT("Failed to open Background UI"));
+		}
+	}
 }
 
 void UUIManagerSubsystem::ShowDamageText(float Damage, FVector HitLocation, FLinearColor InColor)

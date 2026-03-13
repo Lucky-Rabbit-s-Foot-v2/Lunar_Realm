@@ -9,7 +9,7 @@
 
 #include "Units/Player/LRPlayerState.h"
 #include "Units/Player/LRPlayerController.h"
-#include "UI/InGame/LRPlayerWidget.h"
+#include "UI/InGame/LRInGamePersistentWidget.h"
 #include "AbilitySystemComponent.h"
 
 #include "EnhancedInputComponent.h"
@@ -125,8 +125,9 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 
 		if (ALRPlayerController* PC = Cast<ALRPlayerController>(NewController))
 		{
-			if (ULRPlayerWidget* MyWidget = PC->GetPlayerWidget())
+			if (ULRInGamePersistentWidget* MyWidget = PC->GetPlayerWidget())
 			{
+				MyWidget->InitializeGAS(GetAbilitySystemComponent());
 				MyWidget->TestSummonPanelRefresh();
 				TArray<FName> EquippedSkills = PS->GetEquippedAutoSkillIDs();
 

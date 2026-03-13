@@ -1,0 +1,4 @@
+---,DataID,CurrencyType,CurrencyImage
+1,"GOLD","Gold","/Game/Test/PYI/Gacha/Textures/Currency1.Currency1"
+2,"CRESCENT","CrescentTicket","/Game/Test/PYI/Gacha/Textures/Currency2.Currency2"
+3,"FULLMOON","FullMoonTicket","/Game/Test/PYI/Gacha/Textures/Currency3.Currency3"

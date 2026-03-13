@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRChildWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 #include "Subsystems/Settings/UIManagerSettings.h"
 #include "LRBottomButtonWidget.generated.h"
 
@@ -17,7 +17,7 @@
  //============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRBottomButtonWidget : public ULRChildWidget
+class LUNAR_REALM_API ULRBottomButtonWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
 	

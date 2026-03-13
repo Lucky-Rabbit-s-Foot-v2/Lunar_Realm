@@ -4,6 +4,10 @@
 #include "Units/Player/Component/LRCombatComponent.h"
 #include "Units/LRCharacter.h"
 #include "Units/Player/LRPlayerState.h"
+#include "Units/Player/Component/LRSummonComponent.h"
+#include "Units/Player/LRPlayerController.h"
+#include "UI/InGame/LRInGamePersistentWidget.h"
+#include "UI/InGame/LRSkillpanelWidget.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
@@ -160,6 +164,13 @@ void ULRCombatComponent::ProcessCombatLogic(ALRCharacter* InOwnerCharacter, floa
 	bool bInBasicAttackRange = IsTargetInRange();
 	AController* OwnerController = InOwnerCharacter->GetController();
 
+	// 자동 소환 (독립 실행)
+	if (CombatState == EAutoCombatState::Auto)
+	{
+		TryAutoSummon(InOwnerCharacter);
+	}
+
+	// 자동 스킬 사용
 	if (CombatState == EAutoCombatState::Auto)
 	{
 		if (TryExcuteSkill(InOwnerCharacter))
@@ -167,12 +178,12 @@ void ULRCombatComponent::ProcessCombatLogic(ALRCharacter* InOwnerCharacter, floa
 			if (OwnerController)
 			{
 				OwnerController->StopMovement();
-				return;
 			}
+			return;
 		}
 	}
 
-
+	// 기본공격 및 이동
 	if (bInBasicAttackRange)
 	{
 		if (OwnerController)
@@ -458,22 +469,21 @@ bool ULRCombatComponent::TryExcuteSkill(ALRCharacter* InOwnerCharacter)
 		return false;
 	}
 
-	for (const FName& SkillID : EquippedSkillIDs)
+
+	for (int32 i = 0; i < EquippedSkillIDs.Num(); ++i)
 	{
+		FName SkillID = EquippedSkillIDs[i]; // 배열에서 i번째 스킬 ID를 꺼냄
 		const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillID);
 		FGameplayTag SkillTag = SkillData.SkillTag;
 
 		const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillData.SkillEffectID);
 		float RealAttackRange = EffectData.Range;
-		//LR_INFO(TEXT("[TryExecuteSkill] 검사 중인 스킬 ID: %s | 태그: %s | 사거리: %.1f"),
-		//	*SkillID.ToString(), *SkillTag.ToString(), RealAttackRange);
 
 		float DistSq = FVector::DistSquared(InOwnerCharacter->GetActorLocation(), CurrentTarget->GetActorLocation());
 		float RangeSq = RealAttackRange * RealAttackRange;
 
 		if (DistSq <= RangeSq)
 		{
-
 			FGameplayEventData EventData;
 			EventData.Instigator = InOwnerCharacter;
 			EventData.Target = CurrentTarget;
@@ -482,8 +492,23 @@ bool ULRCombatComponent::TryExcuteSkill(ALRCharacter* InOwnerCharacter)
 
 			if (TriggeredCount > 0)
 			{
-				//LR_INFO(TEXT("오토 스킬 발동 성공 태그: %s | 사거리: %.1f"), *SkillTag.ToString(), RealAttackRange);
 				AutoSkillDelay = 2.0f;
+
+				//오토 모드에서도 UI 쿨타임을 돌리라고 명령
+				if (ALRPlayerController* PC = Cast<ALRPlayerController>(InOwnerCharacter->GetController()))
+				{
+					if (ULRInGamePersistentWidget* MainWidget = PC->GetPlayerWidget())
+					{
+						if (MainWidget->WBP_SkillPanel)
+						{
+							int32 UI_SkillIndex = i + 1;
+							float CooldownTime = EffectData.Cooldown;
+
+							MainWidget->WBP_SkillPanel->StartSkillCooldown(UI_SkillIndex, CooldownTime);
+						}
+					}
+				}
+
 				return true;
 			}
 			else
@@ -492,6 +517,72 @@ bool ULRCombatComponent::TryExcuteSkill(ALRCharacter* InOwnerCharacter)
 			}
 		}
 	}
+
+
+	//for (const FName& SkillID : EquippedSkillIDs)
+	//{
+	//	const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillID);
+	//	FGameplayTag SkillTag = SkillData.SkillTag;
+
+	//	const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillData.SkillEffectID);
+	//	float RealAttackRange = EffectData.Range;
+	//	//LR_INFO(TEXT("[TryExecuteSkill] 검사 중인 스킬 ID: %s | 태그: %s | 사거리: %.1f"),
+	//	//	*SkillID.ToString(), *SkillTag.ToString(), RealAttackRange);
+
+	//	float DistSq = FVector::DistSquared(InOwnerCharacter->GetActorLocation(), CurrentTarget->GetActorLocation());
+	//	float RangeSq = RealAttackRange * RealAttackRange;
+
+	//	if (DistSq <= RangeSq)
+	//	{
+
+	//		FGameplayEventData EventData;
+	//		EventData.Instigator = InOwnerCharacter;
+	//		EventData.Target = CurrentTarget;
+
+	//		int32 TriggeredCount = ASC->HandleGameplayEvent(SkillTag, &EventData);
+
+	//		if (TriggeredCount > 0)
+	//		{
+	//			//LR_INFO(TEXT("오토 스킬 발동 성공 태그: %s | 사거리: %.1f"), *SkillTag.ToString(), RealAttackRange);
+	//			AutoSkillDelay = 2.0f;
+
+
+	//			return true;
+	//		}
+	//		else
+	//		{
+	//			//LR_WARN(TEXT("[TryExecuteSkill] 발동 실패 : %s"), *SkillTag.ToString());
+	//		}
+	//	}
+	//}
+
+	return false;
+}
+
+bool ULRCombatComponent::TryAutoSummon(ALRCharacter* InOwnerCharacter)
+{
+	ULRSummonComponent* SummonComp = InOwnerCharacter->FindComponentByClass<ULRSummonComponent>();
+	if (!SummonComp) return false;
+
+	TArray<FName> CurrentDeck = SummonComp->GetSummonDeck();
+	if (CurrentDeck.Num() == 0) return false;
+
+	for (int32 i = 0; i < CurrentDeck.Num(); ++i)
+	{
+		FName UnitID;
+		const FCharacterStaticData* CharData = nullptr;
+
+		if (SummonComp->IsValidSummonRequest(i, UnitID, CharData))
+		{
+			SummonComp->TrySummonUnit(i);
+
+			//AutoSkillDelay = 1.0f;
+
+			LR_INFO(TEXT("[Auto] %d번 슬롯 자동 소환 완료: %s"), i, *UnitID.ToString());
+			return true;
+		}
+	}
+
 
 	return false;
 }

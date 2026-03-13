@@ -51,11 +51,11 @@ protected:
 	FName NextStageID = NAME_None;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
-	TSubclassOf<class ULRLoadingWidget> LoadingWidgetClass;
+	TSubclassOf<class ULRLoadingPageWidget> LoadingWidgetClass;
 
 public:
 	UPROPERTY()
-	TObjectPtr<class ULRLoadingWidget> LoadingWidgetInstance = nullptr;
+	TObjectPtr<class ULRLoadingPageWidget> LoadingWidgetInstance = nullptr;
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|Stage")
 	void SetCurrentStageID(FName InStageID) { CurrentStageID = InStageID; }

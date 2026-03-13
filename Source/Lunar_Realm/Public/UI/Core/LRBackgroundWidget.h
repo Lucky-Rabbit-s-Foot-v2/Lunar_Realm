@@ -29,5 +29,5 @@ protected:
 	bool bDisableWorldRenderingWhenOpened = false;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Background;
+	TObjectPtr<class UImage> Img_BG;
 };

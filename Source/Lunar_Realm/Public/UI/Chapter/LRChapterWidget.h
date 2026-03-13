@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRPageWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 #include "LRChapterWidget.generated.h"
 
 
@@ -19,7 +19,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnChapterOpenClicked);
 
 UCLASS()
-class LUNAR_REALM_API ULRChapterWidget : public ULRPageWidget
+class LUNAR_REALM_API ULRChapterWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
 	
@@ -28,6 +28,8 @@ public:
 	virtual void UnbindProperties() override;
 	
 	virtual void RefreshUI() override;
+
+	void SetChapterID(FName InChapterID);
 
 	UPROPERTY(BlueprintAssignable, Category = "LR|Event")
 	FOnChapterOpenClicked OnChapterOpenClickedDel;
@@ -50,5 +52,5 @@ protected:
 	FName ChapterID;
 
 	UPROPERTY(EditAnywhere, Category = "LR|UI")
-	TSubclassOf<class ULRStageSelectorWidget> StageSelectorWidgetClass;
+	TSubclassOf<class ULRStagePopupWidget> StageSelectorWidgetClass;
 };
