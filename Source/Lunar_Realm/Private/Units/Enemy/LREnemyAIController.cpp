@@ -61,6 +61,7 @@ void ALREnemyAIController::InitializeFromEnemyData(FName EnemyID)
 
 	const FEnemyStaticData& EnemyData = DataSys->GetEnemyStaticData(EnemyID);
 	AttackRange = EnemyData.AttackRange;
+	DetectionRadius = AttackRange + DetectionRadiusOffset;
 
 	// TEST
 	LR_INFO(TEXT("[%s] AttackRange 설정값: %f"), *EnemyID.ToString(), AttackRange);
