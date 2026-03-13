@@ -232,12 +232,12 @@ float ALRGachaOrbActor::GetEmissiveByRarity(ELRGachaRarity Rarity) const
 {
 	switch (Rarity)
 	{
-	case ELRGachaRarity::N:   return EmissiveCommon;
-	case ELRGachaRarity::R:   return EmissiveElite;
-	case ELRGachaRarity::SR:  return EmissiveUnique;
-	case ELRGachaRarity::SSR: return EmissiveEpic;
-	case ELRGachaRarity::UR:  return EmissiveLegendary;
-	default:                  return EmissiveCommon;
+	case ELRGachaRarity::N:   return EmissiveN;
+	case ELRGachaRarity::R:   return EmissiveR;
+	case ELRGachaRarity::SR:  return EmissiveSR;
+	case ELRGachaRarity::SSR: return EmissiveSSR;
+	case ELRGachaRarity::UR:  return EmissiveUR;
+	default:                  return EmissiveN;
 	}
 }
 
@@ -245,12 +245,12 @@ USoundBase* ALRGachaOrbActor::GetSoundByRarity(ELRGachaRarity Rarity) const
 {
 	switch (Rarity)
 	{
-	case ELRGachaRarity::N:   return SoundCommon;
-	case ELRGachaRarity::R:   return SoundElite;
-	case ELRGachaRarity::SR:  return SoundUnique;
-	case ELRGachaRarity::SSR: return SoundEpic;
-	case ELRGachaRarity::UR:  return SoundLegendary;
-	default:                  return SoundCommon;
+	case ELRGachaRarity::N:   return SoundN;
+	case ELRGachaRarity::R:   return SoundR;
+	case ELRGachaRarity::SR:  return SoundSR;
+	case ELRGachaRarity::SSR: return SoundSSR;
+	case ELRGachaRarity::UR:  return SoundUR;
+	default:                  return SoundN;
 	}
 }
 

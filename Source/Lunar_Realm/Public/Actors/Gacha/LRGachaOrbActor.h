@@ -132,19 +132,19 @@ protected:
 
 	/** 등급별 사운드 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
-	TObjectPtr<USoundBase> SoundCommon;
+	TObjectPtr<USoundBase> SoundN;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
-	TObjectPtr<USoundBase> SoundElite;
+	TObjectPtr<USoundBase> SoundR;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
-	TObjectPtr<USoundBase> SoundUnique;
+	TObjectPtr<USoundBase> SoundSR;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
-	TObjectPtr<USoundBase> SoundEpic;
+	TObjectPtr<USoundBase> SoundSSR;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
-	TObjectPtr<USoundBase> SoundLegendary;
+	TObjectPtr<USoundBase> SoundUR;
 
 	// ===== Tuning Parameters (BP에서 조정) ===============================
 
@@ -170,19 +170,19 @@ protected:
 
 	/** 등급별 최대 이미시브 값 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
-	float EmissiveCommon = 1.0f;
+	float EmissiveN = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
-	float EmissiveElite = 2.5f;
+	float EmissiveR = 2.5f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
-	float EmissiveUnique = 4.0f;
+	float EmissiveSR = 4.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
-	float EmissiveEpic = 6.0f;
+	float EmissiveSSR = 6.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
-	float EmissiveLegendary = 10.0f;
+	float EmissiveUR = 10.0f;
 
 	/** 중앙 이동 중 약간 확대할 배율 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
