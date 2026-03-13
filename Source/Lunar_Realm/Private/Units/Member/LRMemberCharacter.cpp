@@ -347,10 +347,12 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 		}
 
 		// 최종 스탯 계산
-		float Balance = 0.75f;
-		float FinalHP = (CharHP + EquipHP) * SetHP_Mul * Balance;
-		float FinalAtk = (CharAtk + EquipAtk) * SetAtk_Mul * Balance;
-		float FinalDef = (CharDef + EquipDef) * SetDef_Mul * Balance;
+		float BalanceHP = 0.33f;
+		float BalanceAtk = 0.75f;
+		float BalanceDef = 0.50f;
+		float FinalHP = (CharHP + EquipHP) * SetHP_Mul * BalanceHP;
+		float FinalAtk = (CharAtk + EquipAtk) * SetAtk_Mul * BalanceAtk;
+		float FinalDef = (CharDef + EquipDef) * SetDef_Mul * BalanceDef;
 
 		// 어트리뷰트셋 적용
 		if (AbilitySystemComponent)
