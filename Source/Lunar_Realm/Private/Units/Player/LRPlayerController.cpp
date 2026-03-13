@@ -6,9 +6,9 @@
 #include "GameFramework/TouchInterface.h"
 #include "Units/Player/LRPlayerCharacter.h"
 
-#include "UI/InGame/LRPlayerWidget.h"
+#include "UI/InGame/LRInGamePersistentWidget.h"
 
-
+#include "Subsystems/Settings/UIManagerSettings.h"
 #include "Subsystems/UIManagerSubsystem.h"
 #include "Subsystems/GameDataSubsystem.h"
 #include "TimerManager.h"
@@ -29,7 +29,7 @@ ALRPlayerController::ALRPlayerController()
 void ALRPlayerController::OpenFirstWidget()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->OpenUI<ULRPlayerWidget>(PlayerWidget);
+	UIManager->OpenUIByID(EUIID::INGAME);
 }
 
 void ALRPlayerController::BeginPlay()
@@ -126,7 +126,7 @@ void ALRPlayerController::UnequipWeapon()
 
 void ALRPlayerController::OnPlayerDied(float InRespawnTime)
 {
-	if (ULRPlayerWidget* MyWidget = GetPlayerWidget())
+	if (ULRInGamePersistentWidget* MyWidget = GetPlayerWidget())
 	{
 		MyWidget->UpdateUIOnDeath(true, InRespawnTime);
 	}
@@ -137,7 +137,7 @@ void ALRPlayerController::OnPlayerDied(float InRespawnTime)
 
 void ALRPlayerController::OnPlayerRespawned()
 {
-	if (ULRPlayerWidget* MyWidget = GetPlayerWidget())
+	if (ULRInGamePersistentWidget* MyWidget = GetPlayerWidget())
 	{
 		MyWidget->UpdateUIOnDeath(false);
 	}
@@ -167,7 +167,7 @@ void ALRPlayerController::ToggleAutoMode()
 	{
 		MyCharacter->ToggleAutoMode();
 
-		if (ULRPlayerWidget* MyWidget = GetPlayerWidget())
+		if (ULRInGamePersistentWidget* MyWidget = GetPlayerWidget())
 		{
 			bool bIsAutoNow = MyCharacter->GetAutoMode();
 			MyWidget->UpdateAutoButtonVisual(bIsAutoNow);
@@ -216,8 +216,8 @@ UAbilitySystemComponent* ALRPlayerController::GetAbilitySystemComponent()
 	return MyCharacter ? MyCharacter->GetAbilitySystemComponent() : nullptr;
 }
 
-ULRPlayerWidget* ALRPlayerController::GetPlayerWidget()
+ULRInGamePersistentWidget* ALRPlayerController::GetPlayerWidget()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	return UIManager->GetOrCreateWidget(PlayerWidget);
+	return Cast<ULRInGamePersistentWidget>(UIManager->OpenUIByID(EUIID::INGAME));
 }

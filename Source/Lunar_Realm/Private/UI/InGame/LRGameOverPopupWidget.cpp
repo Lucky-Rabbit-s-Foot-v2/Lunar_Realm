@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/InGame/LRGameOverWidget.h"
+#include "UI/InGame/LRGameOverPopupWidget.h"
 
 #include "Components/Button.h"
 
@@ -11,16 +11,16 @@
 #include "Core/Stage/LRStageGameMode.h"
 
 
-void ULRGameOverWidget::BindProperties()
+void ULRGameOverPopupWidget::BindProperties()
 {
 	Super::BindProperties();
 
-	if (Btn_Regroup) Btn_Regroup->OnClicked.AddDynamic(this, &ULRGameOverWidget::OnRegroupButtonClicked);
-	if (Btn_Restart) Btn_Restart->OnClicked.AddDynamic(this, &ULRGameOverWidget::OnRestartButtonClicked);
-	if (Btn_Exit) Btn_Exit->OnClicked.AddDynamic(this, &ULRGameOverWidget::OnExitButtonClicked);
+	if (Btn_Regroup) Btn_Regroup->OnClicked.AddDynamic(this, &ULRGameOverPopupWidget::OnRegroupButtonClicked);
+	if (Btn_Restart) Btn_Restart->OnClicked.AddDynamic(this, &ULRGameOverPopupWidget::OnRestartButtonClicked);
+	if (Btn_Exit) Btn_Exit->OnClicked.AddDynamic(this, &ULRGameOverPopupWidget::OnExitButtonClicked);
 }
 
-void ULRGameOverWidget::UnbindProperties()
+void ULRGameOverPopupWidget::UnbindProperties()
 {
 	if (Btn_Exit) Btn_Exit->OnClicked.Clear();
 	if (Btn_Restart) Btn_Restart->OnClicked.Clear();
@@ -29,24 +29,24 @@ void ULRGameOverWidget::UnbindProperties()
 	Super::UnbindProperties();
 }
 
-void ULRGameOverWidget::OnRegroupButtonClicked()
+void ULRGameOverPopupWidget::OnRegroupButtonClicked()
 {
 	LR_SCREEN_INFO(TEXT("Regroup Button Clicked : Not implemented yet"));
 }
 
-void ULRGameOverWidget::OnRestartButtonClicked()
+void ULRGameOverPopupWidget::OnRestartButtonClicked()
 {
 	ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode());
 	StageGM->OnRestartGame();
 }
 
-void ULRGameOverWidget::OnExitButtonClicked()
+void ULRGameOverPopupWidget::OnExitButtonClicked()
 {
 	ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode());
 	StageGM->OnExitStage();
 }
 
-void ULRGameOverWidget::InitializeUI()
+void ULRGameOverPopupWidget::InitializeUI()
 {
 	Super::InitializeUI();
 

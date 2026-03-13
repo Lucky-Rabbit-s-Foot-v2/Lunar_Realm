@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/InGame/LRDamageWidget.h"
+#include "UI/Core/LRDamageWidget.h"
 #include "Components/TextBlock.h"
 
 #include "Engine/GameInstance.h"

@@ -15,8 +15,9 @@
 #include "Core/Stage/LRStageGameState.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Units/Player/LRPlayerController.h"
-#include "UI/InGame/LRPlayerWidget.h"
+#include "UI/InGame/LRInGamePersistentWidget.h"
 
+#include "Animation/AnimInstance.h"
 
 ALRPlayerState::ALRPlayerState()
 {
@@ -221,7 +222,7 @@ void ALRPlayerState::EquipItem(EEquipmentSlotType Slot, FName ItemID)
 
 			if (ALRPlayerController* PlayerController = Cast<ALRPlayerController>(PC->GetController()))
 			{
-				if (ULRPlayerWidget* MyWidget = PlayerController->GetPlayerWidget())
+				if (ULRInGamePersistentWidget* MyWidget = PlayerController->GetPlayerWidget())
 				{
 					// 최신화된 장착 스킬 ID 목록 다시 가져오기
 					TArray<FName> EquippedSkills = GetEquippedAutoSkillIDs();
