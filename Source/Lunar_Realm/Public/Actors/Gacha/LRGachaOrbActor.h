@@ -102,9 +102,25 @@ protected:
 
 	// ===== Assets (BP에서만 세팅) ========================================
 
-	/** 구슬 기본 머티리얼 (OrbColor / EmissiveStrength 파라미터 필요) */
+	/** 기본 fallback 머티리얼 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
-	TObjectPtr<UMaterialInterface> OrbMaterial;
+	TObjectPtr<UMaterialInterface> OrbMaterialDefault;
+
+	/** 등급별 구슬 머티리얼 */
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
+	TObjectPtr<UMaterialInterface> OrbMaterialN;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
+	TObjectPtr<UMaterialInterface> OrbMaterialR;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
+	TObjectPtr<UMaterialInterface> OrbMaterialSR;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
+	TObjectPtr<UMaterialInterface> OrbMaterialSSR;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
+	TObjectPtr<UMaterialInterface> OrbMaterialUR;
 
 	/** 기본 아이들 아우라 나이아가라 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
@@ -116,19 +132,19 @@ protected:
 
 	/** 등급별 사운드 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
-	TObjectPtr<USoundBase> SoundCommon;
+	TObjectPtr<USoundBase> SoundN;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
-	TObjectPtr<USoundBase> SoundElite;
+	TObjectPtr<USoundBase> SoundR;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
-	TObjectPtr<USoundBase> SoundUnique;
+	TObjectPtr<USoundBase> SoundSR;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
-	TObjectPtr<USoundBase> SoundEpic;
+	TObjectPtr<USoundBase> SoundSSR;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
-	TObjectPtr<USoundBase> SoundLegendary;
+	TObjectPtr<USoundBase> SoundUR;
 
 	// ===== Tuning Parameters (BP에서 조정) ===============================
 
@@ -154,19 +170,19 @@ protected:
 
 	/** 등급별 최대 이미시브 값 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
-	float EmissiveCommon = 1.0f;
+	float EmissiveN = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
-	float EmissiveElite = 2.5f;
+	float EmissiveR = 2.5f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
-	float EmissiveUnique = 4.0f;
+	float EmissiveSR = 4.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
-	float EmissiveEpic = 6.0f;
+	float EmissiveSSR = 6.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
-	float EmissiveLegendary = 10.0f;
+	float EmissiveUR = 10.0f;
 
 	/** 중앙 이동 중 약간 확대할 배율 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
@@ -232,4 +248,7 @@ private:
 
 	/** 실제 리빌 완료 처리 */
 	void FinishReveal();
+
+	/** 등급별 머티리얼 선택 */
+	UMaterialInterface* GetMaterialByRarity(ELRGachaRarity Rarity) const;
 };
