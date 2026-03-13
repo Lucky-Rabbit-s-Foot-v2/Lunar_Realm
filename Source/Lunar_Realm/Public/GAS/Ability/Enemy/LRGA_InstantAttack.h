@@ -15,6 +15,8 @@
 // (260209) KWB 제작. Attack Ability 생성.
 // (260219) KHS GA동작방식 변경. 생성자 수정.
 // (260223) KWB 쿨다운 기능 추가
+// (260312) KWB OnAbilityActivated()의 "TargetActor" 값 저장 방식 변경 (Controller -> GameplayAbilityBase)
+// (260313) KWB 중복 로직 제거 (DT를 통해 AttackRange 값 결정 및 BTTask에서 검사)
 //=============================================================================
 
 UCLASS()
@@ -31,7 +33,4 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Range")
-	float AttackRange = 800.0f; // 공격 가능 거리
 };
