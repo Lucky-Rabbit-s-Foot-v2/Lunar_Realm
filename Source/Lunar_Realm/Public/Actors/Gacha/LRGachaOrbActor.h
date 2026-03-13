@@ -102,9 +102,25 @@ protected:
 
 	// ===== Assets (BP에서만 세팅) ========================================
 
-	/** 구슬 기본 머티리얼 (OrbColor / EmissiveStrength 파라미터 필요) */
+	/** 기본 fallback 머티리얼 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
-	TObjectPtr<UMaterialInterface> OrbMaterial;
+	TObjectPtr<UMaterialInterface> OrbMaterialDefault;
+
+	/** 등급별 구슬 머티리얼 */
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
+	TObjectPtr<UMaterialInterface> OrbMaterialN;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
+	TObjectPtr<UMaterialInterface> OrbMaterialR;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
+	TObjectPtr<UMaterialInterface> OrbMaterialSR;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
+	TObjectPtr<UMaterialInterface> OrbMaterialSSR;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
+	TObjectPtr<UMaterialInterface> OrbMaterialUR;
 
 	/** 기본 아이들 아우라 나이아가라 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
@@ -232,4 +248,7 @@ private:
 
 	/** 실제 리빌 완료 처리 */
 	void FinishReveal();
+
+	/** 등급별 머티리얼 선택 */
+	UMaterialInterface* GetMaterialByRarity(ELRGachaRarity Rarity) const;
 };

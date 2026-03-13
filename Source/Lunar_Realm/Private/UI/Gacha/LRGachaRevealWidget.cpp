@@ -15,6 +15,7 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 
+#include "Engine/Texture2D.h"
 #include "Engine/World.h"
 #include "Engine/GameInstance.h"
 
@@ -529,9 +530,23 @@ void ULRGachaRevealWidget::ApplyPresentationDataToWidgets(const FLRGachaRevealPr
 	// 배경
 	if (Image_RevealBackground)
 	{
-		if (InData.BackgroundTexture)
+		UTexture2D* FinalBackgroundTexture = nullptr;
+
+		// 1순위: 위젯에 설정한 공통 배경
+		if (bUseCommonRevealBackground && !CommonRevealBackgroundTexture.IsNull())
 		{
-			Image_RevealBackground->SetBrushFromTexture(InData.BackgroundTexture);
+			FinalBackgroundTexture = CommonRevealBackgroundTexture.LoadSynchronous();
+		}
+
+		// 2순위: 결과별 개별 배경(DT)
+		if (!FinalBackgroundTexture && InData.BackgroundTexture)
+		{
+			FinalBackgroundTexture = InData.BackgroundTexture;
+		}
+
+		if (FinalBackgroundTexture)
+		{
+			Image_RevealBackground->SetBrushFromTexture(FinalBackgroundTexture);
 			Image_RevealBackground->SetVisibility(ESlateVisibility::Visible);
 		}
 		else

@@ -73,6 +73,14 @@ protected:
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UImage> Image_RevealBackground;
 
+	/** 모든 유닛 공통으로 사용할 리빌 배경 이미지 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Common")
+	TSoftObjectPtr<UTexture2D> CommonRevealBackgroundTexture;
+
+	/** 공통 배경을 우선 사용할지 여부 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Common")
+	bool bUseCommonRevealBackground = true;
+
 	/** 실루엣 이미지 */
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UImage> Image_RevealSilhouette;
