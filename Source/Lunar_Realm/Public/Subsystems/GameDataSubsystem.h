@@ -136,7 +136,13 @@ public:
 	const FStageStaticData& GetStageStaticData(FName StageID) const;
 
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Stage")
+	const FChapterStaticData& GetChapterStaticData(FName ChapterID) const;
+
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Stage")
 	const TArray<FName> GetAllStageIDsByChapterID(FName ChapterID) const;
+
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Currecny")
+	const FCurrencyStaticData& GetCurrencyStaticData(FName CurrencyID) const;
 
 private:
 	// ========================================
@@ -224,7 +230,12 @@ private:
 	UDataTable* LoadedEnemyStaticData;
 	UPROPERTY()
 	UDataTable* LoadedStageStaticData;
-	
+	UPROPERTY()
+	UDataTable* LoadedChapterStaticData;
+	UPROPERTY()
+	UDataTable* LoadedCurrencyStaticData;
+
+
 	// ========================================
 	// 데이터 캐싱 (성능 최적화)
 	// ========================================
@@ -266,10 +277,16 @@ private:
 	TMap<FName, FStatusEffectData> CachedBuffEffectData;
 	
 	//에너미 정적 데이터 캐시
+	UPROPERTY()
 	TMap<FName, FEnemyStaticData> CachedEnemyStaticData;
 	//스테이지 정적 데이터 캐시
+	UPROPERTY()
 	TMap<FName, FStageStaticData> CachedStageStaticData;
-	
+	UPROPERTY()
+	TMap<FName, FChapterStaticData> CachedChapterStaticData;
+	UPROPERTY()
+	TMap<FName, FCurrencyStaticData> CachedCurrencyStaticData;
+
 	//캐싱 실패시 사용할 기본값
 	static FCharacterStaticData EmptyCharacterStaticData;
 	static FEquipmentStaticData EmptyEquipmentStaticData;
@@ -287,7 +304,9 @@ private:
 	static FStatusEffectData EmptyStatusEffectData;
 	static FEnemyStaticData EmptyEnemyStaticData;
 	static FStageStaticData EmptyStageStaticData;
-	
+	static FChapterStaticData EmptyChapterStaticData;
+	static FCurrencyStaticData EmptyCurrencyStaticData;
+
 };
 
 

@@ -93,4 +93,10 @@ public:
 	// 스테이지 정적 데이터 DataTable
 	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Stage")
 	TSoftObjectPtr<UDataTable> StageStaticDataTable;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Stage")
+	TSoftObjectPtr<UDataTable> ChapterStaticDataTable;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Stage")
+	TSoftObjectPtr<UDataTable> CurrencyStaticDataTable;
 };

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Data/LREnumType.h"
-#include "UI/Core/LRChildWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 #include "LRCurrencyViewWidget.generated.h"
 
 
@@ -17,7 +17,7 @@
  //=============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRCurrencyViewWidget : public ULRChildWidget
+class LUNAR_REALM_API ULRCurrencyViewWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
 	
@@ -29,6 +29,9 @@ public:
 private:
 	UFUNCTION()
 	void OnCurrencyAddClicked();
+
+	void SetIconByType();
+	FName TypeToID();
 
 protected:
 	// 재화 아이콘
@@ -44,7 +47,4 @@ protected:
 private:
 	UPROPERTY(EditAnywhere, Category = "LR|Currency")
 	ELRCurrencyType CurrencyType = ELRCurrencyType::Gold;
-
-	UPROPERTY(EditAnywhere, Category = "LR|UI")
-	TSubclassOf<class ULRShopWidget> ShopWidgetClass;
 };

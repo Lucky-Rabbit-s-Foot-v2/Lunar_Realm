@@ -8,12 +8,11 @@
 #include "Components/TextBlock.h"
 
 #include "Subsystems/SaveGameSubsystem.h"
+#include "Subsystems/GameDataSubsystem.h"
 
 #include "Engine/GameInstance.h"
 #include "Subsystems/Settings/UIManagerSettings.h"
 #include "Subsystems/UIManagerSubsystem.h"
-
-#include "UI/Shop/LRShopWidget.h"
 
 #include "Units/OutGame/LROutGameController.h"
 
@@ -35,6 +34,8 @@ void ULRCurrencyViewWidget::RefreshUI()
 {
 	Super::RefreshUI();
 
+	SetIconByType();
+
 	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
 	if (SaveGameSubsystem)
 	{
@@ -50,4 +51,30 @@ void ULRCurrencyViewWidget::OnCurrencyAddClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	UIManager->SwitchPageUIByID(EUIID::SHOP);
+}
+
+void ULRCurrencyViewWidget::SetIconByType()
+{
+	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+	if (Img_Icon)
+	{
+		FName CurrencyID = TypeToID();
+		const FCurrencyStaticData& CurrencyData = GameDataSubsystem->GetCurrencyStaticData(CurrencyID);
+		UTexture2D* IconTexture = CurrencyData.CurrencyImage.LoadSynchronous();
+		Img_Icon->SetBrushFromTexture(IconTexture);
+	}
+}
+
+FName ULRCurrencyViewWidget::TypeToID()
+{
+	switch (CurrencyType)
+	{
+	case ELRCurrencyType::Gold:
+		return FName("GOLD");
+	case ELRCurrencyType::CrescentTicket:
+		return FName("CRESCENT");
+	case ELRCurrencyType::FullMoonTicket:
+		return FName("FULLMOON");
+	}
+	return FName();
 }

@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRChildWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 #include "LRPartySlotsWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LUNAR_REALM_API ULRPartySlotsWidget : public ULRChildWidget
+class LUNAR_REALM_API ULRPartySlotsWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
 	

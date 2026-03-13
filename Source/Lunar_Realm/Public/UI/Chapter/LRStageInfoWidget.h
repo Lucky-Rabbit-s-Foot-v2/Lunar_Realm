@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRChildWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 #include "LRStageInfoWidget.generated.h"
 
 //============================================================================
@@ -15,11 +15,13 @@
  //============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRStageInfoWidget : public ULRChildWidget
+class LUNAR_REALM_API ULRStageInfoWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
 	
 public:
+	void RegisterSubWidgets() override;
+	
 	void SetStageDataByID(FName InStageID);
 
 protected:
@@ -46,4 +48,7 @@ protected:
 
 private:
 	FName CurrentStageID;
+
+	TArray<class ULREnemyInfo*> EnemyInfos;
+	TArray<class ULRRewardInfoWidget*> RewardInfos;
 };

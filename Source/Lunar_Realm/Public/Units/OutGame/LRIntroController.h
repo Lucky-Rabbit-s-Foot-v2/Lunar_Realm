@@ -23,4 +23,7 @@ class LUNAR_REALM_API ALRIntroController : public ALRControllerBase
 	
 public:
 	virtual void OpenFirstWidget() override;
+
+	UFUNCTION()
+	void OpenTitleScreen();
 };
