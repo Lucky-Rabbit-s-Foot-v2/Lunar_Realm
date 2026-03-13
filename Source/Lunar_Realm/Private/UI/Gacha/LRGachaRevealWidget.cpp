@@ -679,6 +679,36 @@ void ULRGachaRevealWidget::ApplyPresentationDataToWidgets(const FLRGachaRevealPr
 		{
 			Text_RevealName->SetText(FText::FromName(InData.ItemID));
 		}
+
+		FSlateColor NameColor = FSlateColor(FLinearColor::White);
+
+		switch (InData.Rarity)
+		{
+		case ELRGachaRarity::N:
+			NameColor = FSlateColor(FLinearColor(0.75f, 0.75f, 0.75f, 1.f));
+			break;
+
+		case ELRGachaRarity::R:
+			NameColor = FSlateColor(FLinearColor(0.55f, 1.00f, 0.35f, 1.f));
+			break;
+
+		case ELRGachaRarity::SR:
+			NameColor = FSlateColor(FLinearColor(0.15f, 0.45f, 1.00f, 1.f));
+			break;
+
+		case ELRGachaRarity::SSR:
+			NameColor = FSlateColor(FLinearColor(0.60f, 0.20f, 0.90f, 1.f));
+			break;
+
+		case ELRGachaRarity::UR:
+			NameColor = FSlateColor(FLinearColor(1.00f, 0.78f, 0.10f, 1.f));
+			break;
+
+		default:
+			break;
+		}
+
+		Text_RevealName->SetColorAndOpacity(NameColor);
 	}
 
 	// 등급 이미지
