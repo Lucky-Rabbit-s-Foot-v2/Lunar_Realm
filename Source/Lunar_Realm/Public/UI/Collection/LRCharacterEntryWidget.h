@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Common/LREntryWidget.h"
+#include "UI/Core/LREntryWidget.h"
 #include "LRCharacterEntryWidget.generated.h"
 
 

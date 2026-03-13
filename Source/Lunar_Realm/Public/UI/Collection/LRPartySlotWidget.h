@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRChildWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 #include "LRPartySlotWidget.generated.h"
 
 /**
@@ -13,7 +13,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPartySlotChanged);
 
 UCLASS()
-class LUNAR_REALM_API ULRPartySlotWidget : public ULRChildWidget
+class LUNAR_REALM_API ULRPartySlotWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
 	

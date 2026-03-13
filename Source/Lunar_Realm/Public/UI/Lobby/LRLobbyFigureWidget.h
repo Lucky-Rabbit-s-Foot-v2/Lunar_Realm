@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRChildWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 #include "LRLobbyFigureWidget.generated.h"
 
 
@@ -21,7 +21,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFigureLongPressed, FName, Charact
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFigureLongReleased);
 
 UCLASS()
-class LUNAR_REALM_API ULRLobbyFigureWidget : public ULRChildWidget
+class LUNAR_REALM_API ULRLobbyFigureWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
 	

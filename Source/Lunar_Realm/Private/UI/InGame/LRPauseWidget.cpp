@@ -15,14 +15,14 @@ void ULRPauseWidget::BindProperties()
 {
 	Super::BindProperties();
 
-	if (Btn_Restart) Btn_Restart->OnClicked.AddDynamic(this, &ULRPauseWidget::OnRestartButtonClicked);
-	if (Btn_Resume) Btn_Resume->OnClicked.AddDynamic(this, &ULRPauseWidget::OnResumeButtonClicked);
-	if (Btn_Setting) Btn_Setting->OnClicked.AddDynamic(this, &ULRPauseWidget::OnSettingButtonClicked);
-	if (Btn_Exit) Btn_Exit->OnClicked.AddDynamic(this, &ULRPauseWidget::OnExitButtonClicked);
+	if (Btn_Restart) Btn_Restart->OnClicked.AddUniqueDynamic(this, &ULRPauseWidget::OnRestartButtonClicked);
+	if (Btn_Resume) Btn_Resume->OnClicked.AddUniqueDynamic(this, &ULRPauseWidget::OnResumeButtonClicked);
+	if (Btn_Setting) Btn_Setting->OnClicked.AddUniqueDynamic(this, &ULRPauseWidget::OnSettingButtonClicked);
+	if (Btn_Exit) Btn_Exit->OnClicked.AddUniqueDynamic(this, &ULRPauseWidget::OnExitButtonClicked);
 
 	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
 	{
-		OnCloseUIRequestedDel.AddDynamic(UIManager, &UUIManagerSubsystem::CloseUI);
+		OnCloseUIRequestedDel.AddUniqueDynamic(UIManager, &UUIManagerSubsystem::CloseUI);
 	}
 }
 

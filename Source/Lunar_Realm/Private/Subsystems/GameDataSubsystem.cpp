@@ -21,6 +21,8 @@ FSkillHitAreaData		UGameDataSubsystem::EmptySkillHitAreaData;
 FStatusEffectData		UGameDataSubsystem::EmptyStatusEffectData;
 FEnemyStaticData		UGameDataSubsystem::EmptyEnemyStaticData;
 FStageStaticData		UGameDataSubsystem::EmptyStageStaticData;
+FChapterStaticData		UGameDataSubsystem::EmptyChapterStaticData;
+FCurrencyStaticData		UGameDataSubsystem::EmptyCurrencyStaticData;
 
 
 void UGameDataSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -53,7 +55,8 @@ void UGameDataSubsystem::Deinitialize()
     CachedBuffEffectData.Empty();   
 	CachedEnemyStaticData.Empty();
 	CachedStageStaticData.Empty();
-	
+	CachedChapterStaticData.Empty();
+	CachedCurrencyStaticData.Empty();
 
 	LR_INFO(TEXT("GameDataSubsystem Deinitialize - Cleaned up caches"));
 	
@@ -131,6 +134,8 @@ void UGameDataSubsystem::LoadDataTables()
 	LoadedSkillFlightPierceData  = Config->FlightPierceDataTable.LoadSynchronous();		//관통형 스킬 오브젝트 데이터
 	LoadedSkillFlightExplodeData = Config->FlightExplodeDataTable.LoadSynchronous();	//폭발형 스킬 오브젝트 데이터
 	LoadedStageStaticData		 = Config->StageStaticDataTable.LoadSynchronous();		//스테이지 데이터
+	LoadedChapterStaticData		 = Config->ChapterStaticDataTable.LoadSynchronous();	//챕터 데이터
+	LoadedCurrencyStaticData	 = Config->CurrencyStaticDataTable.LoadSynchronous();	//재화 데이터
 	
 	if (LoadedCharacterStaticData)
 	{
@@ -187,6 +192,11 @@ void UGameDataSubsystem::CacheAllData()
 	//스테이지 데이터 캐싱
 	CacheDataTable<FStageStaticData, FName>(
 		LoadedStageStaticData, CachedStageStaticData, &FStageStaticData::DataID, TEXT("StageStaticData"));
+	CacheDataTable<FChapterStaticData, FName>(
+		LoadedChapterStaticData, CachedChapterStaticData, &FChapterStaticData::DataID, TEXT("ChapterStaticData"));
+	CacheDataTable<FCurrencyStaticData, FName>(
+		LoadedCurrencyStaticData, CachedCurrencyStaticData, &FCurrencyStaticData::DataID, TEXT("CurrencyStaticData"));
+
 }
 
 FName UGameDataSubsystem::StatTypeToName(ELRStatusType StatusType)
@@ -278,8 +288,8 @@ float UGameDataSubsystem::GetCharacterFinalStat(FName CharacterID, ELRStatusType
 	float multiplier = GetStatusMultiplier(CharacterID, StatusType); //스탯 승수
 	float finalStat = baseStat * multiplier; //최종 스탯
 	
-	LR_INFO(TEXT("CharacterID : %s, Stat : %s, Level : %d, Base = %.1f * Mult = %.2f = %.1f"), 
-		*CharacterID.ToString(), *StatTypeToName(StatusType).ToString(), CharacterLevel, baseStat, multiplier, finalStat);
+//	LR_INFO(TEXT("CharacterID : %s, Stat : %s, Level : %d, Base = %.1f * Mult = %.2f = %.1f"), 
+//		*CharacterID.ToString(), *StatTypeToName(StatusType).ToString(), CharacterLevel, baseStat, multiplier, finalStat);
 	
 	return finalStat;
 }
@@ -536,17 +546,18 @@ const FStageStaticData& UGameDataSubsystem::GetStageStaticData(FName StageID) co
 	return GetCachedData(CachedStageStaticData, StageID, EmptyStageStaticData, TEXT("StageStaticData"));
 }
 
+const FChapterStaticData& UGameDataSubsystem::GetChapterStaticData(FName ChapterID) const
+{
+	return GetCachedData(CachedChapterStaticData, ChapterID, EmptyChapterStaticData, TEXT("ChapterStaticData"));
+}
+
 const TArray<FName> UGameDataSubsystem::GetAllStageIDsByChapterID(FName ChapterID) const
 {
-	TArray<FName> StageIDs;
-	for (const auto& Param : CachedStageStaticData)
-	{
-		FString StageIDStr = Param.Key.ToString();
-		FString ChapterIDStr = ChapterID.ToString();
-		if (StageIDStr.StartsWith(ChapterIDStr))
-		{
-			StageIDs.Add(Param.Key);
-		}
-	}
-	return StageIDs;
+	const FChapterStaticData& ChapterData = GetChapterStaticData(ChapterID);
+	return ChapterData.StageDataIDs;
+}
+
+const FCurrencyStaticData& UGameDataSubsystem::GetCurrencyStaticData(FName CurrencyID) const
+{
+	return GetCachedData(CachedCurrencyStaticData, CurrencyID, EmptyCurrencyStaticData, TEXT("CurrencyStaticData"));
 }

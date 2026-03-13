@@ -21,5 +21,5 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI|Transition")
-	TSubclassOf<class ULRLoadingWidget> LoadingWidgetClass;
+	TSubclassOf<class ULRLoadingPageWidget> LoadingWidgetClass;
 };

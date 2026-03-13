@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRChildWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 #include "Subsystems/Option/OptionManagerSubsystem.h"
 #include "LRNameBarWidget.generated.h"
 
@@ -18,7 +18,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnProgressBarChanged, ESettingType, InType, int32, Value);
 
 UCLASS()
-class LUNAR_REALM_API ULRNameBarWidget : public ULRChildWidget
+class LUNAR_REALM_API ULRNameBarWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
 	

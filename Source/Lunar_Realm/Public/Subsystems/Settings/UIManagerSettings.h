@@ -19,6 +19,7 @@ UENUM(BlueprintType)
 enum class EUIID : uint8
 {
 	NONE,
+	BACKGROUND,
 	INTRO,
 	TITLE,
 	LOADING,
