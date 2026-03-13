@@ -44,16 +44,7 @@ void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 		return;
 	}
 
-	// 2. 거리 체크
-	float Distance = FVector::Dist(ActorInfo->AvatarActor->GetActorLocation(),
-		TargetActor->GetActorLocation());
-	if (Distance > AttackRange)
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-
-	// 3. 타겟의 ASC 가져오기
+	// 2. 타겟의 ASC 가져오기
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(const_cast<AActor*>(TargetActor));
 	// TEST
 	LR_INFO(TEXT("[InstantAttack] TargetASC: %s"), TargetASC ? TEXT("Valid") : TEXT("NULL"));
@@ -69,7 +60,7 @@ void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 		return;
 	}
 
-	// 4. GameplayEffect 즉시 적용!
+	// 3. GameplayEffect 즉시 적용!
 	// (260310) BJM_수정 : TargetASC -> SourceASC로 변경
 	UAbilitySystemComponent* SourceASC = ActorInfo->AbilitySystemComponent.Get();
 	if (!SourceASC) return;
@@ -86,6 +77,6 @@ void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 		SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 	}
 
-	// 5. 즉시 종료!
+	// 4. 즉시 종료!
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 }
