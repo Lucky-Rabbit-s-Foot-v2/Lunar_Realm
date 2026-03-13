@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRPageWidget.h"
-#include "LRIntroWidget.generated.h"
+#include "LRIntroPageWidget.generated.h"
 
 // =============================================================================
 /**
@@ -21,7 +21,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTitleOpenRequested);
 
 
 UCLASS()
-class LUNAR_REALM_API ULRIntroWidget : public ULRPageWidget
+class LUNAR_REALM_API ULRIntroPageWidget : public ULRPageWidget
 {
 	GENERATED_BODY()
 	
@@ -59,6 +59,6 @@ protected:
 	TObjectPtr<class UWidgetAnimation> FadeAnim;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
-	TSubclassOf<class ULRTitleWidget> TitleWidgetClass;
+	TSubclassOf<class ULRTitlePopupWidget> TitleWidgetClass;
 
 };

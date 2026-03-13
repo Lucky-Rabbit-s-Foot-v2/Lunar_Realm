@@ -6,10 +6,6 @@
 #include "Subsystems/UIManagerSubsystem.h"
 #include "Subsystems/Settings/UIManagerSettings.h"
 
-#include "UI/Core/LRBackgroundWidget.h"
-
-#include "UI/Intro/LRIntroWidget.h"
-
 void ALRIntroController::OpenFirstWidget()
 {
 	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())

@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Intro/LRTitleWidget.h"
+#include "UI/Intro/LRTitlePopupWidget.h"
 #include "UI/Core/LRBackgroundWidget.h"
 
 #include "Kismet/GameplayStatics.h"
@@ -14,17 +14,17 @@
 #include "Subsystems/UIManagerSubsystem.h"
 
 
-void ULRTitleWidget::BindProperties()
+void ULRTitlePopupWidget::BindProperties()
 {
 	Super::BindProperties();
 
 	if (Btn_Start)
 	{
-		Btn_Start->OnClicked.AddDynamic(this, &ULRTitleWidget::OnClickedStartButton);
+		Btn_Start->OnClicked.AddDynamic(this, &ULRTitlePopupWidget::OnClickedStartButton);
 	}
 }
 
-void ULRTitleWidget::UnbindProperties()
+void ULRTitlePopupWidget::UnbindProperties()
 {
 	if (Btn_Start)
 	{
@@ -34,7 +34,7 @@ void ULRTitleWidget::UnbindProperties()
 	Super::UnbindProperties();
 }
 
-void ULRTitleWidget::OnClickedStartButton()
+void ULRTitlePopupWidget::OnClickedStartButton()
 {
 	ULRGameInstance* GI = Cast<ULRGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (GI)

@@ -5,8 +5,6 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
-#include "System/LoggingSystem.h"
-#include "UI/Intro/LRLoadingWidget.h"
 
 #include "Subsystems/UIManagerSubsystem.h"
 #include "Subsystems/StageManagerSubsystem.h"

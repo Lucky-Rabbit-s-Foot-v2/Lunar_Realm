@@ -3,7 +3,7 @@
 
 #include "Core/Transition/LRTransitionGameMode.h"
 
-#include "UI/Intro/LRLoadingWidget.h"
+#include "UI/Intro/LRLoadingPageWidget.h"
 #include "Core/LRGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"

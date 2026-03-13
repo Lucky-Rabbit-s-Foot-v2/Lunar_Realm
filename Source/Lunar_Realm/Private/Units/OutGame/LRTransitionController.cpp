@@ -18,7 +18,7 @@ void ALRTransitionController::FinishLoading()
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	if (LoadingWidgetClass)
 	{
-		ULRLoadingWidget* LoadingWidgetInstance = UIManager->GetOrCreateWidget<ULRLoadingWidget>(LoadingWidgetClass);
+		ULRLoadingPageWidget* LoadingWidgetInstance = UIManager->GetOrCreateWidget<ULRLoadingPageWidget>(LoadingWidgetClass);
 		LoadingWidgetInstance->FinishLoading();
 	}
 	else

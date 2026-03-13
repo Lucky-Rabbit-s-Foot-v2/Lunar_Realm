@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Intro/LRIntroWidget.h"
+#include "UI/Intro/LRIntroPageWidget.h"
 
 #include "Engine/GameInstance.h"
 #include "TimerManager.h"
@@ -10,12 +10,12 @@
 
 #include "Subsystems/UIManagerSubsystem.h"
 
-#include "UI/Intro/LRTitleWidget.h"
+#include "UI/Intro/LRTitlePopupWidget.h"
 
 #include "Units/OutGame/LRIntroController.h"
 
 
-void ULRIntroWidget::BindToController(ALRControllerBase* Controller)
+void ULRIntroPageWidget::BindToController(ALRControllerBase* Controller)
 {
 	Super::BindToController(Controller);
 
@@ -25,14 +25,14 @@ void ULRIntroWidget::BindToController(ALRControllerBase* Controller)
 	}
 }
 
-void ULRIntroWidget::OpenUI()
+void ULRIntroPageWidget::OpenUI()
 {
 	Super::OpenUI();
 
 	PlayIntroAnimation();
 }
 
-void ULRIntroWidget::RefreshUI()
+void ULRIntroPageWidget::RefreshUI()
 {
 	Super::RefreshUI();
 
@@ -41,12 +41,12 @@ void ULRIntroWidget::RefreshUI()
 	Img_3->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void ULRIntroWidget::PlayIntroAnimation()
+void ULRIntroPageWidget::PlayIntroAnimation()
 {
 	if (FadeAnim)
 	{
 		FWidgetAnimationDynamicEvent AnimFinishedDel;
-		AnimFinishedDel.BindDynamic(this, &ULRIntroWidget::OnFinishedIntroAnim);
+		AnimFinishedDel.BindDynamic(this, &ULRIntroPageWidget::OnFinishedIntroAnim);
 	
 		BindToAnimationEvent(FadeAnim, AnimFinishedDel, EWidgetAnimationEvent::Finished);
 
@@ -59,7 +59,7 @@ void ULRIntroWidget::PlayIntroAnimation()
 	}
 }
 
-void ULRIntroWidget::OnFinishedIntroAnim()
+void ULRIntroPageWidget::OnFinishedIntroAnim()
 {
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(

@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Intro/LRLoadingWidget.h"
+#include "UI/Intro/LRLoadingPageWidget.h"
 
 #include "Components/ProgressBar.h"
 
@@ -10,27 +10,27 @@
 #include "Components/Throbber.h"
 #include "Components/Image.h"
 
-void ULRLoadingWidget::OpenUI()
+void ULRLoadingPageWidget::OpenUI()
 {
 	Super::OpenUI();
 	
 	GetWorld()->GetTimerManager().SetTimer(
 		LoadingTimerHandle,
 		this,
-		&ULRLoadingWidget::UpdateLoadingAnimation,
+		&ULRLoadingPageWidget::UpdateLoadingAnimation,
 		TimerInterval,
 		true
 	);
 }
 
-void ULRLoadingWidget::CloseUI()
+void ULRLoadingPageWidget::CloseUI()
 {
 	Super::CloseUI();
 
 	GetWorld()->GetTimerManager().ClearTimer(LoadingTimerHandle);
 }
 
-void ULRLoadingWidget::RefreshUI()
+void ULRLoadingPageWidget::RefreshUI()
 {
 	Super::RefreshUI();
 	
@@ -46,7 +46,7 @@ void ULRLoadingWidget::RefreshUI()
 	GetWorld()->GetTimerManager().ClearTimer(LoadingTimerHandle);
 }
 
-void ULRLoadingWidget::UpdateLoadingAnimation()
+void ULRLoadingPageWidget::UpdateLoadingAnimation()
 {
 	AnimationTime += TimerInterval;
 
@@ -87,7 +87,7 @@ void ULRLoadingWidget::UpdateLoadingAnimation()
 	}
 }
 
-void ULRLoadingWidget::FinishLoading()
+void ULRLoadingPageWidget::FinishLoading()
 {
 	Progress = 1.f;
 	if (Bar_Loading)
