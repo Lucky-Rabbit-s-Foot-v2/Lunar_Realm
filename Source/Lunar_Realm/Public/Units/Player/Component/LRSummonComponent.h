@@ -83,7 +83,6 @@ private:
 	ALRPlayerState* GetPlayerState() const;
 	ULRPlayerAttributeSet* GetAttributeSet() const;
 
-	bool IsValidSummonRequest(int32 InSlotIndex, FName& OutUnitID, const FCharacterStaticData*& OutCharData);
 	bool IsOnCooldown(FName InUnitID, float InCoolDownTime) const;
 	bool CanAffordSummon(float InCost) const;
 
@@ -97,6 +96,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Summon")
 	const TArray<FName>& GetSummonDeck() const { return SummonDeck; }
 
+	bool IsValidSummonRequest(int32 InSlotIndex, FName& OutUnitID, const FCharacterStaticData*& OutCharData);
 protected:
 
 

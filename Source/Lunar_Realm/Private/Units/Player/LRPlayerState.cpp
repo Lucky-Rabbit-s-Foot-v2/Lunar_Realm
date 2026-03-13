@@ -501,5 +501,5 @@ TArray<FName> ALRPlayerState::GetEquippedAutoSkillIDs() const
 		}
 	}
 
-	return SkillIDsToReturn;;
+	return SkillIDsToReturn;
 }

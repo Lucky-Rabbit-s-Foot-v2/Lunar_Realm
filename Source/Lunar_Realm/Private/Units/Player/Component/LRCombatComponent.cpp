@@ -4,6 +4,7 @@
 #include "Units/Player/Component/LRCombatComponent.h"
 #include "Units/LRCharacter.h"
 #include "Units/Player/LRPlayerState.h"
+#include "Units/Player/Component/LRSummonComponent.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
@@ -160,6 +161,13 @@ void ULRCombatComponent::ProcessCombatLogic(ALRCharacter* InOwnerCharacter, floa
 	bool bInBasicAttackRange = IsTargetInRange();
 	AController* OwnerController = InOwnerCharacter->GetController();
 
+	// 자동 소환 (독립 실행)
+	if (CombatState == EAutoCombatState::Auto)
+	{
+		TryAutoSummon(InOwnerCharacter);
+	}
+
+	// 자동 스킬 사용
 	if (CombatState == EAutoCombatState::Auto)
 	{
 		if (TryExcuteSkill(InOwnerCharacter))
@@ -167,12 +175,12 @@ void ULRCombatComponent::ProcessCombatLogic(ALRCharacter* InOwnerCharacter, floa
 			if (OwnerController)
 			{
 				OwnerController->StopMovement();
-				return;
 			}
+			return;
 		}
 	}
 
-
+	// 기본공격 및 이동
 	if (bInBasicAttackRange)
 	{
 		if (OwnerController)
@@ -492,6 +500,34 @@ bool ULRCombatComponent::TryExcuteSkill(ALRCharacter* InOwnerCharacter)
 			}
 		}
 	}
+
+	return false;
+}
+
+bool ULRCombatComponent::TryAutoSummon(ALRCharacter* InOwnerCharacter)
+{
+	ULRSummonComponent* SummonComp = InOwnerCharacter->FindComponentByClass<ULRSummonComponent>();
+	if (!SummonComp) return false;
+
+	TArray<FName> CurrentDeck = SummonComp->GetSummonDeck();
+	if (CurrentDeck.Num() == 0) return false;
+
+	for (int32 i = 0; i < CurrentDeck.Num(); ++i)
+	{
+		FName UnitID;
+		const FCharacterStaticData* CharData = nullptr;
+
+		if (SummonComp->IsValidSummonRequest(i, UnitID, CharData))
+		{
+			SummonComp->TrySummonUnit(i);
+
+			//AutoSkillDelay = 1.0f;
+
+			LR_INFO(TEXT("[Auto] %d번 슬롯 자동 소환 완료: %s"), i, *UnitID.ToString());
+			return true;
+		}
+	}
+
 
 	return false;
 }
