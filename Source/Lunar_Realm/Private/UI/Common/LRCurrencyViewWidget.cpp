@@ -14,8 +14,6 @@
 #include "Subsystems/Settings/UIManagerSettings.h"
 #include "Subsystems/UIManagerSubsystem.h"
 
-#include "UI/Shop/LRShopWidget.h"
-
 #include "Units/OutGame/LROutGameController.h"
 
 void ULRCurrencyViewWidget::BindProperties()

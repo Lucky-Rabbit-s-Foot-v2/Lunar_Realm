@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Lobby/LRLobbyWidget.h"
+#include "UI/Lobby/LRLobbyPageWidget.h"
 
 #include "Components/Button.h"
 
@@ -12,7 +12,7 @@
 #include "UI/Lobby/LRLobbyFigureWidget.h"
 #include "UI/Common/LRCurrencyWidget.h"
 
-void ULRLobbyWidget::RefreshUI()
+void ULRLobbyPageWidget::RefreshUI()
 {
 	Super::RefreshUI();
 
@@ -26,15 +26,15 @@ void ULRLobbyWidget::RefreshUI()
 	Member4->SetFigure(PartyCharactersIDs.IsValidIndex(4) ? PartyCharactersIDs[4] : NAME_None);
 }
 
-void ULRLobbyWidget::BindProperties()
+void ULRLobbyPageWidget::BindProperties()
 {
 	Super::BindProperties();
 
-	if (Btn_Message) Btn_Message->OnClicked.AddDynamic(this, &ULRLobbyWidget::OnMessageButtonClicked);
-	if (Btn_Setting) Btn_Setting->OnClicked.AddDynamic(this, &ULRLobbyWidget::OnSettingButtonClicked);
+	if (Btn_Message) Btn_Message->OnClicked.AddDynamic(this, &ULRLobbyPageWidget::OnMessageButtonClicked);
+	if (Btn_Setting) Btn_Setting->OnClicked.AddDynamic(this, &ULRLobbyPageWidget::OnSettingButtonClicked);
 }
 
-void ULRLobbyWidget::UnbindProperties()
+void ULRLobbyPageWidget::UnbindProperties()
 {
 	Btn_Message->OnClicked.Clear();
 	Btn_Setting->OnClicked.Clear();
@@ -42,7 +42,7 @@ void ULRLobbyWidget::UnbindProperties()
 	Super::UnbindProperties();
 }
 
-void ULRLobbyWidget::RegisterSubWidgets()
+void ULRLobbyPageWidget::RegisterSubWidgets()
 {
 	Super::RegisterSubWidgets();
 
@@ -54,12 +54,12 @@ void ULRLobbyWidget::RegisterSubWidgets()
 	SubWidgets.Add(Currency);
 }
 
-void ULRLobbyWidget::OnMessageButtonClicked()
+void ULRLobbyPageWidget::OnMessageButtonClicked()
 {
 	LR_SCREEN_INFO(TEXT("Message Button Clicked : Not implemented yet"));
 }
 
-void ULRLobbyWidget::OnSettingButtonClicked()
+void ULRLobbyPageWidget::OnSettingButtonClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	UIManager->OpenUIByID(EUIID::SETTING);

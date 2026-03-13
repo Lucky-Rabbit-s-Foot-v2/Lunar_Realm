@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRPopupWidget.h"
-#include "LRSettingWidget.generated.h"
+#include "LRSettingPopupWidget.generated.h"
 
 // =============================================================================
 /**
@@ -15,7 +15,7 @@
  //=============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRSettingWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRSettingPopupWidget : public ULRPopupWidget
 {
 	GENERATED_BODY()
 	

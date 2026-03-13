@@ -11,7 +11,6 @@
 #include "Subsystems/Settings/UIManagerSettings.h"
 
 #include "UI/Chapter/LRChapterWidget.h"
-#include "UI/Lobby/LRLobbyWidget.h"
 
 void ULRChapterPageWidget::InitializeUI()
 {

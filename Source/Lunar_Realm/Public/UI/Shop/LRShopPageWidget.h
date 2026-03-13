@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRPageWidget.h"
-#include "LRShopWidget.generated.h"
+#include "LRShopPageWidget.generated.h"
 
 
 //============================================================================
@@ -17,7 +17,7 @@
  //============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRShopWidget : public ULRPageWidget
+class LUNAR_REALM_API ULRShopPageWidget : public ULRPageWidget
 {
 	GENERATED_BODY()
 	
@@ -34,5 +34,5 @@ protected:
 	TObjectPtr<class UButton> Btn_Close;
 
 	UPROPERTY(EditAnywhere, Category = "LR|UI")
-	TSubclassOf<class ULRLobbyWidget> LobbyWidgetClass;
+	TSubclassOf<class ULRLobbyPageWidget> LobbyWidgetClass;
 };

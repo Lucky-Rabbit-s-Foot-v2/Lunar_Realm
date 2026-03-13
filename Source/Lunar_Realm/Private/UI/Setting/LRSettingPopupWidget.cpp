@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Setting/LRSettingWidget.h"
+#include "UI/Setting/LRSettingPopupWidget.h"
 
 #include "Engine/GameInstance.h"
 
@@ -12,7 +12,7 @@
 #include "UI/Setting/LRSettingScrollWidget.h"
 
 
-void ULRSettingWidget::NativeConstruct()
+void ULRSettingPopupWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
@@ -22,30 +22,30 @@ void ULRSettingWidget::NativeConstruct()
 	}
 }
 
-void ULRSettingWidget::NativeDestruct()
+void ULRSettingPopupWidget::NativeDestruct()
 {
 	OnCloseUIRequestedDel.Clear();
 
 	Super::NativeDestruct();
 }
 
-void ULRSettingWidget::RegisterSubWidgets()
+void ULRSettingPopupWidget::RegisterSubWidgets()
 {
 	Super::RegisterSubWidgets();
 
 	SubWidgets.Add(SettingScrollWidget);
 }
 
-void ULRSettingWidget::BindProperties()
+void ULRSettingPopupWidget::BindProperties()
 {
 	Super::BindProperties();
 
-	if (Btn_Close) Btn_Close->OnClicked.AddDynamic(this, &ULRSettingWidget::OnCloseButtonClicked);
-	if (Btn_Save) Btn_Save->OnClicked.AddDynamic(this, &ULRSettingWidget::OnSaveButtonClicked);
-	if (Btn_Default) Btn_Default->OnClicked.AddDynamic(this, &ULRSettingWidget::OnDefaultButtonClicked);
+	if (Btn_Close) Btn_Close->OnClicked.AddDynamic(this, &ULRSettingPopupWidget::OnCloseButtonClicked);
+	if (Btn_Save) Btn_Save->OnClicked.AddDynamic(this, &ULRSettingPopupWidget::OnSaveButtonClicked);
+	if (Btn_Default) Btn_Default->OnClicked.AddDynamic(this, &ULRSettingPopupWidget::OnDefaultButtonClicked);
 }
 
-void ULRSettingWidget::UnbindProperties()
+void ULRSettingPopupWidget::UnbindProperties()
 {
 	if (Btn_Close) Btn_Close->OnClicked.Clear();
 	if (Btn_Save) Btn_Save->OnClicked.Clear();
@@ -54,17 +54,17 @@ void ULRSettingWidget::UnbindProperties()
 	Super::UnbindProperties();
 }
 
-void ULRSettingWidget::OnCloseButtonClicked()
+void ULRSettingPopupWidget::OnCloseButtonClicked()
 {
 	OnCloseUIRequestedDel.Broadcast(this);
 }
 
-void ULRSettingWidget::OnSaveButtonClicked()
+void ULRSettingPopupWidget::OnSaveButtonClicked()
 {
 	SettingScrollWidget->SaveAllSettings();
 }
 
-void ULRSettingWidget::OnDefaultButtonClicked()
+void ULRSettingPopupWidget::OnDefaultButtonClicked()
 {
 	SettingScrollWidget->SetDefaultSettings();
 }

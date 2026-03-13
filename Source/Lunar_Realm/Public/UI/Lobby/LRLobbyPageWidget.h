@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRPageWidget.h"
-#include "LRLobbyWidget.generated.h"
+#include "LRLobbyPageWidget.generated.h"
 
 // =============================================================================
 /**
@@ -15,7 +15,7 @@
  //=============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRLobbyWidget : public ULRPageWidget
+class LUNAR_REALM_API ULRLobbyPageWidget : public ULRPageWidget
 {
 	GENERATED_BODY()
 	
