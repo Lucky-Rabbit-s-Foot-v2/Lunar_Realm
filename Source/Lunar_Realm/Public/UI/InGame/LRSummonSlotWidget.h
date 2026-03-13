@@ -81,7 +81,7 @@ protected:
 	class UMaterialInstanceDynamic* CooldownMID;
 
 protected:
-	// 에디터에서 등급별 테두리 이미지를 세팅할 TMap (키값은 FName, Enum이 있다면 Enum 추천!)
+	// 에디터에서 등급별 테두리 이미지를 세팅할 TMap
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI|SummonSlot")
 	TMap<ELRGrade, UTexture2D*> RarityBorderMap;
 

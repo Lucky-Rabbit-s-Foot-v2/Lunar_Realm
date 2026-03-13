@@ -19,6 +19,7 @@
 
 class UProgressBar;
 class UAbilitySystemComponent;
+class UWidgetAnimaion;
 
 UCLASS()
 class LUNAR_REALM_API ULRHealthWidget : public ULRBaseWidget
@@ -82,5 +83,36 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|UI")
 	float InterpSpeed = 10.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|UI")
+	float InterpSpeed_Ghost = 3.0f;
+
+protected:
+	// 잔상용 프로그래스바
+	UPROPERTY(meta=(BindWidget))
+	class UProgressBar* PBar_Ghost;
+
+	// 위기경고 애니메이션
+	UPROPERTY(meta=(BindWidgetAnim), Transient)
+	class UWidgetAnimation* Anim_LowHealth;
+	
+	// 피격 애니메이션
+	UPROPERTY(meta=(BindWidgetAnim), Transient)
+	class UWidgetAnimation* Anim_HitShake;
+
+	UPROPERTY(meta = (BindWidget))
+	class UImage* Img_DangerGlow;
+
+private:
+	float GhostHealth = 0.0f;
+
+	bool bIsLowHealth = false;
+
+	float GhostDelayTimer = 0.0f;
+	const float GhostDelayTime = 0.5f;
+
+	// 헬퍼 함수
+	void UpdateGhostBar(float InDeltaTime);
+	void CheckLowHealthState();
+	void PlayHitEffect();
 
 };

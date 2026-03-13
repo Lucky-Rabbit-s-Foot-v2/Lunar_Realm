@@ -192,4 +192,19 @@ void ULRInGamePersistentWidget::UpdateAutoButtonVisual(bool InbIsAutoMode)
 
 		Txt_Auto->SetFont(FontInfo);
 	}
+	SetAutoEffectActive(InbIsAutoMode);
+}
+
+void ULRInGamePersistentWidget::SetAutoEffectActive(bool bIsActive)
+{
+	if (!Img_AutoGlow) return;
+
+	if (bIsActive)
+	{
+		Img_AutoGlow->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	}
+	else
+	{
+		Img_AutoGlow->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
