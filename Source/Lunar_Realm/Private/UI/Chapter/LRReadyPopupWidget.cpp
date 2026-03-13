@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Chapter/LRStageReadyWidget.h"
+#include "UI/Chapter/LRReadyPopupWidget.h"
 
 #include "UI/Chapter/LRPartyLineupWidget.h"
 #include "UI/Chapter/LRStageInfoWidget.h"
@@ -12,13 +12,13 @@
 
 #include "Subsystems/UIManagerSubsystem.h"
 
-void ULRStageReadyWidget::BindProperties()
+void ULRReadyPopupWidget::BindProperties()
 {
 	Super::BindProperties();
 
-	if (Btn_EmptyPoint) Btn_EmptyPoint->OnClicked.AddUniqueDynamic(this, &ULRStageReadyWidget::OnCloseRequested);
-	if (Btn_Entrance) Btn_Entrance->OnClicked.AddUniqueDynamic(this, &ULRStageReadyWidget::OnEntranceButtonClicked);
-	if (Btn_Close) Btn_Close->OnClicked.AddUniqueDynamic(this, &ULRStageReadyWidget::OnCloseRequested);
+	if (Btn_EmptyPoint) Btn_EmptyPoint->OnClicked.AddUniqueDynamic(this, &ULRReadyPopupWidget::OnCloseRequested);
+	if (Btn_Entrance) Btn_Entrance->OnClicked.AddUniqueDynamic(this, &ULRReadyPopupWidget::OnEntranceButtonClicked);
+	if (Btn_Close) Btn_Close->OnClicked.AddUniqueDynamic(this, &ULRReadyPopupWidget::OnCloseRequested);
 
 	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
 	{
@@ -26,7 +26,7 @@ void ULRStageReadyWidget::BindProperties()
 	}
 }
 
-void ULRStageReadyWidget::UnbindProperties()
+void ULRReadyPopupWidget::UnbindProperties()
 {
 	OnCloseUIRequestedDel.Clear();
 
@@ -37,27 +37,27 @@ void ULRStageReadyWidget::UnbindProperties()
 	Super::UnbindProperties();
 }
 
-void ULRStageReadyWidget::RefreshUI()
+void ULRReadyPopupWidget::RefreshUI()
 {
 	Super::RefreshUI();
 	PartyLineup->RefreshUI();
 	StageInfo->RefreshUI();
 }
 
-void ULRStageReadyWidget::RegisterSubWidgets()
+void ULRReadyPopupWidget::RegisterSubWidgets()
 {
 	Super::RegisterSubWidgets();
 	SubWidgets.Add(PartyLineup);
 	SubWidgets.Add(StageInfo);
 }
 
-void ULRStageReadyWidget::SetStageID(FName InStageID)
+void ULRReadyPopupWidget::SetStageID(FName InStageID)
 {
 	StageID = InStageID;
 	StageInfo->SetStageDataByID(InStageID);
 }
 
-void ULRStageReadyWidget::OnEntranceButtonClicked()
+void ULRReadyPopupWidget::OnEntranceButtonClicked()
 {
 	if (ULRGameInstance* GI = Cast<ULRGameInstance>(GetWorld()->GetGameInstance()))
 	{
@@ -65,7 +65,7 @@ void ULRStageReadyWidget::OnEntranceButtonClicked()
 	}
 }
 
-void ULRStageReadyWidget::OnCloseButtonClicked()
+void ULRReadyPopupWidget::OnCloseButtonClicked()
 {
 	OnCloseUIRequestedDel.Broadcast(this);
 }

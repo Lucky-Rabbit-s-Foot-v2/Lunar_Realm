@@ -10,7 +10,7 @@
 #include "Subsystems/UIManagerSubsystem.h"
 
 #include "Units/OutGame/LROutGameController.h"
-#include "UI/Chapter/LRChapterSelectorWidget.h"
+#include "UI/Chapter/LRChapterPageWidget.h"
 
 void ULRPageSelectorWidget::BindProperties()
 {
@@ -43,7 +43,7 @@ void ULRPageSelectorWidget::OnStageButtonClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	
-	ULRChapterSelectorWidget* ChapterSelector = Cast<ULRChapterSelectorWidget>(UIManager->SwitchPageUIByID(EUIID::DUTY));
+	ULRChapterPageWidget* ChapterSelector = Cast<ULRChapterPageWidget>(UIManager->SwitchPageUIByID(EUIID::DUTY));
 	ChapterSelector->RefreshUI();
 }
 

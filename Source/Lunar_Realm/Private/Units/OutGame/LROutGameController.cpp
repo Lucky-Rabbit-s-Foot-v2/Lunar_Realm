@@ -12,8 +12,8 @@
 
 #include "UI/Lobby/LRLobbyWidget.h"
 #include "UI/Gacha/LRGachaShopWidget.h"
-#include "UI/Chapter/LRChapterSelectorWidget.h"
-#include "UI/Chapter/LRStageSelectorWidget.h"
+#include "UI/Chapter/LRChapterPageWidget.h"
+#include "UI/Chapter/LRStagePopupWidget.h"
 
 
 void ALROutGameController::OpenFirstWidget()

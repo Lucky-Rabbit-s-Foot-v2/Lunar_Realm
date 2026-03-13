@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Chapter/LRStageSelectorWidget.h"
+#include "UI/Chapter/LRStagePopupWidget.h"
 
 #include "Components/Button.h"
 #include "Components/Image.h"
@@ -13,11 +13,11 @@
 #include "Subsystems/UIManagerSubsystem.h"
 #include "Subsystems/GameDataSubsystem.h"
 
-void ULRStageSelectorWidget::BindProperties()
+void ULRStagePopupWidget::BindProperties()
 {
 	Super::BindProperties();
 
-	if (Btn_Back) Btn_Back->OnClicked.AddDynamic(this, &ULRStageSelectorWidget::OnBackButtonClicked);
+	if (Btn_Back) Btn_Back->OnClicked.AddDynamic(this, &ULRStagePopupWidget::OnBackButtonClicked);
 
 	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
 	{
@@ -25,14 +25,14 @@ void ULRStageSelectorWidget::BindProperties()
 	}
 }
 
-void ULRStageSelectorWidget::UnbindProperties()
+void ULRStagePopupWidget::UnbindProperties()
 {
 	if (Btn_Back) Btn_Back->OnClicked.Clear();
 
 	Super::UnbindProperties();
 }
 
-void ULRStageSelectorWidget::RegisterSubWidgets()
+void ULRStagePopupWidget::RegisterSubWidgets()
 {
 	Super::RegisterSubWidgets();
 
@@ -43,7 +43,7 @@ void ULRStageSelectorWidget::RegisterSubWidgets()
 	SubWidgets.Add(Stage5);
 }
 
-void ULRStageSelectorWidget::SetChapterID(FName InID)
+void ULRStagePopupWidget::SetChapterID(FName InID)
 {
 	CurrentChapterID = InID;
 
@@ -57,7 +57,7 @@ void ULRStageSelectorWidget::SetChapterID(FName InID)
 	RefreshUI();
 }
 
-void ULRStageSelectorWidget::SetStageData(const TArray<FName>& StageIDs)
+void ULRStagePopupWidget::SetStageData(const TArray<FName>& StageIDs)
 {
 	for (int32 i = 0; i < StageIDs.Num() && i < SubWidgets.Num(); ++i)
 	{
@@ -68,7 +68,7 @@ void ULRStageSelectorWidget::SetStageData(const TArray<FName>& StageIDs)
 	}
 }
 
-void ULRStageSelectorWidget::OnBackButtonClicked()
+void ULRStagePopupWidget::OnBackButtonClicked()
 {
 	OnCloseUIRequestedDel.Broadcast(this);
 }

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRPageWidget.h"
-#include "LRChapterSelectorWidget.generated.h"
+#include "LRChapterPageWidget.generated.h"
 
 
 //============================================================================
@@ -17,7 +17,7 @@
  //============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRChapterSelectorWidget : public ULRPageWidget
+class LUNAR_REALM_API ULRChapterPageWidget : public ULRPageWidget
 {
 	GENERATED_BODY()
 	

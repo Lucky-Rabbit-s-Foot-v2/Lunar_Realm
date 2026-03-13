@@ -58,5 +58,5 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere, Category = "LR|UI")
-	TSubclassOf<class ULRStageReadyWidget> StageReadyClass;
+	TSubclassOf<class ULRReadyPopupWidget> StageReadyClass;
 };

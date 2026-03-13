@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Chapter/LRChapterSelectorWidget.h"
+#include "UI/Chapter/LRChapterPageWidget.h"
 
 #include "Components/Button.h"
 
@@ -13,7 +13,7 @@
 #include "UI/Chapter/LRChapterWidget.h"
 #include "UI/Lobby/LRLobbyWidget.h"
 
-void ULRChapterSelectorWidget::InitializeUI()
+void ULRChapterPageWidget::InitializeUI()
 {
 	Super::InitializeUI();
 	Chapter1->SetChapterID(FName("LAKE"));
@@ -21,21 +21,21 @@ void ULRChapterSelectorWidget::InitializeUI()
 	Chapter3->SetChapterID(FName("DESERT"));
 }
 
-void ULRChapterSelectorWidget::BindProperties()
+void ULRChapterPageWidget::BindProperties()
 {
 	Super::BindProperties();
 	
-	if (Btn_Back) Btn_Back->OnClicked.AddDynamic(this, &ULRChapterSelectorWidget::OnBackButtonClicked);
+	if (Btn_Back) Btn_Back->OnClicked.AddDynamic(this, &ULRChapterPageWidget::OnBackButtonClicked);
 }
 
-void ULRChapterSelectorWidget::UnbindProperties()
+void ULRChapterPageWidget::UnbindProperties()
 {
 	if (Btn_Back) Btn_Back->OnClicked.Clear();
 	
 	Super::UnbindProperties();
 }
 
-void ULRChapterSelectorWidget::RegisterSubWidgets()
+void ULRChapterPageWidget::RegisterSubWidgets()
 {
 	Super::RegisterSubWidgets();
 	
@@ -44,7 +44,7 @@ void ULRChapterSelectorWidget::RegisterSubWidgets()
 	ChapterWidgets.Add(Chapter3);
 }
 
-void ULRChapterSelectorWidget::OnBackButtonClicked()
+void ULRChapterPageWidget::OnBackButtonClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	UIManager->SwitchPageUIByID(EUIID::LOBBY);
