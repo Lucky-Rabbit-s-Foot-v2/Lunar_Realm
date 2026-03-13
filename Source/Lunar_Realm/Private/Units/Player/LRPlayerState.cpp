@@ -16,7 +16,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Units/Player/LRPlayerController.h"
 #include "UI/InGame/LRPlayerWidget.h"
-
+#include "UI/InGame/LRSkillPanelWidget.h"
+#include "Animation/AnimInstance.h"
 
 ALRPlayerState::ALRPlayerState()
 {
@@ -396,7 +397,24 @@ void ALRPlayerState::ActivateSkill1()
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Cast<AActor>(GetPawn()), TriggerTag, EvenData);
 	//UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Cast<AActor>(GetPawn()), LRTags::Ability_Skill_Fireball, EvenData);
 	
-	LR_INFO(TEXT("[ActivateSkill1] Event 발송 완료 (GA 발동 여부는 GA 내부 로그 확인)"));
+	LR_INFO(TEXT("[ActivateSkill1] Event 발송 완료"));
+
+	const FSkillEffectData& EffectData = DataSubsystem->GetSkillEffectData(SkillData.SkillEffectID);
+	float CooldownTime = EffectData.Cooldown;
+
+	if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetPawn()))
+	{
+		if (ALRPlayerController* PlayerController = Cast<ALRPlayerController>(PC->GetController()))
+		{
+			if (ULRPlayerWidget* MainWidget = PlayerController->GetPlayerWidget())
+			{
+				if (MainWidget->WBP_SkillPanel)
+				{
+					MainWidget->WBP_SkillPanel->StartSkillCooldown(1, CooldownTime);
+				}
+			}
+		}
+	}
 }
 
 void ALRPlayerState::ActivateSkill2()
@@ -450,6 +468,23 @@ void ALRPlayerState::ActivateSkill2()
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Cast<AActor>(GetPawn()), TriggerTag, EventData);
 
 	LR_INFO(TEXT("[ActivateSkill2] 무기 스킬 발송 완료"));
+
+	const FSkillEffectData& EffectData = DataSubsystem->GetSkillEffectData(SkillData.SkillEffectID);
+	float CooldownTime = EffectData.Cooldown;
+
+	if (ALRPlayerCharacter* PC = Cast<ALRPlayerCharacter>(GetPawn()))
+	{
+		if (ALRPlayerController* PlayerController = Cast<ALRPlayerController>(PC->GetController()))
+		{
+			if (ULRPlayerWidget* MainWidget = PlayerController->GetPlayerWidget())
+			{
+				if (MainWidget->WBP_SkillPanel)
+				{
+					MainWidget->WBP_SkillPanel->StartSkillCooldown(2, CooldownTime);
+				}
+			}
+		}
+	}
 }
 
 // (260303) KWB GameState로부터 에테르를 받는 함수
@@ -501,5 +536,5 @@ TArray<FName> ALRPlayerState::GetEquippedAutoSkillIDs() const
 		}
 	}
 
-	return SkillIDsToReturn;;
+	return SkillIDsToReturn;
 }

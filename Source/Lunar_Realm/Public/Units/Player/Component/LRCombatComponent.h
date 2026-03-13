@@ -82,6 +82,9 @@ public:
 protected:
 	bool TryExcuteSkill(ALRCharacter* InOwnerCharacter);
 
+protected:
+	bool TryAutoSummon(ALRCharacter* InOwnerCharacter);
+
 	// ============================================================================
 	// 멤버 변수 (Properties)
 	// ============================================================================
