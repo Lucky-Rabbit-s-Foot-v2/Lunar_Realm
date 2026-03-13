@@ -365,6 +365,23 @@ void ULRGachaRevealWidget::OnClickSkip()
 			bAllRevealed = true;
 		}
 
+		bPresentationVisible = false;
+
+		if (PresentationOverlay)
+		{
+			PresentationOverlay->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
+		if (RevealMediaPlayer)
+		{
+			RevealMediaPlayer->Close();
+		}
+
+		if (Image_RevealVideo)
+		{
+			Image_RevealVideo->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
 		BuildResultSlotsSequential();
 		BP_OnAllRevealed(CachedResults);
 		bResultOverlayShown = true;
@@ -467,6 +484,12 @@ void ULRGachaRevealWidget::HandleAllOrbsRevealed()
 
 void ULRGachaRevealWidget::HandleRevealPresentationRequested(int32 OrbIndex, const FLRGachaResult& Result)
 {
+	// 이미 최종 결과창이 떠 있으면 뒤늦게 도착한 개별 리빌 요청은 무시
+	if (bResultOverlayShown)
+	{
+		return;
+	}
+
 	ShowPresentation(OrbIndex, Result);
 }
 
