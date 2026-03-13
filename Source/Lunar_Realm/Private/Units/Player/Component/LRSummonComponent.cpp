@@ -113,7 +113,7 @@ bool ULRSummonComponent::IsValidSummonRequest(int32 InSlotIndex, FName& OutUnitI
 
 	if (!CanAffordSummon(OutCharData->SummonCost))
 	{
-		LR_WARN(TEXT("에테르 부족! 필요: %.0f"), OutCharData->SummonCost);
+		//LR_WARN(TEXT("에테르 부족! 필요: %.0f"), OutCharData->SummonCost);
 		return false;
 	}
 
@@ -225,7 +225,7 @@ bool ULRSummonComponent::IsOnCooldown(FName InUnitID, float InCoolDownTime) cons
 
 		if (Elapsed < InCoolDownTime)
 		{
-			LR_WARN(TEXT("[%s] 쿨타임 중 (남은 시간: %.1f초)"), *InUnitID.ToString(), (InCoolDownTime - Elapsed));
+			//LR_WARN(TEXT("[%s] 쿨타임 중 (남은 시간: %.1f초)"), *InUnitID.ToString(), (InCoolDownTime - Elapsed));
 			return true;
 		}
 	}

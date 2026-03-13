@@ -36,4 +36,15 @@ protected:
 
 private:
 	void OnAetherChanged(const FOnAttributeChangeData& Data);
+
+protected:
+	UPROPERTY(meta=(BindWidgetAnim), Transient)
+	class UWidgetAnimation* Anim_GetAether;
+
+	float TargetAether = 0.0f;
+	float DisplayAether = 0.0f;
+
+public:
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
 };

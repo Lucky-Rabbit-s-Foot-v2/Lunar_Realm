@@ -3,6 +3,7 @@
 
 #include "UI/InGame/LRHealthWidget.h"
 #include "Components/ProgressBar.h"
+#include "Animation/WidgetAnimation.h"
 #include "Components/TextBlock.h"
 #include "AbilitySystemComponent.h"
 #include "GAS/Attributes/LRPlayerAttributeSet.h"
@@ -27,8 +28,15 @@ void ULRHealthWidget::BindToASC(UAbilitySystemComponent* ASC)
 	CurrentMaxHealth = CachedASC->GetNumericAttribute(ULRAttributeSet::GetMaxHealthAttribute());
 
 	CurrentVisualHealth = TargetHealth;
+	GhostHealth = TargetHealth;
 
 	UpdateHealth(CurrentVisualHealth, CurrentMaxHealth);
+
+	if (PBar_Ghost)
+	{
+		float Percent = (CurrentMaxHealth > 0.0f) ? (GhostHealth / CurrentMaxHealth) : 0.0f;
+		PBar_Ghost->SetPercent(Percent);
+	}
 
 	CachedASC->GetGameplayAttributeValueChangeDelegate(ULRAttributeSet::GetHealthAttribute())
 		.AddUObject(this, &ULRHealthWidget::OnHealthChanged);
@@ -50,21 +58,62 @@ void ULRHealthWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	if (!FMath::IsNearlyEqual(CurrentVisualHealth, TargetHealth, 0.1f))
-	{
-		CurrentVisualHealth = FMath::FInterpTo(CurrentVisualHealth, TargetHealth, InDeltaTime, InterpSpeed);
-		UpdateHealth(CurrentVisualHealth, CurrentMaxHealth);
-	}
+	UpdateGhostBar(InDeltaTime);
+
+	//if (!FMath::IsNearlyEqual(CurrentVisualHealth, TargetHealth, 0.1f))
+	//{
+	//	CurrentVisualHealth = FMath::FInterpTo(CurrentVisualHealth, TargetHealth, InDeltaTime, InterpSpeed);
+	//	UpdateHealth(CurrentVisualHealth, CurrentMaxHealth);
+	//}
 }
 
 void ULRHealthWidget::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
+	float OldHealth = TargetHealth;
 	TargetHealth = Data.NewValue;
+
+	if (FMath::IsNearlyEqual(OldHealth, TargetHealth, 0.01f))
+	{
+		return;
+	}
 	if (CachedASC)
 	{
 		CurrentMaxHealth = CachedASC->GetNumericAttribute(ULRAttributeSet::GetMaxHealthAttribute());
 	}
-	//UpdateHealth(CurrentHealth, CurrentMaxHealth);
+
+	// 데미지를 입었을 때와 회복할 때를 구분!
+	if (TargetHealth < OldHealth)
+	{
+		// 체력이 깎였으므로 피격 효과 실행!
+		PlayHitEffect();
+
+		// 메인 체력바는 즉시 깎아버림 (잔상 바는 틱에서 서서히 따라감)
+		UpdateHealth(TargetHealth, CurrentMaxHealth);
+
+		GhostDelayTimer = GhostDelayTime;
+	}
+	else if (TargetHealth > OldHealth)
+	{
+		GhostHealth = TargetHealth;
+		GhostDelayTimer = 0.0f;
+		UpdateHealth(TargetHealth, CurrentMaxHealth);
+
+		if (PBar_Ghost)
+		{
+			float Percent = (CurrentMaxHealth > 0.0f) ? (TargetHealth / CurrentMaxHealth) : 0.0f;
+			PBar_Ghost->SetPercent(Percent);
+		}
+	}
+
+	// 체력 상태를 체크해서 30% 이하면 위기 연출 실행
+	CheckLowHealthState();
+
+	//TargetHealth = Data.NewValue;
+	//if (CachedASC)
+	//{
+	//	CurrentMaxHealth = CachedASC->GetNumericAttribute(ULRAttributeSet::GetMaxHealthAttribute());
+	//}
+	////UpdateHealth(CurrentHealth, CurrentMaxHealth);
 }
 
 void ULRHealthWidget::OnMaxHealthChanged(const FOnAttributeChangeData& Data)
@@ -134,6 +183,58 @@ void ULRHealthWidget::UpdateRespawnTimerText()
 
 		FString TimeString = FString::Printf(TEXT("%d"), DisplayTime);
 		Text_RespawnTimer->SetText(FText::FromString(TimeString));
+	}
+}
+
+void ULRHealthWidget::UpdateGhostBar(float InDeltaTime)
+{
+	if (GhostDelayTimer > 0.0f)
+	{
+		GhostDelayTimer -= InDeltaTime;
+		return;
+	}
+
+	if (PBar_Ghost && !FMath::IsNearlyEqual(GhostHealth, TargetHealth, 0.1f))
+	{
+		GhostHealth = FMath::FInterpTo(GhostHealth, TargetHealth, InDeltaTime, InterpSpeed_Ghost);
+
+		float Percent = (CurrentMaxHealth > 0.0f) ? (GhostHealth / CurrentMaxHealth) : 0.0f;
+		PBar_Ghost->SetPercent(Percent);
+	}
+}
+
+void ULRHealthWidget::CheckLowHealthState()
+{
+	if (CurrentMaxHealth <= 0.0f) return;
+
+	float HealthRatio = TargetHealth / CurrentMaxHealth;
+	bool bShouldBeLowHealth = (HealthRatio <= 0.3f) && (TargetHealth > 0.0f);
+
+	// 상태가 변했을 때만 애니메이션 재생/정지
+	if (bShouldBeLowHealth != bIsLowHealth)
+	{
+		bIsLowHealth = bShouldBeLowHealth;
+
+		if (bIsLowHealth)
+		{
+			// 30% 이하일 때: 켜고 깜빡임 시작
+			if (Img_DangerGlow) Img_DangerGlow->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+			if (Anim_LowHealth) PlayAnimation(Anim_LowHealth, 0.0f, 0);
+		}
+		else
+		{
+			// 30% 초과일 때: 아예 숨기고 애니메이션 정지
+			if (Img_DangerGlow) Img_DangerGlow->SetVisibility(ESlateVisibility::Hidden);
+			if (Anim_LowHealth) StopAnimation(Anim_LowHealth);
+		}
+	}
+}
+
+void ULRHealthWidget::PlayHitEffect()
+{
+	if (Anim_HitShake)
+	{
+		PlayAnimation(Anim_HitShake);
 	}
 }
 
