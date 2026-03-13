@@ -57,7 +57,4 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRCurrencyWidget> Currency;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRBaseWidget> Banner;
 };

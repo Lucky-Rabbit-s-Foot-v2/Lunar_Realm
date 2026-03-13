@@ -52,7 +52,6 @@ void ULRLobbyWidget::RegisterSubWidgets()
 	SubWidgets.Add(Member3);
 	SubWidgets.Add(Member4);
 	SubWidgets.Add(Currency);
-	SubWidgets.Add(Banner);
 }
 
 void ULRLobbyWidget::OnMessageButtonClicked()
