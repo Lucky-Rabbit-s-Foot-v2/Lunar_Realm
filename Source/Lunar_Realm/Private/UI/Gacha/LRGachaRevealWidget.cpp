@@ -40,6 +40,13 @@ void ULRGachaRevealWidget::NativeConstruct()
 
 void ULRGachaRevealWidget::NativeDestruct()
 {
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimerSequentialResultSlots);
+	}
+
+	CachedResultSlotWidgets.Empty();
+
 	if (ButtonSkip)
 	{
 		ButtonSkip->OnClicked.RemoveDynamic(this, &ULRGachaRevealWidget::OnClickSkip);
@@ -209,6 +216,108 @@ void ULRGachaRevealWidget::BuildResultSlots()
 	}
 }
 
+// 최종 결과 슬롯 위젯을 전부 먼저 배치해 그리드 간격을 고정한 뒤,
+// 각 슬롯을 일정 간격으로 하나씩 표시하는 순차 연출 함수
+void ULRGachaRevealWidget::BuildResultSlotsSequential()
+{
+	if (!ResultSlotContainer || !ResultSlotWidgetClass)
+	{
+		return;
+	}
+
+	ResultSlotContainer->ClearChildren();
+	CachedResultSlotWidgets.Empty();
+	NextResultSlotIndex = 0;
+
+	UWorld* World = GetWorld();
+	if (!World || CachedResults.Num() <= 0)
+	{
+		return;
+	}
+
+	const int32 NumColumns = 5;
+
+	// 1) 결과 슬롯을 전부 먼저 생성해서 그리드 자리를 고정
+	for (int32 Index = 0; Index < CachedResults.Num(); ++Index)
+	{
+		const FLRGachaResult& Result = CachedResults[Index];
+
+		ULRGachaResultSlotWidget* SlotWidget =
+			CreateWidget<ULRGachaResultSlotWidget>(World, ResultSlotWidgetClass);
+
+		if (!SlotWidget)
+		{
+			continue;
+		}
+
+		SlotWidget->SetupWithResult(Result);
+
+		// 처음에는 보이지 않게 숨겨둠
+		SlotWidget->SetVisibility(ESlateVisibility::Hidden);
+
+		CachedResultSlotWidgets.Add(SlotWidget);
+
+		if (UUniformGridPanel* Grid = Cast<UUniformGridPanel>(ResultSlotContainer))
+		{
+			const int32 Row = Index / NumColumns;
+			const int32 Col = Index % NumColumns;
+			Grid->AddChildToUniformGrid(SlotWidget, Row, Col);
+		}
+		else
+		{
+			ResultSlotContainer->AddChild(SlotWidget);
+		}
+	}
+
+	// 2) 첫 슬롯 즉시 등장
+	SpawnNextResultSlot();
+
+	// 3) 두 번째부터는 타이머로 순차 등장
+	if (CachedResultSlotWidgets.Num() > 1)
+	{
+		World->GetTimerManager().SetTimer(
+			TimerSequentialResultSlots,
+			this,
+			&ULRGachaRevealWidget::SpawnNextResultSlot,
+			ResultSlotAppearInterval,
+			true
+		);
+	}
+}
+
+// 순차 등장 타이머에서 반복 호출되는 단일 슬롯 표시 함수
+// 이미 배치된 슬롯을 Visible로 전환하고 등장 연출을 실행
+void ULRGachaRevealWidget::SpawnNextResultSlot()
+{
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	if (!CachedResultSlotWidgets.IsValidIndex(NextResultSlotIndex))
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimerSequentialResultSlots);
+		return;
+	}
+
+	ULRGachaResultSlotWidget* SlotWidget = CachedResultSlotWidgets[NextResultSlotIndex];
+	if (SlotWidget)
+	{
+		// 자리는 이미 잡혀 있으므로 이제 보이게만 전환
+		SlotWidget->SetVisibility(ESlateVisibility::Visible);
+
+		// 등장 사운드 + BP 연출(애니메이션/VFX/Niagara) 실행
+		SlotWidget->PlayAppearEffect();
+	}
+
+	NextResultSlotIndex++;
+
+	if (NextResultSlotIndex >= CachedResultSlotWidgets.Num())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimerSequentialResultSlots);
+	}
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  스킵 버튼(단일 버튼 3단 동작)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -227,7 +336,7 @@ void ULRGachaRevealWidget::OnClickSkip()
 
 		if (bAllRevealed)
 		{
-			BuildResultSlots();
+			BuildResultSlotsSequential();
 			BP_OnAllRevealed(CachedResults);
 			bResultOverlayShown = true;
 
@@ -247,7 +356,7 @@ void ULRGachaRevealWidget::OnClickSkip()
 
 	if (!bResultOverlayShown)
 	{
-		BuildResultSlots();
+		BuildResultSlotsSequential();
 		BP_OnAllRevealed(CachedResults);
 		bResultOverlayShown = true;
 
@@ -298,7 +407,7 @@ FReply ULRGachaRevealWidget::NativeOnMouseButtonUp(
 		{
 			if (!bResultOverlayShown)
 			{
-				BuildResultSlots();
+				BuildResultSlotsSequential();
 				BP_OnAllRevealed(CachedResults);
 				bResultOverlayShown = true;
 
