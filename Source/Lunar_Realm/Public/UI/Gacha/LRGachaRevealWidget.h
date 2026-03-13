@@ -103,6 +103,10 @@ protected:
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UTextBlock> Text_RevealName;
 
+	/** 등급 이미지 */
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> Image_RarityBadge;
+
 	/** 결과 슬롯 컨테이너 */
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UPanelWidget> ResultSlotContainer;
@@ -114,6 +118,21 @@ protected:
 	/** 최종 결과 슬롯이 하나씩 등장하는 간격 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Result")
 	float ResultSlotAppearInterval = 0.12f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Rarity")
+	TSoftObjectPtr<UTexture2D> RarityTextureN;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Rarity")
+	TSoftObjectPtr<UTexture2D> RarityTextureR;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Rarity")
+	TSoftObjectPtr<UTexture2D> RarityTextureSR;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Rarity")
+	TSoftObjectPtr<UTexture2D> RarityTextureSSR;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Rarity")
+	TSoftObjectPtr<UTexture2D> RarityTextureUR;
 
 	// ───────────────── 3D 씬 연동 ─────────────────
 
@@ -160,6 +179,8 @@ protected:
 
 
 private:
+	UTexture2D* GetRarityTextureByRarity(ELRGachaRarity Rarity) const;
+
 	/** MediaTexture를 UI에 표시할 머티리얼 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Reveal|Video")
 	TObjectPtr<UMaterialInterface> RevealVideoMaterial;

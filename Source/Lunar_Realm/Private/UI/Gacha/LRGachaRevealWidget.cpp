@@ -658,6 +658,20 @@ void ULRGachaRevealWidget::ApplyPresentationDataToWidgets(const FLRGachaRevealPr
 		}
 	}
 
+	// 등급 이미지
+	if (Image_RarityBadge)
+	{
+		if (UTexture2D* RarityTexture = GetRarityTextureByRarity(InData.Rarity))
+		{
+			Image_RarityBadge->SetBrushFromTexture(RarityTexture);
+			Image_RarityBadge->SetVisibility(ESlateVisibility::Visible);
+		}
+		else
+		{
+			Image_RarityBadge->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+
 	// 플래시 이미지
 	if (Image_RevealFlash)
 	{
@@ -784,5 +798,29 @@ void ULRGachaRevealWidget::CloseSelf()
 	else
 	{
 		RemoveFromParent();
+	}
+}
+
+UTexture2D* ULRGachaRevealWidget::GetRarityTextureByRarity(ELRGachaRarity Rarity) const
+{
+	switch (Rarity)
+	{
+	case ELRGachaRarity::N:
+		return RarityTextureN.IsNull() ? nullptr : RarityTextureN.LoadSynchronous();
+
+	case ELRGachaRarity::R:
+		return RarityTextureR.IsNull() ? nullptr : RarityTextureR.LoadSynchronous();
+
+	case ELRGachaRarity::SR:
+		return RarityTextureSR.IsNull() ? nullptr : RarityTextureSR.LoadSynchronous();
+
+	case ELRGachaRarity::SSR:
+		return RarityTextureSSR.IsNull() ? nullptr : RarityTextureSSR.LoadSynchronous();
+
+	case ELRGachaRarity::UR:
+		return RarityTextureUR.IsNull() ? nullptr : RarityTextureUR.LoadSynchronous();
+
+	default:
+		return nullptr;
 	}
 }
