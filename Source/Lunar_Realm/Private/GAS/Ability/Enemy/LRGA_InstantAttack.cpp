@@ -34,9 +34,6 @@ void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 {
 	// 1. 타겟 찾기 (LRGameplayAbilityBase를 통해 캐싱된 타겟으로 설정)
 	const AActor* TargetActor = Cast<const AActor>(CachedTarget);
-	// TEST
-	LR_INFO(TEXT("[InstantAttack] TargetActor: %s"), TargetActor ? *TargetActor->GetName() : TEXT("NULL"));
-
 	if (!TargetActor)
 	{
 		LR_WARN(TEXT("타겟 없음!!"));
@@ -46,12 +43,8 @@ void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 
 	// 2. 타겟의 ASC 가져오기
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(const_cast<AActor*>(TargetActor));
-	// TEST
-	LR_INFO(TEXT("[InstantAttack] TargetASC: %s"), TargetASC ? TEXT("Valid") : TEXT("NULL"));
 	if (!TargetASC || !DamageEffectClass)
 	{
-		LR_WARN(TEXT("타켓 Asc 못 찾음!!"));
-		// TEST
 		LR_WARN(TEXT("[InstantAttack] 실패 - ASC: %s / DamageEffect: %s"),
 			TargetASC ? TEXT("Valid") : TEXT("NULL"),
 			DamageEffectClass ? TEXT("Valid") : TEXT("NULL"));

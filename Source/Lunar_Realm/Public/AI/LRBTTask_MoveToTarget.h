@@ -23,8 +23,9 @@ public:
 	ULRBTTask_MoveToTarget();
 
 protected:
-	virtual EBTNodeResult::Type ExecuteTask(
-		UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
+	virtual EBTNodeResult::Type PerformMoveTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 private:
 	static constexpr float AcceptanceRangeOffset = 100.f;

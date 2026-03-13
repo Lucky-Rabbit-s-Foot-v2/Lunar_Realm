@@ -17,36 +17,38 @@ ALREnemyAIController::ALREnemyAIController()
 	TargetCoreTag = LRTags::Team_Player_Structure_Core;
 }
 
-bool ALREnemyAIController::TryAttackTarget(AActor* Target)
+FGameplayTag ALREnemyAIController::TryAttackTarget(AActor* Target)
 {
 	if (!Target)
 	{
-		return false;
+		return FGameplayTag();
 	}
 
 	APawn* MyPawn = GetPawn();
 	if (!MyPawn)
 	{
-		return false;
+		return FGameplayTag();
 	}
 
 	ALRCharacter* OwnerCharacter = Cast<ALRCharacter>(MyPawn);
 	if (!OwnerCharacter)
 	{
-		return false;
+		return FGameplayTag();
 	}
+
+	// TODO: 추후 데이터 테이블에서 각각 태그 가져와서 스킬 달리 사용하도록 로직 리팩토링
+	FGameplayTag SkillTag = LRTags::Ability_Combat_BasicShoot;
 
 	FGameplayEventData EventData;
 	EventData.Instigator = OwnerCharacter;
 	EventData.Target = Target;
 
-	// TODO: 추후 데이터 테이블에서 각각 태그 가져와서 스킬 달리 사용하도록 로직 리팩토링
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
 		OwnerCharacter,
-		LRTags::Ability_Combat_BasicShoot,
+		SkillTag,
 		EventData);
 
-	return true;
+	return SkillTag;
 }
 
 void ALREnemyAIController::InitializeFromEnemyData(FName EnemyID)
@@ -62,7 +64,4 @@ void ALREnemyAIController::InitializeFromEnemyData(FName EnemyID)
 	const FEnemyStaticData& EnemyData = DataSys->GetEnemyStaticData(EnemyID);
 	AttackRange = EnemyData.AttackRange;
 	DetectionRadius = AttackRange + DetectionRadiusOffset;
-
-	// TEST
-	LR_INFO(TEXT("[%s] AttackRange 설정값: %f"), *EnemyID.ToString(), AttackRange);
 }

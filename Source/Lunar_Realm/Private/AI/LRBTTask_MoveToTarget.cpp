@@ -11,19 +11,16 @@ ULRBTTask_MoveToTarget::ULRBTTask_MoveToTarget()
 
 EBTNodeResult::Type ULRBTTask_MoveToTarget::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	return Super::ExecuteTask(OwnerComp, NodeMemory);
+}
+
+EBTNodeResult::Type ULRBTTask_MoveToTarget::PerformMoveTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
 	ALRAIController* AIController = Cast<ALRAIController>(OwnerComp.GetAIOwner());
-
-	// TEST
-	LR_INFO(TEXT("[MoveToTarget] AIController: %s"),
-		AIController ? *AIController->GetClass()->GetName() : TEXT("Cast 실패"));
-	LR_INFO(TEXT("[MoveToTarget] AttackRange: %f"),
-		AIController ? AIController->GetAttackRange() : -1.f);
-
 	if (AIController)
 	{
 		AcceptableRadius = FMath::Max(
 			AIController->GetAttackRange() - AcceptanceRangeOffset, 10.f);
 	}
-
-	return Super::ExecuteTask(OwnerComp, NodeMemory);
+	return Super::PerformMoveTask(OwnerComp, NodeMemory);
 }

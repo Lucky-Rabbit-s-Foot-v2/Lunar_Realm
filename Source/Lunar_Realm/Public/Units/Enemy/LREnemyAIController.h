@@ -29,7 +29,7 @@
  // (260212) KWB BT 하드 코딩 제거, EnemyCharacter가 StaticData에서 로드 & 설정으로 로직 수정
  // (260303) KWB 부모 클래스 TryAttackTarget() 함수 Override 구현 추가
  // (260312) KWB BT 설정을 위한 데이터 초기화 함수 추가
- // (260313) KWB 캐릭터, 멤버 탐지 범위를 공격 범위와 연동 및 안전용 오프셋 멤버 추가
+ // (260313) KWB 캐릭터, 멤버 탐지 범위를 공격 범위와 연동 및 안전용 오프셋 멤버 추가, TryAttackTarget 반환 타입 bool -> FGameplayTag 변경
  //============================================================================
 
 UCLASS()
@@ -40,10 +40,10 @@ class LUNAR_REALM_API ALREnemyAIController : public ALRAIController
 public:
 	ALREnemyAIController();
 
-	virtual bool TryAttackTarget(AActor* Target) override;
+	virtual FGameplayTag  TryAttackTarget(AActor* Target) override;
 
 	void InitializeFromEnemyData(FName EnemyID);
 
 private:
-	static constexpr float DetectionRadiusOffset = 100.0f;
+	static constexpr float DetectionRadiusOffset = 500.0f;
 };
