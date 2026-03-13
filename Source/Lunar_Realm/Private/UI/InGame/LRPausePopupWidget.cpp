@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/InGame/LRPauseWidget.h"
+#include "UI/InGame/LRPausePopupWidget.h"
 
 #include "Components/Button.h"
 
@@ -11,14 +11,14 @@
 
 #include "Core/Stage/LRStageGameMode.h"
 
-void ULRPauseWidget::BindProperties()
+void ULRPausePopupWidget::BindProperties()
 {
 	Super::BindProperties();
 
-	if (Btn_Restart) Btn_Restart->OnClicked.AddUniqueDynamic(this, &ULRPauseWidget::OnRestartButtonClicked);
-	if (Btn_Resume) Btn_Resume->OnClicked.AddUniqueDynamic(this, &ULRPauseWidget::OnResumeButtonClicked);
-	if (Btn_Setting) Btn_Setting->OnClicked.AddUniqueDynamic(this, &ULRPauseWidget::OnSettingButtonClicked);
-	if (Btn_Exit) Btn_Exit->OnClicked.AddUniqueDynamic(this, &ULRPauseWidget::OnExitButtonClicked);
+	if (Btn_Restart) Btn_Restart->OnClicked.AddUniqueDynamic(this, &ULRPausePopupWidget::OnRestartButtonClicked);
+	if (Btn_Resume) Btn_Resume->OnClicked.AddUniqueDynamic(this, &ULRPausePopupWidget::OnResumeButtonClicked);
+	if (Btn_Setting) Btn_Setting->OnClicked.AddUniqueDynamic(this, &ULRPausePopupWidget::OnSettingButtonClicked);
+	if (Btn_Exit) Btn_Exit->OnClicked.AddUniqueDynamic(this, &ULRPausePopupWidget::OnExitButtonClicked);
 
 	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
 	{
@@ -26,7 +26,7 @@ void ULRPauseWidget::BindProperties()
 	}
 }
 
-void ULRPauseWidget::UnbindProperties()
+void ULRPausePopupWidget::UnbindProperties()
 {
 	if (Btn_Restart) Btn_Restart->OnClicked.Clear();
 	if (Btn_Resume) Btn_Resume->OnClicked.Clear();
@@ -36,13 +36,13 @@ void ULRPauseWidget::UnbindProperties()
 	Super::UnbindProperties();
 }
 
-void ULRPauseWidget::OnRestartButtonClicked()
+void ULRPausePopupWidget::OnRestartButtonClicked()
 {
 	ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode());
 	StageGM->OnRestartGame();
 }
 
-void ULRPauseWidget::OnResumeButtonClicked()
+void ULRPausePopupWidget::OnResumeButtonClicked()
 {
 	OnCloseUIRequestedDel.Broadcast(this);
 	
@@ -50,13 +50,13 @@ void ULRPauseWidget::OnResumeButtonClicked()
 	StageGM->OnResumeGame();
 }
 
-void ULRPauseWidget::OnSettingButtonClicked()
+void ULRPausePopupWidget::OnSettingButtonClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	UIManager->OpenUIByID(EUIID::SETTING);
 }
 
-void ULRPauseWidget::OnExitButtonClicked()
+void ULRPausePopupWidget::OnExitButtonClicked()
 {
 	ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode());
 	StageGM->OnExitStage();

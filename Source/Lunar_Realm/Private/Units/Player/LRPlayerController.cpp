@@ -213,6 +213,7 @@ void ALRPlayerController::UseSkill2()
 UAbilitySystemComponent* ALRPlayerController::GetAbilitySystemComponent()
 {
 	ALRPlayerCharacter* MyCharacter = Cast<ALRPlayerCharacter>(GetPawn());
+	LR_WARN(TEXT("[PlayerController] GetAbilitySystemComponent called - Character: %s"), MyCharacter ? *MyCharacter->GetName() : TEXT("NULL"));
 	return MyCharacter ? MyCharacter->GetAbilitySystemComponent() : nullptr;
 }
 

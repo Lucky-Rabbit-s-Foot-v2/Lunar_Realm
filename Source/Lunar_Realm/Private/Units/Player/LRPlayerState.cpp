@@ -406,7 +406,7 @@ void ALRPlayerState::ActivateSkill1()
 	{
 		if (ALRPlayerController* PlayerController = Cast<ALRPlayerController>(PC->GetController()))
 		{
-			if (ULRPlayerWidget* MainWidget = PlayerController->GetPlayerWidget())
+			if (ULRInGamePersistentWidget* MainWidget = PlayerController->GetPlayerWidget())
 			{
 				if (MainWidget->WBP_SkillPanel)
 				{
@@ -476,7 +476,7 @@ void ALRPlayerState::ActivateSkill2()
 	{
 		if (ALRPlayerController* PlayerController = Cast<ALRPlayerController>(PC->GetController()))
 		{
-			if (ULRPlayerWidget* MainWidget = PlayerController->GetPlayerWidget())
+			if (ULRInGamePersistentWidget* MainWidget = PlayerController->GetPlayerWidget())
 			{
 				if (MainWidget->WBP_SkillPanel)
 				{

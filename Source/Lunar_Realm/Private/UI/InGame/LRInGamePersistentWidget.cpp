@@ -34,6 +34,16 @@ void ULRInGamePersistentWidget::UnbindProperties()
 	Super::UnbindProperties();
 }
 
+void ULRInGamePersistentWidget::RegisterSubWidgets()
+{
+	Super::RegisterSubWidgets();
+
+	SubWidgets.Add(WBP_SkillPanel);
+	SubWidgets.Add(Widget_Aether);
+	SubWidgets.Add(Widget_HealthBar);
+	SubWidgets.Add(WBP_SummonPanel);
+}
+
 void ULRInGamePersistentWidget::InitializeUI()
 {
 	Super::InitializeUI();
@@ -75,7 +85,7 @@ void ULRInGamePersistentWidget::BindToController(ALRControllerBase* Controller)
 
 	if (PC)
 	{
-		OnChangeClickedDel.AddDynamic(PC, &ALRPlayerController::ToggleAutoMode);
+		OnChangeClickedDel.AddUniqueDynamic(PC, &ALRPlayerController::ToggleAutoMode);
 		InitializeGAS(PC->GetAbilitySystemComponent());
 		
 		if (ALRPlayerState* PS = PC->GetPlayerState<ALRPlayerState>())

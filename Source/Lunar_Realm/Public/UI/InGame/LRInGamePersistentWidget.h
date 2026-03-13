@@ -31,6 +31,7 @@ public:
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
+	virtual void RegisterSubWidgets() override;
 
 	virtual void InitializeUI() override;
 	virtual void OpenUI() override;

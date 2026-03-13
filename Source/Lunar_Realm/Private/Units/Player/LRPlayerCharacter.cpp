@@ -127,6 +127,7 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 		{
 			if (ULRInGamePersistentWidget* MyWidget = PC->GetPlayerWidget())
 			{
+				MyWidget->InitializeGAS(GetAbilitySystemComponent());
 				MyWidget->TestSummonPanelRefresh();
 				TArray<FName> EquippedSkills = PS->GetEquippedAutoSkillIDs();
 

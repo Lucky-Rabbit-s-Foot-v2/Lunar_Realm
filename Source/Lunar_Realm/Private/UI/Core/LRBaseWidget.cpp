@@ -19,7 +19,6 @@ void ULRBaseWidget::NativeConstruct()
 	BindProperties();
 	BindSubWidgets();
 	RegisterSubWidgets();
-	BindToController(Cast<ALRControllerBase>(GetOwningPlayer()));
 }
 
 void ULRBaseWidget::NativeDestruct()
@@ -33,6 +32,7 @@ void ULRBaseWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
+	BindToController(Cast<ALRControllerBase>(GetOwningPlayer()));
 	RegisterSubWidgets();
 	InitializeUI();
 	RefreshUI();
@@ -51,6 +51,7 @@ void ULRBaseWidget::DeinitializeUI()
 void ULRBaseWidget::RegisterSubWidgets()
 {
 	// 자식 클래스에서 오버라이드하여 서브 위젯 등록 로직 구현
+	SubWidgets.Empty();
 }
 
 void ULRBaseWidget::BindSubWidgets()
@@ -60,7 +61,6 @@ void ULRBaseWidget::BindSubWidgets()
 void ULRBaseWidget::BindProperties()
 {
 	// 자식 클래스에서 오버라이드하여 프로퍼티 바인딩 로직 구현
-	SubWidgets.Empty();
 }
 
 void ULRBaseWidget::UnbindProperties()
