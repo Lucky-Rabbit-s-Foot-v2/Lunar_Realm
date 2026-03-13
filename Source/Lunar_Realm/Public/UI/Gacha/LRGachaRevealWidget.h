@@ -19,6 +19,8 @@ class UTextBlock;
 class UMediaPlayer;
 class UMediaTexture;
 class ULRGachaResultSlotWidget;
+class UMaterialInterface;
+class UMaterialInstanceDynamic;
 
 /**
  * ULRGachaRevealWidget (가챠 리빌 UI)
@@ -73,6 +75,14 @@ protected:
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UImage> Image_RevealBackground;
 
+	/** 모든 유닛 공통으로 사용할 리빌 배경 이미지 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Common")
+	TSoftObjectPtr<UTexture2D> CommonRevealBackgroundTexture;
+
+	/** 공통 배경을 우선 사용할지 여부 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Common")
+	bool bUseCommonRevealBackground = true;
+
 	/** 실루엣 이미지 */
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UImage> Image_RevealSilhouette;
@@ -81,6 +91,10 @@ protected:
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UImage> Image_RevealMain;
 
+	/** 영상 출력용 이미지 (MediaTexture 머티리얼 브러시 사용) */
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> Image_RevealVideo;
+
 	/** 플래시용 흰 이미지 (없어도 동작은 가능) */
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UImage> Image_RevealFlash;
@@ -88,6 +102,10 @@ protected:
 	/** 이름 텍스트 */
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UTextBlock> Text_RevealName;
+
+	/** 등급 이미지 */
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> Image_RarityBadge;
 
 	/** 결과 슬롯 컨테이너 */
 	UPROPERTY(meta = (BindWidgetOptional))
@@ -100,6 +118,21 @@ protected:
 	/** 최종 결과 슬롯이 하나씩 등장하는 간격 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Result")
 	float ResultSlotAppearInterval = 0.12f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Rarity")
+	TSoftObjectPtr<UTexture2D> RarityTextureN;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Rarity")
+	TSoftObjectPtr<UTexture2D> RarityTextureR;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Rarity")
+	TSoftObjectPtr<UTexture2D> RarityTextureSR;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Rarity")
+	TSoftObjectPtr<UTexture2D> RarityTextureSSR;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Rarity")
+	TSoftObjectPtr<UTexture2D> RarityTextureUR;
 
 	// ───────────────── 3D 씬 연동 ─────────────────
 
@@ -146,6 +179,22 @@ protected:
 
 
 private:
+	UTexture2D* GetRarityTextureByRarity(ELRGachaRarity Rarity) const;
+
+	/** MediaTexture를 UI에 표시할 머티리얼 */
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Reveal|Video")
+	TObjectPtr<UMaterialInterface> RevealVideoMaterial;
+
+	/** 런타임 생성 영상 머티리얼 인스턴스 */
+	UPROPERTY()
+	TObjectPtr<UMaterialInstanceDynamic> RevealVideoMID;
+
+	/** 현재 프레젠테이션이 영상 모드인지 */
+	bool bPresentationUsingVideo = false;
+
+	/** 현재 표시 중인 프레젠테이션이 마지막 결과인지 */
+	bool bCurrentPresentationIsLast = false;
+
 	/** 최종 결과 슬롯을 한 번에 즉시 생성하는 기본 함수 */
 	void BuildResultSlots();
 
@@ -172,7 +221,7 @@ private:
 
 	// ───────────────── 개별 리빌 화면 제어 ─────────────────
 
-	void ShowPresentation(const FLRGachaResult& Result);
+	void ShowPresentation(int32 OrbIndex, const FLRGachaResult& Result);
 	void HidePresentation();
 
 	/** PresentationData를 UMG에 반영 */

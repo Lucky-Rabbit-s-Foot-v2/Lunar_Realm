@@ -121,14 +121,18 @@ void ALRGachaOrbActor::PlayRevealToCenter(const FVector& InTargetWorldLocation)
 		IdleAura->Deactivate();
 	}
 
-	// 머티리얼은 현재 색 유지, 이미시브는 0부터 다시 상승
-	if (OrbMesh && OrbMaterial)
+	if (OrbMesh)
 	{
-		DynMat = OrbMesh->CreateAndSetMaterialInstanceDynamic(0);
-		if (DynMat)
+		UMaterialInterface* SelectedMaterial = GetMaterialByRarity(CachedResult.Rarity);
+		if (SelectedMaterial)
 		{
-			DynMat->SetVectorParameterValue(ColorParamName, GetOrbColorByRarity(CachedResult.Rarity));
-			DynMat->SetScalarParameterValue(EmissiveParamName, 0.f);
+			DynMat = UMaterialInstanceDynamic::Create(SelectedMaterial, this);
+			if (DynMat)
+			{
+				OrbMesh->SetMaterial(0, DynMat);
+				DynMat->SetVectorParameterValue(ColorParamName, GetOrbColorByRarity(CachedResult.Rarity));
+				DynMat->SetScalarParameterValue(EmissiveParamName, 0.f);
+			}
 		}
 	}
 
@@ -228,12 +232,12 @@ float ALRGachaOrbActor::GetEmissiveByRarity(ELRGachaRarity Rarity) const
 {
 	switch (Rarity)
 	{
-	case ELRGachaRarity::N:   return EmissiveCommon;
-	case ELRGachaRarity::R:   return EmissiveElite;
-	case ELRGachaRarity::SR:  return EmissiveUnique;
-	case ELRGachaRarity::SSR: return EmissiveEpic;
-	case ELRGachaRarity::UR:  return EmissiveLegendary;
-	default:                  return EmissiveCommon;
+	case ELRGachaRarity::N:   return EmissiveN;
+	case ELRGachaRarity::R:   return EmissiveR;
+	case ELRGachaRarity::SR:  return EmissiveSR;
+	case ELRGachaRarity::SSR: return EmissiveSSR;
+	case ELRGachaRarity::UR:  return EmissiveUR;
+	default:                  return EmissiveN;
 	}
 }
 
@@ -241,28 +245,61 @@ USoundBase* ALRGachaOrbActor::GetSoundByRarity(ELRGachaRarity Rarity) const
 {
 	switch (Rarity)
 	{
-	case ELRGachaRarity::N:   return SoundCommon;
-	case ELRGachaRarity::R:   return SoundElite;
-	case ELRGachaRarity::SR:  return SoundUnique;
-	case ELRGachaRarity::SSR: return SoundEpic;
-	case ELRGachaRarity::UR:  return SoundLegendary;
-	default:                  return SoundCommon;
+	case ELRGachaRarity::N:   return SoundN;
+	case ELRGachaRarity::R:   return SoundR;
+	case ELRGachaRarity::SR:  return SoundSR;
+	case ELRGachaRarity::SSR: return SoundSSR;
+	case ELRGachaRarity::UR:  return SoundUR;
+	default:                  return SoundN;
 	}
 }
 
 void ALRGachaOrbActor::ApplyMaterialParams(ELRGachaRarity Rarity)
 {
-	if (!OrbMesh || !OrbMaterial)
+	if (!OrbMesh)
 	{
 		return;
 	}
 
-	DynMat = OrbMesh->CreateAndSetMaterialInstanceDynamic(0);
+	UMaterialInterface* SelectedMaterial = GetMaterialByRarity(Rarity);
+	if (!SelectedMaterial)
+	{
+		return;
+	}
+
+	DynMat = UMaterialInstanceDynamic::Create(SelectedMaterial, this);
 	if (!DynMat)
 	{
 		return;
 	}
 
+	OrbMesh->SetMaterial(0, DynMat);
+
+	// 공통 파라미터를 쓰는 머티리얼이면 적용
 	DynMat->SetVectorParameterValue(ColorParamName, GetOrbColorByRarity(Rarity));
 	DynMat->SetScalarParameterValue(EmissiveParamName, GetEmissiveByRarity(Rarity));
+}
+
+UMaterialInterface* ALRGachaOrbActor::GetMaterialByRarity(ELRGachaRarity Rarity) const
+{
+	switch (Rarity)
+	{
+	case ELRGachaRarity::N:
+		return OrbMaterialN ? OrbMaterialN : OrbMaterialDefault;
+
+	case ELRGachaRarity::R:
+		return OrbMaterialR ? OrbMaterialR : OrbMaterialDefault;
+
+	case ELRGachaRarity::SR:
+		return OrbMaterialSR ? OrbMaterialSR : OrbMaterialDefault;
+
+	case ELRGachaRarity::SSR:
+		return OrbMaterialSSR ? OrbMaterialSSR : OrbMaterialDefault;
+
+	case ELRGachaRarity::UR:
+		return OrbMaterialUR ? OrbMaterialUR : OrbMaterialDefault;
+
+	default:
+		return OrbMaterialDefault;
+	}
 }
