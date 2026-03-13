@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/InGame/LRGameClearWidget.h"
+#include "UI/InGame/LRGameClearPopupWidget.h"
 
 #include "Components/Button.h"
 
@@ -11,15 +11,15 @@
 #include "Core/Stage/LRStageGameMode.h"
 
 
-void ULRGameClearWidget::BindProperties()
+void ULRGameClearPopupWidget::BindProperties()
 {
 	Super::BindProperties();
 
-	if (Btn_NextStage) Btn_NextStage->OnClicked.AddDynamic(this, &ULRGameClearWidget::OnNextStageButtonClicked);
-	if (Btn_Exit) Btn_Exit->OnClicked.AddDynamic(this, &ULRGameClearWidget::OnExitButtonClicked);
+	if (Btn_NextStage) Btn_NextStage->OnClicked.AddDynamic(this, &ULRGameClearPopupWidget::OnNextStageButtonClicked);
+	if (Btn_Exit) Btn_Exit->OnClicked.AddDynamic(this, &ULRGameClearPopupWidget::OnExitButtonClicked);
 }
 
-void ULRGameClearWidget::UnbindProperties()
+void ULRGameClearPopupWidget::UnbindProperties()
 {
 	if (Btn_NextStage) Btn_NextStage->OnClicked.Clear();
 	if (Btn_Exit) Btn_Exit->OnClicked.Clear();
@@ -27,7 +27,7 @@ void ULRGameClearWidget::UnbindProperties()
 	Super::UnbindProperties();
 }
 
-void ULRGameClearWidget::InitializeUI()
+void ULRGameClearPopupWidget::InitializeUI()
 {
 	Super::InitializeUI();
 	if (victory)
@@ -36,13 +36,13 @@ void ULRGameClearWidget::InitializeUI()
 	}
 }
 
-void ULRGameClearWidget::OnNextStageButtonClicked()
+void ULRGameClearPopupWidget::OnNextStageButtonClicked()
 {
 	ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode());
 	StageGM->OnStartNextStage();
 }
 
-void ULRGameClearWidget::OnExitButtonClicked()
+void ULRGameClearPopupWidget::OnExitButtonClicked()
 {
 	ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode());
 	StageGM->OnExitStage();

@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/InGame/LRPlayerWidget.h"
+#include "UI/InGame/LRInGamePersistentWidget.h"
 #include "UI/InGame/LRSkillPanelWidget.h"
 
 #include "Components/Button.h"
@@ -18,42 +18,52 @@
 #include "Components/RetainerBox.h"
 #include "Engine/Texture2D.h"
 
-void ULRPlayerWidget::BindProperties()
+void ULRInGamePersistentWidget::BindProperties()
 {
 	Super::BindProperties();
 
-	if (Btn_Change) Btn_Change->OnClicked.AddDynamic(this, &ULRPlayerWidget::OnChangeClicked);
-	if (Btn_Pause) Btn_Pause->OnClicked.AddDynamic(this, &ULRPlayerWidget::OnPauseButtonClicked);
+	if (Btn_Change) Btn_Change->OnClicked.AddDynamic(this, &ULRInGamePersistentWidget::OnChangeClicked);
+	if (Btn_Pause) Btn_Pause->OnClicked.AddDynamic(this, &ULRInGamePersistentWidget::OnPauseButtonClicked);
 }
 
 
-void ULRPlayerWidget::UnbindProperties()
+void ULRInGamePersistentWidget::UnbindProperties()
 {
 	Btn_Change->OnClicked.Clear();
 
 	Super::UnbindProperties();
 }
 
-void ULRPlayerWidget::InitializeUI()
+void ULRInGamePersistentWidget::RegisterSubWidgets()
+{
+	Super::RegisterSubWidgets();
+
+	SubWidgets.Add(WBP_SkillPanel);
+	SubWidgets.Add(Widget_Aether);
+	SubWidgets.Add(Widget_HealthBar);
+	SubWidgets.Add(WBP_SummonPanel);
+}
+
+void ULRInGamePersistentWidget::InitializeUI()
 {
 	Super::InitializeUI();
 
 	WBP_SummonPanel->InitPanel();
 }
 
-void ULRPlayerWidget::OpenUI()
+void ULRInGamePersistentWidget::OpenUI()
 {
 	Super::OpenUI();
 
 	SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 }
 
-void ULRPlayerWidget::TestSummonPanelRefresh()
+void ULRInGamePersistentWidget::TestSummonPanelRefresh()
 {
 	WBP_SummonPanel->InitPanel();
 }
 
-void ULRPlayerWidget::InitializeGAS(UAbilitySystemComponent* ASC)
+void ULRInGamePersistentWidget::InitializeGAS(UAbilitySystemComponent* ASC)
 {
 	if (Widget_Aether)
 	{
@@ -66,7 +76,7 @@ void ULRPlayerWidget::InitializeGAS(UAbilitySystemComponent* ASC)
 	}
 }
 
-void ULRPlayerWidget::BindToController(ALRControllerBase* Controller)
+void ULRInGamePersistentWidget::BindToController(ALRControllerBase* Controller)
 {
 	Super::BindToController(Controller);
 
@@ -75,7 +85,7 @@ void ULRPlayerWidget::BindToController(ALRControllerBase* Controller)
 
 	if (PC)
 	{
-		OnChangeClickedDel.AddDynamic(PC, &ALRPlayerController::ToggleAutoMode);
+		OnChangeClickedDel.AddUniqueDynamic(PC, &ALRPlayerController::ToggleAutoMode);
 		InitializeGAS(PC->GetAbilitySystemComponent());
 		
 		if (ALRPlayerState* PS = PC->GetPlayerState<ALRPlayerState>())
@@ -99,20 +109,20 @@ void ULRPlayerWidget::BindToController(ALRControllerBase* Controller)
 	}
 }
 
-void ULRPlayerWidget::OnChangeClicked()
+void ULRInGamePersistentWidget::OnChangeClicked()
 {
 	OnChangeClickedDel.Broadcast();
 }
 
 
-void ULRPlayerWidget::OnPauseButtonClicked()
+void ULRInGamePersistentWidget::OnPauseButtonClicked()
 {
 	ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(UGameplayStatics::GetGameMode(this));
 	StageGM->OnOpenPauseUI();
 }
 
 
-void ULRPlayerWidget::UpdateUIOnDeath(bool InIsDead, float InRespawnTime)
+void ULRInGamePersistentWidget::UpdateUIOnDeath(bool InIsDead, float InRespawnTime)
 {
 	UMaterialInterface* TargetMat = InIsDead ? Mat_BlackWhite.Get() : nullptr;
 
@@ -138,7 +148,7 @@ void ULRPlayerWidget::UpdateUIOnDeath(bool InIsDead, float InRespawnTime)
 	}
 }
 
-void ULRPlayerWidget::RefreshSkillPanelIcons(FName InPlayerSkillID, FName InWeaponSkillID)
+void ULRInGamePersistentWidget::RefreshSkillPanelIcons(FName InPlayerSkillID, FName InWeaponSkillID)
 {
 	if (WBP_SkillPanel)
 	{
@@ -146,7 +156,7 @@ void ULRPlayerWidget::RefreshSkillPanelIcons(FName InPlayerSkillID, FName InWeap
 	}
 }
 
-void ULRPlayerWidget::UpdateAutoButtonVisual(bool InbIsAutoMode)
+void ULRInGamePersistentWidget::UpdateAutoButtonVisual(bool InbIsAutoMode)
 {
 	if (Btn_Change)
 	{

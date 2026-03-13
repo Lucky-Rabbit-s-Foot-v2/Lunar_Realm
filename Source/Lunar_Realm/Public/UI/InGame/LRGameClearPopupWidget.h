@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRPopupWidget.h"
-#include "LRGameClearWidget.generated.h"
+#include "LRGameClearPopupWidget.generated.h"
 
 
 //============================================================================
@@ -16,7 +16,7 @@
  //============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRGameClearWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRGameClearPopupWidget : public ULRPopupWidget
 {
 	GENERATED_BODY()
 	

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRPersistentWidget.h"
-#include "LRPlayerWidget.generated.h"
+#include "LRInGamePersistentWidget.generated.h"
 
 /**
  * 
@@ -23,7 +23,7 @@ class ULRSkillPanelWidget;
 class URetainerBox;
 
 UCLASS()
-class LUNAR_REALM_API ULRPlayerWidget : public ULRPersistentWidget
+class LUNAR_REALM_API ULRInGamePersistentWidget : public ULRPersistentWidget
 {
 	GENERATED_BODY()
 	
@@ -31,6 +31,7 @@ public:
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
+	virtual void RegisterSubWidgets() override;
 
 	virtual void InitializeUI() override;
 	virtual void OpenUI() override;

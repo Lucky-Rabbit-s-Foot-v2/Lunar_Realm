@@ -5,7 +5,7 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "UI/InGame/LRDamageWidget.h"
+#include "UI/Core/LRDamageWidget.h"
 
 #include "UI/Core/LRBackgroundWidget.h"
 

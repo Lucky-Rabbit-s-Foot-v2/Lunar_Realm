@@ -4,19 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRPopupWidget.h"
-#include "LRGameOverWidget.generated.h"
+#include "LRPausePopupWidget.generated.h"
 
 
 //============================================================================
 /**
- * 게임 오버	UI 위젯
+ * 인게임 일시정지 UI 위젯
  */
  //============================================================================
  // (260226) PJB 제작. 제반 사항 구현
  //============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRGameOverWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRPausePopupWidget : public ULRPopupWidget
 {
 	GENERATED_BODY()
 	
@@ -25,28 +25,27 @@ public:
 	virtual void UnbindProperties() override;
 
 	UFUNCTION(BlueprintCallable)
-	void OnRegroupButtonClicked();
-	
-	UFUNCTION(BlueprintCallable)
 	void OnRestartButtonClicked();
 	
 	UFUNCTION(BlueprintCallable)
+	void OnResumeButtonClicked();
+
+	UFUNCTION(BlueprintCallable)
+	void OnSettingButtonClicked();
+
+	UFUNCTION(BlueprintCallable)
 	void OnExitButtonClicked();
 
-	virtual void InitializeUI() override;
-
 protected:
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Regroup;
-
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Restart;
 
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UButton> Btn_Resume;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UButton> Btn_Setting;
+
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Exit;
-
-protected:
-	UPROPERTY(meta = (BindWidgetAnim), Transient)
-	class UWidgetAnimation* Fail;
-
 };

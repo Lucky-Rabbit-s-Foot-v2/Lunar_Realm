@@ -44,7 +44,7 @@ public:
 	class UAbilitySystemComponent* GetAbilitySystemComponent();
 
 	UFUNCTION(BlueprintCallable)
-	class ULRPlayerWidget* GetPlayerWidget();
+	class ULRInGamePersistentWidget* GetPlayerWidget();
 
 protected:
 	virtual void BeginPlay() override;
@@ -52,9 +52,6 @@ protected:
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input|Mobile")
 	TObjectPtr<UTouchInterface> MobileTouchInterface;
-
-	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
-	TSubclassOf<class ULRPlayerWidget> PlayerWidget;
 
 // 위젯에서 보낸 무기 교체 신호를 받을 함수들
 public:

@@ -6,7 +6,7 @@
 #include "Units/Player/LRPlayerState.h"
 #include "Units/Player/Component/LRSummonComponent.h"
 #include "Units/Player/LRPlayerController.h"
-#include "UI/InGame/LRPlayerWidget.h"
+#include "UI/InGame/LRInGamePersistentWidget.h"
 #include "UI/InGame/LRSkillpanelWidget.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -497,7 +497,7 @@ bool ULRCombatComponent::TryExcuteSkill(ALRCharacter* InOwnerCharacter)
 				//오토 모드에서도 UI 쿨타임을 돌리라고 명령
 				if (ALRPlayerController* PC = Cast<ALRPlayerController>(InOwnerCharacter->GetController()))
 				{
-					if (ULRPlayerWidget* MainWidget = PC->GetPlayerWidget())
+					if (ULRInGamePersistentWidget* MainWidget = PC->GetPlayerWidget())
 					{
 						if (MainWidget->WBP_SkillPanel)
 						{

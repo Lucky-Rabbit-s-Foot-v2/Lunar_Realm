@@ -15,7 +15,7 @@
 #include "Core/Stage/LRStageGameState.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Units/Player/LRPlayerController.h"
-#include "UI/InGame/LRPlayerWidget.h"
+#include "UI/InGame/LRInGamePersistentWidget.h"
 #include "UI/InGame/LRSkillPanelWidget.h"
 #include "Animation/AnimInstance.h"
 
@@ -222,7 +222,7 @@ void ALRPlayerState::EquipItem(EEquipmentSlotType Slot, FName ItemID)
 
 			if (ALRPlayerController* PlayerController = Cast<ALRPlayerController>(PC->GetController()))
 			{
-				if (ULRPlayerWidget* MyWidget = PlayerController->GetPlayerWidget())
+				if (ULRInGamePersistentWidget* MyWidget = PlayerController->GetPlayerWidget())
 				{
 					// 최신화된 장착 스킬 ID 목록 다시 가져오기
 					TArray<FName> EquippedSkills = GetEquippedAutoSkillIDs();
@@ -406,7 +406,7 @@ void ALRPlayerState::ActivateSkill1()
 	{
 		if (ALRPlayerController* PlayerController = Cast<ALRPlayerController>(PC->GetController()))
 		{
-			if (ULRPlayerWidget* MainWidget = PlayerController->GetPlayerWidget())
+			if (ULRInGamePersistentWidget* MainWidget = PlayerController->GetPlayerWidget())
 			{
 				if (MainWidget->WBP_SkillPanel)
 				{
@@ -476,7 +476,7 @@ void ALRPlayerState::ActivateSkill2()
 	{
 		if (ALRPlayerController* PlayerController = Cast<ALRPlayerController>(PC->GetController()))
 		{
-			if (ULRPlayerWidget* MainWidget = PlayerController->GetPlayerWidget())
+			if (ULRInGamePersistentWidget* MainWidget = PlayerController->GetPlayerWidget())
 			{
 				if (MainWidget->WBP_SkillPanel)
 				{
