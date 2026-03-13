@@ -16,6 +16,7 @@
 //=============================================================================
 
 class UButton;
+class UMaterialInstanceDynamic;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillButtonClicked);
 
@@ -30,6 +31,12 @@ public:
 
 	virtual void BindToController(ALRControllerBase* Controller) override;
 
+public:
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
+	void StartSkillCooldown(int32 SkillIndex, float InCooldownTime);
+
+public:
 	UPROPERTY(BlueprintAssignable)
 	FOnSkillButtonClicked OnSkill1ClickedDel;
 
@@ -61,10 +68,25 @@ protected:
 public:
 	void UpdateSkillIcons(FName InPlayerSkillID, FName InWeaponSkillID);
 
-//protected:
-//	UPROPERTY(meta = (BindWidget))
-//	UImage* Img_Skill1;
-//
-//	UPROPERTY(meta = (BindWidget))
-//	UImage* Img_Skill2;
+protected:
+	UPROPERTY(meta = (BindWidget))
+	UImage* Img_Cooldown1;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* Img_Cooldown2;
+
+	UPROPERTY()
+	class UMaterialInstanceDynamic* Mat_Cooldown1;
+
+	UPROPERTY()
+	class UMaterialInstanceDynamic* Mat_Cooldown2;
+
+	// 쿨타임 시간 추적용 변수
+	float MaxCD1 = 0.0f;
+	float CurrentCD1 = 0.0f;
+	float MaxCD2 = 0.0f;
+	float CurrentCD2 = 0.0f;
+
+
+
 };

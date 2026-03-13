@@ -60,6 +60,8 @@ private:
 public:
 	void RefreshSkillPanelIcons(FName InPlayerSkillID, FName InWeaponSkillID);
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<ULRSkillPanelWidget> WBP_SkillPanel;
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Change;
@@ -74,8 +76,6 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRSummonPanelWidget> WBP_SummonPanel;
 
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<ULRSkillPanelWidget> WBP_SkillPanel;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Pause;
