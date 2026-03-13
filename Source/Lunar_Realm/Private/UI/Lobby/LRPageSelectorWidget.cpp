@@ -43,24 +43,24 @@ void ULRPageSelectorWidget::OnStageButtonClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	
-	ULRChapterPageWidget* ChapterSelector = Cast<ULRChapterPageWidget>(UIManager->SwitchPageUIByID(EUIID::DUTY));
+	ULRChapterPageWidget* ChapterSelector = Cast<ULRChapterPageWidget>(UIManager->OpenUIByID(EUIID::DUTY));
 	ChapterSelector->RefreshUI();
 }
 
 void ULRPageSelectorWidget::OnCollectionButtonClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->SwitchPageUIByID(EUIID::COLLECTION);
+	UIManager->OpenUIByID(EUIID::COLLECTION);
 }
 
 void ULRPageSelectorWidget::OnPartyButtonClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->SwitchPageUIByID(EUIID::PARTY);
+	UIManager->OpenUIByID(EUIID::PARTY);
 }
 
 void ULRPageSelectorWidget::OnGachaButtonClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->SwitchPageUIByID(EUIID::GACHA);
+	UIManager->OpenUIByID(EUIID::GACHA);
 }

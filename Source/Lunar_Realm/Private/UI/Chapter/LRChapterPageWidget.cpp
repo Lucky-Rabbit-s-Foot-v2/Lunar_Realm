@@ -46,5 +46,5 @@ void ULRChapterPageWidget::RegisterSubWidgets()
 void ULRChapterPageWidget::OnBackButtonClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->SwitchPageUIByID(EUIID::LOBBY);
+	UIManager->OpenUIByID(EUIID::LOBBY);
 }

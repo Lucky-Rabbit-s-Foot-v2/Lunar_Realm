@@ -50,7 +50,7 @@ void ULRCurrencyViewWidget::RefreshUI()
 void ULRCurrencyViewWidget::OnCurrencyAddClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->SwitchPageUIByID(EUIID::SHOP);
+	UIManager->OpenUIByID(EUIID::SHOP);
 }
 
 void ULRCurrencyViewWidget::SetIconByType()

@@ -47,6 +47,6 @@ void ULRPartyLineupWidget::RefreshUI()
 void ULRPartyLineupWidget::OnRegroupButtonClicked()
 {
 	UUIManagerSubsystem* UIManagerSubsystem = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManagerSubsystem->SwitchPageUIByID(EUIID::PARTY);
+	UIManagerSubsystem->OpenUIByID(EUIID::PARTY);
 }
 

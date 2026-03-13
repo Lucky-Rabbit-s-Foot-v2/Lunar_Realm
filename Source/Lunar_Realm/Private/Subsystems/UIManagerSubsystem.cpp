@@ -27,7 +27,7 @@ int32 UUIManagerSubsystem::CalculateZOrder(ULRBaseWidget* Widget) const
 {
 	if (!Widget)
 	{
-		return 0;
+		return -1;
 	}
     
 	int32 DefaultZOrder = Widget->ZOrder;
@@ -35,10 +35,10 @@ int32 UUIManagerSubsystem::CalculateZOrder(ULRBaseWidget* Widget) const
 	{
 		case EUILayer::BACKGROUND:	return DefaultZOrder;
 		case EUILayer::PAGE:		return 10 + DefaultZOrder;
-		case EUILayer::PERSISTENT:	return 50 + DefaultZOrder;
-		case EUILayer::POPUP:		return 100 + PopupUIStack.Num();
-		case EUILayer::TOOLTIP:		return 800 + DefaultZOrder;
-		case EUILayer::SYSTEM:		return 1000 + PopupUIStack.Num();
+		case EUILayer::PERSISTENT:	return 250 + DefaultZOrder;
+		case EUILayer::POPUP:		return 500 + TransientUIStack.Num();
+		case EUILayer::TOOLTIP:		return 900 + DefaultZOrder;
+		case EUILayer::SYSTEM:		return 1000 + DefaultZOrder;
 		default:					return DefaultZOrder;
 	}
 }
@@ -72,22 +72,58 @@ void UUIManagerSubsystem::CloseUIInternal(ULRBaseWidget* Widget)
 	}
     
 	EUILayer Layer = Widget->UILayer;
-	if (Layer == EUILayer::POPUP || Layer == EUILayer::SYSTEM || Layer == EUILayer::PAGE)
+	switch (Layer)
 	{
-		int32 Index = PopupUIStack.Find(Widget);
-		if (Index != INDEX_NONE)
+		case EUILayer::PAGE:
 		{
-			PopupUIStack.RemoveAt(Index);
+			if (PageWidget == Widget)
+			{
+				PageWidget->CloseUI();
+				PageWidget = nullptr;
+				CloseAllPopupUI();
+			}
+			break;
 		}
-		Widget->CloseUI();
-		RefreshTopPopupUI();
-		NotifyInputModeChange();
+		case EUILayer::POPUP:
+		case EUILayer::SYSTEM:		// 시스템 UI도 팝업처럼 스택에서 관리
+		{
+			int32 Index = TransientUIStack.Find(Widget);
+			if (Index != INDEX_NONE)
+			{
+				while (TransientUIStack.Num() > Index)
+				{
+					ULRBaseWidget* TopWidget = TransientUIStack.Pop();
+					TopWidget->CloseUI();
+				}
+			}
+			RefreshTopPopupUI();
+			NotifyInputModeChange();
+			break;
+		}
+		case EUILayer::BACKGROUND:
+		{
+			if (BackgroundWidget == Widget)
+			{
+				Widget->CloseUI();
+				BackgroundWidget = nullptr;
+			}
+			break;
+		}
+		case EUILayer::PERSISTENT:
+		{
+			if (PermenentUIMap.Contains(Widget->GetClass()) && PermenentUIMap[Widget->GetClass()] == Widget)
+			{
+				Widget->CloseUI();
+				PermenentUIMap.Remove(Widget->GetClass());
+			}
+			break;
+		}
+		default: // NONE, TOOLTIP 등은 특별한 관리 없이 닫기만 하면 됨
+		{
+			break;
+		}
 	}
-	else
-	{
-		Widget->CloseUI();
-		PersistentUIMap.Remove(Widget->GetClass());
-	}
+	return;
 }
 
 void UUIManagerSubsystem::CloseUI(ULRBaseWidget* Widget)
@@ -97,29 +133,32 @@ void UUIManagerSubsystem::CloseUI(ULRBaseWidget* Widget)
 
 void UUIManagerSubsystem::CloseTopPopupUI()
 {
-	if (PopupUIStack.Num() == 0)
+	if (TransientUIStack.Num() == 0)
 	{
 		return;
 	}
-    
-	ULRBaseWidget* TopWidget = PopupUIStack.Pop();
+	ULRBaseWidget* TopWidget = TransientUIStack.Last();
 	CloseUI(TopWidget);
 }
 
 void UUIManagerSubsystem::CloseAllPopupUI()
 {
-	while (PopupUIStack.Num() > 0)
+	while (TransientUIStack.Num() > 0)
 	{
-		CloseTopPopupUI();
+		ULRBaseWidget* TopWidget = TransientUIStack.Pop();
+		TopWidget->CloseUI();
+
+		// 모든 팝이 닫히면서 아래 팝업이 Refresh 되므로 비효율적
+		//CloseTopPopupUI();
 	}
 }
 
 void UUIManagerSubsystem::RefreshTopPopupUI()
 {
 	// 스택에 팝업이 남아있다면 새로운 Top에게 포커스 전달
-	if (PopupUIStack.Num() > 0)
+	if (TransientUIStack.Num() > 0)
 	{
-		PopupUIStack.Last()->OnFocusGained();
+		TransientUIStack.Last()->OnFocusGained();
 	}
 }
 
@@ -129,11 +168,12 @@ void UUIManagerSubsystem::ResetAllUIStates()
 	for (auto& pair : CachedWidgets)
 	{
 		ResetUIState(pair.Value);
+		pair.Value = nullptr;
 	}
 	
 	//관련 컨테이너 비우기
-	PersistentUIMap.Empty();
-	PopupUIStack.Empty();
+	PermenentUIMap.Empty();
+	TransientUIStack.Empty();
 	CachedWidgets.Empty ();
 }
 
@@ -165,78 +205,30 @@ ULRBaseWidget* UUIManagerSubsystem::OpenUIByID(EUIID UIID)
 	return nullptr;
 }
 
-ULRBaseWidget* UUIManagerSubsystem::SwitchPageUIByID(EUIID PageID)
-{
-	const UUIManagerSettings* Settings = GetDefault<UUIManagerSettings>();
-	if (!Settings)
-	{
-		return nullptr;
-	}
-
-	if(const TSoftClassPtr<ULRBaseWidget>* SoftClassPtr = Settings->UIClassMap.Find(PageID))
-	{
-		UClass* LoadedClass = SoftClassPtr->LoadSynchronous();
-		if (LoadedClass)
-		{
-			return SwitchPageUI<ULRBaseWidget>(LoadedClass);
-		}
-		else
-		{
-			LR_INFO(TEXT("Failed to load widget class for PageID %d"), static_cast<uint8>(PageID));
-		}
-	}
-	else
-	{
-		LR_INFO(TEXT("PageID %d not found in UIManagerSettings"), static_cast<uint8>(PageID));
-	}
-
-	return nullptr;
-}
-
 void UUIManagerSubsystem::ShowBackgroundUI()
 {
-	if (BackgroundWidget)
-	{
-		BackgroundWidget->SetVisibility(ESlateVisibility::Visible);
-	}
-	else
+	if (!BackgroundWidget)
 	{
 		BackgroundWidget = OpenUIByID(EUIID::BACKGROUND);
-		if (BackgroundWidget)
-		{
-			BackgroundWidget->SetVisibility(ESlateVisibility::Visible);
-		}
-		else
-		{
-			LR_INFO(TEXT("Failed to open Background UI"));
-		}
 	}
+	BackgroundWidget->OpenUI();
 }
 
 void UUIManagerSubsystem::HideBackgroundUI()
 {
-	if (BackgroundWidget)
-	{
-		BackgroundWidget->SetVisibility(ESlateVisibility::Collapsed);
-	}
-	else
+	if (!BackgroundWidget)
 	{
 		BackgroundWidget = OpenUIByID(EUIID::BACKGROUND);
-		if (BackgroundWidget)
-		{
-			BackgroundWidget->SetVisibility(ESlateVisibility::Collapsed);
-		}
-		else
-		{
-			LR_INFO(TEXT("Failed to open Background UI"));
-		}
 	}
+	BackgroundWidget->CloseUI();
 }
 
 void UUIManagerSubsystem::ShowDamageText(float Damage, FVector HitLocation, FLinearColor InColor)
 {
 	ULRDamageWidget* DamageUI = GetFreeDamageWidgetFromPool();
     if (!DamageUI) return;
+
+	DamageUI->ActivateWidget();
 
 	DamageUI->SetDamageColor(InColor);
 
@@ -253,8 +245,8 @@ void UUIManagerSubsystem::ShowDamageText(float Damage, FVector HitLocation, FLin
         float Distance = FVector::Distance(CameraLocation, HitLocation);
 
         // 거리에 따른 스케일(비율) 매핑
-        FVector2D InRange(500.0f, 3000.0f); // 거리 : 500 ~ 3000 
-        FVector2D OutRange(1.0f, 0.4f); // 스케일 : 1.0f ~ 0.4f 
+        FVector2D InRange(500.0f, 3000.0f);		// 거리 : 500 ~ 3000 
+        FVector2D OutRange(1.0f, 0.4f);			// 스케일 : 1.0f ~ 0.4f 
         float DynamicScale = FMath::GetMappedRangeValueClamped(InRange, OutRange, Distance);
 
         // 렌더 스케일 적용
@@ -274,13 +266,8 @@ ULRDamageWidget* UUIManagerSubsystem::GetFreeDamageWidgetFromPool()
 	}
 	else
 	{
-		UUIManagerSettings* Settings = GetMutableDefault<UUIManagerSettings>();
+		const UUIManagerSettings* Settings = GetDefault<UUIManagerSettings>();
 		Widget = CreateWidget<ULRDamageWidget>(GetWorld(), Settings->DamageWidgetClass);
-	}
-	
-	if (Widget)
-	{
-		Widget->ActivateWidget();
 	}
 	return Widget;
 }
@@ -296,14 +283,18 @@ void UUIManagerSubsystem::ReturnDamageWidgetToPool(ULRDamageWidget* Widget)
 
 void UUIManagerSubsystem::InitializeDamageWidgetPool(int32 PoolSize)
 {
+	const UUIManagerSettings* Settings = GetDefault<UUIManagerSettings>();
+	if (!Settings)
+	{
+		return;
+	}
+	
 	for (int32 i = 0; i < PoolSize; ++i)
 	{
-		UUIManagerSettings* Settings = GetMutableDefault<UUIManagerSettings>();
-		ULRDamageWidget* Widget = CreateWidget<ULRDamageWidget>(GetWorld(), Settings->DamageWidgetClass);
-		if (Widget)
+		if (ULRDamageWidget* Widget = CreateWidget<ULRDamageWidget>(GetWorld(), Settings->DamageWidgetClass))
 		{
-			Widget->SetVisibility(ESlateVisibility::Collapsed);
 			DamageWidgetPool.Add(Widget);
+			Widget->CloseUI();
 		}
 	}
 }
@@ -322,30 +313,34 @@ void UUIManagerSubsystem::ResetDamageWidgetPool()
 
 void UUIManagerSubsystem::UpdatePopupZOrders()
 {
-	for (int32 i = 0; i < PopupUIStack.Num(); ++i)
+	for (int32 i = 0; i < TransientUIStack.Num(); ++i)
 	{
-		ULRBaseWidget* Widget = PopupUIStack[i];
+		ULRBaseWidget* Widget = TransientUIStack[i];
 		if (Widget && Widget->IsInViewport())
 		{
 			Widget->RemoveFromParent();
 			int32 NewZOrder = CalculateZOrder(Widget) + i;
 			Widget->AddToViewport(NewZOrder);
-			LR_INFO(TEXT("Adding %s to viewport with ZOrder %d"), *Widget->GetName(), NewZOrder);
 		}
 	}
 }
 
 void UUIManagerSubsystem::ResetUIState(ULRBaseWidget* Widget)
 {
-	if (Widget)
+	if (!Widget)
 	{
-		if (Widget->IsOpen())
-		{
-			Widget->CloseUI();
-		}
-		if (Widget->IsInViewport())
-		{
-			Widget->RemoveFromParent();
-		}
+		return;
 	}
+
+	if (Widget->IsOpen())
+	{
+		Widget->CloseUI();
+	}
+	
+	if (Widget->IsInViewport())
+	{
+		Widget->RemoveFromParent();
+	}
+	
+	Widget = nullptr;
 }
