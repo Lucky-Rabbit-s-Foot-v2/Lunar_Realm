@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRPersistentWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 #include "LRCurrencyWidget.generated.h"
 
 // =============================================================================
@@ -15,7 +15,7 @@
  //=============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRCurrencyWidget : public ULRPersistentWidget
+class LUNAR_REALM_API ULRCurrencyWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
 

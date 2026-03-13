@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRChildWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 #include "LRStageWidget.generated.h"
 
 
@@ -18,7 +18,7 @@
 
 
 UCLASS()
-class LUNAR_REALM_API ULRStageWidget : public ULRChildWidget
+class LUNAR_REALM_API ULRStageWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
 	

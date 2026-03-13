@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRPageWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 #include "LRChapterWidget.generated.h"
 
 
@@ -19,7 +19,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnChapterOpenClicked);
 
 UCLASS()
-class LUNAR_REALM_API ULRChapterWidget : public ULRPageWidget
+class LUNAR_REALM_API ULRChapterWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
 	

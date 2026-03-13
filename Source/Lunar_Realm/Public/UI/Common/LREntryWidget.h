@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRChildWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 #include "Blueprint/IUserObjectListEntry.h"
 #include "LREntryWidget.generated.h"
 
@@ -40,7 +40,7 @@ private:
 };
 
 UCLASS()
-class LUNAR_REALM_API ULREntryWidget : public ULRChildWidget, public IUserObjectListEntry
+class LUNAR_REALM_API ULREntryWidget : public ULRBaseWidget, public IUserObjectListEntry
 {
 	GENERATED_BODY()
 

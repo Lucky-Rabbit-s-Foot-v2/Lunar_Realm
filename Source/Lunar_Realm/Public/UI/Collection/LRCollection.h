@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRChildWidget.h"
+#include "UI/Core/LRBaseWidget.h"
 #include "LRCollection.generated.h"
 
 //============================================================================
@@ -15,7 +15,7 @@
  //============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRCollection : public ULRChildWidget
+class LUNAR_REALM_API ULRCollection : public ULRBaseWidget
 {
 	GENERATED_BODY()
 	
