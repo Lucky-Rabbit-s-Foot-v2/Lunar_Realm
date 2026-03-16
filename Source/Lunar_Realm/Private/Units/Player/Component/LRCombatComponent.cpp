@@ -3,9 +3,11 @@
 
 #include "Units/Player/Component/LRCombatComponent.h"
 #include "Units/LRCharacter.h"
+#include "Units/Player/LRPlayerCharacter.h"
 #include "Units/Player/LRPlayerState.h"
 #include "Units/Player/Component/LRSummonComponent.h"
 #include "Units/Player/LRPlayerController.h"
+#include "Units/Enemy/LREnemyCharacter.h"
 #include "UI/InGame/LRInGamePersistentWidget.h"
 #include "UI/InGame/LRSkillpanelWidget.h"
 
@@ -26,6 +28,7 @@
 #include "AbilitySystemInterface.h"
 #include "Components/PrimitiveComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 
 
@@ -313,7 +316,73 @@ void ULRCombatComponent::MoveToTarget(float InDeltaTime)
 
 void ULRCombatComponent::UpdateTargetIndicator(ALRCharacter* InOwnerCharacter)
 {
-	UDecalComponent* TargetIndicator = InOwnerCharacter->FindComponentByClass<UDecalComponent>();
+
+	ALRPlayerCharacter* PlayerChar = Cast<ALRPlayerCharacter>(InOwnerCharacter);
+	if (!PlayerChar) return;
+
+	// ====================================================================
+	// 1. 바닥 타겟 인디케이터 (스태틱 메쉬) 로직
+	// ====================================================================
+	bool bShowIndicator = false;
+
+	if (CurrentTarget && IsValid(CurrentTarget) && !IsTargetDead(CurrentTarget))
+	{
+		bShowIndicator = (CombatState == EAutoCombatState::Auto) ? true : IsTargetInRange();
+	}
+
+	if (PlayerChar->TargetIndicatorMesh)
+	{
+		PlayerChar->TargetIndicatorMesh->SetVisibility(bShowIndicator);
+
+		if (bShowIndicator)
+		{
+			FVector TargetLoc = CurrentTarget->GetActorLocation();
+
+			if (ACharacter* TargetChar = Cast<ACharacter>(CurrentTarget))
+			{
+				float HalfHeight = TargetChar->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+				TargetLoc.Z -= HalfHeight;
+				TargetLoc.Z += 2.0f; // Z-Fighting(깜빡임) 방지
+			}
+			else
+			{
+				TargetLoc.Z -= 88.0f;
+			}
+
+			PlayerChar->TargetIndicatorMesh->SetWorldLocation(TargetLoc);
+		}
+	}
+
+	// ====================================================================
+	// 2. 적 머리 위 화살표 마커 켜고 끄기 로직
+	// ====================================================================
+	static ALREnemyCharacter* PreviousEnemyTarget = nullptr;
+	ALREnemyCharacter* CurrentEnemyTarget = Cast<ALREnemyCharacter>(CurrentTarget);
+
+	if (CurrentEnemyTarget != PreviousEnemyTarget)
+	{
+		if (PreviousEnemyTarget && IsValid(PreviousEnemyTarget))
+		{
+			PreviousEnemyTarget->SetTargetMarkerVisibility(false);
+		}
+
+		if (CurrentEnemyTarget && IsValid(CurrentEnemyTarget) && !IsTargetDead(CurrentEnemyTarget))
+		{
+			CurrentEnemyTarget->SetTargetMarkerVisibility(true);
+		}
+
+		PreviousEnemyTarget = CurrentEnemyTarget;
+	}
+
+	if (!CurrentTarget && PreviousEnemyTarget)
+	{
+		if (IsValid(PreviousEnemyTarget))
+		{
+			PreviousEnemyTarget->SetTargetMarkerVisibility(false);
+		}
+		PreviousEnemyTarget = nullptr;
+	}
+	/*UDecalComponent* TargetIndicator = InOwnerCharacter->FindComponentByClass<UDecalComponent>();
 	if (!TargetIndicator) return;
 
 	if (!CurrentTarget)
@@ -341,7 +410,7 @@ void ULRCombatComponent::UpdateTargetIndicator(ALRCharacter* InOwnerCharacter)
 		FVector TargetLoc = CurrentTarget->GetActorLocation();
 		TargetLoc.Z -= 90.0f;
 		TargetIndicator->SetWorldLocation(TargetLoc);
-	}
+	}*/
 }
 
 void ULRCombatComponent::CheckAndClearDeadTarget()

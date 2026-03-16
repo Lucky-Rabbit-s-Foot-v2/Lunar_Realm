@@ -96,4 +96,18 @@ private:
 	float GetDropAetherAmount() const;
 
 	bool IsDead = false;
+
+	// (260316) BJM: 타겟팅 마커(머리 위 화살표) UI 연동을 위한 함수 및 변수 추가
+public:
+	// 외부(Player)에서 타겟 마커를 켜고 끌 때 부르는 함수
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void SetTargetMarkerVisibility(bool bVisible);
+
+	// 생성자에서 타겟 마커 설정값 가져오는 핼퍼함수
+	void SetupTargetMarker();
+
+protected:
+	// 머리 위에 띄울 2D 화살표 위젯 컴포넌트
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	class UStaticMeshComponent* TargetMarkerMesh;
 };
