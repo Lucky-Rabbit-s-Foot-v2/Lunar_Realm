@@ -27,7 +27,7 @@ void ULRCharacterCollection::RefreshUI()
 		const FCharacterStaticData& CharacterData = GameDataSubsystem->GetCharacterStaticData(AllCharactersID);
 		ULRTileData* TileDataObject = NewObject<ULRTileData>(this);
 		TileDataObject->SetID(CharacterData.DataID);
-		TileDataObject->SetIcon(CharacterData.PortraitIcon.LoadSynchronous());
+		TileDataObject->SetIcon(CharacterData.CharacterTexture.LoadSynchronous());
 		CharacterTileView->AddItem(TileDataObject);
 	}
 }
