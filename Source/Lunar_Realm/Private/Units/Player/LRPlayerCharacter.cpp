@@ -85,6 +85,11 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 		AbilitySystemComponent->AddLooseGameplayTag(UnitTag);
 		PS->InitializePlayerData();
 
+		if (CombatComponent)
+		{
+			CombatComponent->UpdateAttackRange();
+		}
+
 		if (AttributeSet)
 		{
 			AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(

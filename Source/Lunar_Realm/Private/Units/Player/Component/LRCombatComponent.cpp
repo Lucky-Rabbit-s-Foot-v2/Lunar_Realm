@@ -25,6 +25,8 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "Components/PrimitiveComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 
 ULRCombatComponent::ULRCombatComponent()
@@ -37,6 +39,8 @@ ULRCombatComponent::ULRCombatComponent()
 void ULRCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CreateRangeIndicator();
 
 	TArray<AActor*> AllBases;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Enemy.Structure.Core"), AllBases);
@@ -124,9 +128,9 @@ void ULRCombatComponent::UpdateWeaponInfo(FName InWeaponID)
 	const FEquipmentStaticData& EquipData = DataSys->GetEquipmentStaticData(InWeaponID);
 	ELRItemType ItemType = EquipData.ItemType;
 
-	if (ItemType == ELRItemType::MELEE) AttackRange = 200.0f;
-	else if (ItemType == ELRItemType::RANGED) AttackRange = 800.0f;
-	else AttackRange = 100.0f;
+	//if (ItemType == ELRItemType::MELEE) AttackRange = 200.0f;
+	//else if (ItemType == ELRItemType::RANGED) AttackRange = 800.0f;
+	//else AttackRange = 100.0f;
 
 	LR_INFO(TEXT("무기설정 ID: %s, Range: %.1f"), *InWeaponID.ToString(), AttackRange);
 }
@@ -585,4 +589,112 @@ bool ULRCombatComponent::TryAutoSummon(ALRCharacter* InOwnerCharacter)
 
 
 	return false;
+}
+
+//void ULRCombatComponent::UpdateRangeDecalSize()
+//{
+//
+//	if (RangeDecal)
+//	{
+//		RangeDecal->DecalSize.X = AttackRange;
+//		RangeDecal->DecalSize.Y = AttackRange;
+//	}
+//
+//}
+
+void ULRCombatComponent::UpdateRangeMeshSize(float InRange)
+{
+	if (RangeMesh)
+	{
+		float ScaleFactor = InRange / 50.0f;
+
+		RangeMesh->SetRelativeScale3D(FVector(ScaleFactor, ScaleFactor, 1.0f));
+
+		if (UMaterialInstanceDynamic* DynamicMat = Cast<UMaterialInstanceDynamic>(RangeMesh->GetMaterial(0)))
+		{
+			float AdjustedThickness = 0.03f / ScaleFactor;
+
+			DynamicMat->SetScalarParameterValue(TEXT("LineThickness"), AdjustedThickness);
+		}
+	}
+}
+
+void ULRCombatComponent::CreateRangeIndicator()
+{
+	ALRCharacter* OwnerCharacter = GetOwnerCharacter();
+	if (!OwnerCharacter) return;
+
+	RangeMesh = NewObject<UStaticMeshComponent>(OwnerCharacter, TEXT("RangeMesh"));
+	RangeMesh->RegisterComponent();
+
+	// 발바닥 살짝 아래에 부착 (Z-Fighting 방지)
+	RangeMesh->AttachToComponent(OwnerCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	RangeMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -85.0f));
+
+	// 콜리전 끄기
+	RangeMesh->SetCollisionProfileName(TEXT("NoCollision"));
+	RangeMesh->SetGenerateOverlapEvents(false);
+
+	// 기본 판때기(Plane) 메쉬 로드해서 끼워넣기
+	UStaticMesh* PlaneMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Plane.Plane"));
+	if (PlaneMesh)
+	{
+		RangeMesh->SetStaticMesh(PlaneMesh);
+	}
+
+	// 우리가 만든 머티리얼 씌우기
+	if (RangeMaterial)
+	{
+		UMaterialInstanceDynamic* DynamicMat = UMaterialInstanceDynamic::Create(RangeMaterial, this);
+		RangeMesh->SetMaterial(0, DynamicMat);
+	}
+
+	UpdateRangeMeshSize(AttackRange);
+	RangeMesh->SetVisibility(true);
+	// 평소엔 안 보이게 숨김
+	//RangeMesh->SetVisibility(false);
+}
+
+void ULRCombatComponent::UpdateAttackRange()
+{
+
+	ALRCharacter* OwnerCharacter = GetOwnerCharacter();
+	if (!OwnerCharacter) return;
+
+	ALRPlayerState* PS = OwnerCharacter->GetPlayerState<ALRPlayerState>();
+	if (!PS)
+	{
+		LR_WARN(TEXT("[Combat] PlayerState를 찾을 수 없어 사거리를 설정할 수 없습니다."));
+		return;
+	}
+
+	UGameInstance* GI = GetWorld()->GetGameInstance();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+	if (!DataSys) return;
+
+	FName CharID = PS->GetCharacterID();
+	const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(CharID);
+
+	if (CharData.AttackType == ELRAttackType::MELEE)
+	{
+		AttackRange = 200.0f;
+	}
+	else if (CharData.AttackType == ELRAttackType::RANGED)
+	{
+		AttackRange = 500.0f;
+	}
+	else
+	{
+		AttackRange = 100.0f;
+	}
+
+	LR_INFO(TEXT("[Combat] 캐릭터(%s) 사거리 설정 완료: %.1f"), *CharID.ToString(), AttackRange);
+	
+	UpdateRangeMeshSize(AttackRange);
+
+	if (RangeMesh)
+	{
+		RangeMesh->SetVisibility(true);
+	}
+
 }
