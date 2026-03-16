@@ -180,6 +180,7 @@ protected:
 
 private:
 	UTexture2D* GetRarityTextureByRarity(ELRGachaRarity Rarity) const;
+	FLinearColor GetNameColorByRarity(ELRGachaRarity Rarity) const;
 
 	/** MediaTexture를 UI에 표시할 머티리얼 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Reveal|Video")
