@@ -42,7 +42,6 @@ ALREnemyCharacter::ALREnemyCharacter()
 
 void ALREnemyCharacter::OnDie()
 {
-	// OnDie() 단일 호출
 	if (!IsDead)
 	{
 		IsDead = true;
@@ -52,17 +51,10 @@ void ALREnemyCharacter::OnDie()
 		return;
 	}
 
-	// TODO: 사망 몽타주 중단되는 경우 디버그
-	//if (AbilitySystemComponent)
-	//{
-	//	// 필요하다면 모든 GameplayEffect 제거
-	//	FGameplayTagContainer EffectsToRemove;
-	//	EffectsToRemove.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Debuff.Shock")));
-	//	AbilitySystemComponent->RemoveActiveEffectsWithTags(EffectsToRemove);
-	//	AbilitySystemComponent->CancelAllAbilities();
-	//}
-
-	//LR_ERROR(TEXT("======================%s의 OnDie() 함수 실행됨.======================"), *GetName());
+	if (AbilitySystemComponent && UnitTag.IsValid())
+	{
+		AbilitySystemComponent->SetLooseGameplayTagCount(UnitTag, 0);
+	}
 
 	// 게임 스테이트에 에테르 추가
 	if (ALRStageGameState* GameState = GetWorld()->GetGameState<ALRStageGameState>())
