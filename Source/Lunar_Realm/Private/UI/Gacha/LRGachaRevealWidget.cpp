@@ -97,7 +97,6 @@ void ULRGachaRevealWidget::StartReveal(FName InBannerID, const TArray<FLRGachaRe
 	bResultOverlayShown = false;
 	bPresentationVisible = false;
 	bPresentationUsingVideo = false;
-	bCurrentPresentationIsLast = false;
 
 	bIsPointerDown = false;
 	PointerDownPosition = FVector2D::ZeroVector;
@@ -428,8 +427,8 @@ FReply ULRGachaRevealWidget::NativeOnMouseButtonUp(
 	{
 		HidePresentation();
 
-		// 마지막 프레젠테이션이거나 전체 리빌이 끝난 상태면 결과창 표시
-		if (bCurrentPresentationIsLast || bAllRevealed)
+		// 모든 구슬 리빌이 끝난 뒤에만 결과창 표시
+		if (bAllRevealed)
 		{
 			if (!bResultOverlayShown)
 			{
@@ -499,8 +498,6 @@ void ULRGachaRevealWidget::HandleRevealPresentationRequested(int32 OrbIndex, con
 
 void ULRGachaRevealWidget::ShowPresentation(int32 OrbIndex, const FLRGachaResult& Result)
 {
-	bCurrentPresentationIsLast = (OrbIndex >= CachedResults.Num() - 1);
-
 	UGameInstance* GI = GetGameInstance();
 	if (!GI)
 	{
