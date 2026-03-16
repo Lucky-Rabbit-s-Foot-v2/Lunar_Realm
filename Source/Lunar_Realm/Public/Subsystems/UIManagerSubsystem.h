@@ -85,6 +85,8 @@ public:
     template<typename T>
     T* GetOrCreateWidget(TSubclassOf<T> WidgetClassFactory);
     
+	ULRBaseWidget* GetOrCreateWidgetByID(EUIID UIID);
+
 	//=============================================================================
 	// UI 닫기
 	//=============================================================================
@@ -329,12 +331,17 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
 
 			UpdatePopupZOrders();
 			BaseWidget->OnFocusGained();
-			NotifyInputModeChange();
 			break;
 		}
+		case EUILayer::OVERLAY:
 		case EUILayer::TOOLTIP:
 		{
 			BaseWidget->OpenUI();
+			if (!BaseWidget->IsInViewport())
+			{
+				int32 ZOrder = CalculateZOrder(BaseWidget);
+				BaseWidget->AddToViewport(ZOrder);
+			}
 			break;
 		}
 		default:
@@ -342,6 +349,8 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
 			break;
 		}
 	}
+	NotifyInputModeChange();
+
     return Widget;
 }
 

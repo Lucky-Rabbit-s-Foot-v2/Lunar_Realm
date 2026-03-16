@@ -16,6 +16,28 @@
 
 #include "Units/OutGame/LROutGameController.h"
 
+void ULRCurrencyViewWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
+	{
+		SaveGameSubsystem->OnSaveGameLoadedDel.AddUniqueDynamic(this, &ULRCurrencyViewWidget::RefreshCurrencyAmountOnLoaded);
+		SaveGameSubsystem->OnSaveGameSavedDel.AddUniqueDynamic(this, &ULRCurrencyViewWidget::RefreshCurrencyAmountOnSaved);
+	}
+}
+
+void ULRCurrencyViewWidget::NativeDestruct()
+{
+	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
+	{
+		SaveGameSubsystem->OnSaveGameLoadedDel.RemoveDynamic(this, &ULRCurrencyViewWidget::RefreshCurrencyAmountOnLoaded);
+		SaveGameSubsystem->OnSaveGameSavedDel.RemoveDynamic(this, &ULRCurrencyViewWidget::RefreshCurrencyAmountOnSaved);
+	}
+
+	Super::NativeDestruct();
+}
+
 void ULRCurrencyViewWidget::BindProperties()
 {
 	Super::BindProperties();
@@ -45,6 +67,16 @@ void ULRCurrencyViewWidget::RefreshUI()
 			Txt_Amount->SetText(FText::AsNumber(CurrencyAmount));
 		}
 	}
+}
+
+void ULRCurrencyViewWidget::RefreshCurrencyAmountOnSaved()
+{
+	RefreshUI();
+}
+
+void ULRCurrencyViewWidget::RefreshCurrencyAmountOnLoaded(ULRSaveGame* SaveGame)
+{
+	RefreshUI();
 }
 
 void ULRCurrencyViewWidget::OnCurrencyAddClicked()

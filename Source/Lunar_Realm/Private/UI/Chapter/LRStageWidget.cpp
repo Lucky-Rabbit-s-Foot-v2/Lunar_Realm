@@ -25,7 +25,7 @@ void ULRStageWidget::BindProperties()
 {
 	Super::BindProperties();
 
-	if (Btn_Open) Btn_Open->OnClicked.AddDynamic(this, &ULRStageWidget::OnOpenButtonClicked);
+	if (Btn_Open) Btn_Open->OnClicked.AddUniqueDynamic(this, &ULRStageWidget::OnOpenButtonClicked);
 }
 
 void ULRStageWidget::UnbindProperties()

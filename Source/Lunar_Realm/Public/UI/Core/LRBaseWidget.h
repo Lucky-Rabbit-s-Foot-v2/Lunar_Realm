@@ -36,6 +36,7 @@ enum class EUILayer : uint8
 	PAGE			UMETA(DisplayName = "Page"),
 	PERSISTENT		UMETA(DisplayName = "Persistent"),
 	POPUP			UMETA(DisplayName = "Popup"),
+	OVERLAY			UMETA(DisplayName = "Overlay"),
 	TOOLTIP			UMETA(DisplayName = "Tooltip"),
 	SYSTEM			UMETA(DisplayName = "System"),
 };

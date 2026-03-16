@@ -35,10 +35,11 @@ int32 UUIManagerSubsystem::CalculateZOrder(ULRBaseWidget* Widget) const
 	{
 		case EUILayer::BACKGROUND:	return DefaultZOrder;
 		case EUILayer::PAGE:		return 10 + DefaultZOrder;
-		case EUILayer::PERSISTENT:	return 250 + DefaultZOrder;
-		case EUILayer::POPUP:		return 500 + TransientUIStack.Num();
-		case EUILayer::TOOLTIP:		return 900 + DefaultZOrder;
-		case EUILayer::SYSTEM:		return 1000 + DefaultZOrder;
+		case EUILayer::PERSISTENT:	return 100 + DefaultZOrder;
+		case EUILayer::POPUP:		return 200 + TransientUIStack.Num();
+		case EUILayer::OVERLAY:		return 500 + DefaultZOrder;
+		case EUILayer::TOOLTIP:		return 600 + DefaultZOrder;
+		case EUILayer::SYSTEM:		return 900 + DefaultZOrder;
 		default:					return DefaultZOrder;
 	}
 }
@@ -54,7 +55,7 @@ void UUIManagerSubsystem::NotifyInputModeChange()
 	FInputModeGameAndUI InputMode;
 	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	InputMode.SetHideCursorDuringCapture(false);
-	//InputMode.SetWidgetToFocus(TopModalWidget->TakeWidget());
+	InputMode.SetWidgetToFocus(nullptr);
 	PC->SetInputMode(InputMode);
 	PC->SetShowMouseCursor(true);
 
@@ -118,7 +119,7 @@ void UUIManagerSubsystem::CloseUIInternal(ULRBaseWidget* Widget)
 			}
 			break;
 		}
-		default: // NONE, TOOLTIP 등은 특별한 관리 없이 닫기만 하면 됨
+		default: // NONE, TOOLTIP, OVERLAY 등은 특별한 관리 없이 닫기만 하면 됨
 		{
 			break;
 		}
@@ -191,6 +192,29 @@ ULRBaseWidget* UUIManagerSubsystem::OpenUIByID(EUIID UIID)
 		if (LoadedClass)
 		{
 			return OpenUI<ULRBaseWidget>(LoadedClass);
+		}
+		else
+		{
+			LR_INFO(TEXT("Failed to load widget class for PageID %d"), static_cast<uint8>(UIID));
+		}
+	}
+	else
+	{
+		LR_INFO(TEXT("PageID %d not found in UIManagerSettings"), static_cast<uint8>(UIID));
+	}
+
+	return nullptr;
+}
+
+ULRBaseWidget* UUIManagerSubsystem::GetOrCreateWidgetByID(EUIID UIID)
+{
+	const UUIManagerSettings* Settings = GetDefault<UUIManagerSettings>();
+	if (const TSoftClassPtr<ULRBaseWidget>* SoftClassPtr = Settings->UIClassMap.Find(UIID))
+	{
+		UClass* LoadedClass = SoftClassPtr->LoadSynchronous();
+		if (LoadedClass)
+		{
+			return GetOrCreateWidget<ULRBaseWidget>(LoadedClass);
 		}
 		else
 		{
