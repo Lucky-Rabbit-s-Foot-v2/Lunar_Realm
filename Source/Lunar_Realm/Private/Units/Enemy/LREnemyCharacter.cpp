@@ -38,36 +38,6 @@ ALREnemyCharacter::ALREnemyCharacter()
 	//(260316) BJM: 타겟팅 마커(머리 위 화살표) UI 연동을 위한 함수 추가
 	SetupTargetMarker();
 
-	//(260316) BJM: 타겟팅 마커(머리 위 화살표) UI 연동을 위한 컴포넌트 추가
-	//TargetMarkerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TargetMarkerMesh"));
-	//TargetMarkerMesh->SetupAttachment(RootComponent);
-
-	//TargetMarkerMesh->SetCollisionProfileName(TEXT("NoCollision"));
-	//TargetMarkerMesh->SetGenerateOverlapEvents(false);
-	//TargetMarkerMesh->SetUsingAbsoluteRotation(true);
-
-	//static ConstructorHelpers::FObjectFinder<UStaticMesh> PlaneMesh(TEXT("/Engine/BasicShapes/Plane.Plane"));
-	//if (PlaneMesh.Succeeded())
-	//{
-	//	TargetMarkerMesh->SetStaticMesh(PlaneMesh.Object);
-	//}
-	//static ConstructorHelpers::FObjectFinder<UMaterialInterface> TargetMat(TEXT("/Game/etc/Material/M_Target1.M_Target1"));
-	//if (TargetMat.Succeeded())
-	//{
-	//	TargetMarkerMesh->SetMaterial(0, TargetMat.Object);
-	//}
-	//else
-	//{
-	//	LR_WARN(TEXT("타겟 머티리얼을 찾을 수 없음! 경로 확인 필요."));
-	//}
-
-	//TargetMarkerMesh->SetRelativeRotation(FRotator(90.0f, 0.0f, 0.0f));
-	//TargetMarkerMesh->SetRelativeScale3D(FVector(0.33f, 0.33f, 0.33f));
-
-
-
-	//TargetMarkerMesh->SetVisibility(false);
-
 }
 
 void ALREnemyCharacter::OnDie()

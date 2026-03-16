@@ -115,4 +115,8 @@ private:
 	void CheckLowHealthState();
 	void PlayHitEffect();
 
+protected:
+	UPROPERTY(meta = (BindWidgetOptional))
+	class UImage* Img_PortraitFrame;
+
 };
