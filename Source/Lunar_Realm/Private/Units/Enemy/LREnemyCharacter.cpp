@@ -8,6 +8,8 @@
 
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/WidgetComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 #include "Engine/GameInstance.h"
 #include "Engine/SkeletalMesh.h"
@@ -23,11 +25,19 @@
 #include "Units/LRAIController.h"
 #include "Units/Enemy/LREnemyAIController.h"
 
+#include "UObject/ConstructorHelpers.h"
+#include "Engine/StaticMesh.h"
+#include "Materials/MaterialInterface.h"
+
 ALREnemyCharacter::ALREnemyCharacter()
 {
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 
 	AttributeSet = CreateDefaultSubobject<ULREnemyAttributeSet>(TEXT("AttributeSet"));
+
+	//(260316) BJM: 타겟팅 마커(머리 위 화살표) UI 연동을 위한 함수 추가
+	SetupTargetMarker();
+
 }
 
 void ALREnemyCharacter::OnDie()
@@ -144,6 +154,14 @@ void ALREnemyCharacter::BeginPlay()
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 		AbilitySystemComponent->AddLooseGameplayTag(UnitTag);
 	}
+
+	// (260316) BJM: 몹 크기에 맞춰 화살표 위치를 캡슐 정수리 위로 자동 조절
+	if (TargetMarkerMesh && GetCapsuleComponent())
+	{
+		float ZOffset = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+		TargetMarkerMesh->SetRelativeLocation(FVector(0.0f, 0.0f, ZOffset));
+	}
+
 }
 
 void ALREnemyCharacter::InitializeAttributes(FName EnemyID)
@@ -418,6 +436,7 @@ float ALREnemyCharacter::GetDropAetherAmount() const
 	return EnemyData.DropAether;
 }
 
+
 void ALREnemyCharacter::GrantEnemyAbilities()
 {
 	if (!AbilitySystemComponent)
@@ -586,4 +605,46 @@ void ALREnemyCharacter::OnPoolDeactivate_Implementation()
 	CachedAttackedMontage = nullptr;
 
 	CurrentEnemyID = NAME_None;
+}
+
+// (260316) BJM: 타겟 마커 스위치 함수
+void ALREnemyCharacter::SetTargetMarkerVisibility(bool bVisible)
+{
+	if (TargetMarkerMesh)
+	{
+		TargetMarkerMesh->SetVisibility(bVisible);
+	}
+}
+
+//(260316) BJM: 타겟팅 마커(머리 위 화살표) UI 연동을 위한 컴포넌트 설정
+void ALREnemyCharacter::SetupTargetMarker()
+{
+	TargetMarkerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TargetMarkerMesh"));
+	TargetMarkerMesh->SetupAttachment(RootComponent);
+
+	TargetMarkerMesh->SetCollisionProfileName(TEXT("NoCollision"));
+	TargetMarkerMesh->SetGenerateOverlapEvents(false);
+	TargetMarkerMesh->SetUsingAbsoluteRotation(true);
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> PlaneMesh(TEXT("/Engine/BasicShapes/Plane.Plane"));
+	if (PlaneMesh.Succeeded())
+	{
+		TargetMarkerMesh->SetStaticMesh(PlaneMesh.Object);
+	}
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> TargetMat(TEXT("/Game/etc/Material/M_Target1.M_Target1"));
+	if (TargetMat.Succeeded())
+	{
+		TargetMarkerMesh->SetMaterial(0, TargetMat.Object);
+	}
+	else
+	{
+		LR_WARN(TEXT("타겟 머티리얼을 찾을 수 없음! 경로 확인 필요."));
+	}
+
+	TargetMarkerMesh->SetRelativeRotation(FRotator(90.0f, 0.0f, 0.0f));
+	TargetMarkerMesh->SetRelativeScale3D(FVector(0.33f, 0.33f, 0.33f));
+
+
+
+	TargetMarkerMesh->SetVisibility(false);
 }
