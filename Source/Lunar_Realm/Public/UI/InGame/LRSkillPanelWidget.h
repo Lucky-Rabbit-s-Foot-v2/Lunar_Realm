@@ -87,6 +87,16 @@ protected:
 	float MaxCD2 = 0.0f;
 	float CurrentCD2 = 0.0f;
 
+protected:
+	UPROPERTY(meta = (BindWidgetOptional))
+	class UImage* Img_CooldownPotion;
 
+	UMaterialInstanceDynamic* Mat_CooldownPotion;
+
+	float CurrentCDPotion = 0.0f;
+	float MaxCDPotion = 0.0f;
+
+public:
+	void StartPotionCooldown(float InCooldownTime);
 
 };

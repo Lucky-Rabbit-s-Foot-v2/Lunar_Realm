@@ -30,6 +30,11 @@ void ULRSkillPanelWidget::NativeConstruct()
 		Mat_Cooldown2 = Img_Cooldown2->GetDynamicMaterial();
 		if (Mat_Cooldown2) Mat_Cooldown2->SetScalarParameterValue(FName("Percent"), 0.0f);
 	}
+	if (Img_CooldownPotion)
+	{
+		Mat_CooldownPotion = Img_CooldownPotion->GetDynamicMaterial();
+		if (Mat_CooldownPotion) Mat_CooldownPotion->SetScalarParameterValue(FName("Percent"), 0.0f);
+	}
 }
 
 void ULRSkillPanelWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -55,6 +60,17 @@ void ULRSkillPanelWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaT
 		{
 			float Percent = FMath::Clamp(CurrentCD2 / MaxCD2, 0.0f, 1.0f);
 			Mat_Cooldown2->SetScalarParameterValue(FName("Percent"), Percent);
+		}
+	}
+
+	// 물약 쿨타임
+	if (CurrentCDPotion > 0.0f)
+	{
+		CurrentCDPotion -= InDeltaTime;
+		if (Mat_CooldownPotion)
+		{
+			float Percent = FMath::Clamp(CurrentCDPotion / MaxCDPotion, 0.0f, 1.0f);
+			Mat_CooldownPotion->SetScalarParameterValue(FName("Percent"), Percent);
 		}
 	}
 }
@@ -108,6 +124,8 @@ void ULRSkillPanelWidget::OnSkill2Clicked()
 }
 void ULRSkillPanelWidget::OnPotionClicked() 
 { 
+	if (CurrentCDPotion > 0.0f) return;
+
 	OnPotionClickedDel.Broadcast(); 
 }
 
@@ -150,4 +168,10 @@ void ULRSkillPanelWidget::UpdateSkillIcons(FName InPlayerSkillID, FName InWeapon
 	// 플레이어 스킬(1번)과 무기 스킬(2번) 버튼에 각각 람다 함수 실행
 	ApplyIconToButtonLambda(InPlayerSkillID, Btn_Skill1);
 	ApplyIconToButtonLambda(InWeaponSkillID, Btn_Skill2);
+}
+
+void ULRSkillPanelWidget::StartPotionCooldown(float InCooldownTime)
+{
+	MaxCDPotion = InCooldownTime;
+	CurrentCDPotion = InCooldownTime;
 }

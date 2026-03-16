@@ -26,6 +26,7 @@ class UGameplayAbility;
  // (260210) KWB 비주얼 데이터 적용, 풀링 라이프 사이클 구현
  // (260303) KWB DropAether 값 DT에서 조회하는 헬퍼 함수 추가, "OnDie()"시 게임 스테이트에 에테르 추가 로직 추가
  // (260303) KWB bool IsDead 변수로 OnDie() 중복 호출 방어 
+ // (260316) BJM: 타겟팅 마커(머리 위 화살표) UI 연동을 위한 함수 및 변수 추가
  //============================================================================
 
 UCLASS()
@@ -96,4 +97,18 @@ private:
 	float GetDropAetherAmount() const;
 
 	bool IsDead = false;
+
+	// (260316) BJM: 타겟팅 마커(머리 위 화살표) UI 연동을 위한 함수 및 변수 추가
+public:
+	// 외부(Player)에서 타겟 마커를 켜고 끌 때 부르는 함수
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void SetTargetMarkerVisibility(bool bVisible);
+
+	// 생성자에서 타겟 마커 설정값 가져오는 핼퍼함수
+	void SetupTargetMarker();
+
+protected:
+	// 머리 위에 띄울 2D 화살표 위젯 컴포넌트
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	class UStaticMeshComponent* TargetMarkerMesh;
 };

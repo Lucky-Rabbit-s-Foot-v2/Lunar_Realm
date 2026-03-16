@@ -153,6 +153,21 @@ void ULRHealthWidget::UpdatePlayerIcon(FName InCharacterID)
 			Text_PlayerName->SetText(FText::FromString(CharData.CharacterName));
 		}
 	}
+
+	// 프레임이 있을 때만 시도, 없으면 그냥 숨김
+	if (Img_PortraitFrame && !CharData.PortraitFrame.IsNull())
+	{
+		UTexture2D* LoadedFrame = CharData.PortraitFrame.LoadSynchronous();
+		if (LoadedFrame)
+		{
+			Img_PortraitFrame->SetBrushFromTexture(LoadedFrame);
+			Img_PortraitFrame->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+		}
+	}
+	else if (Img_PortraitFrame)
+	{
+		Img_PortraitFrame->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 
 void ULRHealthWidget::StartRespawnTimer(float InRespawnTime)
