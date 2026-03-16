@@ -142,4 +142,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Indicator")
 	class UMaterialInterface* RangeMaterial;
 
+	UPROPERTY()
+	TObjectPtr<class ALREnemyCharacter> PreviousEnemyTarget = nullptr;
+
+protected:
+	bool CheckAndUseAutoHeal(class ALRPlayerCharacter* InPlayerChar);
+
+
+
 };

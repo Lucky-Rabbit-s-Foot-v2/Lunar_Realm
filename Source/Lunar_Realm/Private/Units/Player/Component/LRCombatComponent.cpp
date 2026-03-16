@@ -171,8 +171,18 @@ void ULRCombatComponent::ProcessCombatLogic(ALRCharacter* InOwnerCharacter, floa
 	bool bInBasicAttackRange = IsTargetInRange();
 	AController* OwnerController = InOwnerCharacter->GetController();
 
-	// 자동 소환 (독립 실행)
+	// 자동 회복 우선 체크
+	bool bIsEmergency = false;
 	if (CombatState == EAutoCombatState::Auto)
+	{
+		if (ALRPlayerCharacter* PlayerChar = Cast<ALRPlayerCharacter>(InOwnerCharacter))
+		{
+			bIsEmergency = CheckAndUseAutoHeal(PlayerChar);
+		}
+	}
+
+	// 자동 소환 (독립 실행)
+	if (CombatState == EAutoCombatState::Auto && !bIsEmergency)
 	{
 		TryAutoSummon(InOwnerCharacter);
 	}
@@ -320,9 +330,7 @@ void ULRCombatComponent::UpdateTargetIndicator(ALRCharacter* InOwnerCharacter)
 	ALRPlayerCharacter* PlayerChar = Cast<ALRPlayerCharacter>(InOwnerCharacter);
 	if (!PlayerChar) return;
 
-	// ====================================================================
-	// 1. 바닥 타겟 인디케이터 (스태틱 메쉬) 로직
-	// ====================================================================
+	// 바닥 타겟 인디케이터 로직
 	bool bShowIndicator = false;
 
 	if (CurrentTarget && IsValid(CurrentTarget) && !IsTargetDead(CurrentTarget))
@@ -342,7 +350,7 @@ void ULRCombatComponent::UpdateTargetIndicator(ALRCharacter* InOwnerCharacter)
 			{
 				float HalfHeight = TargetChar->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 				TargetLoc.Z -= HalfHeight;
-				TargetLoc.Z += 2.0f; // Z-Fighting(깜빡임) 방지
+				TargetLoc.Z += 2.0f;
 			}
 			else
 			{
@@ -353,33 +361,48 @@ void ULRCombatComponent::UpdateTargetIndicator(ALRCharacter* InOwnerCharacter)
 		}
 	}
 
-	// ====================================================================
-	// 2. 적 머리 위 화살표 마커 켜고 끄기 로직
-	// ====================================================================
-	static ALREnemyCharacter* PreviousEnemyTarget = nullptr;
+	// 적 머리 위 화살표 마커 켜고 끄기 로직
+	//static ALREnemyCharacter* PreviousEnemyTarget = nullptr;
 	ALREnemyCharacter* CurrentEnemyTarget = Cast<ALREnemyCharacter>(CurrentTarget);
 
 	if (CurrentEnemyTarget != PreviousEnemyTarget)
-	{
-		if (PreviousEnemyTarget && IsValid(PreviousEnemyTarget))
-		{
-			PreviousEnemyTarget->SetTargetMarkerVisibility(false);
-		}
-
-		if (CurrentEnemyTarget && IsValid(CurrentEnemyTarget) && !IsTargetDead(CurrentEnemyTarget))
-		{
-			CurrentEnemyTarget->SetTargetMarkerVisibility(true);
-		}
-
-		PreviousEnemyTarget = CurrentEnemyTarget;
-	}
-
-	if (!CurrentTarget && PreviousEnemyTarget)
 	{
 		if (IsValid(PreviousEnemyTarget))
 		{
 			PreviousEnemyTarget->SetTargetMarkerVisibility(false);
 		}
+
+		if (IsValid(CurrentEnemyTarget) && !IsTargetDead(CurrentEnemyTarget))
+		{
+			CurrentEnemyTarget->SetTargetMarkerVisibility(true);
+		}
+		//if (PreviousEnemyTarget && IsValid(PreviousEnemyTarget))
+		//{
+		//	PreviousEnemyTarget->SetTargetMarkerVisibility(false);
+		//}
+
+		//if (CurrentEnemyTarget && IsValid(CurrentEnemyTarget) && !IsTargetDead(CurrentEnemyTarget))
+		//{
+		//	CurrentEnemyTarget->SetTargetMarkerVisibility(true);
+		//}
+
+		PreviousEnemyTarget = CurrentEnemyTarget;
+	}
+
+
+
+	//if (!CurrentTarget && PreviousEnemyTarget)
+	//{
+	//	if (IsValid(PreviousEnemyTarget))
+	//	{
+	//		PreviousEnemyTarget->SetTargetMarkerVisibility(false);
+	//	}
+	//	PreviousEnemyTarget = nullptr;
+	//}
+
+	if (!IsValid(CurrentTarget) && IsValid(PreviousEnemyTarget))
+	{
+		PreviousEnemyTarget->SetTargetMarkerVisibility(false);
 		PreviousEnemyTarget = nullptr;
 	}
 	/*UDecalComponent* TargetIndicator = InOwnerCharacter->FindComponentByClass<UDecalComponent>();
@@ -722,6 +745,36 @@ void ULRCombatComponent::CreateRangeIndicator()
 	RangeMesh->SetVisibility(true);
 	// 평소엔 안 보이게 숨김
 	//RangeMesh->SetVisibility(false);
+}
+
+bool ULRCombatComponent::CheckAndUseAutoHeal(ALRPlayerCharacter* InPlayerChar)
+{
+	if (!InPlayerChar || CombatState != EAutoCombatState::Auto) return false;
+
+	UAbilitySystemComponent* ASC = InPlayerChar->GetAbilitySystemComponent();
+	if (!ASC) return false;
+
+	float CurrentHealth = ASC->GetNumericAttribute(ULRPlayerAttributeSet::GetHealthAttribute());
+	float MaxHealth = ASC->GetNumericAttribute(ULRPlayerAttributeSet::GetMaxHealthAttribute());
+
+	if (MaxHealth <= 0.0f) return false;
+
+	float HealthRatio = CurrentHealth / MaxHealth;
+	FGameplayTag HealSkillTag = FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Heal"));
+
+	if (HealthRatio <= 0.3f)
+	{
+		ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(HealSkillTag));
+		return true;
+	}
+	if (HealthRatio <= 0.7f)
+	{
+		ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(HealSkillTag));
+		return false;
+	}
+
+	return false;
+	
 }
 
 void ULRCombatComponent::UpdateAttackRange()
