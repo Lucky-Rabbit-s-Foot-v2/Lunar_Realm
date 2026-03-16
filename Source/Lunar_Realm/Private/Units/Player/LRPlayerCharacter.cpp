@@ -10,6 +10,7 @@
 #include "Units/Player/LRPlayerState.h"
 #include "Units/Player/LRPlayerController.h"
 #include "UI/InGame/LRInGamePersistentWidget.h"
+#include "UI/InGame/LRSkillPanelWidget.h"
 #include "AbilitySystemComponent.h"
 
 #include "EnhancedInputComponent.h"
@@ -34,6 +35,7 @@
 #include "Subsystems/SaveGameSubsystem.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Engine/StaticMesh.h"
+
 
 
 
@@ -236,7 +238,26 @@ void ALRPlayerCharacter::ToggleAutoMode()
 
 void ALRPlayerCharacter::UsePotion()
 {
-	AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Heal"))));
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (!ASC) return;
+
+	FGameplayTag HealSkillTag = FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Heal"));
+
+	bool bSuccess = ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(HealSkillTag));
+
+	if (bSuccess)
+	{
+		if (ALRPlayerController* PC = Cast<ALRPlayerController>(GetController()))
+		{
+			if (ULRInGamePersistentWidget* MainWidget = PC->GetPlayerWidget())
+			{
+				if (MainWidget->WBP_SkillPanel)
+				{
+					MainWidget->WBP_SkillPanel->StartPotionCooldown(5.0f);
+				}
+			}
+		}
+	}
 }
 
 void ALRPlayerCharacter::Move(const FInputActionValue& Value)

@@ -762,16 +762,52 @@ bool ULRCombatComponent::CheckAndUseAutoHeal(ALRPlayerCharacter* InPlayerChar)
 	float HealthRatio = CurrentHealth / MaxHealth;
 	FGameplayTag HealSkillTag = FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Heal"));
 
+	bool bShouldHeal = false;
+	bool bIsEmergency = false;
+
 	if (HealthRatio <= 0.3f)
 	{
-		ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(HealSkillTag));
-		return true;
+		bShouldHeal = true;
+		bIsEmergency = true;
 	}
-	if (HealthRatio <= 0.7f)
+	else if (HealthRatio <= 0.7f)
 	{
-		ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(HealSkillTag));
-		return false;
+		bShouldHeal = true;
 	}
+
+	if (bShouldHeal)
+	{
+		// GA_Heal은 DT별도에 안들어가있어서 TryActivateAbilitiesByTag으로 바로 발동시킴
+		bool bSuccess = ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(HealSkillTag));
+
+		if (bSuccess)
+		{
+			if (ALRPlayerController* PC = Cast<ALRPlayerController>(InPlayerChar->GetController()))
+			{
+				if (ULRInGamePersistentWidget* MainWidget = PC->GetPlayerWidget())
+				{
+					if (MainWidget->WBP_SkillPanel)
+					{
+						MainWidget->WBP_SkillPanel->StartPotionCooldown(5.0f);
+					}
+				}
+			}
+		}
+		// 30% 이하일 때만 true 반환하여 소환 멈춤
+		return bIsEmergency;
+	}
+
+	//if (HealthRatio <= 0.3f)
+	//{
+	//	
+	//	ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(HealSkillTag));
+	//	return true;
+	//}
+	//if (HealthRatio <= 0.7f)
+	//{
+	//	ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(HealSkillTag));
+	//	return false;
+	//}
 
 	return false;
 	
