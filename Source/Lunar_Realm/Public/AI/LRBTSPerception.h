@@ -6,6 +6,7 @@
 #include "BehaviorTree/BTService.h"
 #include "LRBTSPerception.generated.h"
 
+class ALRAIController;
 // =============================================================================
 /**
  * LRBTSPerception 서비스
@@ -19,6 +20,7 @@
  */
  //=============================================================================
  // (260211) KWB 제작. 제반 사항 구현.
+ // (260312) KWB 수정. 하위 클래스의 기능 중복 회피를 위한 리팩토링
  // =============================================================================
 UCLASS()
 class LUNAR_REALM_API ULRBTSPerception : public UBTService
@@ -30,4 +32,6 @@ public:
 
 protected:
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+
+	void UpdateHostileTarget(UBlackboardComponent* BB, ALRAIController* AIController);
 };

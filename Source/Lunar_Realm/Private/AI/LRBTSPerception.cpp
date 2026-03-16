@@ -31,9 +31,15 @@ void ULRBTSPerception::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 	if (!BB)
 	{
 		LR_WARN(TEXT("[%s] : No Valid BB"), *GetName());
+
 		return;
 	}
 
+	UpdateHostileTarget(BB, AIController);
+}
+
+void ULRBTSPerception::UpdateHostileTarget(UBlackboardComponent* BB, ALRAIController* AIController)
+{
 	AActor* NearestHostile = AIController->FindNearestHostile();
 
 	// 적대 캐릭터 있으면 타겟으로 설정, 없을 시 코어를 타겟으로 설정
@@ -49,3 +55,4 @@ void ULRBTSPerception::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 		BB->SetValueAsBool(LRBBKeys::HasNearbyHostile, false);
 	}
 }
+

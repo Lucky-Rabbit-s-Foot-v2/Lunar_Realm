@@ -104,4 +104,11 @@ protected:
 public:
 	void UpdateAutoButtonVisual(bool InbIsAutoMode);
 
+protected:
+	UPROPERTY(meta=(BindWidget))
+	class UImage* Img_AutoGlow;
+
+public:
+	void SetAutoEffectActive(bool bIsActive);
+
 };

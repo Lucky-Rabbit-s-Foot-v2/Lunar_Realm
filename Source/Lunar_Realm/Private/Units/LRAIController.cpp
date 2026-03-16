@@ -2,6 +2,7 @@
 
 #include "Units/LRAIController.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 
@@ -9,7 +10,6 @@
 #include "BehaviorTree/BlackboardComponent.h"
 
 #include "GAS/Tags/LRGameplayTags.h"
-#include "GameFramework/CharacterMovementComponent.h"	// TEST : 속도 체크용
 #include "GameplayTagAssetInterface.h"
 
 #include "Navigation/CrowdFollowingComponent.h"
@@ -77,7 +77,7 @@ void ALRAIController::OnPossess(APawn* InPawn)
 		CrowdComp->SetCrowdAvoidanceQuality(ECrowdAvoidanceQuality::High, true);
 
 		CrowdComp->SetCrowdSeparation(true, true);
-		CrowdComp->SetCrowdSeparationWeight(350.f, true); // 필요시 해당 수치 조절
+		CrowdComp->SetCrowdSeparationWeight(250.f, true); // 필요시 해당 수치 조절
 
 		CrowdComp->SetCrowdAnticipateTurns(true, true);
 		CrowdComp->SetCrowdOptimizeVisibility(true, true);
@@ -245,42 +245,41 @@ AActor* ALRAIController::FindActorWithGameplayTag(
 }
 
 
-bool ALRAIController::TryAttackTarget(AActor* Target)
+FGameplayTag ALRAIController::TryAttackTarget(AActor* Target)
 {
 	if (!Target)
 	{
-		return false;
+		LR_WARN(TEXT("[%s] : TryAttackTarget 시도, Target이 없습니다."), *GetName());
+		return FGameplayTag();
 	}
-
-	//const float CurrentTime = GetWorld()->GetTimeSeconds();
-	//if (CurrentTime - LastAttackTime < AttackCooldown)
-	//{
-	//	return false;
-	//}
 
 	APawn* MyPawn = GetPawn();
 	if (!MyPawn)
 	{
-		return false;
+		LR_WARN(TEXT("[%s] : TryAttackTarget 시도, MyPawn이 없습니다."), *GetName());
+		return FGameplayTag();
 	}
 	
 	//260219 KHS 태그 기반이 아닌 이벤트 데이터 방식 GA발동 방식으로 변경
 	ALRCharacter* OwnerCharacter = Cast<ALRCharacter>(MyPawn);
 	if (!OwnerCharacter)
 	{
-		return false;
+		LR_WARN(TEXT("[%s] : TryAttackTarget 시도, OwnerCharacter이 없습니다."), *GetName());
+		return FGameplayTag();
 	}
 	
+	FGameplayTag SkillTag = LRTags::Ability_Combat_BasicShoot;
+
 	FGameplayEventData EventData;
 	EventData.Instigator = OwnerCharacter;
 	EventData.Target = Target;
 	
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
 		OwnerCharacter, 
-		LRTags::Ability_Combat_BasicShoot,
+		SkillTag,
 		EventData);
 	
-	return true;
+	return SkillTag;
 }
 
 void ALRAIController::InitializeBehaviorTree(UBehaviorTree* NewBT)
