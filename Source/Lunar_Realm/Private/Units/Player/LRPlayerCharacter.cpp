@@ -10,6 +10,7 @@
 #include "Units/Player/LRPlayerState.h"
 #include "Units/Player/LRPlayerController.h"
 #include "UI/InGame/LRInGamePersistentWidget.h"
+#include "UI/InGame/LRSkillPanelWidget.h"
 #include "AbilitySystemComponent.h"
 
 #include "EnhancedInputComponent.h"
@@ -32,6 +33,8 @@
 
 #include "AIController.h" 
 #include "Subsystems/SaveGameSubsystem.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Engine/StaticMesh.h"
 
 
 
@@ -48,11 +51,18 @@ ALRPlayerCharacter::ALRPlayerCharacter()
 	SummonComponent = CreateDefaultSubobject<ULRSummonComponent>(TEXT("SummonComponent"));
 	CombatComponent = CreateDefaultSubobject<ULRCombatComponent>(TEXT("CombatComponent"));
 
-	TargetIndicator = CreateDefaultSubobject<UDecalComponent>(TEXT("TargetIndicator"));
-	TargetIndicator->SetupAttachment(RootComponent);
-	TargetIndicator->SetRelativeRotation(FRotator(-90.0f, 0.0f, 0.0f));
-	TargetIndicator->DecalSize = FVector(400.0f, 120.0f, 120.0f);
-	TargetIndicator->SetVisibility(false);
+	TargetIndicatorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TargetIndicatorMesh"));
+	TargetIndicatorMesh->SetupAttachment(RootComponent);
+
+	TargetIndicatorMesh->SetCollisionProfileName(TEXT("NoCollision"));
+	TargetIndicatorMesh->SetGenerateOverlapEvents(false);
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> PlaneMesh(TEXT("/Engine/BasicShapes/Plane.Plane"));
+	if (PlaneMesh.Succeeded())
+	{
+		TargetIndicatorMesh->SetStaticMesh(PlaneMesh.Object);
+	}
+	TargetIndicatorMesh->SetVisibility(false);
 }
 
 void ALRPlayerCharacter::BeginPlay()
@@ -84,6 +94,11 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 		AbilitySystemComponent->AddLooseGameplayTag(UnitTag);
 		PS->InitializePlayerData();
+
+		if (CombatComponent)
+		{
+			CombatComponent->UpdateAttackRange();
+		}
 
 		if (AttributeSet)
 		{
@@ -146,37 +161,37 @@ void ALRPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	AActor* Target = nullptr;
-	if (CombatComponent)
-	{
-		Target = CombatComponent->GetCurrentTarget();
-	}
+	//AActor* Target = nullptr;
+	//if (CombatComponent)
+	//{
+	//	Target = CombatComponent->GetCurrentTarget();
+	//}
 
-	if (Target)
-	{
-		TargetIndicator->SetVisibility(true);
+	//if (Target && TargetIndicatorMesh)
+	//{
+	//	TargetIndicatorMesh->SetVisibility(true);
 
-		FVector TargetLoc = Target->GetActorLocation(); 
+	//	FVector TargetLoc = Target->GetActorLocation();
 
-		ACharacter* TargetChar = Cast<ACharacter>(Target);
-		if (TargetChar)
-		{
-			float HalfHeight = TargetChar->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-			TargetLoc.Z -= HalfHeight; 
+	//	ACharacter* TargetChar = Cast<ACharacter>(Target);
+	//	if (TargetChar)
+	//	{
+	//		float HalfHeight = TargetChar->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	//		TargetLoc.Z -= HalfHeight;
 
-			TargetLoc.Z += 1.0f;
-		}
-		else
-		{
-			TargetLoc.Z -= 90.0f;
-		}
+	//		TargetLoc.Z += 2.0f;
+	//	}
+	//	else
+	//	{
+	//		TargetLoc.Z -= 88.0f;
+	//	}
 
-		TargetIndicator->SetWorldLocation(TargetLoc);
-	}
-	else
-	{
-		TargetIndicator->SetVisibility(false);
-	}
+	//	TargetIndicatorMesh->SetWorldLocation(TargetLoc);
+	//}
+	//else if (TargetIndicatorMesh)
+	//{
+	//	TargetIndicatorMesh->SetVisibility(false);
+	//}
 }
 
 void ALRPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -223,7 +238,26 @@ void ALRPlayerCharacter::ToggleAutoMode()
 
 void ALRPlayerCharacter::UsePotion()
 {
-	AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Heal"))));
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (!ASC) return;
+
+	FGameplayTag HealSkillTag = FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Heal"));
+
+	bool bSuccess = ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(HealSkillTag));
+
+	if (bSuccess)
+	{
+		if (ALRPlayerController* PC = Cast<ALRPlayerController>(GetController()))
+		{
+			if (ULRInGamePersistentWidget* MainWidget = PC->GetPlayerWidget())
+			{
+				if (MainWidget->WBP_SkillPanel)
+				{
+					MainWidget->WBP_SkillPanel->StartPotionCooldown(5.0f);
+				}
+			}
+		}
+	}
 }
 
 void ALRPlayerCharacter::Move(const FInputActionValue& Value)

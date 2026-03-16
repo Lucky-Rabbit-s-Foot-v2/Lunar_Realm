@@ -3,9 +3,11 @@
 
 #include "Units/Player/Component/LRCombatComponent.h"
 #include "Units/LRCharacter.h"
+#include "Units/Player/LRPlayerCharacter.h"
 #include "Units/Player/LRPlayerState.h"
 #include "Units/Player/Component/LRSummonComponent.h"
 #include "Units/Player/LRPlayerController.h"
+#include "Units/Enemy/LREnemyCharacter.h"
 #include "UI/InGame/LRInGamePersistentWidget.h"
 #include "UI/InGame/LRSkillpanelWidget.h"
 
@@ -25,6 +27,9 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "Components/PrimitiveComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 
 ULRCombatComponent::ULRCombatComponent()
@@ -37,6 +42,8 @@ ULRCombatComponent::ULRCombatComponent()
 void ULRCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CreateRangeIndicator();
 
 	TArray<AActor*> AllBases;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Enemy.Structure.Core"), AllBases);
@@ -124,9 +131,9 @@ void ULRCombatComponent::UpdateWeaponInfo(FName InWeaponID)
 	const FEquipmentStaticData& EquipData = DataSys->GetEquipmentStaticData(InWeaponID);
 	ELRItemType ItemType = EquipData.ItemType;
 
-	if (ItemType == ELRItemType::MELEE) AttackRange = 200.0f;
-	else if (ItemType == ELRItemType::RANGED) AttackRange = 800.0f;
-	else AttackRange = 100.0f;
+	//if (ItemType == ELRItemType::MELEE) AttackRange = 200.0f;
+	//else if (ItemType == ELRItemType::RANGED) AttackRange = 800.0f;
+	//else AttackRange = 100.0f;
 
 	LR_INFO(TEXT("무기설정 ID: %s, Range: %.1f"), *InWeaponID.ToString(), AttackRange);
 }
@@ -164,8 +171,18 @@ void ULRCombatComponent::ProcessCombatLogic(ALRCharacter* InOwnerCharacter, floa
 	bool bInBasicAttackRange = IsTargetInRange();
 	AController* OwnerController = InOwnerCharacter->GetController();
 
-	// 자동 소환 (독립 실행)
+	// 자동 회복 우선 체크
+	bool bIsEmergency = false;
 	if (CombatState == EAutoCombatState::Auto)
+	{
+		if (ALRPlayerCharacter* PlayerChar = Cast<ALRPlayerCharacter>(InOwnerCharacter))
+		{
+			bIsEmergency = CheckAndUseAutoHeal(PlayerChar);
+		}
+	}
+
+	// 자동 소환 (독립 실행)
+	if (CombatState == EAutoCombatState::Auto && !bIsEmergency)
 	{
 		TryAutoSummon(InOwnerCharacter);
 	}
@@ -309,7 +326,86 @@ void ULRCombatComponent::MoveToTarget(float InDeltaTime)
 
 void ULRCombatComponent::UpdateTargetIndicator(ALRCharacter* InOwnerCharacter)
 {
-	UDecalComponent* TargetIndicator = InOwnerCharacter->FindComponentByClass<UDecalComponent>();
+
+	ALRPlayerCharacter* PlayerChar = Cast<ALRPlayerCharacter>(InOwnerCharacter);
+	if (!PlayerChar) return;
+
+	// 바닥 타겟 인디케이터 로직
+	bool bShowIndicator = false;
+
+	if (CurrentTarget && IsValid(CurrentTarget) && !IsTargetDead(CurrentTarget))
+	{
+		bShowIndicator = (CombatState == EAutoCombatState::Auto) ? true : IsTargetInRange();
+	}
+
+	if (PlayerChar->TargetIndicatorMesh)
+	{
+		PlayerChar->TargetIndicatorMesh->SetVisibility(bShowIndicator);
+
+		if (bShowIndicator)
+		{
+			FVector TargetLoc = CurrentTarget->GetActorLocation();
+
+			if (ACharacter* TargetChar = Cast<ACharacter>(CurrentTarget))
+			{
+				float HalfHeight = TargetChar->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+				TargetLoc.Z -= HalfHeight;
+				TargetLoc.Z += 2.0f;
+			}
+			else
+			{
+				TargetLoc.Z -= 88.0f;
+			}
+
+			PlayerChar->TargetIndicatorMesh->SetWorldLocation(TargetLoc);
+		}
+	}
+
+	// 적 머리 위 화살표 마커 켜고 끄기 로직
+	//static ALREnemyCharacter* PreviousEnemyTarget = nullptr;
+	ALREnemyCharacter* CurrentEnemyTarget = Cast<ALREnemyCharacter>(CurrentTarget);
+
+	if (CurrentEnemyTarget != PreviousEnemyTarget)
+	{
+		if (IsValid(PreviousEnemyTarget))
+		{
+			PreviousEnemyTarget->SetTargetMarkerVisibility(false);
+		}
+
+		if (IsValid(CurrentEnemyTarget) && !IsTargetDead(CurrentEnemyTarget))
+		{
+			CurrentEnemyTarget->SetTargetMarkerVisibility(true);
+		}
+		//if (PreviousEnemyTarget && IsValid(PreviousEnemyTarget))
+		//{
+		//	PreviousEnemyTarget->SetTargetMarkerVisibility(false);
+		//}
+
+		//if (CurrentEnemyTarget && IsValid(CurrentEnemyTarget) && !IsTargetDead(CurrentEnemyTarget))
+		//{
+		//	CurrentEnemyTarget->SetTargetMarkerVisibility(true);
+		//}
+
+		PreviousEnemyTarget = CurrentEnemyTarget;
+	}
+
+
+
+	//if (!CurrentTarget && PreviousEnemyTarget)
+	//{
+	//	if (IsValid(PreviousEnemyTarget))
+	//	{
+	//		PreviousEnemyTarget->SetTargetMarkerVisibility(false);
+	//	}
+	//	PreviousEnemyTarget = nullptr;
+	//}
+
+	if (!IsValid(CurrentTarget) && IsValid(PreviousEnemyTarget))
+	{
+		PreviousEnemyTarget->SetTargetMarkerVisibility(false);
+		PreviousEnemyTarget = nullptr;
+	}
+	/*UDecalComponent* TargetIndicator = InOwnerCharacter->FindComponentByClass<UDecalComponent>();
 	if (!TargetIndicator) return;
 
 	if (!CurrentTarget)
@@ -337,7 +433,7 @@ void ULRCombatComponent::UpdateTargetIndicator(ALRCharacter* InOwnerCharacter)
 		FVector TargetLoc = CurrentTarget->GetActorLocation();
 		TargetLoc.Z -= 90.0f;
 		TargetIndicator->SetWorldLocation(TargetLoc);
-	}
+	}*/
 }
 
 void ULRCombatComponent::CheckAndClearDeadTarget()
@@ -585,4 +681,178 @@ bool ULRCombatComponent::TryAutoSummon(ALRCharacter* InOwnerCharacter)
 
 
 	return false;
+}
+
+//void ULRCombatComponent::UpdateRangeDecalSize()
+//{
+//
+//	if (RangeDecal)
+//	{
+//		RangeDecal->DecalSize.X = AttackRange;
+//		RangeDecal->DecalSize.Y = AttackRange;
+//	}
+//
+//}
+
+void ULRCombatComponent::UpdateRangeMeshSize(float InRange)
+{
+	if (RangeMesh)
+	{
+		float ScaleFactor = InRange / 50.0f;
+
+		RangeMesh->SetRelativeScale3D(FVector(ScaleFactor, ScaleFactor, 1.0f));
+
+		if (UMaterialInstanceDynamic* DynamicMat = Cast<UMaterialInstanceDynamic>(RangeMesh->GetMaterial(0)))
+		{
+			float AdjustedThickness = 0.03f / ScaleFactor;
+
+			DynamicMat->SetScalarParameterValue(TEXT("LineThickness"), AdjustedThickness);
+		}
+	}
+}
+
+void ULRCombatComponent::CreateRangeIndicator()
+{
+	ALRCharacter* OwnerCharacter = GetOwnerCharacter();
+	if (!OwnerCharacter) return;
+
+	RangeMesh = NewObject<UStaticMeshComponent>(OwnerCharacter, TEXT("RangeMesh"));
+	RangeMesh->RegisterComponent();
+
+	// 발바닥 살짝 아래에 부착 (Z-Fighting 방지)
+	RangeMesh->AttachToComponent(OwnerCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	RangeMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -85.0f));
+
+	// 콜리전 끄기
+	RangeMesh->SetCollisionProfileName(TEXT("NoCollision"));
+	RangeMesh->SetGenerateOverlapEvents(false);
+
+	// 기본 판때기(Plane) 메쉬 로드해서 끼워넣기
+	UStaticMesh* PlaneMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Plane.Plane"));
+	if (PlaneMesh)
+	{
+		RangeMesh->SetStaticMesh(PlaneMesh);
+	}
+
+	// 우리가 만든 머티리얼 씌우기
+	if (RangeMaterial)
+	{
+		UMaterialInstanceDynamic* DynamicMat = UMaterialInstanceDynamic::Create(RangeMaterial, this);
+		RangeMesh->SetMaterial(0, DynamicMat);
+	}
+
+	UpdateRangeMeshSize(AttackRange);
+	RangeMesh->SetVisibility(true);
+	// 평소엔 안 보이게 숨김
+	//RangeMesh->SetVisibility(false);
+}
+
+bool ULRCombatComponent::CheckAndUseAutoHeal(ALRPlayerCharacter* InPlayerChar)
+{
+	if (!InPlayerChar || CombatState != EAutoCombatState::Auto) return false;
+
+	UAbilitySystemComponent* ASC = InPlayerChar->GetAbilitySystemComponent();
+	if (!ASC) return false;
+
+	float CurrentHealth = ASC->GetNumericAttribute(ULRPlayerAttributeSet::GetHealthAttribute());
+	float MaxHealth = ASC->GetNumericAttribute(ULRPlayerAttributeSet::GetMaxHealthAttribute());
+
+	if (MaxHealth <= 0.0f) return false;
+
+	float HealthRatio = CurrentHealth / MaxHealth;
+	FGameplayTag HealSkillTag = FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Heal"));
+
+	bool bShouldHeal = false;
+	bool bIsEmergency = false;
+
+	if (HealthRatio <= 0.3f)
+	{
+		bShouldHeal = true;
+		bIsEmergency = true;
+	}
+	else if (HealthRatio <= 0.7f)
+	{
+		bShouldHeal = true;
+	}
+
+	if (bShouldHeal)
+	{
+		// GA_Heal은 DT별도에 안들어가있어서 TryActivateAbilitiesByTag으로 바로 발동시킴
+		bool bSuccess = ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(HealSkillTag));
+
+		if (bSuccess)
+		{
+			if (ALRPlayerController* PC = Cast<ALRPlayerController>(InPlayerChar->GetController()))
+			{
+				if (ULRInGamePersistentWidget* MainWidget = PC->GetPlayerWidget())
+				{
+					if (MainWidget->WBP_SkillPanel)
+					{
+						MainWidget->WBP_SkillPanel->StartPotionCooldown(5.0f);
+					}
+				}
+			}
+		}
+		// 30% 이하일 때만 true 반환하여 소환 멈춤
+		return bIsEmergency;
+	}
+
+	//if (HealthRatio <= 0.3f)
+	//{
+	//	
+	//	ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(HealSkillTag));
+	//	return true;
+	//}
+	//if (HealthRatio <= 0.7f)
+	//{
+	//	ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(HealSkillTag));
+	//	return false;
+	//}
+
+	return false;
+	
+}
+
+void ULRCombatComponent::UpdateAttackRange()
+{
+
+	ALRCharacter* OwnerCharacter = GetOwnerCharacter();
+	if (!OwnerCharacter) return;
+
+	ALRPlayerState* PS = OwnerCharacter->GetPlayerState<ALRPlayerState>();
+	if (!PS)
+	{
+		LR_WARN(TEXT("[Combat] PlayerState를 찾을 수 없어 사거리를 설정할 수 없습니다."));
+		return;
+	}
+
+	UGameInstance* GI = GetWorld()->GetGameInstance();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+	if (!DataSys) return;
+
+	FName CharID = PS->GetCharacterID();
+	const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(CharID);
+
+	if (CharData.AttackType == ELRAttackType::MELEE)
+	{
+		AttackRange = 200.0f;
+	}
+	else if (CharData.AttackType == ELRAttackType::RANGED)
+	{
+		AttackRange = 500.0f;
+	}
+	else
+	{
+		AttackRange = 100.0f;
+	}
+
+	LR_INFO(TEXT("[Combat] 캐릭터(%s) 사거리 설정 완료: %.1f"), *CharID.ToString(), AttackRange);
+	
+	UpdateRangeMeshSize(AttackRange);
+
+	if (RangeMesh)
+	{
+		RangeMesh->SetVisibility(true);
+	}
+
 }

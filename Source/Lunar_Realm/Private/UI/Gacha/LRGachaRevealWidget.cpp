@@ -97,7 +97,6 @@ void ULRGachaRevealWidget::StartReveal(FName InBannerID, const TArray<FLRGachaRe
 	bResultOverlayShown = false;
 	bPresentationVisible = false;
 	bPresentationUsingVideo = false;
-	bCurrentPresentationIsLast = false;
 
 	bIsPointerDown = false;
 	PointerDownPosition = FVector2D::ZeroVector;
@@ -428,8 +427,8 @@ FReply ULRGachaRevealWidget::NativeOnMouseButtonUp(
 	{
 		HidePresentation();
 
-		// 마지막 프레젠테이션이거나 전체 리빌이 끝난 상태면 결과창 표시
-		if (bCurrentPresentationIsLast || bAllRevealed)
+		// 모든 구슬 리빌이 끝난 뒤에만 결과창 표시
+		if (bAllRevealed)
 		{
 			if (!bResultOverlayShown)
 			{
@@ -499,8 +498,6 @@ void ULRGachaRevealWidget::HandleRevealPresentationRequested(int32 OrbIndex, con
 
 void ULRGachaRevealWidget::ShowPresentation(int32 OrbIndex, const FLRGachaResult& Result)
 {
-	bCurrentPresentationIsLast = (OrbIndex >= CachedResults.Num() - 1);
-
 	UGameInstance* GI = GetGameInstance();
 	if (!GI)
 	{
@@ -680,35 +677,7 @@ void ULRGachaRevealWidget::ApplyPresentationDataToWidgets(const FLRGachaRevealPr
 			Text_RevealName->SetText(FText::FromName(InData.ItemID));
 		}
 
-		FSlateColor NameColor = FSlateColor(FLinearColor::White);
-
-		switch (InData.Rarity)
-		{
-		case ELRGachaRarity::N:
-			NameColor = FSlateColor(FLinearColor(0.75f, 0.75f, 0.75f, 1.f));
-			break;
-
-		case ELRGachaRarity::R:
-			NameColor = FSlateColor(FLinearColor(0.55f, 1.00f, 0.35f, 1.f));
-			break;
-
-		case ELRGachaRarity::SR:
-			NameColor = FSlateColor(FLinearColor(0.15f, 0.45f, 1.00f, 1.f));
-			break;
-
-		case ELRGachaRarity::SSR:
-			NameColor = FSlateColor(FLinearColor(0.60f, 0.20f, 0.90f, 1.f));
-			break;
-
-		case ELRGachaRarity::UR:
-			NameColor = FSlateColor(FLinearColor(1.00f, 0.78f, 0.10f, 1.f));
-			break;
-
-		default:
-			break;
-		}
-
-		Text_RevealName->SetColorAndOpacity(NameColor);
+		Text_RevealName->SetColorAndOpacity(FSlateColor(GetNameColorByRarity(InData.Rarity)));
 	}
 
 	// 등급 이미지
@@ -875,5 +844,29 @@ UTexture2D* ULRGachaRevealWidget::GetRarityTextureByRarity(ELRGachaRarity Rarity
 
 	default:
 		return nullptr;
+	}
+}
+
+FLinearColor ULRGachaRevealWidget::GetNameColorByRarity(ELRGachaRarity Rarity) const
+{
+	switch (Rarity)
+	{
+	case ELRGachaRarity::N:
+		return FLinearColor(0.96f, 0.93f, 0.88f, 1.0f); // 아이보리 베이지
+
+	case ELRGachaRarity::R:
+		return FLinearColor(0.63f, 1.00f, 0.25f, 1.0f); // 라임 그린
+
+	case ELRGachaRarity::SR:
+		return FLinearColor(0.35f, 0.78f, 1.00f, 1.0f); // 밝은 블루
+
+	case ELRGachaRarity::SSR:
+		return FLinearColor(1.00f, 0.42f, 0.95f, 1.0f); // 핑크 마젠타
+
+	case ELRGachaRarity::UR:
+		return FLinearColor(1.00f, 0.82f, 0.18f, 1.0f); // 골드 옐로우
+
+	default:
+		return FLinearColor::White;
 	}
 }

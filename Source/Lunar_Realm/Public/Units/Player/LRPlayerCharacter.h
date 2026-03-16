@@ -73,9 +73,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<ULRInputConfig> InputConfig;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
-	TObjectPtr<UDecalComponent> TargetIndicator;
-
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	class UStaticMeshComponent* TargetIndicatorMesh;
 protected:
 
 	void Move(const FInputActionValue& Value);
