@@ -37,5 +37,32 @@ void ULRAetherWidget::UpdateAether(float Amount)
 
 void ULRAetherWidget::OnAetherChanged(const FOnAttributeChangeData& Data)
 {
-	UpdateAether(Data.NewValue);
+	//UpdateAether(Data.NewValue);
+
+	if (Data.NewValue > TargetAether)
+	{
+		if (Anim_GetAether)
+		{
+			PlayAnimation(Anim_GetAether);
+		}
+	}
+
+	TargetAether = Data.NewValue;
+}
+
+void ULRAetherWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	// 숫자를 목표치까지 부드럽게 보간 (FInterpTo)
+	if (!FMath::IsNearlyEqual(DisplayAether, TargetAether, 0.1f))
+	{
+		// 10.0f는 속도
+		DisplayAether = FMath::FInterpTo(DisplayAether, TargetAether, InDeltaTime, 10.0f);
+
+		if (Text_AetherAmount)
+		{
+			Text_AetherAmount->SetText(FText::AsNumber((int32)DisplayAether));
+		}
+	}
 }
