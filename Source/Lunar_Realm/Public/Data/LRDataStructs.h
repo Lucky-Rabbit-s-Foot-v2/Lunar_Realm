@@ -35,7 +35,7 @@
 // (260220) BJM GA항목 추가
 // (260224) KHS 스킬효과 데이터 추가.
 // (260225) BJM 플레이어가 직접 조종할 때 쓸 단일 평타 GA
-// (260316) BJM 플레이어 Ingame 아이콘 테두리 추가
+// (260316) BJM 플레이어 Ingame 아이콘 테두리, GradeImage 추가
 // =============================================================================
 
 USTRUCT(BlueprintType)
@@ -121,6 +121,9 @@ struct FCharacterStaticData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|UI")
 	TSoftObjectPtr<UTexture2D> PortraitFrame;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|UI")
+	TSoftObjectPtr<UTexture2D> GradeImage;
 
 };
 
