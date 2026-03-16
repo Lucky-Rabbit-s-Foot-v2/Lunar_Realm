@@ -52,6 +52,21 @@ void ALREnemySpawner::BeginPlay()
 
 	GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy,
 		FMath::Max(CurrentSpawnInterval, 0.05f), true);
+
+	float Rate = FMath::Max(CurrentSpawnInterval, 0.05f);
+
+	// TEST
+	if (WaitTime <= 0.0f)
+	{
+		SpawnEnemy();
+		// 그 후 지정된 주기(Rate)마다 스폰되도록 타이머를 설정합니다. (FirstDelay 사용 안 함)
+		GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy, Rate, true);
+	}
+	else
+	{
+		// WaitTime이 존재한다면, 타이머의 FirstDelay 인자로 WaitTime을 넘겨주어 대기 후 스폰되도록 합니다.
+		GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy, Rate, true, WaitTime);
+	}
 }
 
 // Called every frame
@@ -167,23 +182,31 @@ void ALREnemySpawner::SpawnEnemy()
 		return;
 	}
 
-	const FName TargetEnemyID = PickEnemyIDByWeight();
-	if (TargetEnemyID == NAME_None)
+	// TEST
+	for (int32 i = 0; i < SpawnCountAtOnce; ++i)
 	{
-		LR_WARN(TEXT("Failed to pick EnemyID By Random!"));
-		return;
+		// 1. 스폰할 적 ID 무작위 선택
+		const FName TargetEnemyID = PickEnemyIDByWeight();
+		if (TargetEnemyID == NAME_None)
+		{
+			LR_WARN(TEXT("Failed to pick EnemyID By Random!"));
+			continue; // 특정 적 스폰에 실패해도 남은 횟수는 계속 진행하도록 continue 사용
+		}
+
+		// 2. 무작위 위치 생성 (매 반복마다 새로운 위치 계산)
+		FTransform SpawnTransform = MakeRandomSpawnTransform();
+
+		// 3. 풀링 시스템에서 가져오기
+		ALREnemyCharacter* NewEnemy = PoolSys->Spawn<ALREnemyCharacter>(EnemyClass, SpawnTransform);
+
+		if (!NewEnemy)
+		{
+			LR_ERROR(TEXT("EnemySpawner(%s): Failed to spawn enemy from pool (returned null)"), *GetName());
+			continue; // 남은 스폰을 위해 continue
+		}
+
+		// 4. 데이터 초기화
+		NewEnemy->InitializeByEnemyID(TargetEnemyID);
 	}
-
-	FTransform SpawnTransform = MakeRandomSpawnTransform();
-
-	ALREnemyCharacter* NewEnemy = PoolSys->Spawn<ALREnemyCharacter>(EnemyClass, SpawnTransform);
-
-	if (!NewEnemy)
-	{
-		LR_ERROR(TEXT("EnemySpawner(%s): Failed to spawn enemy from pool (returned null)"), *GetName());
-		return;
-	}
-
-	NewEnemy->InitializeByEnemyID(TargetEnemyID);
 }
 
