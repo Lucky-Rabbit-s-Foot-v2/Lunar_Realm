@@ -180,6 +180,7 @@ protected:
 
 private:
 	UTexture2D* GetRarityTextureByRarity(ELRGachaRarity Rarity) const;
+	FLinearColor GetNameColorByRarity(ELRGachaRarity Rarity) const;
 
 	/** MediaTexture를 UI에 표시할 머티리얼 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Reveal|Video")
@@ -191,9 +192,6 @@ private:
 
 	/** 현재 프레젠테이션이 영상 모드인지 */
 	bool bPresentationUsingVideo = false;
-
-	/** 현재 표시 중인 프레젠테이션이 마지막 결과인지 */
-	bool bCurrentPresentationIsLast = false;
 
 	/** 최종 결과 슬롯을 한 번에 즉시 생성하는 기본 함수 */
 	void BuildResultSlots();
