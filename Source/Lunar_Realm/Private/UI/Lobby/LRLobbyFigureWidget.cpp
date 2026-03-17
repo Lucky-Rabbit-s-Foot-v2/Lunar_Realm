@@ -43,6 +43,7 @@ void ULRLobbyFigureWidget::RefreshUI()
 
 	if (CurrentCharacterID.IsNone())
 	{
+		Img_Figure->SetBrushFromTexture(EmptySlotTexture);
 		return;
 	}
 

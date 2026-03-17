@@ -24,8 +24,6 @@ public:
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
-	virtual void RegisterSubWidgets() override;
-
 	UFUNCTION(BlueprintCallable)
 	void OnStageButtonClicked();
 
@@ -39,9 +37,6 @@ public:
 	void OnGachaButtonClicked();
 
 protected:
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRBaseWidget> Profile;
-
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Stage;
 

@@ -31,8 +31,14 @@ void ULRCharacterInfoWidget::RefreshUI()
 
 	if (USaveGameSubsystem* SaveGameSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
 	{
+		if(CharacterID.IsNone())
+		{
+			CharacterID = SaveGameSubsystem->GetLeaderCharacterID();
+		}
+
 		FCharacterStaticData CharacterStaticData = GetGameInstance()->GetSubsystem<UGameDataSubsystem>()->GetCharacterStaticData(CharacterID);
 		Img_Main->SetBrushFromTexture(CharacterStaticData.PortraitIcon.LoadSynchronous());
+		Img_Grade->SetBrushFromTexture(CharacterStaticData.GradeImage.LoadSynchronous());
 	}
 
 	CharacterStatus->SetCharacterID(CharacterID);

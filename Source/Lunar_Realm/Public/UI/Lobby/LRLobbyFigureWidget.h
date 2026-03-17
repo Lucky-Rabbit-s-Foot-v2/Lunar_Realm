@@ -60,6 +60,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "LR|UI")
 	TSubclassOf<class ULRLobbyFigureInfoWidget> FigureInfoWidgetClass;
 
+	UPROPERTY(EditAnywhere, Category = "LR|UI")
+	TObjectPtr<class UTexture2D> EmptySlotTexture;
+
 private:
 	FTimerHandle LongPressTimerHandle;
 	FName CurrentCharacterID;

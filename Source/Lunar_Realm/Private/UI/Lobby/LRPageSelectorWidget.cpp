@@ -32,13 +32,6 @@ void ULRPageSelectorWidget::UnbindProperties()
 	Super::UnbindProperties();
 }
 
-void ULRPageSelectorWidget::RegisterSubWidgets()
-{
-	Super::RegisterSubWidgets();
-
-	SubWidgets.Add(Profile);
-}
-
 void ULRPageSelectorWidget::OnStageButtonClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
