@@ -3,9 +3,13 @@
 
 #include "Units/LRCharacter.h"
 
+#include "Components/CapsuleComponent.h"
+
 ALRCharacter::ALRCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);  
 
 	// (260227) KHS UnitTag를 ASC에도 등록
 	if (UnitTag.IsValid())

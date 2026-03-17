@@ -26,10 +26,11 @@ ALRProjectile::ALRProjectile()
 	SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	SphereComp->SetCollisionObjectType(ECC_GameTraceChannel1); //Projectile 채널
 	SphereComp->SetCollisionResponseToAllChannels(ECR_Ignore);
-	SphereComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+	SphereComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	SphereComp->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	SphereComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
 	SphereComp->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
+	SphereComp->SetGenerateOverlapEvents(true);     
 
 	// 이동 컴포넌트
 	ProjectileComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
@@ -48,7 +49,7 @@ void ALRProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	SphereComp->OnComponentHit.AddDynamic(this, &ALRProjectile::OnHit);
+	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ALRProjectile::OnOverlap);
 }
 
 void ALRProjectile::Tick(float DeltaTime)
@@ -221,8 +222,8 @@ void ALRProjectile::InitSkillObject(const FSkillObjectInitData& Initdata)
 	OnSkillObjectInitialized();
 }
 
-void ALRProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	FVector NormalImpulse, const FHitResult& Hit)
+void ALRProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	LR_INFO(TEXT(" 충돌 감지 - OtherActor: %s / bIsDeactivated: %s / this: %s"),
 		OtherActor ? *OtherActor->GetName() : TEXT("NULL"),
@@ -255,28 +256,23 @@ void ALRProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPri
 	}
 
 	UAbilitySystemComponent* OtherASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor);
-	// [임시 로그]
-	LR_INFO(TEXT("[OnHit] OtherASC: %s / HostileTag: %s"),
-		OtherASC ? TEXT("Valid") : TEXT("NULL"),
-		*HostileTag.ToString());
-	// [임시 로그] ASC에 등록된 태그 전체 출력
+
 	FGameplayTagContainer AllTags;
-	OtherASC->GetOwnedGameplayTags(AllTags);
-	LR_WARN(TEXT("[OnHit] OtherActor 보유 태그: %s"), *AllTags.ToString());
 	if (!OtherASC)
 	{
 		return;
 	}
+	OtherASC->GetOwnedGameplayTags(AllTags);
 	if (!OtherASC->HasMatchingGameplayTag(HostileTag))
 	{
 		LR_WARN(TEXT("[OnHit] HostileTag 불일치 — 무시: %s"), *OtherActor->GetName());
 		return;
 	}
 	// 사망 대상 무시
-    if (OtherASC->HasMatchingGameplayTag(LRTags::State_Dead))
-    {
-        return;
-    }
+	if (OtherASC->HasMatchingGameplayTag(LRTags::State_Dead))
+	{
+		return;
+	}
 	LR_INFO(TEXT("[OnHit] 태그 검사 통과 → 데미지 처리 진입: %s"), *OtherActor->GetName());
 	
 	
@@ -286,7 +282,7 @@ void ALRProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPri
 	//HitType이 SINGLE일때만 베이스가 직접 데미지 처리
 	//그 외에는 자식의 OnSkillObjectHIt에서 직접 처리
 	//풀 복귀도 OnSkillObjectHit 처리 결과에 따라 부모/자식이 처리하는 로직 전환
-	bool bHandledByChild = !OnSkillObjectHit(OtherActor, Hit);
+	bool bHandledByChild = !OnSkillObjectHit(OtherActor, SweepResult);
 	if (bHandledByChild)
 	{
 		return;
