@@ -5,7 +5,6 @@
 
 #include "Subsystems/UIManagerSubsystem.h"
 #include "Subsystems/Settings/UIManagerSettings.h"
-#include "UI/Core/LRPersistentWidget.h"
 #include "UI/Intro/LRLoadingPageWidget.h"
 
 void ALRTransitionController::OpenFirstWidget()
@@ -17,13 +16,9 @@ void ALRTransitionController::OpenFirstWidget()
 void ALRTransitionController::FinishLoading()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	if (LoadingWidgetClass)
+	ULRLoadingPageWidget* LoadingWidget = Cast<ULRLoadingPageWidget>(UIManager->GetOrCreateWidgetByID(EUIID::LOADING));
+	if (LoadingWidget)
 	{
-		ULRLoadingPageWidget* LoadingWidgetInstance = UIManager->GetOrCreateWidget<ULRLoadingPageWidget>(LoadingWidgetClass);
-		LoadingWidgetInstance->FinishLoading();
-	}
-	else
-	{
-		LR_WARN(TEXT("LoadingWidgetClass is not set in LRTransitionGameMode"));
+		LoadingWidget->FinishLoading();
 	}
 }

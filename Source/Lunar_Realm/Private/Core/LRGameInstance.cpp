@@ -34,6 +34,23 @@ void ULRGameInstance::OpenNextLevel()
 	OpenNextLevelLatent();
 }
 
+void ULRGameInstance::OpenNextLevelImmediately(ELevelName LevelName)
+{
+	if(LevelName != ELevelName::NONE)
+	{
+		SetNextLevelName(LevelName);
+
+		if (UUIManagerSubsystem* UIManager = GetSubsystem<UUIManagerSubsystem>())
+		{
+			UIManager->ResetAllUIStates();
+		}
+
+		const UMapSettings* MapSettings = GetDefault<UMapSettings>();
+		const TSoftObjectPtr<UWorld>* LoadedMap = MapSettings->LevelMap.Find(LevelName);
+		UGameplayStatics::OpenLevel(this, FName(LoadedMap->GetLongPackageName()));
+	}
+}
+
 void ULRGameInstance::SetNextLevelName(ELevelName LevelName)
 {
 	const UMapSettings* MapSettings = GetDefault<UMapSettings>();

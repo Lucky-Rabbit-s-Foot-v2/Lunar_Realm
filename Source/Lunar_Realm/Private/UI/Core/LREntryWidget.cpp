@@ -18,5 +18,6 @@ void ULREntryWidget::RefreshData()
 	if (TileData && Img_Icon)
 	{
 		Img_Icon->SetBrushFromTexture(TileData->GetIcon());
+		Img_Frame->SetBrushFromTexture(TileData->GetFrame());
 	}
 }

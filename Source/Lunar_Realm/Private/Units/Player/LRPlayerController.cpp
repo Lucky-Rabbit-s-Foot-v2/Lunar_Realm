@@ -30,6 +30,7 @@ void ALRPlayerController::OpenFirstWidget()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	UIManager->OpenUIByID(EUIID::INGAME);
+	UIManager->HideBackgroundUI();
 }
 
 void ALRPlayerController::BeginPlay()

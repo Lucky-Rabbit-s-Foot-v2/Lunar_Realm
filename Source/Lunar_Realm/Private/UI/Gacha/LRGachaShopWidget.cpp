@@ -425,7 +425,7 @@ void ULRGachaShopWidget::OnClickHome()
 	{
 		if (UUIManagerSubsystem* UISys = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
 		{
-			UISys->SwitchPageUIByID(EUIID::LOBBY);
+			UISys->OpenUIByID(EUIID::LOBBY);
 		}
 		return;
 	}

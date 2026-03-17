@@ -32,9 +32,14 @@ void ULRPartySlotWidget::RefreshUI()
 {
 	Super::RefreshUI();
 
-	LR_INFO(TEXT("Refreshing Party Slot %d with Character ID: %s"), SlotIndex, *ID.ToString());
 	if (UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>())
 	{
+		if (ID.IsNone())
+		{
+			Img_Slot->SetBrushFromTexture(EmptySlotTexture);
+			return;
+		}
+
 		const FCharacterStaticData& StaticData = GameDataSubsystem->GetCharacterStaticData(ID);
 		Img_Slot->SetBrushFromTexture(StaticData.PortraitIcon.LoadSynchronous());
 	}
@@ -45,7 +50,7 @@ void ULRPartySlotWidget::OnSlotButtonClicked()
 	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
 		ID = PC->GetSelectedCharacterID();
-	}
+	} 
 
 	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
 	{

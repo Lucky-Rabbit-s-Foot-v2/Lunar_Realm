@@ -32,6 +32,9 @@ public:
 	void OpenNextLevel();
 
 	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
+	void OpenNextLevelImmediately(ELevelName LevelName = ELevelName::NONE);
+
+	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
 	FName GetNextLevelName() const { return NextLevelName; }
 
 	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")

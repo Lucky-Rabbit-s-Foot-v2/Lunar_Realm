@@ -13,7 +13,8 @@
 void ALROutGameController::OpenFirstWidget()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->SwitchPageUIByID(EUIID::LOBBY);
+	UIManager->OpenUIByID(EUIID::LOBBY);
+	UIManager->OpenUIByID(EUIID::OUTGAME);
 }
 
 void ALROutGameController::SetSelectedCharacterID(FName InID)

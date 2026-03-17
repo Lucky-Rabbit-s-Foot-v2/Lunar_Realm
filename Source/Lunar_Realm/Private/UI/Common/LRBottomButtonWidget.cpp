@@ -43,7 +43,7 @@ FEventReply ULRBottomButtonWidget::OnBackgroundMouseButtonDown(FGeometry MyGeome
 {
 	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
 	{
-		UIManager->SwitchPageUIByID(MovePageUIID);
+		UIManager->OpenUIByID(MovePageUIID);
 	}
 	else
 	{

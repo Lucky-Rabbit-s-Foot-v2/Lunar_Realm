@@ -23,6 +23,8 @@ class LUNAR_REALM_API ULRCharacterCollection : public ULRBaseWidget
 public:
 	virtual void RefreshUI() override;
 
+	void AddItemToTileView(class UGameDataSubsystem* GameDataSubsystem, const FName& LockedCharactersID, bool bIsLocked);
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UTextBlock> Txt_Name;

@@ -20,6 +20,8 @@ class LUNAR_REALM_API ULRPartyLineupWidget : public ULRBaseWidget
 	GENERATED_BODY()
 	
 public:
+	virtual void NativeOnInitialized() override;
+
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
@@ -56,4 +58,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Regroup;
 
+	UPROPERTY(EditAnywhere, Category = "LR|UI|Empty")
+	TObjectPtr<class UTexture2D> EmptySlotTexture;
+
+	UPROPERTY()
+	TArray<class UImage*> MemberImages;
 };

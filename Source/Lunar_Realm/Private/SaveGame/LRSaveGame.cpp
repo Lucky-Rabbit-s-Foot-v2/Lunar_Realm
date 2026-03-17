@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "SaveGame/LRSaveGame.h"
@@ -120,4 +120,11 @@ void ULRSaveGame::InitializeNewPlayerDefaults()
 	CrescentTicket = 1000;
 	FullMoonTicket = 1000;
 	LastUpdatedUtc = FDateTime::UtcNow();
+
+	SetCharacterPartySlot(0, FName("Army_N"));
+	
+	TMap<FName, FCharacterInstance> DefaultCharacters;
+	FCharacterInstance DefaultCharacterInstance(FName("Army_N"), 1);
+	DefaultCharacters.Add(FName("Army_N"), DefaultCharacterInstance);
+	SetOwnedCharactersList(DefaultCharacters);
 }
