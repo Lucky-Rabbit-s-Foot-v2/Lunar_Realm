@@ -33,9 +33,14 @@
 struct FLRBTAttackTaskMemory
 {
 	FDelegateHandle AbilityEndedHandle;
+	FDelegateHandle AbilityFailedHandle;
+	FDelegateHandle CooldownTagHandle;  // 추가
+	FGameplayTag CooldownTag;           // 추가
 	TWeakObjectPtr<UBehaviorTreeComponent> BTComp;
 	TWeakObjectPtr<UAbilitySystemComponent> ASC;
 	FGameplayTag ActivatedAbilityTag;
+	bool bAbilityEndedSynchronously = false;
+	bool bAbilityFailedSynchronously = false;
 };
 
 UCLASS()
@@ -62,6 +67,8 @@ protected:
 private:
 	// GA 종료 시 BT에 완료 신호를 보내는 콜백
 	void OnAbilityEnded(const FAbilityEndedData& EndedData, UBehaviorTreeComponent* BTComp, uint8* NodeMemory);
+	void OnAbilityFailed(const UGameplayAbility* FailedAbility, const FGameplayTagContainer& FailureTags, UBehaviorTreeComponent* BTComp, uint8* NodeMemory);
+	void OnCooldownTagChanged(const FGameplayTag Tag, int32 Count, UBehaviorTreeComponent* BTComp, uint8* NodeMemory);
 
 	// 델리게이트 등록 해제 공통 처리
 	void UnregisterDelegate(FLRBTAttackTaskMemory* Memory);

@@ -4,6 +4,8 @@
 #include "AI/LRBTSEnemyPerception.h"
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/PrimitiveComponent.h"
 #include "System/LoggingSystem.h"
 #include "Units/LRAIController.h"
 
@@ -24,12 +26,14 @@ void ULRBTSEnemyPerception::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* N
 	ALRAIController* AIController = Cast<ALRAIController>(OwnerComp.GetAIOwner());
 	if (!AIController)
 	{
+		LR_ERROR(TEXT("[%s] : No Valid AIController!"), *GetName());
 		return;
 	}
 
 	UBlackboardComponent* BB = OwnerComp.GetBlackboardComponent();
 	if (!BB)
 	{
+		LR_ERROR(TEXT("[%s] : No Valid BlackBoardComponent!"), *GetName());
 		return;
 	}
 
@@ -41,7 +45,23 @@ void ULRBTSEnemyPerception::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* N
 	AActor* CoreActor = Cast<AActor>(BB->GetValueAsObject(LRBBKeys::TargetCore));
 	if (MyPawn && CoreActor)
 	{
-		const float DistToCore = FVector::Dist(MyPawn->GetActorLocation(), CoreActor->GetActorLocation());
-		BB->SetValueAsBool(LRBBKeys::CoreInRange, DistToCore <= AIController->GetAttackRange());
+		FVector MyLoc = MyPawn->GetActorLocation();
+		FVector TargetLoc = CoreActor->GetActorLocation();
+
+		float EnemyRadius = 0.f;
+		if (UCapsuleComponent* CapsuleComp = MyPawn->FindComponentByClass<UCapsuleComponent>())
+		{
+			EnemyRadius = CapsuleComp->GetScaledCapsuleRadius();
+		}
+
+		FVector TargetClosestLoc = TargetLoc;
+		if (UPrimitiveComponent* TargetCollision = Cast<UPrimitiveComponent>(CoreActor->GetRootComponent()))
+		{
+			TargetCollision->GetClosestPointOnCollision(MyLoc, TargetClosestLoc);
+		}
+
+		const float DistToCore = FMath::Max(0.f, FVector::Dist(MyLoc, TargetClosestLoc) - EnemyRadius);
+
+		BB->SetValueAsBool(LRBBKeys::CoreInRange, DistToCore <= (AIController->GetAttackRange() + 10.f));
 	}
 }

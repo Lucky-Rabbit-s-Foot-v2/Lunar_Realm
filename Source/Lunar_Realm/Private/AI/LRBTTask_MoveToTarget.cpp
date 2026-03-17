@@ -19,8 +19,7 @@ EBTNodeResult::Type ULRBTTask_MoveToTarget::PerformMoveTask(UBehaviorTreeCompone
 	ALRAIController* AIController = Cast<ALRAIController>(OwnerComp.GetAIOwner());
 	if (AIController)
 	{
-		AcceptableRadius = FMath::Max(
-			AIController->GetAttackRange() - AcceptanceRangeOffset, 10.f);
+		AcceptableRadius = FMath::Max(AIController->GetAttackRange() - AcceptanceRangeOffset, 10.f);
 	}
 	return Super::PerformMoveTask(OwnerComp, NodeMemory);
 }
