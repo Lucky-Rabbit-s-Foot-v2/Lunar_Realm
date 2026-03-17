@@ -143,6 +143,11 @@ void ULRBTTAttack::OnAbilityEnded(const FAbilityEndedData& EndedData, UBehaviorT
 		return;
 	}
 
+	// TEST
+	LR_INFO(TEXT("[BTTAttack] OnAbilityEnded — EndedTag: %s / ActivatedTag: %s"),
+		*EndedData.AbilityThatEnded->GetAssetTags().ToString(),
+		*Memory->ActivatedAbilityTag.ToString());
+
 	if (EndedData.AbilityThatEnded->GetAssetTags().HasTag(Memory->ActivatedAbilityTag))
 	{
 		UnregisterDelegate(Memory);
@@ -191,6 +196,7 @@ void ULRBTTAttack::OnAbilityFailed(const UGameplayAbility* FailedAbility, const 
 
 void ULRBTTAttack::OnCooldownTagChanged(const FGameplayTag Tag, int32 Count, UBehaviorTreeComponent* BTComp, uint8* NodeMemory)
 {
+	LR_INFO(TEXT("[BTTAttack] OnCooldownTagChanged — Tag: %s / Count: %d"), *Tag.ToString(), Count);
 	if (Count > 0)
 	{
 		// 쿨다운 태그 추가됨 -> 무시
