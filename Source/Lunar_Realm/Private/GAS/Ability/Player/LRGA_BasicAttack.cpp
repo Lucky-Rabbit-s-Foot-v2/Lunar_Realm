@@ -33,7 +33,7 @@ ULRGA_BasicAttack::ULRGA_BasicAttack()
 void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[GA_Attack] 평타 GA 실행됨! 진입 성공!"));
+	//UE_LOG(LogTemp, Warning, TEXT("[GA_Attack] 평타 GA 실행됨! 진입 성공!"));
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
@@ -121,7 +121,7 @@ void ULRGA_BasicAttack::OnHitEventReceived(FGameplayEventData InPayload)
 			if (TargetASC)
 			{
 				TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-				LR_INFO(TEXT("노티파이 타이밍에 데미지 성공 타겟: %s"), *TargetActor->GetName());
+				//LR_INFO(TEXT("노티파이 타이밍에 데미지 성공 타겟: %s"), *TargetActor->GetName());
 			}
 		}
 	}
