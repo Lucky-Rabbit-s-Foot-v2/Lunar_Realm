@@ -12,6 +12,8 @@
 #include "GAS/Tags/LRGameplayTags.h"
 #include "System/LoggingSystem.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Projectiles/LRProjectile.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 
 ULRGA_BasicAttack::ULRGA_BasicAttack()
@@ -110,8 +112,11 @@ void ULRGA_BasicAttack::OnHitEventReceived(FGameplayEventData InPayload)
 	const AActor* TargetActor = CachedTarget;
 	if (!TargetActor) return;
 
-	if (DamageEffectClass && GetOwnerASC())
+	// 근접 공격 (노티파이 데미지)
+	if (bIsMeleeAttack)
 	{
+		LR_INFO(TEXT("[GA_Attack] 근접 공격 발동"));
+
 		FGameplayEffectContextHandle Context = GetOwnerASC()->MakeEffectContext();
 		FGameplayEffectSpecHandle SpecHandle = GetOwnerASC()->MakeOutgoingSpec(DamageEffectClass, 1.0f, Context);
 
@@ -121,13 +126,69 @@ void ULRGA_BasicAttack::OnHitEventReceived(FGameplayEventData InPayload)
 			if (TargetASC)
 			{
 				TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-				//LR_INFO(TEXT("노티파이 타이밍에 데미지 성공 타겟: %s"), *TargetActor->GetName());
 			}
 		}
 	}
+	// 원거리 공격 (투사체 발사)
+	else if (ProjectileClass)
+	{
+
+		ALRCharacter* OwnerChar = Cast<ALRCharacter>(GetAvatarActorFromActorInfo());
+		if (!OwnerChar) return;
+
+		FVector SpawnLocation = OwnerChar->GetActorLocation() + (OwnerChar->GetActorForwardVector() * 100.0f);
+		FRotator FireRotation = OwnerChar->GetActorRotation();
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = OwnerChar;
+		SpawnParams.Instigator = OwnerChar;
+
+		// 1. 부모 함수 안 쓰고, 여기서 투사체를 직접 스폰!
+		ALRProjectile* SpawnedProj = GetWorld()->SpawnActor<ALRProjectile>(ProjectileClass, SpawnLocation, FireRotation, SpawnParams);
+
+		if (SpawnedProj)
+		{
+			// 2. 초기 데이터 세팅
+			FSkillObjectInitData InitData;
+			InitData.DamageEffectClass = DamageEffectClass;
+			InitData.InstigatorASC = GetOwnerASC();
+			InitData.Speed = ProjectileSpeed;
+			InitData.Lifetime = 3.0f;
+
+			SpawnedProj->InitSkillObject(InitData);
+
+			// ★ 3. 핵심: 투사체한테 '쫓아갈 놈(Target)'의 위치(RootComponent)를 쥐여줌!
+			if (TargetActor)
+			{
+				UProjectileMovementComponent* ProjMovement = SpawnedProj->FindComponentByClass<UProjectileMovementComponent>();
+
+				// 블루프린트에서 '유도(Homing)' 옵션을 켰다면 타겟을 입력해준다!
+				if (ProjMovement && ProjMovement->bIsHomingProjectile)
+				{
+					ProjMovement->HomingTargetComponent = TargetActor->GetRootComponent();
+				}
+			}
+		}
+
+		/*LR_INFO(TEXT("[GA_Attack] 원거리 투사체 발사 성공 투사체: %s"), *ProjectileClass->GetName());
+
+		FSkillObjectInitData InitData;
+		InitData.DamageEffectClass = DamageEffectClass;
+		InitData.InstigatorASC = GetOwnerASC();
+		InitData.Speed = ProjectileSpeed;
+		InitData.Lifetime = 3.0f; 
+
+		InitData.SpawnData.ProjectileCount = 1;
+		InitData.SpawnData.SpawnPattern = ESpawnPattern::SINGLE;
+
+		ALRCharacter* OwnerChar = Cast<ALRCharacter>(GetAvatarActorFromActorInfo());
+		FRotator FireRotation = OwnerChar ? OwnerChar->GetActorRotation() : FRotator::ZeroRotator;
+
+		SpawnProjectiles(ProjectileClass, InitData, FireRotation);*/
+	}
 	else
 	{
-		LR_WARN(TEXT("DamageEffectClass가 None이거나 내 ASC가 없음"));
+		LR_WARN(TEXT("[GA_Attack] 원거리 모드인데 ProjectileClass가 비어있음"));
 	}
 }
 
