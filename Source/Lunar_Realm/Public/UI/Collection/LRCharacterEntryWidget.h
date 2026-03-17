@@ -25,9 +25,10 @@ class LUNAR_REALM_API ULRCharacterEntryWidget : public ULREntryWidget
 	
 public:
 	virtual void NativeConstruct() override;
-
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
+
+	virtual void RefreshData() override;
 
 	UFUNCTION()
 	void OnTileClicked();

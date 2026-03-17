@@ -35,7 +35,7 @@ void ULRDamageWidget::PlayFloatAnimation(float Damage)
 
 void ULRDamageWidget::OnFadeInAnimationFinished()
 {
-	if(FadeInAnimation)
+	if (FadeInAnimation)
 	{
 		UnbindAllFromAnimationFinished(FadeInAnimation);
 	}

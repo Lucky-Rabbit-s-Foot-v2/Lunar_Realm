@@ -23,5 +23,5 @@ void ULRShopPageWidget::UnbindProperties()
 void ULRShopPageWidget::CloseButtonClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->SwitchPageUIByID(EUIID::LOBBY);
+	UIManager->OpenUIByID(EUIID::LOBBY);
 }

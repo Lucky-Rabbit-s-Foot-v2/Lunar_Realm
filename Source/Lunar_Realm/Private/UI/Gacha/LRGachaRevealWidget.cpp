@@ -5,6 +5,7 @@
 
 #include "Actors/Gacha/LRGachaOrbSceneActor.h"
 
+#include "Subsystems/Settings/MapSettings.h"
 #include "Subsystems/UIManagerSubsystem.h"
 #include "Subsystems/Gacha/LRGachaSubsystem.h"
 
@@ -14,6 +15,8 @@
 #include "Components/UniformGridSlot.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+
+#include "Core/LRGameInstance.h"
 
 #include "MediaPlayer.h"
 #include "MediaTexture.h"
@@ -154,7 +157,11 @@ void ULRGachaRevealWidget::FinishAndClose()
 	}
 
 	CloseSelf();
-	UGameplayStatics::OpenLevel(this, FName(TEXT("Map_Lobby")));
+
+	if (ULRGameInstance* GI = Cast<ULRGameInstance>(GetGameInstance()))
+	{
+		GI->OpenNextLevelImmediately(ELevelName::LOBBY);
+	}
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

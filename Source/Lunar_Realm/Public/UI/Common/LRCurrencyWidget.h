@@ -20,6 +20,9 @@ class LUNAR_REALM_API ULRCurrencyWidget : public ULRBaseWidget
 	GENERATED_BODY()
 
 public:
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+
 	virtual void RegisterSubWidgets() override;
 
 protected:

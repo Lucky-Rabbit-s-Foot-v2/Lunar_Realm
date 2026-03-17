@@ -37,4 +37,5 @@ class LUNAR_REALM_API ULRPersistentWidget : public ULRBaseWidget
 public:
 	ULRPersistentWidget(const FObjectInitializer& ObjectInitializer);
 
+	virtual void OpenUI() override;
 };

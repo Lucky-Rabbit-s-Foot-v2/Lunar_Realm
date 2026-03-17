@@ -8,4 +8,4 @@
 7,"RESOURCE_INSTANT_HEAL","None","None","None","None","None","None"
 8,"RESOURCE_DURATION_HEAL","None","None","None","None","None","None"
 9,"RESOURCE_DEBUFF_POISON","None","None","None","None","None","None"
-10,"RESOURCE_RAPIDSLASH","/Game/Assets/BlackStromAsset/UI/EventSeasonPass/Writer/Frm_SoulPassGoods_003.Frm_SoulPassGoods_003","/Game/Assets/Knife_light/VFX/NE_attack_WriterSkill.NE_attack_WriterSkill","None","None","None","None"
+10,"RESOURCE_ENEMY_RANGED_SHOOT","None","/Game/Assets/Mixed_Magic_VFX_Pack/VFX/NS_Magic_Big_Bubbles_Owner_Cast.NS_Magic_Big_Bubbles_Owner_Cast","None","None","/Game/Assets/Mixed_Magic_VFX_Pack/VFX/NS_Lightning_Owner_Cast.NS_Lightning_Owner_Cast","None"

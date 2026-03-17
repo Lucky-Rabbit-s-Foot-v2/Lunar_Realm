@@ -39,6 +39,6 @@ void ULRPartyPageWidget::OnBackButtonClicked()
 {
 	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
 	{
-		UIManager->SwitchPageUIByID(EUIID::LOBBY);
+		UIManager->OpenUIByID(EUIID::LOBBY);
 	}
 }

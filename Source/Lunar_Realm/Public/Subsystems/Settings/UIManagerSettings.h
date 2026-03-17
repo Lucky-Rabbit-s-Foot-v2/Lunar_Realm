@@ -35,6 +35,7 @@ enum class EUIID : uint8
 	GAMECLEAR,
 	DAMAGEPOPUP,
 	INGAME,
+	OUTGAME,
 };
 
 UCLASS(Config = Game, defaultconfig, meta = (DisplayName = "UI Manager Settings"))

@@ -16,6 +16,28 @@
 
 #include "Units/OutGame/LROutGameController.h"
 
+void ULRCurrencyViewWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
+	{
+		SaveGameSubsystem->OnSaveGameLoadedDel.AddUniqueDynamic(this, &ULRCurrencyViewWidget::RefreshCurrencyAmountOnLoaded);
+		SaveGameSubsystem->OnSaveGameSavedDel.AddUniqueDynamic(this, &ULRCurrencyViewWidget::RefreshCurrencyAmountOnSaved);
+	}
+}
+
+void ULRCurrencyViewWidget::NativeDestruct()
+{
+	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
+	{
+		SaveGameSubsystem->OnSaveGameLoadedDel.RemoveDynamic(this, &ULRCurrencyViewWidget::RefreshCurrencyAmountOnLoaded);
+		SaveGameSubsystem->OnSaveGameSavedDel.RemoveDynamic(this, &ULRCurrencyViewWidget::RefreshCurrencyAmountOnSaved);
+	}
+
+	Super::NativeDestruct();
+}
+
 void ULRCurrencyViewWidget::BindProperties()
 {
 	Super::BindProperties();
@@ -47,10 +69,20 @@ void ULRCurrencyViewWidget::RefreshUI()
 	}
 }
 
+void ULRCurrencyViewWidget::RefreshCurrencyAmountOnSaved()
+{
+	RefreshUI();
+}
+
+void ULRCurrencyViewWidget::RefreshCurrencyAmountOnLoaded(ULRSaveGame* SaveGame)
+{
+	RefreshUI();
+}
+
 void ULRCurrencyViewWidget::OnCurrencyAddClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->SwitchPageUIByID(EUIID::SHOP);
+	UIManager->OpenUIByID(EUIID::SHOP);
 }
 
 void ULRCurrencyViewWidget::SetIconByType()

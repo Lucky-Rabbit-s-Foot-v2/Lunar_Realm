@@ -36,6 +36,7 @@ enum class EUILayer : uint8
 	PAGE			UMETA(DisplayName = "Page"),
 	PERSISTENT		UMETA(DisplayName = "Persistent"),
 	POPUP			UMETA(DisplayName = "Popup"),
+	OVERLAY			UMETA(DisplayName = "Overlay"),
 	TOOLTIP			UMETA(DisplayName = "Tooltip"),
 	SYSTEM			UMETA(DisplayName = "System"),
 };
@@ -49,31 +50,9 @@ public:
 	ULRBaseWidget(const FObjectInitializer& ObjectInitializer);
 	
 	//=============================================================================
-	// UI 생성/제거 시점
+	// UI 생성 시점
 	//=============================================================================
-
-	/** 초기화를 위해 선언 */
-	virtual void NativeConstruct() override;
-
-	/** 델리게이트 해제를 위해 선언 */
-	virtual void NativeDestruct() override;
-
-	/** UI 를 제거할 때 */
-	virtual void DeinitializeUI();
-
-	/** 보유한 위젯 바인딩 */
-	virtual void BindProperties();
-
-	/** 보유한 위젯 바인딩 해제 */
-	virtual void UnbindProperties();
-
-	virtual void BindToController(class ALRControllerBase* Controller);
-
-	//=============================================================================
-	// UI 시작 시점
-	//=============================================================================
-	
-	/** 초기화를 위해 선언 */
+	/** 위젯을 처음 생성할 때 호출 */
 	virtual void NativeOnInitialized() override;
 
 	/** UI를 처음 생성할 때 초기화*/
@@ -81,13 +60,40 @@ public:
 
 	/** 서브 위젯 등록 */
 	virtual void RegisterSubWidgets();
-	
+
+
+	//=============================================================================
+	// UI AddToViewport 시점
+	//=============================================================================
+	/** AddToViewPort 할 때 호출, 초기화를 위해 선언 */
+	virtual void NativeConstruct() override;
+
+	/** 보유한 컴포넌트 바인딩 (ex. 버튼, 이미지) */
+	virtual void BindProperties();
+
+	/** 보유한 서브 위젯 바인딩 (ex. 위젯 블루프린트) */
 	virtual void BindSubWidgets();
+
+	/** 필요시 컨트롤러 바인딩 */
+	virtual void BindToController(class ALRControllerBase* Controller);
+
+
+	//=============================================================================
+	// UI RemoveFromParent 시점
+	//=============================================================================
+	/** RemoveFromParent 할 때 호출, 델리게이트 해제를 위해 선언 */
+	virtual void NativeDestruct() override;
+
+	/** UI 를 제거할 때 */
+	virtual void DeinitializeUI();
+
+	/** 보유한 위젯 바인딩 해제 */
+	virtual void UnbindProperties();
+
 
 	//=============================================================================
 	// UI 열림/닫힘, 갱신, 포커스 이벤트
 	//=============================================================================
-
 	/** UI를 활성화하고 화면에 표시 */
 	virtual void OpenUI();
     
@@ -109,11 +115,8 @@ public:
 	/** UI가 현재 열려있는지 확인 */
 	FORCEINLINE bool IsOpen() const { return bIsOpen; }
 
-	/**
-	 * 위젯이 스스로 닫기를 요청할 때 발생하는 델리게이트
-	 * - 블루프린트에서도 바인딩 가능
-	 * - 여러 곳에서 구독 가능 (PlayerController, 통계 시스템 등)
-	 */
+
+	/** 위젯이 스스로 닫기를 요청할 때 발생하는 델리게이트 */
 	UPROPERTY(BlueprintAssignable, Category = "LR|UI Events")
 	FOnCloseUIRequested OnCloseUIRequestedDel;
         
@@ -132,6 +135,4 @@ protected:
 
 	/** 위젯을 포함하고 있을 경우 관리 */
 	TArray<ULRBaseWidget*> SubWidgets;
-
-	/** bIsFocusable : 키보드/패드 입력을 받을 수 있도록 설정 */
 };

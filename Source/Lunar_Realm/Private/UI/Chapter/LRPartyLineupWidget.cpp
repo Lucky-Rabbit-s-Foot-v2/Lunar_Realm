@@ -13,6 +13,18 @@
 #include "Subsystems/SaveGameSubsystem.h"
 #include "Subsystems/GameDataSubsystem.h"
 
+void ULRPartyLineupWidget::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+
+	MemberImages.Empty();
+	MemberImages.Add(Img_Main);
+	MemberImages.Add(Img_Member1);
+	MemberImages.Add(Img_Member2);
+	MemberImages.Add(Img_Member3);
+	MemberImages.Add(Img_Member4);
+}
+
 void ULRPartyLineupWidget::BindProperties()
 {
 	Super::BindProperties();
@@ -34,12 +46,17 @@ void ULRPartyLineupWidget::RefreshUI()
 	
 	TArray<FName> PartyCharacterIDs = SaveGameSubsystem->GetAllPartyCharactersIDs();
 
-	Img_Main->SetBrushFromTexture(GameDataSubsystem->GetCharacterStaticData(PartyCharacterIDs[0]).PortraitIcon.LoadSynchronous());
-	Img_Member1->SetBrushFromTexture(GameDataSubsystem->GetCharacterStaticData(PartyCharacterIDs[1]).PortraitIcon.LoadSynchronous());
-	Img_Member2->SetBrushFromTexture(GameDataSubsystem->GetCharacterStaticData(PartyCharacterIDs[2]).PortraitIcon.LoadSynchronous());
-	Img_Member3->SetBrushFromTexture(GameDataSubsystem->GetCharacterStaticData(PartyCharacterIDs[3]).PortraitIcon.LoadSynchronous());
-	Img_Member4->SetBrushFromTexture(GameDataSubsystem->GetCharacterStaticData(PartyCharacterIDs[4]).PortraitIcon.LoadSynchronous());
-	
+	for (int32 i = 0; i < MemberImages.Num(); i++)
+	{
+		if (PartyCharacterIDs.IsValidIndex(i))
+		{
+			MemberImages[i]->SetBrushFromTexture(GameDataSubsystem->GetCharacterStaticData(PartyCharacterIDs[i]).PortraitIcon.LoadSynchronous());
+		}
+		else
+		{
+			MemberImages[i]->SetBrushFromTexture(EmptySlotTexture);
+		}
+	}
 	// TODO: 장비 이미지 설정
 	TArray<FGuid> LeaderEquipmentIDs = SaveGameSubsystem->GetAllLeaderEquipmentIDs();
 }
@@ -47,6 +64,6 @@ void ULRPartyLineupWidget::RefreshUI()
 void ULRPartyLineupWidget::OnRegroupButtonClicked()
 {
 	UUIManagerSubsystem* UIManagerSubsystem = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManagerSubsystem->SwitchPageUIByID(EUIID::PARTY);
+	UIManagerSubsystem->OpenUIByID(EUIID::PARTY);
 }
 
