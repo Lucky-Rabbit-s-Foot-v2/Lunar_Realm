@@ -17,8 +17,9 @@
 //=============================================================================
 // (260209) BJM 제작. GameplayAbility 기본 클래스 생성.
 // (260209) KHS 기본 헬퍼, 공통 설정 추가
-// (260223) BJM 수정, CachedTarget 타입 LRCharacter -> AActor로 변경\
+// (260223) BJM 수정, CachedTarget 타입 LRCharacter -> AActor로 변경
 // (260310) BJM 수정, 공용 태그 삭제 후 CooldownTagContainer로 대체
+// (260317) KWB 수정, CachedOptionalObject 멤버 추가 및 캐싱 멤버에 ActivateAbility 추가
 //=============================================================================
 
 class ALRCharacter;
@@ -110,6 +111,8 @@ protected:
 	TObjectPtr<const ALRCharacter> CachedInstigator;
 	UPROPERTY()
 	TObjectPtr<const AActor> CachedTarget;
+	UPROPERTY()
+	TObjectPtr<const UObject> CachedOptionalObject;
 	
 	FGameplayTagContainer CooldownTagContainer;
 	
