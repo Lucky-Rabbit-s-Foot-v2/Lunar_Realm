@@ -53,7 +53,6 @@ EBTNodeResult::Type ULRBTTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 	FVector MyLoc = MyPawn->GetActorLocation();
 	FVector TargetLoc = TargetActor->GetActorLocation();
 
-	// TEST
 	float EnemyRadius = 0.f;
 	if (UCapsuleComponent* CapsuleComp = MyPawn->FindComponentByClass<UCapsuleComponent>())
 	{
@@ -142,11 +141,6 @@ void ULRBTTAttack::OnAbilityEnded(const FAbilityEndedData& EndedData, UBehaviorT
 		Memory->bAbilityEndedSynchronously = true;
 		return;
 	}
-
-	// TEST
-	LR_INFO(TEXT("[BTTAttack] OnAbilityEnded — EndedTag: %s / ActivatedTag: %s"),
-		*EndedData.AbilityThatEnded->GetAssetTags().ToString(),
-		*Memory->ActivatedAbilityTag.ToString());
 
 	if (EndedData.AbilityThatEnded->GetAssetTags().HasTag(Memory->ActivatedAbilityTag))
 	{

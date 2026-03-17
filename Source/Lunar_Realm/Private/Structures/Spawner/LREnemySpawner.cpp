@@ -3,10 +3,9 @@
 
 #include "Structures/Spawner/LREnemySpawner.h"
 #include "Components/BoxComponent.h"
-#include "Core/LRGameInstance.h"
 #include "Engine/GameInstance.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Subsystems/GameDataSubsystem.h"
+#include "Subsystems/StageManagerSubsystem.h"
 #include "Subsystems/PoolingSubsystem.h"
 #include "System/LoggingSystem.h"
 #include "Units/Enemy/LREnemyCharacter.h"
@@ -55,16 +54,13 @@ void ALREnemySpawner::BeginPlay()
 
 	float Rate = FMath::Max(CurrentSpawnInterval, 0.05f);
 
-	// TEST
 	if (WaitTime <= 0.0f)
 	{
 		SpawnEnemy();
-		// 그 후 지정된 주기(Rate)마다 스폰되도록 타이머를 설정합니다. (FirstDelay 사용 안 함)
 		GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy, Rate, true);
 	}
 	else
 	{
-		// WaitTime이 존재한다면, 타이머의 FirstDelay 인자로 WaitTime을 넘겨주어 대기 후 스폰되도록 합니다.
 		GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy, Rate, true, WaitTime);
 	}
 }
@@ -75,48 +71,24 @@ void ALREnemySpawner::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-// TODO: 리팩토링 필요
 bool ALREnemySpawner::InitializeFromStageData()
 {
 	UGameInstance* GI = GetGameInstance();
-	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
-	if (!GI || !DataSys)
+	UStageManagerSubsystem* StageMgr = GI ? GI->GetSubsystem<UStageManagerSubsystem>() : nullptr;
+	if (!GI || !StageMgr)
 	{
-		LR_ERROR(TEXT("GameDataSubsystem not found in spawner"));
+		LR_ERROR(TEXT("StageManagerSubsystem not found in spawner"));
 		return false;
 	}
 
-	if (const ULRGameInstance* LRGameInstance = Cast<ULRGameInstance>(GI))
-	{
-		CurrentStageID = LRGameInstance->GetCurrentStageID();
-	}
-
-	// NOTE: StageID -> GameInstance의 CurrentStageID를 임시 사용. => 추후 준범님이 스테이지 매니저 구현하면 거기서 받아올 예정
+	CurrentStageID = StageMgr->GetCurrentStageID();
 	if (CurrentStageID == NAME_None)
 	{
-		LR_WARN(TEXT("EnemySpawner(%s): CurrentStageID is NAME_None. "
-			"GameInstance->SetCurrentStageID()가 호출되었는지 확인 필요."), *GetName());
+		LR_WARN(TEXT("EnemySpawner(%s): CurrentStageID is NAME_None. StageManagerSubsystem->LoadStage()가 호출되었는지 확인 필요."), *GetName());
 		return false;
 	}
 
-	const FStageStaticData& StageData = DataSys->GetStageStaticData(CurrentStageID);
-
-	// TODO: StageManager에서 데이터 가져오는 로직으로 수정
-	bool bValidStageData = (StageData.DataID != NAME_None) && (StageData.SpawnEnemyIDs.Num() > 0);
-	if (!bValidStageData)
-	{
-		LR_WARN(TEXT("EnemySpawner(%s): Stage(%s) data invalid or has no SpawnEnemyIDs"),
-			*GetName(), *CurrentStageID.ToString());
-		return false;
-	}
-	else
-	{
-		CachedEnemyIDs = StageData.SpawnEnemyIDs;
-		CachedEnemyWeights = StageData.SpawnWeights;
-		CurrentSpawnInterval = StageData.SpawnInterval > 0.0f ? StageData.SpawnInterval : DefaultSpawnInterval;
-		bIsBossStage = StageData.bIsBossStage;
-	}
-
+	bIsBossStage = StageMgr->IsBossStage();
 	if (bSpawnOnlyBossStage != bIsBossStage)
 	{
 		LR_INFO(TEXT("EnemySpawner(%s): Stage type mismatch (SpawnerBossOnly=%s, StageIsBoss=%s). Skipping."),
@@ -126,14 +98,23 @@ bool ALREnemySpawner::InitializeFromStageData()
 		return false;
 	}
 
-	// 최종 유효성 검사: 캐시된 에너미 ID가 비어있으면 실패
-	if (CachedEnemyIDs.Num() <= 0)
+	const FStageSpawnerData& SpawnerData = StageMgr->GetCurrentStageSpawnerData();
+	if (SpawnerData.SpawnableEnemies.Num() <= 0)
 	{
-		LR_WARN(TEXT("EnemySpawner(%s): Stage(%s) has no enemy IDs"),
-			*GetName(), *CurrentStageID.ToString());
+		LR_WARN(TEXT("EnemySpawner(%s): Stage(%s) has no enemy data"), *GetName(), *CurrentStageID.ToString());
 		return false;
 	}
-	
+
+	CachedEnemyIDs.Empty();
+	CachedEnemyWeights.Empty();
+	for (const FStageSpawnEnemyData& EnemyEntry : SpawnerData.SpawnableEnemies)
+	{
+		CachedEnemyIDs.Add(EnemyEntry.EnemyID);
+		CachedEnemyWeights.Add(EnemyEntry.SpawnWeight);
+	}
+
+	CurrentSpawnInterval = SpawnerData.SpawnInterval > 0.0f ? SpawnerData.SpawnInterval : DefaultSpawnInterval;
+
 	return true;
 }
 
@@ -182,7 +163,6 @@ void ALREnemySpawner::SpawnEnemy()
 		return;
 	}
 
-	// TEST
 	for (int32 i = 0; i < SpawnCountAtOnce; ++i)
 	{
 		// 1. 스폰할 적 ID 무작위 선택

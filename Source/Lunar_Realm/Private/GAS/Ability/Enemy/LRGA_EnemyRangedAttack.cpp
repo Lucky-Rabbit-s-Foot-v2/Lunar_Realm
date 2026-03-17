@@ -33,9 +33,6 @@ ULRGA_EnemyRangedAttack::ULRGA_EnemyRangedAttack()
 
 void ULRGA_EnemyRangedAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	// TEST
-	LR_INFO(TEXT("[EnemyRangedAttack] OnAbilityActivated 진입!"));
-
 	bProjectileSpawned = false;
 	ActiveMontage = nullptr;
 
@@ -155,12 +152,6 @@ void ULRGA_EnemyRangedAttack::OnMontageNotifyBegin(FName NotifyName, const FBran
 
 void ULRGA_EnemyRangedAttack::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	// TEST
-	LR_INFO(TEXT("[EnemyRangedAttack] OnMontageEnded 호출 — Montage: %s / ActiveMontage: %s / Interrupted: %s"),
-		Montage ? *Montage->GetName() : TEXT("NULL"),
-		ActiveMontage ? *ActiveMontage->GetName() : TEXT("NULL"),
-		bInterrupted ? TEXT("TRUE") : TEXT("FALSE"));
-
 	if (Montage != ActiveMontage)
 	{
 		LR_WARN(TEXT("[EnemyRangedAttack] OnMontageEnded — Montage 불일치, 무시"));
