@@ -73,7 +73,6 @@ void ULRPartySlotsWidget::RegisterSubWidgets()
 
 void ULRPartySlotsWidget::RefreshPartySlots()
 {
-	LR_INFO(TEXT("Refreshing Party Slots..."));
 	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
 	TArray<FName> PartyCharactersIDs = SaveGameSubsystem->GetAllPartyCharactersIDs();
 
@@ -81,7 +80,6 @@ void ULRPartySlotsWidget::RefreshPartySlots()
 	{
 		if (SubWidgets.IsValidIndex(SlotIdx))
 		{
-			LR_INFO(TEXT("Updating Slot %d with Character ID: %s"), SlotIdx, *PartyCharactersIDs[SlotIdx].ToString());
 			if (ULRPartySlotWidget* CurrentSlot = Cast<ULRPartySlotWidget>(SubWidgets[SlotIdx]))
 			{
 				CurrentSlot->SetCharacterID(PartyCharactersIDs.IsValidIndex(SlotIdx) ? PartyCharactersIDs[SlotIdx] : NAME_None);

@@ -25,6 +25,7 @@ public:
 	void SetID(const FName& InID) { ID = InID; }
 	void SetIcon(UTexture2D* InIcon) { Icon = InIcon; }
 	void SetFrame(UTexture2D* InFrame) { Frame = InFrame; }
+	void SetIsLocked(bool bInIsLocked) { bIsLocked = bInIsLocked; }
 
 	UFUNCTION(BlueprintCallable, Category = "LR|Tile Data")
 	FName GetID() const { return ID; }
@@ -35,6 +36,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Tile Data")
 	UTexture2D* GetFrame() const { return Frame; }
 
+	bool IsLocked() { return bIsLocked; }
+
 private:
 	UPROPERTY()
 	FName ID;
@@ -44,6 +47,9 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<class UTexture2D> Frame;
+
+	UPROPERTY()
+	bool bIsLocked = true;
 };
 
 UCLASS()
@@ -62,6 +68,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UImage> Img_Icon;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> Img_Locked;
 
 	UPROPERTY()
 	TObjectPtr<ULRTileData> TileData;
