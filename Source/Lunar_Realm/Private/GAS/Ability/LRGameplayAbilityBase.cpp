@@ -37,6 +37,7 @@ void ULRGameplayAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 	{
 		CachedInstigator = Cast<ALRCharacter>(TriggerEventData->Instigator.Get());
 		CachedTarget = TriggerEventData->Target.Get();
+		CachedOptionalObject = TriggerEventData->OptionalObject;
 	}
 	
 	CommitAbilityCooldown(Handle, ActorInfo, ActivationInfo, false);
