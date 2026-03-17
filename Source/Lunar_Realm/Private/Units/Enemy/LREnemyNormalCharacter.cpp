@@ -23,7 +23,8 @@ void ALREnemyNormalCharacter::OnPoolActivate_Implementation()
 
 	if (GetAbilitySystemComponent())
 	{
-		GetAbilitySystemComponent()->AddLooseGameplayTag(UnitTag);
+		// 중복 추가를 방지, 태그의 개수 1개로 강제 고정
+		GetAbilitySystemComponent()->SetLooseGameplayTagCount(UnitTag, 1);
 	}
 }
 
@@ -31,7 +32,8 @@ void ALREnemyNormalCharacter::OnPoolDeactivate_Implementation()
 {
 	if (GetAbilitySystemComponent() && UnitTag.IsValid())
 	{
-		GetAbilitySystemComponent()->RemoveLooseGameplayTag(UnitTag);
+		// 명시적으로 0개로 고정
+		GetAbilitySystemComponent()->SetLooseGameplayTagCount(UnitTag, 0);
 	}
 
 	Super::OnPoolDeactivate_Implementation();

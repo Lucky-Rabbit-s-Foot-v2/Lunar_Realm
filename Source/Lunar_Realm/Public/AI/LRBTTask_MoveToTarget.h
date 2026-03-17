@@ -28,5 +28,5 @@ protected:
 	virtual EBTNodeResult::Type PerformMoveTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 private:
-	static constexpr float AcceptanceRangeOffset = 100.f;
+	static constexpr float AcceptanceRangeOffset = 5.0f;
 };

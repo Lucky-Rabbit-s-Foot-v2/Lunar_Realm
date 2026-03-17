@@ -31,6 +31,23 @@ protected:
 	//260219 KHS 베이스GA동작방식 변경으로 상속함수 변경
 	virtual void OnAbilityActivated(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
 	
+private:
+	UFUNCTION()
+	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	UFUNCTION()
+	void OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& Payload);
+
+	void UnbindMontageCallbacks(UAnimInstance* AnimInstance);
+
+protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
+
+private:
+	TObjectPtr<UAnimMontage> ActiveMontage = nullptr;
+	bool bDamageApplied = false;
+
+	// 에디터의 AnimMontage에 설정해야 하는 Notify 이름
+	static const FName HitNotifyName;
 };

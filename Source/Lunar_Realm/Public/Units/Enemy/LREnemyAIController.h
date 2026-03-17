@@ -44,6 +44,19 @@ public:
 
 	void InitializeFromEnemyData(FName EnemyID);
 
+	virtual void OnPoolDeactivate_Implementation() override;
+
+private:
+	bool IsSkillOnCooldown(UAbilitySystemComponent* ASC, FGameplayTag SkillTag) const;
+
 private:
 	static constexpr float DetectionRadiusOffset = 500.0f;
+
+	FGameplayTag CachedNormalSkillTag;
+	FGameplayTag CachedSpecialSkillTag;
+
+	TObjectPtr<UAnimMontage> CachedNormalMontage = nullptr;
+	TObjectPtr<UAnimMontage> CachedSpecialMontage = nullptr;
+
+	bool bHasSpecialSkill = false;
 };
