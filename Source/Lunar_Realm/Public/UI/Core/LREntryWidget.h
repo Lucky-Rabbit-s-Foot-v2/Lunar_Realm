@@ -24,6 +24,7 @@ class LUNAR_REALM_API ULRTileData : public UObject
 public:
 	void SetID(const FName& InID) { ID = InID; }
 	void SetIcon(UTexture2D* InIcon) { Icon = InIcon; }
+	void SetFrame(UTexture2D* InFrame) { Frame = InFrame; }
 
 	UFUNCTION(BlueprintCallable, Category = "LR|Tile Data")
 	FName GetID() const { return ID; }
@@ -31,12 +32,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Tile Data")
 	UTexture2D* GetIcon() const { return Icon; }
 
+	UFUNCTION(BlueprintCallable, Category = "LR|Tile Data")
+	UTexture2D* GetFrame() const { return Frame; }
+
 private:
 	UPROPERTY()
 	FName ID;
 
 	UPROPERTY()
 	TObjectPtr<class UTexture2D> Icon;
+
+	UPROPERTY()
+	TObjectPtr<class UTexture2D> Frame;
 };
 
 UCLASS()
@@ -50,6 +57,9 @@ public:
 	virtual void RefreshData();
 
 protected:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> Img_Frame;
+
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UImage> Img_Icon;
 

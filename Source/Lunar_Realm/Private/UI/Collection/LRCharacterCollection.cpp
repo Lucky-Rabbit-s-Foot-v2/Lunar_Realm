@@ -28,6 +28,7 @@ void ULRCharacterCollection::RefreshUI()
 		ULRTileData* TileDataObject = NewObject<ULRTileData>(this);
 		TileDataObject->SetID(CharacterData.DataID);
 		TileDataObject->SetIcon(CharacterData.CharacterTexture.LoadSynchronous());
+		TileDataObject->SetFrame(CharacterData.PortraitFrame.LoadSynchronous());
 		CharacterTileView->AddItem(TileDataObject);
 	}
 }
