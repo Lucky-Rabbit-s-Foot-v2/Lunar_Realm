@@ -12,6 +12,10 @@
 #include "GAS/Tags/LRGameplayTags.h"
 #include "System/LoggingSystem.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Projectiles/LRProjectile.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Subsystems/GameDataSubsystem.h"
+#include "Projectiles/LRProjectile.h"
 
 
 ULRGA_BasicAttack::ULRGA_BasicAttack()
@@ -33,7 +37,7 @@ ULRGA_BasicAttack::ULRGA_BasicAttack()
 void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[GA_Attack] 평타 GA 실행됨! 진입 성공!"));
+	//UE_LOG(LogTemp, Warning, TEXT("[GA_Attack] 평타 GA 실행됨! 진입 성공!"));
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
@@ -110,24 +114,78 @@ void ULRGA_BasicAttack::OnHitEventReceived(FGameplayEventData InPayload)
 	const AActor* TargetActor = CachedTarget;
 	if (!TargetActor) return;
 
-	if (DamageEffectClass && GetOwnerASC())
+	UGameInstance* GI = GetWorld()->GetGameInstance();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+
+	// 근접 공격 (노티파이 데미지)
+	if (bIsMeleeAttack)
 	{
+		LR_INFO(TEXT("[GA_Attack] 근접 공격 발동"));
+
 		FGameplayEffectContextHandle Context = GetOwnerASC()->MakeEffectContext();
 		FGameplayEffectSpecHandle SpecHandle = GetOwnerASC()->MakeOutgoingSpec(DamageEffectClass, 1.0f, Context);
 
 		if (SpecHandle.IsValid())
 		{
+			if (DataSys && SkillEffectID != NAME_None)
+			{
+				const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillEffectID);
+			}
 			UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor);
 			if (TargetASC)
 			{
 				TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-				LR_INFO(TEXT("노티파이 타이밍에 데미지 성공 타겟: %s"), *TargetActor->GetName());
+			}
+		}
+	}
+	// 원거리 공격 (투사체 발사)
+	else if (ProjectileClass)
+	{
+
+		ALRCharacter* OwnerChar = Cast<ALRCharacter>(GetAvatarActorFromActorInfo());
+		if (!OwnerChar || !DataSys) return;
+
+		const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillEffectID);
+		const FSkillStaticData& StaticData = DataSys->GetSkillStaticData(SkillID);
+		const FSkillSpawnData& SpawnData = DataSys->GetSkillSpawnData(SkillEffectID);
+
+		FVector SpawnLocation = OwnerChar->GetActorLocation() + (OwnerChar->GetActorForwardVector() * 100.0f);
+		FRotator FireRotation = OwnerChar->GetActorRotation();
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = OwnerChar;
+		SpawnParams.Instigator = OwnerChar;
+
+		ALRProjectile* SpawnedProj = GetWorld()->SpawnActor<ALRProjectile>(ProjectileClass, SpawnLocation, FireRotation, SpawnParams);
+
+		if (SpawnedProj)
+		{
+			FSkillObjectInitData InitData;
+			InitData.DamageEffectClass = DamageEffectClass;
+			InitData.InstigatorASC = GetOwnerASC();
+			InitData.SkillEffectID = SkillEffectID;
+			InitData.ResourceID = StaticData.ResourceID;
+			InitData.Damage = EffectData.Amount;
+			InitData.Speed = EffectData.Speed;
+			InitData.Lifetime = EffectData.Lifetime;
+			InitData.SpawnData = SpawnData;
+
+			SpawnedProj->InitSkillObject(InitData);
+
+			// 유도(Homing) 기능 세팅
+			if (TargetActor)
+			{
+				UProjectileMovementComponent* ProjMovement = SpawnedProj->FindComponentByClass<UProjectileMovementComponent>();
+				if (ProjMovement && ProjMovement->bIsHomingProjectile)
+				{
+					ProjMovement->HomingTargetComponent = TargetActor->GetRootComponent();
+				}
 			}
 		}
 	}
 	else
 	{
-		LR_WARN(TEXT("DamageEffectClass가 None이거나 내 ASC가 없음"));
+		LR_WARN(TEXT("[GA_Attack] 원거리 모드인데 ProjectileClass가 비어있음"));
 	}
 }
 

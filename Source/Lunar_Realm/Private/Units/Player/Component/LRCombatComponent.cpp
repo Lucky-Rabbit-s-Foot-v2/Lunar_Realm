@@ -376,64 +376,17 @@ void ULRCombatComponent::UpdateTargetIndicator(ALRCharacter* InOwnerCharacter)
 		{
 			CurrentEnemyTarget->SetTargetMarkerVisibility(true);
 		}
-		//if (PreviousEnemyTarget && IsValid(PreviousEnemyTarget))
-		//{
-		//	PreviousEnemyTarget->SetTargetMarkerVisibility(false);
-		//}
-
-		//if (CurrentEnemyTarget && IsValid(CurrentEnemyTarget) && !IsTargetDead(CurrentEnemyTarget))
-		//{
-		//	CurrentEnemyTarget->SetTargetMarkerVisibility(true);
-		//}
 
 		PreviousEnemyTarget = CurrentEnemyTarget;
 	}
 
-
-
-	//if (!CurrentTarget && PreviousEnemyTarget)
-	//{
-	//	if (IsValid(PreviousEnemyTarget))
-	//	{
-	//		PreviousEnemyTarget->SetTargetMarkerVisibility(false);
-	//	}
-	//	PreviousEnemyTarget = nullptr;
-	//}
 
 	if (!IsValid(CurrentTarget) && IsValid(PreviousEnemyTarget))
 	{
 		PreviousEnemyTarget->SetTargetMarkerVisibility(false);
 		PreviousEnemyTarget = nullptr;
 	}
-	/*UDecalComponent* TargetIndicator = InOwnerCharacter->FindComponentByClass<UDecalComponent>();
-	if (!TargetIndicator) return;
 
-	if (!CurrentTarget)
-	{
-		TargetIndicator->SetVisibility(false);
-		return;
-	}
-
-	bool bInRange = IsTargetInRange();
-	bool bShowIndicator = false;
-
-	if (CombatState == EAutoCombatState::Auto)
-	{
-		bShowIndicator = true;
-	}
-	else
-	{
-		bShowIndicator = bInRange;
-	}
-
-	TargetIndicator->SetVisibility(bShowIndicator);
-
-	if (bShowIndicator)
-	{
-		FVector TargetLoc = CurrentTarget->GetActorLocation();
-		TargetLoc.Z -= 90.0f;
-		TargetIndicator->SetWorldLocation(TargetLoc);
-	}*/
 }
 
 void ULRCombatComponent::CheckAndClearDeadTarget()
@@ -614,44 +567,6 @@ bool ULRCombatComponent::TryExcuteSkill(ALRCharacter* InOwnerCharacter)
 		}
 	}
 
-
-	//for (const FName& SkillID : EquippedSkillIDs)
-	//{
-	//	const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillID);
-	//	FGameplayTag SkillTag = SkillData.SkillTag;
-
-	//	const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillData.SkillEffectID);
-	//	float RealAttackRange = EffectData.Range;
-	//	//LR_INFO(TEXT("[TryExecuteSkill] 검사 중인 스킬 ID: %s | 태그: %s | 사거리: %.1f"),
-	//	//	*SkillID.ToString(), *SkillTag.ToString(), RealAttackRange);
-
-	//	float DistSq = FVector::DistSquared(InOwnerCharacter->GetActorLocation(), CurrentTarget->GetActorLocation());
-	//	float RangeSq = RealAttackRange * RealAttackRange;
-
-	//	if (DistSq <= RangeSq)
-	//	{
-
-	//		FGameplayEventData EventData;
-	//		EventData.Instigator = InOwnerCharacter;
-	//		EventData.Target = CurrentTarget;
-
-	//		int32 TriggeredCount = ASC->HandleGameplayEvent(SkillTag, &EventData);
-
-	//		if (TriggeredCount > 0)
-	//		{
-	//			//LR_INFO(TEXT("오토 스킬 발동 성공 태그: %s | 사거리: %.1f"), *SkillTag.ToString(), RealAttackRange);
-	//			AutoSkillDelay = 2.0f;
-
-
-	//			return true;
-	//		}
-	//		else
-	//		{
-	//			//LR_WARN(TEXT("[TryExecuteSkill] 발동 실패 : %s"), *SkillTag.ToString());
-	//		}
-	//	}
-	//}
-
 	return false;
 }
 
@@ -682,17 +597,6 @@ bool ULRCombatComponent::TryAutoSummon(ALRCharacter* InOwnerCharacter)
 
 	return false;
 }
-
-//void ULRCombatComponent::UpdateRangeDecalSize()
-//{
-//
-//	if (RangeDecal)
-//	{
-//		RangeDecal->DecalSize.X = AttackRange;
-//		RangeDecal->DecalSize.Y = AttackRange;
-//	}
-//
-//}
 
 void ULRCombatComponent::UpdateRangeMeshSize(float InRange)
 {
@@ -796,18 +700,6 @@ bool ULRCombatComponent::CheckAndUseAutoHeal(ALRPlayerCharacter* InPlayerChar)
 		// 30% 이하일 때만 true 반환하여 소환 멈춤
 		return bIsEmergency;
 	}
-
-	//if (HealthRatio <= 0.3f)
-	//{
-	//	
-	//	ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(HealSkillTag));
-	//	return true;
-	//}
-	//if (HealthRatio <= 0.7f)
-	//{
-	//	ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(HealSkillTag));
-	//	return false;
-	//}
 
 	return false;
 	
