@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LRPopupWidget.h"
-#include "LRStagePopupWidget.generated.h"
+#include "UI/Core/LRPageWidget.h"
+#include "LRStagePageWidget.generated.h"
 
 //============================================================================
 /**
@@ -16,7 +16,7 @@
  //============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRStagePopupWidget : public ULRPopupWidget
+class LUNAR_REALM_API ULRStagePageWidget : public ULRPageWidget
 {
 	GENERATED_BODY()
 	

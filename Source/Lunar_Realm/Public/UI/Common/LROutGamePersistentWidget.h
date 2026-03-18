@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/LROverlayWidget.h"
-#include "LROutGameOverlayWidget.generated.h"
+#include "UI/Core/LRPersistentWidget.h"
+#include "LROutGamePersistentWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LUNAR_REALM_API ULROutGameOverlayWidget : public ULROverlayWidget
+class LUNAR_REALM_API ULROutGamePersistentWidget : public ULRPersistentWidget
 {
 	GENERATED_BODY()
 	
