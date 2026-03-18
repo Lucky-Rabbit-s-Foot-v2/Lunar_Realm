@@ -52,4 +52,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "LR|Basic Attack|Ranged", meta = (EditCondition = "!bIsMeleeAttack"))
 	float ProjectileSpeed = 1500.0f;
 
+	//UPROPERTY(EditDefaultsOnly, Category = "LR|Basic Attack|Data")
+	//FName BasicAttackSkillID;
+
+	//UPROPERTY(EditDefaultsOnly, Category = "LR|Basic Attack|Data")
+	//FName BasicAttackSkillEffectID;
+
 };

@@ -14,6 +14,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Projectiles/LRProjectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Subsystems/GameDataSubsystem.h"
+#include "Projectiles/LRProjectile.h"
 
 
 ULRGA_BasicAttack::ULRGA_BasicAttack()
@@ -112,6 +114,9 @@ void ULRGA_BasicAttack::OnHitEventReceived(FGameplayEventData InPayload)
 	const AActor* TargetActor = CachedTarget;
 	if (!TargetActor) return;
 
+	UGameInstance* GI = GetWorld()->GetGameInstance();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+
 	// 근접 공격 (노티파이 데미지)
 	if (bIsMeleeAttack)
 	{
@@ -122,6 +127,10 @@ void ULRGA_BasicAttack::OnHitEventReceived(FGameplayEventData InPayload)
 
 		if (SpecHandle.IsValid())
 		{
+			if (DataSys && SkillEffectID != NAME_None)
+			{
+				const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillEffectID);
+			}
 			UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor);
 			if (TargetASC)
 			{
@@ -134,7 +143,11 @@ void ULRGA_BasicAttack::OnHitEventReceived(FGameplayEventData InPayload)
 	{
 
 		ALRCharacter* OwnerChar = Cast<ALRCharacter>(GetAvatarActorFromActorInfo());
-		if (!OwnerChar) return;
+		if (!OwnerChar || !DataSys) return;
+
+		const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillEffectID);
+		const FSkillStaticData& StaticData = DataSys->GetSkillStaticData(SkillID);
+		const FSkillSpawnData& SpawnData = DataSys->GetSkillSpawnData(SkillEffectID);
 
 		FVector SpawnLocation = OwnerChar->GetActorLocation() + (OwnerChar->GetActorForwardVector() * 100.0f);
 		FRotator FireRotation = OwnerChar->GetActorRotation();
@@ -143,48 +156,32 @@ void ULRGA_BasicAttack::OnHitEventReceived(FGameplayEventData InPayload)
 		SpawnParams.Owner = OwnerChar;
 		SpawnParams.Instigator = OwnerChar;
 
-		// 1. 부모 함수 안 쓰고, 여기서 투사체를 직접 스폰!
 		ALRProjectile* SpawnedProj = GetWorld()->SpawnActor<ALRProjectile>(ProjectileClass, SpawnLocation, FireRotation, SpawnParams);
 
 		if (SpawnedProj)
 		{
-			// 2. 초기 데이터 세팅
 			FSkillObjectInitData InitData;
 			InitData.DamageEffectClass = DamageEffectClass;
 			InitData.InstigatorASC = GetOwnerASC();
-			InitData.Speed = ProjectileSpeed;
-			InitData.Lifetime = 3.0f;
+			InitData.SkillEffectID = SkillEffectID;
+			InitData.ResourceID = StaticData.ResourceID;
+			InitData.Damage = EffectData.Amount;
+			InitData.Speed = EffectData.Speed;
+			InitData.Lifetime = EffectData.Lifetime;
+			InitData.SpawnData = SpawnData;
 
 			SpawnedProj->InitSkillObject(InitData);
 
-			// ★ 3. 핵심: 투사체한테 '쫓아갈 놈(Target)'의 위치(RootComponent)를 쥐여줌!
+			// 유도(Homing) 기능 세팅
 			if (TargetActor)
 			{
 				UProjectileMovementComponent* ProjMovement = SpawnedProj->FindComponentByClass<UProjectileMovementComponent>();
-
-				// 블루프린트에서 '유도(Homing)' 옵션을 켰다면 타겟을 입력해준다!
 				if (ProjMovement && ProjMovement->bIsHomingProjectile)
 				{
 					ProjMovement->HomingTargetComponent = TargetActor->GetRootComponent();
 				}
 			}
 		}
-
-		/*LR_INFO(TEXT("[GA_Attack] 원거리 투사체 발사 성공 투사체: %s"), *ProjectileClass->GetName());
-
-		FSkillObjectInitData InitData;
-		InitData.DamageEffectClass = DamageEffectClass;
-		InitData.InstigatorASC = GetOwnerASC();
-		InitData.Speed = ProjectileSpeed;
-		InitData.Lifetime = 3.0f; 
-
-		InitData.SpawnData.ProjectileCount = 1;
-		InitData.SpawnData.SpawnPattern = ESpawnPattern::SINGLE;
-
-		ALRCharacter* OwnerChar = Cast<ALRCharacter>(GetAvatarActorFromActorInfo());
-		FRotator FireRotation = OwnerChar ? OwnerChar->GetActorRotation() : FRotator::ZeroRotator;
-
-		SpawnProjectiles(ProjectileClass, InitData, FireRotation);*/
 	}
 	else
 	{
