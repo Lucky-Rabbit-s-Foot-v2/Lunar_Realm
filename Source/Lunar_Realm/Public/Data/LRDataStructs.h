@@ -1127,3 +1127,87 @@ struct FLRGachaRevealPresentationData
 	UPROPERTY(BlueprintReadOnly)
 	bool bUseVideo = false;
 };
+
+// =============================================================================
+/** * FCharacterSoundData 구성 요소
+ * - 캐릭터 전용 사운드 데이터 (목소리 및 고유 효과음)
+ * - 무기/스킬 타격음은 SkillResourceData에서 관리하므로 제외
+ * - 사운드 에셋은 TSoftObjectPtr로 비동기 로딩하여 메모리 최적화
+ * - 자주 반복되는 사운드(기합, 피격음 등)는 배열(TArray)로 구성하여 랜덤 재생 지원
+ */
+ // =============================================================================
+
+//=============================================================================
+// (260318) BJM 제작.
+// =============================================================================
+
+USTRUCT(BlueprintType)
+struct FCharacterSoundData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
+	FName CharacterName;
+
+	// ========================================
+	// 캐릭터 목소리 대사
+	// ========================================
+
+	// 등장 / 소환 대사
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Voice")
+	TSoftObjectPtr<USoundBase> IntroVoice; 
+
+	// 기본공격
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Voice")
+	TArray<TSoftObjectPtr<USoundBase>> AttackGrunts;
+
+	// 스킬 1 대사
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Voice")
+	TSoftObjectPtr<USoundBase> Skill1Voice; 
+
+	// 스킬 2 대사
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Voice")
+	TSoftObjectPtr<USoundBase> Skill2Voice; 
+
+	// 회복 대사
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Voice")
+	TSoftObjectPtr<USoundBase> HealVoice; 
+
+	// 피격음
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Voice")
+	TArray<TSoftObjectPtr<USoundBase>> HitVoices;
+
+	// 사망
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Voice")
+	TSoftObjectPtr<USoundBase> DeathVoice; 
+
+	// 체력 30% 이하 위기 대사
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Voice")
+	TSoftObjectPtr<USoundBase> LowHPVoice; 
+
+	// 승리 대사
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Voice")
+	TSoftObjectPtr<USoundBase> VictoryVoice; 
+
+	// 패배 대사
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Voice")
+	TSoftObjectPtr<USoundBase> DefeatVoice;
+
+
+	// ========================================
+	// 캐릭터 행동 효과음
+	// ========================================
+
+	// 발소리
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Foley")
+	TArray<TSoftObjectPtr<USoundBase>> FootstepSounds;
+
+	// 사망시 효과음
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Foley")
+	TSoftObjectPtr<USoundBase> BodyFallSound;
+
+	// 소환 효과음
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Foley")
+	TSoftObjectPtr<USoundBase> SummonSound;
+
+};
