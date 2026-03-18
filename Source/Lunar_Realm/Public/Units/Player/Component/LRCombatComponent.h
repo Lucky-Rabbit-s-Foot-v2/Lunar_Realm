@@ -125,15 +125,6 @@ private:
 	float AutoSkillDelay = 0.0f;
 
 protected:
-	//// 사거리 표시용 데칼 컴포넌트
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Indicator")
-	//class UDecalComponent* RangeDecal;
-
-	//// 블루프린트에서 머티리얼을 꽂아줄 변수
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Indicator")
-	//class UMaterialInterface* RangeDecalMaterial;
-
-protected:
 	// 사거리 표시용 스태틱 메쉬 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Indicator")
 	class UStaticMeshComponent* RangeMesh;
