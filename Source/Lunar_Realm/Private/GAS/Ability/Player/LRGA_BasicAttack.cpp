@@ -4,6 +4,7 @@
 #include "GAS/Ability/Player/LRGA_BasicAttack.h"
 #include "Units/Player/Component/LRCombatComponent.h"
 #include "Units/LRCharacter.h"
+#include "Units/Player/LRPlayerState.h"
 #include "GAS/Attributes/LRAttributeSet.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
@@ -12,6 +13,10 @@
 #include "GAS/Tags/LRGameplayTags.h"
 #include "System/LoggingSystem.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Projectiles/LRProjectile.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Subsystems/GameDataSubsystem.h"
+#include "Kismet/GameplayStatics.h"
 
 
 ULRGA_BasicAttack::ULRGA_BasicAttack()
@@ -33,7 +38,7 @@ ULRGA_BasicAttack::ULRGA_BasicAttack()
 void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[GA_Attack] 평타 GA 실행됨! 진입 성공!"));
+	//UE_LOG(LogTemp, Warning, TEXT("[GA_Attack] 평타 GA 실행됨! 진입 성공!"));
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
@@ -83,6 +88,7 @@ void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
 
 	OwnerChar->SetActorRotation(LookAtRot);
 
+	PlayAttackGruntSound(OwnerChar);
 
 	// 몽타주 적용
 	if (AttackMontage)
@@ -110,24 +116,78 @@ void ULRGA_BasicAttack::OnHitEventReceived(FGameplayEventData InPayload)
 	const AActor* TargetActor = CachedTarget;
 	if (!TargetActor) return;
 
-	if (DamageEffectClass && GetOwnerASC())
+	UGameInstance* GI = GetWorld()->GetGameInstance();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+
+	// 근접 공격 (노티파이 데미지)
+	if (bIsMeleeAttack)
 	{
+		LR_INFO(TEXT("[GA_Attack] 근접 공격 발동"));
+
 		FGameplayEffectContextHandle Context = GetOwnerASC()->MakeEffectContext();
 		FGameplayEffectSpecHandle SpecHandle = GetOwnerASC()->MakeOutgoingSpec(DamageEffectClass, 1.0f, Context);
 
 		if (SpecHandle.IsValid())
 		{
+			if (DataSys && SkillEffectID != NAME_None)
+			{
+				const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillEffectID);
+			}
 			UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor);
 			if (TargetASC)
 			{
 				TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-				LR_INFO(TEXT("노티파이 타이밍에 데미지 성공 타겟: %s"), *TargetActor->GetName());
+			}
+		}
+	}
+	// 원거리 공격 (투사체 발사)
+	else if (ProjectileClass)
+	{
+
+		ALRCharacter* OwnerChar = Cast<ALRCharacter>(GetAvatarActorFromActorInfo());
+		if (!OwnerChar || !DataSys) return;
+
+		const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillEffectID);
+		const FSkillStaticData& StaticData = DataSys->GetSkillStaticData(SkillID);
+		const FSkillSpawnData& SpawnData = DataSys->GetSkillSpawnData(SkillEffectID);
+
+		FVector SpawnLocation = OwnerChar->GetActorLocation() + (OwnerChar->GetActorForwardVector() * 100.0f);
+		FRotator FireRotation = OwnerChar->GetActorRotation();
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = OwnerChar;
+		SpawnParams.Instigator = OwnerChar;
+
+		ALRProjectile* SpawnedProj = GetWorld()->SpawnActor<ALRProjectile>(ProjectileClass, SpawnLocation, FireRotation, SpawnParams);
+
+		if (SpawnedProj)
+		{
+			FSkillObjectInitData InitData;
+			InitData.DamageEffectClass = DamageEffectClass;
+			InitData.InstigatorASC = GetOwnerASC();
+			InitData.SkillEffectID = SkillEffectID;
+			InitData.ResourceID = StaticData.ResourceID;
+			InitData.Damage = EffectData.Amount;
+			InitData.Speed = EffectData.Speed;
+			InitData.Lifetime = EffectData.Lifetime;
+			InitData.SpawnData = SpawnData;
+
+			SpawnedProj->InitSkillObject(InitData);
+
+			// 유도(Homing) 기능 세팅
+			if (TargetActor)
+			{
+				UProjectileMovementComponent* ProjMovement = SpawnedProj->FindComponentByClass<UProjectileMovementComponent>();
+				if (ProjMovement && ProjMovement->bIsHomingProjectile)
+				{
+					ProjMovement->HomingTargetComponent = TargetActor->GetRootComponent();
+				}
 			}
 		}
 	}
 	else
 	{
-		LR_WARN(TEXT("DamageEffectClass가 None이거나 내 ASC가 없음"));
+		LR_WARN(TEXT("[GA_Attack] 원거리 모드인데 ProjectileClass가 비어있음"));
 	}
 }
 
@@ -135,4 +195,39 @@ void ULRGA_BasicAttack::OnMontageEnded()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 	//LR_WARN(TEXT("몽타주 종료됨 스킬 끝"));
+}
+
+void ULRGA_BasicAttack::PlayAttackGruntSound(ALRCharacter* InOwnerChar)
+{
+	if (!InOwnerChar) return;
+
+	ALRPlayerState* PS = InOwnerChar->GetPlayerState<ALRPlayerState>();
+	if (!PS) return;
+
+	FName CharID = PS->GetCharacterID();
+
+	UGameInstance* GI = GetWorld()->GetGameInstance();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+	if (!DataSys) return;
+
+	const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(CharID);
+
+	if (CharData.CharacterName.IsEmpty())
+	{
+		LR_WARN(TEXT("[GA_Attack] CharacterName이 비어있어서 사운드를 찾을 수 없음"));
+		return;
+	}
+
+	FName CharName = FName(*CharData.CharacterName);
+	const FCharacterSoundData& SoundData = DataSys->GetCharacterSoundData(CharName);
+
+	if (SoundData.AttackGrunts.Num() > 0)
+	{
+		int32 RandomIndex = FMath::RandRange(0, SoundData.AttackGrunts.Num() - 1);
+
+		if (USoundBase* LoadedSound = SoundData.AttackGrunts[RandomIndex].LoadSynchronous())
+		{
+			UGameplayStatics::PlaySoundAtLocation(InOwnerChar, LoadedSound, InOwnerChar->GetActorLocation());
+		}
+	}
 }

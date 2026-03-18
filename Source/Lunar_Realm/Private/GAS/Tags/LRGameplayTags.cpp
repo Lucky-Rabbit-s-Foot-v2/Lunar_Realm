@@ -22,6 +22,10 @@ namespace LRTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Lightning_Cooldown, "Ability.Skill.Lightning.Cooldown");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Arrow, "Ability.Skill.Arrow");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Arrow_Cooldown, "Ability.Skill.Arrow.Cooldown");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_RapidSlash, "Ability.Skill.RapidSlash");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_RapidSlash_Cooldown, "Ability.Skill.RapidSlash.Cooldown");
+
+
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Pierce, "Ability.Skill.Pierce");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Pierce_Cooldown, "Ability.Skill.Pierce.Cooldown");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_HomingArrow, "Ability.Skill.HomingArrow");
