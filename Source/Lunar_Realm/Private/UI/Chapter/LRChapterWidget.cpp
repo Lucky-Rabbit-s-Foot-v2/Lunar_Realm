@@ -11,7 +11,7 @@
 #include "Subsystems/UIManagerSubsystem.h"
 #include "Subsystems/GameDataSubsystem.h"
 
-#include "UI/Chapter/LRStagePopupWidget.h"
+#include "UI/Chapter/LRStagePageWidget.h"
 
 void ULRChapterWidget::BindProperties()
 {
@@ -47,9 +47,9 @@ void ULRChapterWidget::SetChapterID(FName InChapterID)
 void ULRChapterWidget::OnOpenButtonClicked()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	ULRStagePopupWidget* StageSelectorWidget = UIManager->OpenUI<ULRStagePopupWidget>(StageSelectorWidgetClass);
+	ULRStagePageWidget* StageSelectorWidget = UIManager->OpenUI<ULRStagePageWidget>(StageSelectorWidgetClass);
 
 	StageSelectorWidget->SetChapterID(ChapterID);
 
-	UIManager->OpenUI<ULRStagePopupWidget>(StageSelectorWidgetClass);
+	UIManager->OpenUI<ULRStagePageWidget>(StageSelectorWidgetClass);
 }
