@@ -5,3 +5,50 @@
 
 #include "Components/TextBlock.h"
 #include "Components/TileView.h"
+
+#include "Data/LRDataStructs.h"
+
+#include "Engine/GameInstance.h"
+
+#include "Subsystems/CollectionSubsystem.h"
+#include "Subsystems/GameDataSubsystem.h"
+
+#include "UI/Collection/LREquipEntryWidget.h"
+
+void ULREquipCollection::RefreshUI()
+{
+	Super::RefreshUI();
+
+	EquipTileView->ClearListItems();
+
+	UCollectionSubsystem* CollectionSubsystem = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
+	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+
+	TArray<FName> AllEquipmentIDs = GameDataSubsystem->GetAllEquipmentIDs();
+	for (const FName& EquipmentID : AllEquipmentIDs)
+	{
+		if(CollectionSubsystem->HasEquipment(EquipmentID))
+		{
+			AddItemToTileView(GameDataSubsystem, EquipmentID, false);
+		}
+	}
+
+	for (const FName& EquipmentID : AllEquipmentIDs)
+	{
+		if (!CollectionSubsystem->HasEquipment(EquipmentID))
+		{
+			AddItemToTileView(GameDataSubsystem, EquipmentID, true);
+		}
+	}
+}
+
+void ULREquipCollection::AddItemToTileView(UGameDataSubsystem* GameDataSubsystem, const FName& LockedEquipID, bool bIsLocked)
+{
+	const FEquipmentStaticData& EquipmentData = GameDataSubsystem->GetEquipmentStaticData(LockedEquipID);
+	
+	ULRTileData* TileDataObject = NewObject<ULRTileData>(this);
+	TileDataObject->SetID(EquipmentData.DataID);
+	TileDataObject->SetIcon(EquipmentData.EquipmentTexture.LoadSynchronous());
+	TileDataObject->SetIsLocked(bIsLocked);
+	EquipTileView->AddItem(TileDataObject);
+}
