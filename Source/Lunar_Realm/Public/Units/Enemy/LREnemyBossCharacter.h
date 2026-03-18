@@ -35,13 +35,18 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void FinishDeathSequence() override;
+
+private:
+	void OnBossHealthChanged(const FOnAttributeChangeData& Data);
+
+	int32 CalculatePhase(float HealthPercent) const;
+
+protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Boss|Phase")
 	TArray<float> PhaseThresholds = { 0.50f, 0.20f };
 
 private:
-	void OnBossHealthChanged(const FOnAttributeChangeData& Data);
-	int32 CalculatePhase(float HealthPercent) const;
-
 	int32 CurrentPhase = 0;
 
 	// TEST : 추후 DT에서 관리 예정

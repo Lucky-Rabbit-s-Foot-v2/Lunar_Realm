@@ -230,9 +230,6 @@ void ALREnemySpawner::SpawnBoss()
 
 	if (ALREnemyAIController* EnemyAIC = Cast<ALREnemyAIController>(BossEnemy->GetController()))
 	{
-		// TEST : 중복 호출 제거
-		// EnemyAIC->InitializeFromEnemyData(CachedBossEnemyID);
-
 		// TEST : 보스 케이스에만 탐지 거리 조정(공격 범위 + 100.f)
 		EnemyAIC->SetDetectionRadius(EnemyAIC->GetAttackRange() + 100.f);
 	}

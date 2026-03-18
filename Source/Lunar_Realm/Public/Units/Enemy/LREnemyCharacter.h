@@ -89,7 +89,7 @@ protected:
 	void DeactivateAuraVFX();
 
 	// 몽타주 완료 후 호출되는 후속 처리 함수
-	void FinishDeathSequence();
+	virtual void FinishDeathSequence();
 
 protected:
 	UPROPERTY()

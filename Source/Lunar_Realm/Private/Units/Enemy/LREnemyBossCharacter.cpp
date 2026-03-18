@@ -6,8 +6,10 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Core/Stage/LRStageGameMode.h"
 #include "GAS/Attributes/LREnemyAttributeSet.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "System/LoggingSystem.h"
 #include "Units/LRAIController.h"
 
@@ -41,6 +43,20 @@ void ALREnemyBossCharacter::BeginPlay()
 	}
 
 	ASC->GetGameplayAttributeValueChangeDelegate(ULREnemyAttributeSet::GetHealthAttribute()).AddUObject(this, &ALREnemyBossCharacter::OnBossHealthChanged);
+}
+
+void ALREnemyBossCharacter::FinishDeathSequence()
+{
+	Super::FinishDeathSequence();
+
+	if (ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(UGameplayStatics::GetGameMode(this)))
+	{
+		StageGM->OnGameClear();
+	}
+	else
+	{
+		LR_ERROR(TEXT("[Boss] StageGameMode를 찾을 수 없음 - GameClear 호출 실패"));
+	}
 }
 
 void ALREnemyBossCharacter::OnBossHealthChanged(const FOnAttributeChangeData& Data)
