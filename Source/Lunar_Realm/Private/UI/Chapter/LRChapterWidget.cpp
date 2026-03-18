@@ -46,10 +46,9 @@ void ULRChapterWidget::SetChapterID(FName InChapterID)
 
 void ULRChapterWidget::OnOpenButtonClicked()
 {
+	const UUIManagerSettings* UIManagerSettings = GetDefault<UUIManagerSettings>();
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	ULRStagePageWidget* StageSelectorWidget = UIManager->OpenUI<ULRStagePageWidget>(StageSelectorWidgetClass);
 
-	StageSelectorWidget->SetChapterID(ChapterID);
-
-	UIManager->OpenUI<ULRStagePageWidget>(StageSelectorWidgetClass);
+	ULRStagePageWidget* StagePage = Cast<ULRStagePageWidget>(UIManager->OpenUIByID(EUIID::STAGE));
+	StagePage->SetChapterID(ChapterID);
 }

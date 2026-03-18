@@ -21,18 +21,18 @@ class LUNAR_REALM_API ULRStagePageWidget : public ULRPageWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void BindProperties() override;
-	virtual void UnbindProperties() override;
+	virtual void InitializeUI() override;
 
 	virtual void RegisterSubWidgets() override;
 
+	UFUNCTION(BlueprintCallable)
 	void SetChapterID(FName InChapterID);
 
 	UFUNCTION(BlueprintCallable)
 	void SetStageData(const TArray<FName>& StageIDs);
 
-	UFUNCTION(BlueprintCallable, Category = "LR|UI")
-	void OnBackButtonClicked();
+	UFUNCTION()
+	void OnChapterSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType);
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -54,7 +54,7 @@ protected:
 	TObjectPtr<class ULRStageWidget> Stage5;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Back;
+	TObjectPtr<class UComboBoxString> ComboBox;
 
 private:
 	FName CurrentChapterID;
