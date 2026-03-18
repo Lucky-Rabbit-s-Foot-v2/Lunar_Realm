@@ -49,6 +49,15 @@ void ULRGachaRevealWidget::NativeConstruct()
 
 void ULRGachaRevealWidget::NativeDestruct()
 {
+	bTransitionPlaying = false;
+	PendingTransitionOrbIndex = INDEX_NONE;
+	PendingTransitionResult = FLRGachaResult();
+
+	if (TransitionOverlay)
+	{
+		TransitionOverlay->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
 	if (GetWorld())
 	{
 		GetWorld()->GetTimerManager().ClearTimer(TimerSequentialResultSlots);
@@ -101,8 +110,17 @@ void ULRGachaRevealWidget::StartReveal(FName InBannerID, const TArray<FLRGachaRe
 	bPresentationVisible = false;
 	bPresentationUsingVideo = false;
 
+	bTransitionPlaying = false;
+	PendingTransitionOrbIndex = INDEX_NONE;
+	PendingTransitionResult = FLRGachaResult();
+
 	bIsPointerDown = false;
 	PointerDownPosition = FVector2D::ZeroVector;
+
+	if (TransitionOverlay)
+	{
+		TransitionOverlay->SetVisibility(ESlateVisibility::Collapsed);
+	}
 
 	if (ResultSlotContainer)
 	{
@@ -338,6 +356,12 @@ void ULRGachaRevealWidget::SpawnNextResultSlot()
 
 void ULRGachaRevealWidget::OnClickSkip()
 {
+	if (bTransitionPlaying)
+	{
+		NotifyTransitionFinished();
+		return;
+	}
+
 	if (!OrbSceneActor)
 	{
 		return;
@@ -410,6 +434,11 @@ FReply ULRGachaRevealWidget::NativeOnMouseButtonDown(
 	const FGeometry& InGeometry,
 	const FPointerEvent& InMouseEvent)
 {
+	if (bTransitionPlaying)
+	{
+		return FReply::Handled();
+	}
+
 	bIsPointerDown = true;
 	PointerDownPosition = InMouseEvent.GetScreenSpacePosition();
 
@@ -420,6 +449,11 @@ FReply ULRGachaRevealWidget::NativeOnMouseButtonUp(
 	const FGeometry& InGeometry,
 	const FPointerEvent& InMouseEvent)
 {
+	if (bTransitionPlaying)
+	{
+		return FReply::Handled();
+	}
+
 	if (!bIsPointerDown)
 	{
 		return FReply::Unhandled();
@@ -496,7 +530,56 @@ void ULRGachaRevealWidget::HandleRevealPresentationRequested(int32 OrbIndex, con
 		return;
 	}
 
-	ShowPresentation(OrbIndex, Result);
+	StartTransitionSequence(OrbIndex, Result);
+}
+
+void ULRGachaRevealWidget::StartTransitionSequence(int32 OrbIndex, const FLRGachaResult& Result)
+{
+	if (bTransitionPlaying)
+	{
+		return;
+	}
+
+	if (bPresentationVisible)
+	{
+		return;
+	}
+
+	bTransitionPlaying = true;
+	PendingTransitionOrbIndex = OrbIndex;
+	PendingTransitionResult = Result;
+
+	if (TransitionOverlay)
+	{
+		TransitionOverlay->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	if (HintText)
+	{
+		HintText->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+	BP_PlayTransitionIntro(Result);
+}
+
+void ULRGachaRevealWidget::NotifyTransitionFinished()
+{
+	bTransitionPlaying = false;
+
+	if (TransitionOverlay)
+	{
+		TransitionOverlay->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+	BP_OnTransitionClosed();
+
+	if (PendingTransitionOrbIndex != INDEX_NONE && !PendingTransitionResult.ItemID.IsNone())
+	{
+		ShowPresentation(PendingTransitionOrbIndex, PendingTransitionResult);
+	}
+
+	PendingTransitionOrbIndex = INDEX_NONE;
+	PendingTransitionResult = FLRGachaResult();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

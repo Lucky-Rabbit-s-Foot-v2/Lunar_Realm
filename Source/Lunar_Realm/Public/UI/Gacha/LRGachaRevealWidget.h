@@ -55,21 +55,27 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Reveal")
 	void FinishAndClose();
 
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Reveal")
+	void NotifyTransitionFinished();
+
 protected:
 	// ───────────────── UMG 바인딩 ─────────────────
 
 	UPROPERTY(BlueprintReadOnly, Category = "LR|Gacha|Reveal", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
 	TObjectPtr<UButton> ButtonSkip;
 
+	/** 문양 인트로/전환용 오버레이 */
+	UPROPERTY(BlueprintReadOnly, Category = "LR|Gacha|Reveal", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	TObjectPtr<UWidget> TransitionOverlay;
+
+	UPROPERTY(BlueprintReadOnly, Category = "LR|Gacha|Reveal", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
+	TObjectPtr<UWidget> PresentationOverlay;
+
 	UPROPERTY(BlueprintReadOnly, Category = "LR|Gacha|Reveal", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
 	TObjectPtr<UWidget> HintText;
 
 	UPROPERTY(BlueprintReadOnly, Category = "LR|Gacha|Reveal", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
 	TObjectPtr<UWidget> ResultOverlay;
-
-	/** 개별 캐릭터/장비 리빌 화면 루트 */
-	UPROPERTY(BlueprintReadOnly, Category = "LR|Gacha|Reveal", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
-	TObjectPtr<UWidget> PresentationOverlay;
 
 	/** 리빌 배경 이미지 */
 	UPROPERTY(meta = (BindWidgetOptional))
@@ -171,6 +177,12 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "LR|Gacha|Reveal")
 	void BP_OnPresentationClosed();
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "LR|Gacha|Reveal")
+	void BP_PlayTransitionIntro(const FLRGachaResult& Result);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "LR|Gacha|Reveal")
+	void BP_OnTransitionClosed();
+
 	UFUNCTION(BlueprintCallable)
 	void ForceUIInputNextTick();
 
@@ -189,6 +201,15 @@ private:
 	/** 런타임 생성 영상 머티리얼 인스턴스 */
 	UPROPERTY()
 	TObjectPtr<UMaterialInstanceDynamic> RevealVideoMID;
+
+	/** 전환 애니메이션이 끝난 뒤 표시할 대기 결과 */
+	FLRGachaResult PendingTransitionResult;
+
+	/** 전환 애니메이션이 끝난 뒤 표시할 대기 인덱스 */
+	int32 PendingTransitionOrbIndex = INDEX_NONE;
+
+	/** 전환 애니메이션 진행 중 여부 */
+	bool bTransitionPlaying = false;
 
 	/** 현재 프레젠테이션이 영상 모드인지 */
 	bool bPresentationUsingVideo = false;
@@ -250,6 +271,8 @@ private:
 
 	/** 현재 화면 표시용 데이터 */
 	FLRGachaRevealPresentationData CurrentPresentationData;
+
+	void StartTransitionSequence(int32 OrbIndex, const FLRGachaResult& Result);
 
 	// ───────────────── 스와이프 입력 상태 ─────────────────
 
