@@ -26,6 +26,14 @@ public:
 	ULRGA_BasicAttack();
 	//260219 KHS 베이스GA동작방식 변경으로 상속함수 변경
 	virtual void OnAbilityActivated(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
+protected:
+	// 몽타주에서 날아온 타격 이벤트를 받았을 때 실행될 함수
+	UFUNCTION()
+	void OnHitEventReceived(FGameplayEventData InPayload);
+
+	// 몽타주 재생이 완전히 끝났을 때 어빌리티를 종료할 함수
+	UFUNCTION()
+	void OnMontageEnded();
 	
 protected:
 
@@ -35,12 +43,19 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 
-protected:
-	// 몽타주에서 날아온 타격 이벤트를 받았을 때 실행될 함수
-	UFUNCTION()
-	void OnHitEventReceived(FGameplayEventData InPayload);
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Basic Attack")
+	bool bIsMeleeAttack = true;
 
-	// 몽타주 재생이 완전히 끝났을 때 어빌리티를 종료할 함수
-	UFUNCTION()
-	void OnMontageEnded();
+	UPROPERTY(EditAnywhere, Category = "LR|Basic Attack|Ranged", meta = (EditCondition = "!bIsMeleeAttack"))
+	TSubclassOf<class ALRProjectile> ProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category = "LR|Basic Attack|Ranged", meta = (EditCondition = "!bIsMeleeAttack"))
+	float ProjectileSpeed = 1500.0f;
+
+	//UPROPERTY(EditDefaultsOnly, Category = "LR|Basic Attack|Data")
+	//FName BasicAttackSkillID;
+
+	//UPROPERTY(EditDefaultsOnly, Category = "LR|Basic Attack|Data")
+	//FName BasicAttackSkillEffectID;
+
 };
