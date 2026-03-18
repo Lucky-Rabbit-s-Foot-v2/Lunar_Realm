@@ -64,6 +64,12 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "LR|Gacha|Reveal", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
 	TObjectPtr<UButton> ButtonSkip;
 
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> Image_Glow;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> Image_MagicFull;
+
 	/** 문양 인트로/전환용 오버레이 */
 	UPROPERTY(BlueprintReadOnly, Category = "LR|Gacha|Reveal", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
 	TObjectPtr<UWidget> TransitionOverlay;
@@ -84,6 +90,21 @@ protected:
 	/** 모든 유닛 공통으로 사용할 리빌 배경 이미지 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Common")
 	TSoftObjectPtr<UTexture2D> CommonRevealBackgroundTexture;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Transition|Magic")
+	TSoftObjectPtr<UTexture2D> TransitionMagicTextureN;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Transition|Magic")
+	TSoftObjectPtr<UTexture2D> TransitionMagicTextureR;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Transition|Magic")
+	TSoftObjectPtr<UTexture2D> TransitionMagicTextureSR;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Transition|Magic")
+	TSoftObjectPtr<UTexture2D> TransitionMagicTextureSSR;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Transition|Magic")
+	TSoftObjectPtr<UTexture2D> TransitionMagicTextureUR;
 
 	/** 공통 배경을 우선 사용할지 여부 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Common")
@@ -191,8 +212,12 @@ protected:
 
 
 private:
-	UTexture2D* GetRarityTextureByRarity(ELRGachaRarity Rarity) const;
 	FLinearColor GetNameColorByRarity(ELRGachaRarity Rarity) const;
+
+	UTexture2D* GetRarityTextureByRarity(ELRGachaRarity Rarity) const;
+	UTexture2D* GetTransitionMagicTextureByRarity(ELRGachaRarity Rarity) const;
+	void ApplyTransitionTexturesByRarity(ELRGachaRarity Rarity);
+	void ResetTransitionVisuals();
 
 	/** MediaTexture를 UI에 표시할 머티리얼 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Reveal|Video")
