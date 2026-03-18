@@ -166,8 +166,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Equipment")
 	FName WeaponSocketName = TEXT("WeaponSocket");
 
-	public:
-		bool GetAutoMode() const { return bIsAutoMode; }
+public:
+	bool IsAutoMode() const { return bIsAutoMode; }
 
 protected:
 	bool bIsAutoMode = false;

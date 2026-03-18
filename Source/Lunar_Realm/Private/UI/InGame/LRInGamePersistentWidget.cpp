@@ -24,12 +24,14 @@ void ULRInGamePersistentWidget::BindProperties()
 
 	if (Btn_Change) Btn_Change->OnClicked.AddDynamic(this, &ULRInGamePersistentWidget::OnChangeClicked);
 	if (Btn_Pause) Btn_Pause->OnClicked.AddDynamic(this, &ULRInGamePersistentWidget::OnPauseButtonClicked);
+	if (Btn_Speed) Btn_Speed->OnClicked.AddDynamic(this, &ULRInGamePersistentWidget::OnSpeedClicked);
 }
 
 
 void ULRInGamePersistentWidget::UnbindProperties()
 {
 	Btn_Change->OnClicked.Clear();
+	Btn_Speed->OnClicked.Clear();
 
 	Super::UnbindProperties();
 }
@@ -86,6 +88,7 @@ void ULRInGamePersistentWidget::BindToController(ALRControllerBase* Controller)
 	if (PC)
 	{
 		OnChangeClickedDel.AddUniqueDynamic(PC, &ALRPlayerController::ToggleAutoMode);
+		OnSpeedClickedDel.AddUniqueDynamic(PC, &ALRPlayerController::ToggleGameSpeed);
 		InitializeGAS(PC->GetAbilitySystemComponent());
 		
 		if (ALRPlayerState* PS = PC->GetPlayerState<ALRPlayerState>())
@@ -207,4 +210,56 @@ void ULRInGamePersistentWidget::SetAutoEffectActive(bool bIsActive)
 	{
 		Img_AutoGlow->SetVisibility(ESlateVisibility::Collapsed);
 	}
+}
+
+void ULRInGamePersistentWidget::UpdateSpeedVisual(float InCurrentSpeed)
+{
+	if (Img_SpeedArrow)
+	{
+		UTexture2D* TargetTex = Tex_Speed1; 
+
+		if (InCurrentSpeed >= 2.0f)
+		{
+			TargetTex = Tex_Speed3;
+		}
+		else if (InCurrentSpeed >= 1.5f)
+		{
+			TargetTex = Tex_Speed2;
+		}
+
+		if (TargetTex)
+		{
+			Img_SpeedArrow->SetBrushFromTexture(TargetTex, true);
+		}
+	}
+
+	if (Img_SpeedGlow)
+	{
+		if (InCurrentSpeed >= 2)
+		{
+			Img_SpeedGlow->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+		}
+		else
+		{
+			Img_SpeedGlow->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+}
+
+void ULRInGamePersistentWidget::SetSpeedButtonLocked(bool InbIsLocked)
+{
+	if (Btn_Speed)
+	{
+		Btn_Speed->SetIsEnabled(!InbIsLocked);
+	}
+
+	if (Img_SpeedLock)
+	{
+		Img_SpeedLock->SetVisibility(InbIsLocked ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Collapsed);
+	}
+}
+
+void ULRInGamePersistentWidget::OnSpeedClicked()
+{
+	OnSpeedClickedDel.Broadcast();
 }
