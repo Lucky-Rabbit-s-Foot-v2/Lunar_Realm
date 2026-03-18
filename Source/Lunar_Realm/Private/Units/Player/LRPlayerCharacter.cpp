@@ -36,6 +36,9 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Engine/StaticMesh.h"
 
+#include "Data/LRDataStructs.h"
+#include "Subsystems/GameDataSubsystem.h"
+
 
 
 
@@ -365,6 +368,8 @@ void ALRPlayerCharacter::OnHealthChangedNative(const FOnAttributeChangeData& Dat
 	}
 	if (NewHealth < OldHealth)
 	{
+		PlayHitSound();
+
 		if (LoadedHitMontage)
 		{
 			// 피격 모션 재생
@@ -390,6 +395,8 @@ void ALRPlayerCharacter::Die()
 	bIsDead = true;
 
 	LR_INFO(TEXT("플레이어 사망"));
+
+	PlayDeathSound();
 
 	if (AAIController* AICon = Cast<AAIController>(GetController()))
 	{
@@ -550,5 +557,61 @@ void ALRPlayerCharacter::UpdateWeaponMesh(FName InWeaponID)
 		{
 			LR_WARN(TEXT("무기 외형 업데이트 실패 (DT에 메시가 없거나 ID가 잘못됨): %s"), *InWeaponID.ToString());
 		}
+	}
+}
+
+void ALRPlayerCharacter::PlayHitSound()
+{
+	ALRPlayerState* PS = GetPlayerState<ALRPlayerState>();
+	if (!PS) return;
+
+	UGameInstance* GI = GetWorld()->GetGameInstance();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+	if (!DataSys) return;
+
+	FName CharID = PS->GetCharacterID();
+	const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(CharID);
+
+	if (CharData.CharacterName.IsEmpty()) return;
+
+	FName CharName = FName(*CharData.CharacterName);
+	const FCharacterSoundData& SoundData = DataSys->GetCharacterSoundData(CharName);
+
+	// 피격음 랜덤 재생
+	if (SoundData.HitVoices.Num() > 0)
+	{
+		int32 RandomIndex = FMath::RandRange(0, SoundData.HitVoices.Num() - 1);
+		if (USoundBase* LoadedSound = SoundData.HitVoices[RandomIndex].LoadSynchronous())
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, LoadedSound, GetActorLocation());
+		}
+	}
+}
+
+void ALRPlayerCharacter::PlayDeathSound()
+{
+	ALRPlayerState* PS = GetPlayerState<ALRPlayerState>();
+	if (!PS) return;
+
+	UGameInstance* GI = GetWorld()->GetGameInstance();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+	if (!DataSys) return;
+
+	FName CharID = PS->GetCharacterID();
+	const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(CharID);
+
+	if (CharData.CharacterName.IsEmpty()) return;
+
+	FName CharName = FName(*CharData.CharacterName);
+	const FCharacterSoundData& SoundData = DataSys->GetCharacterSoundData(CharName);
+
+	if (USoundBase* DeathVoice = SoundData.DeathVoice.LoadSynchronous())
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, DeathVoice, GetActorLocation());
+	}
+
+	if (USoundBase* BodyFall = SoundData.BodyFallSound.LoadSynchronous())
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, BodyFall, GetActorLocation());
 	}
 }

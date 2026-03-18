@@ -171,4 +171,12 @@ protected:
 
 protected:
 	bool bIsAutoMode = false;
+
+protected:
+		UFUNCTION(BlueprintCallable, Category = "LR|Sound")
+		void PlayHitSound();
+
+		UFUNCTION(BlueprintCallable, Category = "LR|Sound")
+		void PlayDeathSound();
+
 };
