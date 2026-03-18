@@ -41,6 +41,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "LR|UI Party")
 	int32 SlotIndex = 0;
 
+	UPROPERTY(EditAnywhere, Category = "LR|UI|Empty")
+	TObjectPtr<class UTexture2D> EmptySlotTexture;
+
 private:
 	FName ID;
 };

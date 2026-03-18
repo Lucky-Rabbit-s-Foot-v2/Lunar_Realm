@@ -22,10 +22,20 @@ class LUNAR_REALM_API ULRCurrencyViewWidget : public ULRBaseWidget
 	GENERATED_BODY()
 	
 public:
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
 	virtual void RefreshUI() override;
+	
+	UFUNCTION()
+	void RefreshCurrencyAmountOnSaved();
+
+	UFUNCTION()
+	void RefreshCurrencyAmountOnLoaded(class ULRSaveGame* SaveGame);
+
 private:
 	UFUNCTION()
 	void OnCurrencyAddClicked();

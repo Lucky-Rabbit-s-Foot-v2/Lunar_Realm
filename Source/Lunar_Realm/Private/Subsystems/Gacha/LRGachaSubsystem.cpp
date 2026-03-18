@@ -148,7 +148,7 @@ void ULRGachaSubsystem::HandlePostLoadMapWithWorld(UWorld* LoadedWorld)
 	UUIManagerSubsystem* UISys = GI->GetSubsystem<UUIManagerSubsystem>();
 	if (!UISys) return;
 
-	UISys->SwitchPageUIByID(EUIID::GACHA);
+	UISys->OpenUIByID(EUIID::GACHA);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

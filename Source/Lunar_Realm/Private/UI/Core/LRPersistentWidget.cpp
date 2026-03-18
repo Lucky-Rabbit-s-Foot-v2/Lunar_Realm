@@ -13,3 +13,10 @@ ULRPersistentWidget::ULRPersistentWidget(const FObjectInitializer& ObjectInitial
 {
 	UILayer = EUILayer::PERSISTENT;
 }
+
+void ULRPersistentWidget::OpenUI()
+{
+	Super::OpenUI();
+
+	SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+}

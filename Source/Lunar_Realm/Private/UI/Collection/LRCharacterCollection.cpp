@@ -19,15 +19,36 @@ void ULRCharacterCollection::RefreshUI()
 
 	CharacterTileView->ClearListItems();
 
+	UCollectionSubsystem* CollectionSubsystem = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
 	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
-	TArray<FName> AllCharactersIDs = GameDataSubsystem->GetAllCharacterIDs();
-
-	for (const FName& AllCharactersID : AllCharactersIDs)
+	
+	TArray<FName> UnlockedCharactersIDs = CollectionSubsystem->GetUnlockedCharacterIDs();
+	for (const FName& UnlockedCharactersID : UnlockedCharactersIDs)
 	{
-		const FCharacterStaticData& CharacterData = GameDataSubsystem->GetCharacterStaticData(AllCharactersID);
-		ULRTileData* TileDataObject = NewObject<ULRTileData>(this);
-		TileDataObject->SetID(CharacterData.DataID);
-		TileDataObject->SetIcon(CharacterData.PortraitIcon.LoadSynchronous());
-		CharacterTileView->AddItem(TileDataObject);
+		AddItemToTileView(GameDataSubsystem, UnlockedCharactersID, false);
 	}
+	
+	TArray<FName> AllCharactersIDs = CollectionSubsystem->GetAllCharacterIDs();
+	TArray<FName> LockedCharactersIDs = AllCharactersIDs.FilterByPredicate(
+		[&](const FName& ID)
+		{
+			return !UnlockedCharactersIDs.Contains(ID);
+		}
+	);
+	
+	for(const FName& LockedCharactersID : LockedCharactersIDs)
+	{
+		AddItemToTileView(GameDataSubsystem, LockedCharactersID, true);
+	}
+}
+
+void ULRCharacterCollection::AddItemToTileView(UGameDataSubsystem* GameDataSubsystem, const FName& LockedCharactersID, bool bIsLocked)
+{
+	const FCharacterStaticData& CharacterData = GameDataSubsystem->GetCharacterStaticData(LockedCharactersID);
+	ULRTileData* TileDataObject = NewObject<ULRTileData>(this);
+	TileDataObject->SetID(CharacterData.DataID);
+	TileDataObject->SetIcon(CharacterData.CharacterTexture.LoadSynchronous());
+	TileDataObject->SetFrame(CharacterData.PortraitFrame.LoadSynchronous());
+	TileDataObject->SetIsLocked(bIsLocked);
+	CharacterTileView->AddItem(TileDataObject);
 }

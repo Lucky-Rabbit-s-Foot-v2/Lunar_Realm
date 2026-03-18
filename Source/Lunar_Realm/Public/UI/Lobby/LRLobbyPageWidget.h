@@ -22,24 +22,9 @@ class LUNAR_REALM_API ULRLobbyPageWidget : public ULRPageWidget
 public:
 	virtual void RefreshUI() override;
 
-	virtual void BindProperties() override;
-	virtual void UnbindProperties() override;
-
 	virtual void RegisterSubWidgets() override;
 
-	UFUNCTION()
-	void OnMessageButtonClicked();
-
-	UFUNCTION()
-	void OnSettingButtonClicked();
-
 protected:
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Setting;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Message;
-
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRLobbyFigureWidget> MainCharacter;
 
@@ -56,5 +41,5 @@ protected:
 	TObjectPtr<class ULRLobbyFigureWidget> Member4;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRCurrencyWidget> Currency;
+	TObjectPtr<class ULRPageSelectorWidget> PageSelector;
 };
