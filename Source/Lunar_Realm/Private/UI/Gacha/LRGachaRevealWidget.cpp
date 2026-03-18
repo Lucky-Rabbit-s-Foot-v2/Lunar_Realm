@@ -142,6 +142,8 @@ void ULRGachaRevealWidget::StartReveal(FName InBannerID, const TArray<FLRGachaRe
 		HintText->SetVisibility(ESlateVisibility::Visible);
 	}
 
+	ResetTransitionVisuals();
+
 	ForceUIInputNextTick();
 
 	FindOrSpawnOrbSceneActor();
@@ -559,6 +561,8 @@ void ULRGachaRevealWidget::StartTransitionSequence(int32 OrbIndex, const FLRGach
 		HintText->SetVisibility(ESlateVisibility::Collapsed);
 	}
 
+	ApplyTransitionTexturesByRarity(Result.Rarity);
+
 	BP_PlayTransitionIntro(Result);
 }
 
@@ -580,6 +584,8 @@ void ULRGachaRevealWidget::NotifyTransitionFinished()
 
 	PendingTransitionOrbIndex = INDEX_NONE;
 	PendingTransitionResult = FLRGachaResult();
+
+	ResetTransitionVisuals();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -958,5 +964,67 @@ FLinearColor ULRGachaRevealWidget::GetNameColorByRarity(ELRGachaRarity Rarity) c
 
 	default:
 		return FLinearColor::White;
+	}
+}
+
+UTexture2D* ULRGachaRevealWidget::GetTransitionMagicTextureByRarity(ELRGachaRarity Rarity) const
+{
+	switch (Rarity)
+	{
+	case ELRGachaRarity::N:
+		return TransitionMagicTextureN.IsNull() ? nullptr : TransitionMagicTextureN.LoadSynchronous();
+
+	case ELRGachaRarity::R:
+		return TransitionMagicTextureR.IsNull() ? nullptr : TransitionMagicTextureR.LoadSynchronous();
+
+	case ELRGachaRarity::SR:
+		return TransitionMagicTextureSR.IsNull() ? nullptr : TransitionMagicTextureSR.LoadSynchronous();
+
+	case ELRGachaRarity::SSR:
+		return TransitionMagicTextureSSR.IsNull() ? nullptr : TransitionMagicTextureSSR.LoadSynchronous();
+
+	case ELRGachaRarity::UR:
+		return TransitionMagicTextureUR.IsNull() ? nullptr : TransitionMagicTextureUR.LoadSynchronous();
+
+	default:
+		return nullptr;
+	}
+}
+
+void ULRGachaRevealWidget::ApplyTransitionTexturesByRarity(ELRGachaRarity Rarity)
+{
+	if (Image_MagicFull)
+	{
+		if (UTexture2D* MagicTexture = GetTransitionMagicTextureByRarity(Rarity))
+		{
+			Image_MagicFull->SetBrushFromTexture(MagicTexture);
+			Image_MagicFull->SetVisibility(ESlateVisibility::Visible);
+			Image_MagicFull->SetColorAndOpacity(FLinearColor::White);
+		}
+		else
+		{
+			Image_MagicFull->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+
+	// Glow는 항상 그대로 사용
+	if (Image_Glow)
+	{
+		Image_Glow->SetVisibility(ESlateVisibility::Visible);
+		Image_Glow->SetColorAndOpacity(FLinearColor::White);
+	}
+}
+
+void ULRGachaRevealWidget::ResetTransitionVisuals()
+{
+	if (Image_Glow)
+	{
+		Image_Glow->SetVisibility(ESlateVisibility::Visible);
+		Image_Glow->SetColorAndOpacity(FLinearColor::White);
+	}
+
+	if (Image_MagicFull)
+	{
+		Image_MagicFull->SetColorAndOpacity(FLinearColor::White);
 	}
 }
