@@ -5,8 +5,13 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "Core/LRGameInstance.h"
+#include "GAS/Tags/LRGameplayTags.h"
 #include "Subsystems/Settings/UIManagerSettings.h"
 #include "Subsystems/UIManagerSubsystem.h"
+#include "Subsystems/GameDataSubsystem.h"
+#include "Subsystems/StageManagerSubsystem.h"
+#include "Structures/Core/LREnemyCore.h"
+#include "System/LoggingSystem.h"
 
 void ALRStageGameMode::OnGameOver()
 {
@@ -80,4 +85,76 @@ void ALRStageGameMode::OnExitStage()
 void ALRStageGameMode::OnStartNextStage()
 {
 	LR_SCREEN_INFO(TEXT("Start Next Stage : Not implemented yet"));
+}
+
+void ALRStageGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+	HideEnemyCoreIfBossStage();
+}
+
+void ALRStageGameMode::HideEnemyCoreIfBossStage()
+{
+	// TODO: 실제 빌드 시 사용할 버전
+	//UGameInstance* GI = GetGameInstance();
+	//UStageManagerSubsystem* StageMgr = GI ? GI->GetSubsystem<UStageManagerSubsystem>() : nullptr;
+	//if (!GI || !StageMgr)
+	//{
+	//	LR_ERROR(TEXT("Not Valid GetGameInstance Or StageManagerSubsystem"));
+	//	return;
+	//}
+
+	//if (!StageMgr->IsBossStage())
+	//{
+	//	// TEST
+	//	LR_ERROR(TEXT("보스 스테이지 X"));
+	//	return;
+	//}
+
+	// TEST: 테스트용 구현
+	UGameInstance* GI = GetGameInstance();
+	UGameDataSubsystem* DataSys = GI->GetSubsystem<UGameDataSubsystem>();
+	if (!DataSys)
+	{
+		return;
+	}
+
+	FName CurrentStageID = NAME_None;
+	if (const ULRGameInstance* LRGameInstance = Cast<ULRGameInstance>(GI))
+	{
+		CurrentStageID = LRGameInstance->GetCurrentStageID();
+	}
+
+	if (CurrentStageID == NAME_None)
+	{
+		LR_ERROR(TEXT("CurrentStageID is Null"));
+		return;
+	}
+	// TEST: 테스트용 구현
+	
+	const FStageStaticData& StageData = DataSys->GetStageStaticData(CurrentStageID);
+	if (!StageData.bIsBossStage)
+	{
+		// TEST
+		LR_ERROR(TEXT("====== 보스 스테이지 아니라서 스킵됨 ======"));
+		return;
+	}
+
+	ALREnemyCore* EnemyCore = Cast<ALREnemyCore>(UGameplayStatics::GetActorOfClass(GetWorld(), ALREnemyCore::StaticClass()));
+
+	if (!EnemyCore)
+	{
+		LR_WARN(TEXT("[StageGameMode] Is BossStage, No EnemyCore Exist!"));
+		return;
+	}
+
+	EnemyCore->SetActorHiddenInGame(true);
+	EnemyCore->SetActorEnableCollision(false);
+
+	if (UAbilitySystemComponent* ASC = EnemyCore->GetAbilitySystemComponent())
+	{
+		ASC->RemoveLooseGameplayTag(LRTags::Team_Enemy_Structure_Core);
+	}
+
+	LR_INFO(TEXT("[StageGameMode] Is BossStage - EnemyCore Hidden and Tag Removed"));
 }
