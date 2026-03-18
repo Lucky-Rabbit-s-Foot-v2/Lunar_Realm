@@ -4,6 +4,7 @@
 #include "GAS/Ability/Player/LRGA_BasicAttack.h"
 #include "Units/Player/Component/LRCombatComponent.h"
 #include "Units/LRCharacter.h"
+#include "Units/Player/LRPlayerState.h"
 #include "GAS/Attributes/LRAttributeSet.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
@@ -15,7 +16,7 @@
 #include "Projectiles/LRProjectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Subsystems/GameDataSubsystem.h"
-#include "Projectiles/LRProjectile.h"
+#include "Kismet/GameplayStatics.h"
 
 
 ULRGA_BasicAttack::ULRGA_BasicAttack()
@@ -87,6 +88,7 @@ void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
 
 	OwnerChar->SetActorRotation(LookAtRot);
 
+	PlayAttackGruntSound(OwnerChar);
 
 	// 몽타주 적용
 	if (AttackMontage)
@@ -193,4 +195,39 @@ void ULRGA_BasicAttack::OnMontageEnded()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 	//LR_WARN(TEXT("몽타주 종료됨 스킬 끝"));
+}
+
+void ULRGA_BasicAttack::PlayAttackGruntSound(ALRCharacter* InOwnerChar)
+{
+	if (!InOwnerChar) return;
+
+	ALRPlayerState* PS = InOwnerChar->GetPlayerState<ALRPlayerState>();
+	if (!PS) return;
+
+	FName CharID = PS->GetCharacterID();
+
+	UGameInstance* GI = GetWorld()->GetGameInstance();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+	if (!DataSys) return;
+
+	const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(CharID);
+
+	if (CharData.CharacterName.IsEmpty())
+	{
+		LR_WARN(TEXT("[GA_Attack] CharacterName이 비어있어서 사운드를 찾을 수 없음"));
+		return;
+	}
+
+	FName CharName = FName(*CharData.CharacterName);
+	const FCharacterSoundData& SoundData = DataSys->GetCharacterSoundData(CharName);
+
+	if (SoundData.AttackGrunts.Num() > 0)
+	{
+		int32 RandomIndex = FMath::RandRange(0, SoundData.AttackGrunts.Num() - 1);
+
+		if (USoundBase* LoadedSound = SoundData.AttackGrunts[RandomIndex].LoadSynchronous())
+		{
+			UGameplayStatics::PlaySoundAtLocation(InOwnerChar, LoadedSound, InOwnerChar->GetActorLocation());
+		}
+	}
 }
