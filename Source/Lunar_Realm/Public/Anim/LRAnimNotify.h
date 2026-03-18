@@ -27,4 +27,10 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS")
 	FGameplayTag EventTag;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Notify")
+	USoundBase* SoundToPlay;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Notify")
+	float VolumeMultiplier = 1.0f;
 };

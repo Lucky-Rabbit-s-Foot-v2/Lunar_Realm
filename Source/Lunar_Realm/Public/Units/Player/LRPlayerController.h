@@ -82,4 +82,11 @@ protected:
 protected:
 	void SetScreenGrayscale(float InWeight);
 
+public:
+	UFUNCTION()
+	void ToggleGameSpeed();
+
+protected:
+	float CurrentGameSpeed = 1.0f;
+
 };

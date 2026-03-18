@@ -36,6 +36,9 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Engine/StaticMesh.h"
 
+#include "Data/LRDataStructs.h"
+#include "Subsystems/GameDataSubsystem.h"
+
 
 
 
@@ -155,6 +158,7 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 
 		UE_LOG(LogTemp, Log, TEXT("GAS Initialized completely in %s"), *GetName());
 	}
+	PlayIntroAndSummonSound();
 }
 
 void ALRPlayerCharacter::Tick(float DeltaTime)
@@ -247,6 +251,22 @@ void ALRPlayerCharacter::UsePotion()
 
 	if (bSuccess)
 	{
+		// 회복 사운드 재생
+		ALRPlayerState* PS = GetPlayerState<ALRPlayerState>();
+		UGameDataSubsystem* DataSys = GetWorld()->GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+
+		if (PS && DataSys)
+		{
+			const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(PS->GetCharacterID());
+			FName CharName = FName(*CharData.CharacterName);
+			const FCharacterSoundData& SoundData = DataSys->GetCharacterSoundData(CharName);
+
+			if (USoundBase* HealVoice = SoundData.HealVoice.LoadSynchronous())
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, HealVoice, GetActorLocation());
+			}
+		}
+
 		if (ALRPlayerController* PC = Cast<ALRPlayerController>(GetController()))
 		{
 			if (ULRInGamePersistentWidget* MainWidget = PC->GetPlayerWidget())
@@ -363,8 +383,27 @@ void ALRPlayerCharacter::OnHealthChangedNative(const FOnAttributeChangeData& Dat
 		Die();
 		return;
 	}
+
+	// 체력이 30% 이하로 떨어지는 순간을 감지해서 저HP 대사 재생
+	if (AbilitySystemComponent)
+	{
+		float MaxHealth = AbilitySystemComponent->GetNumericAttribute(ULRAttributeSet::GetMaxHealthAttribute());
+		if (MaxHealth > 0.0f)
+		{
+			float OldRatio = OldHealth / MaxHealth;
+			float NewRatio = NewHealth / MaxHealth;
+
+			if (OldRatio > 0.3f && NewRatio <= 0.3f)
+			{
+				PlayLowHPVoice();
+			}
+		}
+	}
+
 	if (NewHealth < OldHealth)
 	{
+		PlayHitSound();
+
 		if (LoadedHitMontage)
 		{
 			// 피격 모션 재생
@@ -390,6 +429,8 @@ void ALRPlayerCharacter::Die()
 	bIsDead = true;
 
 	LR_INFO(TEXT("플레이어 사망"));
+
+	PlayDeathSound();
 
 	if (AAIController* AICon = Cast<AAIController>(GetController()))
 	{
@@ -493,6 +534,8 @@ void ALRPlayerCharacter::RespawnPlayer()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	// TODO: 무적 & 깜빡임 효과
+
+	PlayIntroAndSummonSound();
 }
 
 void ALRPlayerCharacter::OnBlinkTimer()
@@ -549,6 +592,159 @@ void ALRPlayerCharacter::UpdateWeaponMesh(FName InWeaponID)
 		else
 		{
 			LR_WARN(TEXT("무기 외형 업데이트 실패 (DT에 메시가 없거나 ID가 잘못됨): %s"), *InWeaponID.ToString());
+		}
+	}
+}
+
+void ALRPlayerCharacter::PlayHitSound()
+{
+	float CurrentTime = GetWorld()->GetTimeSeconds();
+
+	if (CurrentTime - LastHitSoundTime < 1.0f)
+	{
+		return;
+	}
+
+	ALRPlayerState* PS = GetPlayerState<ALRPlayerState>();
+	if (!PS) return;
+
+	UGameInstance* GI = GetWorld()->GetGameInstance();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+	if (!DataSys) return;
+
+	FName CharID = PS->GetCharacterID();
+	const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(CharID);
+
+	if (CharData.CharacterName.IsEmpty()) return;
+
+	FName CharName = FName(*CharData.CharacterName);
+	const FCharacterSoundData& SoundData = DataSys->GetCharacterSoundData(CharName);
+
+	// 피격음 랜덤 재생
+	if (SoundData.HitVoices.Num() > 0)
+	{
+		int32 RandomIndex = FMath::RandRange(0, SoundData.HitVoices.Num() - 1);
+		if (USoundBase* LoadedSound = SoundData.HitVoices[RandomIndex].LoadSynchronous())
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, LoadedSound, GetActorLocation());
+		}
+	}
+}
+
+void ALRPlayerCharacter::PlayDeathSound()
+{
+	ALRPlayerState* PS = GetPlayerState<ALRPlayerState>();
+	if (!PS) return;
+
+	UGameInstance* GI = GetWorld()->GetGameInstance();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+	if (!DataSys) return;
+
+	FName CharID = PS->GetCharacterID();
+	const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(CharID);
+
+	if (CharData.CharacterName.IsEmpty()) return;
+
+	FName CharName = FName(*CharData.CharacterName);
+	const FCharacterSoundData& SoundData = DataSys->GetCharacterSoundData(CharName);
+
+	if (USoundBase* DeathVoice = SoundData.DeathVoice.LoadSynchronous())
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, DeathVoice, GetActorLocation());
+	}
+
+	if (USoundBase* BodyFall = SoundData.BodyFallSound.LoadSynchronous())
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, BodyFall, GetActorLocation());
+	}
+}
+
+void ALRPlayerCharacter::PlayVictoryVoice()
+{
+	ALRPlayerState* PS = GetPlayerState<ALRPlayerState>();
+	UGameDataSubsystem* DataSys = GetWorld()->GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+	if (!PS || !DataSys) return;
+
+	const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(PS->GetCharacterID());
+	const FCharacterSoundData& SoundData = DataSys->GetCharacterSoundData(FName(*CharData.CharacterName));
+
+	if (USoundBase* VictorySound = SoundData.VictoryVoice.LoadSynchronous())
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, VictorySound, GetActorLocation());
+	}
+}
+
+void ALRPlayerCharacter::PlayDefeatVoice()
+{
+	ALRPlayerState* PS = GetPlayerState<ALRPlayerState>();
+	UGameDataSubsystem* DataSys = GetWorld()->GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+	if (!PS || !DataSys) return;
+
+	const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(PS->GetCharacterID());
+	const FCharacterSoundData& SoundData = DataSys->GetCharacterSoundData(FName(*CharData.CharacterName));
+
+	if (USoundBase* DefeatSound = SoundData.DefeatVoice.LoadSynchronous())
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, DefeatSound, GetActorLocation());
+	}
+}
+
+void ALRPlayerCharacter::PlayLowHPVoice()
+{
+	ALRPlayerState* PS = GetPlayerState<ALRPlayerState>();
+	UGameDataSubsystem* DataSys = GetWorld()->GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+	if (!PS || !DataSys) return;
+
+	const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(PS->GetCharacterID());
+	const FCharacterSoundData& SoundData = DataSys->GetCharacterSoundData(FName(*CharData.CharacterName));
+
+	if (USoundBase* LowHPSound = SoundData.LowHPVoice.LoadSynchronous())
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, LowHPSound, GetActorLocation());
+	}
+}
+
+void ALRPlayerCharacter::PlayIntroAndSummonSound()
+{
+	ALRPlayerState* PS = GetPlayerState<ALRPlayerState>();
+	UGameDataSubsystem* DataSys = GetWorld()->GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+	if (!PS || !DataSys) return;
+
+	const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(PS->GetCharacterID());
+	const FCharacterSoundData& SoundData = DataSys->GetCharacterSoundData(FName(*CharData.CharacterName));
+
+	// 소환 효과음 재생
+	if (USoundBase* SummonSFX = SoundData.SummonSound.LoadSynchronous())
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, SummonSFX, GetActorLocation());
+	}
+
+	// 등장 대사 재생
+	if (USoundBase* IntroVoice = SoundData.IntroVoice.LoadSynchronous())
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, IntroVoice, GetActorLocation());
+	}
+}
+
+void ALRPlayerCharacter::PlayFootstepSound()
+{
+	ALRPlayerState* PS = GetPlayerState<ALRPlayerState>();
+	UGameInstance* GI = GetWorld()->GetGameInstance();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+	if (!PS || !DataSys) return;
+
+	const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(PS->GetCharacterID());
+	if (CharData.CharacterName.IsEmpty()) return;
+
+	FName CharName = FName(*CharData.CharacterName);
+	const FCharacterSoundData& SoundData = DataSys->GetCharacterSoundData(CharName);
+
+	if (SoundData.FootstepSounds.Num() > 0)
+	{
+		int32 RandomIndex = FMath::RandRange(0, SoundData.FootstepSounds.Num() - 1);
+		if (USoundBase* FootstepSFX = SoundData.FootstepSounds[RandomIndex].LoadSynchronous())
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, FootstepSFX, GetActorLocation(), 0.5f);
 		}
 	}
 }
