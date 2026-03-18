@@ -6,6 +6,7 @@
 
 //Static 기본값 정의(조회 실패시 반환용도)
 FCharacterStaticData	UGameDataSubsystem::EmptyCharacterStaticData;
+FCharacterSoundData		UGameDataSubsystem::EmptyCharacterSoundData;
 FEquipmentStaticData	UGameDataSubsystem::EmptyEquipmentStaticData;
 FEquipmentBonus			UGameDataSubsystem::EmptyEquipmentBonus;
 FSetEffectData			UGameDataSubsystem::EmptySetEffectData;
@@ -40,6 +41,7 @@ void UGameDataSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 void UGameDataSubsystem::Deinitialize()
 {
 	CachedCharacterStaticData.Empty();
+	CachedCharacterSoundData.Empty();
 	CachedEquipmentStaticData.Empty();
 	CachedEquipmentBonus.Empty();
 	CachedSetEffectData.Empty();
@@ -119,6 +121,7 @@ void UGameDataSubsystem::LoadDataTables()
 	// Config의 SoftObjectPtr를 경유하여 로드 → LoadedXXX에 저장
 	LoadedBaseStatsCurve		 = Config->BaseStatsCurveTable.LoadSynchronous();		//베이스 스탯 커브
 	LoadedCharacterStaticData	 = Config->CharacterStaticDataTable.LoadSynchronous();	//캐릭터 데이터
+	LoadedCharacterSoundData	 = Config->CharacterSoundDataTable.LoadSynchronous();	//캐릭터 사운드 데이터
 	LoadedEnemyStaticData		 = Config->EnemyStaticDataTable.LoadSynchronous();		//적 데이터
 	LoadedEquipmentStaticData	 = Config->EquipmentStaticDataTable.LoadSynchronous();	//장비 데이터
 	LoadedEquipmentStatBonus	 = Config->EquipmentStatBonusTable.LoadSynchronous();	//장비 보너스
@@ -154,6 +157,9 @@ void UGameDataSubsystem::CacheAllData()
 	//캐릭터 정적데이터 캐싱 
 	CacheDataTable<FCharacterStaticData, FName>(
 		LoadedCharacterStaticData, CachedCharacterStaticData, &FCharacterStaticData::DataID, TEXT("CharacterStaticData"));
+	//캐릭터 사운드 데이터 캐싱
+	CacheDataTable<FCharacterSoundData, FName>(
+		LoadedCharacterSoundData, CachedCharacterSoundData, &FCharacterSoundData::CharacterName, TEXT("CharacterSoundData"));
 	//장비 정적데이터 캐싱
 	CacheDataTable<FEquipmentStaticData, FName>(
 		LoadedEquipmentStaticData, CachedEquipmentStaticData, &FEquipmentStaticData::DataID, TEXT("EquipmentStaticData"));
@@ -279,6 +285,12 @@ EStatusType UGameDataSubsystem::ParseBuffType(FName TypeName)
 const FCharacterStaticData& UGameDataSubsystem::GetCharacterStaticData(FName CharacterID) const
 {
 	return GetCachedData(CachedCharacterStaticData, CharacterID, EmptyCharacterStaticData, TEXT("CharacterStaticData"));
+}
+
+// (260318) BJM 캐릭터 사운드 데이터 조회 함수 추가
+const FCharacterSoundData& UGameDataSubsystem::GetCharacterSoundData(FName CharacterName) const
+{
+	return GetCachedData(CachedCharacterSoundData, CharacterName, EmptyCharacterSoundData, TEXT("CharacterSoundData"));
 }
 
 
@@ -535,6 +547,7 @@ TArray<FName> UGameDataSubsystem::GetAllEnemyIDs()
 {
 	TArray<FName> EnemyIDs;
 	CachedEnemyStaticData.GetKeys(EnemyIDs);
+
 	
 	LR_INFO(TEXT("Found %d Enemy"), EnemyIDs.Num());
 	

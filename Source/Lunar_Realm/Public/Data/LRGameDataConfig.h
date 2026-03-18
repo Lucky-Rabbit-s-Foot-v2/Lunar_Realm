@@ -18,6 +18,7 @@
 // (260206) KHS 제작. 제반 사항 구현.
 // (260209) KWB 스테이지 정적 데이터 테이블 추가.
 // (260226) KHS v1.2 스킬 시스템 개편 — 신규 테이블 참조 추가
+// (260318) BJM 캐릭터 사운드	 데이터 테이블 추가
 // =============================================================================
 UCLASS()
 class LUNAR_REALM_API ULRGameDataConfig : public UPrimaryDataAsset
@@ -36,6 +37,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Character")
 	TSoftObjectPtr<UDataTable> CharacterStaticDataTable;
 	
+	// 캐릭터 사운드 DataTable
+	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Character")
+	TSoftObjectPtr<UDataTable> CharacterSoundDataTable;
+
 	// 에너미 정적 데이터 DataTable
 	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Enemy")
 	TSoftObjectPtr<UDataTable> EnemyStaticDataTable;

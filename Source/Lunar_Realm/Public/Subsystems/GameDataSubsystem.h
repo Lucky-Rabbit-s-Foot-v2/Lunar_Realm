@@ -29,6 +29,7 @@
 // (260224) KHS GA필요 데이터 추가.
 // (260225) PJB 챕터로 스테이지 불러오기
 // (260226) KHS 스킬 기획 변경에 따른 헬퍼함수 추가.
+// (260318) BJM 캐릭터 사운드 데이터 처리 핸들러 추가.
 // =============================================================================
 
 UCLASS()
@@ -46,6 +47,9 @@ public:
 	// 캐릭터 정적 데이터 가져오기 (이름, 설명, 텍스처 등)
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Character")
 	const FCharacterStaticData& GetCharacterStaticData(FName CharacterID) const;
+	// 캐릭터 사운드 데이터 조회(260318 BJM)
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Sound")
+	const FCharacterSoundData& GetCharacterSoundData(FName CharacterName) const;
 	
 	// 특정 레벨의 캐릭터 최종 스탯 계산 (공식: 베이스 스탯(레벨) * 캐릭터 승수)
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Character")
@@ -54,6 +58,7 @@ public:
 	//모든 캐릭터 ID 가져오기
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Character")
 	TArray<FName> GetAllCharacterIDs();
+
 	
 	// ========================================
 	// 장비 정적 데이터 조회
@@ -199,6 +204,9 @@ private:
 	//DataTable 캐시
 	UPROPERTY()
 	UDataTable* LoadedCharacterStaticData;
+	// (260318) BJM 캐릭터 사운드 데이터 추가
+	UPROPERTY()
+	UDataTable* LoadedCharacterSoundData;
 	UPROPERTY()
 	UDataTable* LoadedEquipmentStaticData;
 	UPROPERTY()
@@ -242,6 +250,9 @@ private:
 	//캐릭터 정적 데이터 캐시
 	UPROPERTY()
 	TMap<FName, FCharacterStaticData> CachedCharacterStaticData;
+	//(260318) BJM 캐릭터 사운드 데이터 캐시 추가
+	UPROPERTY()
+	TMap<FName, FCharacterSoundData> CachedCharacterSoundData;
 	//장비 정적 데이터 캐시
 	UPROPERTY()
 	TMap<FName, FEquipmentStaticData> CachedEquipmentStaticData;
@@ -289,6 +300,7 @@ private:
 
 	//캐싱 실패시 사용할 기본값
 	static FCharacterStaticData EmptyCharacterStaticData;
+	static FCharacterSoundData EmptyCharacterSoundData;
 	static FEquipmentStaticData EmptyEquipmentStaticData;
 	static FEquipmentBonus EmptyEquipmentBonus;
 	static FSetEffectData EmptySetEffectData;
