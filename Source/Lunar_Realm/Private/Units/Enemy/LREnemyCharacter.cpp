@@ -10,14 +10,18 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Core/Stage/LRStageGameState.h"
 
 #include "Engine/GameInstance.h"
 #include "Engine/SkeletalMesh.h"
 
-#include "GameFramework/CharacterMovementComponent.h"
 #include "GAS/Attributes/LREnemyAttributeSet.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
-#include "Core/Stage/LRStageGameState.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
+#include "NiagaraFunctionLibrary.h"
+
 #include "Subsystems/GameDataSubsystem.h"
 #include "Subsystems/PoolingSubsystem.h"
 #include "System/LoggingSystem.h"
@@ -35,9 +39,12 @@ ALREnemyCharacter::ALREnemyCharacter()
 
 	AttributeSet = CreateDefaultSubobject<ULREnemyAttributeSet>(TEXT("AttributeSet"));
 
+	AuraVFXComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("AuraVFXComponent"));
+	AuraVFXComponent->SetupAttachment(RootComponent);
+	AuraVFXComponent->bAutoActivate = false;
+
 	//(260316) BJM: 타겟팅 마커(머리 위 화살표) UI 연동을 위한 함수 추가
 	SetupTargetMarker();
-
 }
 
 void ALREnemyCharacter::OnDie()
@@ -99,11 +106,37 @@ void ALREnemyCharacter::InitializeByEnemyID(FName EnemyID)
 
 	const FEnemyStaticData& EnemyData = DataSys->GetEnemyStaticData(EnemyID);
 
+	// 보스 체크용
+	ELRGrade CurrentGrade = EnemyData.Grade;
+	if (CurrentGrade == ELRGrade::UR)
+	{
+		IsBoss = true;
+	}
+
 	// 어트리뷰트 초기화 (Health, Attack, Speed, AttackSpeed, AttackRange)
 	InitializeAttributes(EnemyID);
 
 	// 비주얼 데이터 적용 (SkeletalMesh, AnimBP, Scale)
 	ApplyVisualData(EnemyData);
+
+	// Aura VFX 캐싱 및 초기 활성화
+	CachedAuraVFXList.Empty();
+	for (const TSoftObjectPtr<UNiagaraSystem>& SoftVFX : EnemyData.AuraVFXList)
+	{
+		if (!SoftVFX.IsNull())
+		{
+			UNiagaraSystem* LoadedVFX = SoftVFX.LoadSynchronous();
+			if (LoadedVFX)
+			{
+				CachedAuraVFXList.Add(LoadedVFX);
+			}
+		}
+	}
+
+	if (CachedAuraVFXList.Num() > 0)
+	{
+		ActivateAuraVFX(0);
+	}
 
 	// BehaviorTree 설정 및 실행
 	if (EnemyData.BehaviorTree)
@@ -282,6 +315,12 @@ void ALREnemyCharacter::PlayAttackedMontage()
 		return;
 	}
 
+	// 보스면 재생 X
+	if (IsBoss)
+	{
+		return;
+	}
+
 	USkeletalMeshComponent* MeshComp = GetMesh();
 	if (!MeshComp)
 	{
@@ -383,6 +422,37 @@ void ALREnemyCharacter::OnDeathMontageEnded(UAnimMontage* Montage, bool bInterru
 	}
 
 	FinishDeathSequence();
+}
+
+void ALREnemyCharacter::ActivateAuraVFX(int32 Index)
+{
+	if (!AuraVFXComponent)
+	{
+		return;
+	}
+
+	if (!CachedAuraVFXList.IsValidIndex(Index))
+	{
+		return;
+	}
+
+	UNiagaraSystem* TargetVFX = CachedAuraVFXList[Index];
+	if (!TargetVFX)
+	{
+		return;
+	}
+
+	AuraVFXComponent->SetAsset(TargetVFX);
+	AuraVFXComponent->Activate(true);
+}
+
+void ALREnemyCharacter::DeactivateAuraVFX()
+{
+	if (AuraVFXComponent && AuraVFXComponent->IsActive())
+	{
+		AuraVFXComponent->Deactivate();
+		AuraVFXComponent->SetAsset(nullptr);
+	}
 }
 
 void ALREnemyCharacter::FinishDeathSequence()
@@ -592,6 +662,9 @@ void ALREnemyCharacter::OnPoolDeactivate_Implementation()
 	SetActorLocation(FVector(0.0f, 0.0f, -10000.0f));
 
 	ClearGrantedEnemyAbilities();
+
+	DeactivateAuraVFX();
+	CachedAuraVFXList.Empty();
 
 	CachedDeathMontage = nullptr;
 	CachedAttackedMontage = nullptr;

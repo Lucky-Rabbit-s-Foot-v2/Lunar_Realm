@@ -34,8 +34,8 @@ struct FLRBTAttackTaskMemory
 {
 	FDelegateHandle AbilityEndedHandle;
 	FDelegateHandle AbilityFailedHandle;
-	FDelegateHandle CooldownTagHandle;  // 추가
-	FGameplayTag CooldownTag;           // 추가
+	FDelegateHandle CooldownTagHandle;
+	FGameplayTag CooldownTag;
 	TWeakObjectPtr<UBehaviorTreeComponent> BTComp;
 	TWeakObjectPtr<UAbilitySystemComponent> ASC;
 	FGameplayTag ActivatedAbilityTag;

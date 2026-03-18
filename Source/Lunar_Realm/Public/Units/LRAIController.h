@@ -81,6 +81,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = "LR|AI")
 	float GetDetectionRadius() const { return DetectionRadius; }
 
+	void SetDetectionRadius(float InRadius) { DetectionRadius = InRadius; }
+
 	// 인터페이스 구현
 	virtual void OnPoolActivate_Implementation() override;
 	virtual void OnPoolDeactivate_Implementation() override;
