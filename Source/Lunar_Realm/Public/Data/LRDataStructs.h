@@ -798,6 +798,9 @@ struct FEnemyStaticData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
 	TSoftObjectPtr<UAnimMontage> DeathMontage;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	TArray<TSoftObjectPtr<UNiagaraSystem>> AuraVFXList;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|AI")
 	TObjectPtr<UBehaviorTree> BehaviorTree;
@@ -819,6 +822,7 @@ struct FEnemyStaticData : public FTableRowBase
  //=============================================================================
  // (260208) KWB 제작. 제반 사항 구현.
  // (260210) KHS Int타입 참조키를 FName타입으로 변경. 
+ // (260318) KWB BossEnemyID 멤버 추가
  // =============================================================================
 USTRUCT(BlueprintType)
 struct FStageStaticData : public FTableRowBase
@@ -844,6 +848,9 @@ struct FStageStaticData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Boss")
 	bool bIsBossStage = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Boss")
+	FName BossEnemyID = NAME_None;
 
 	// ===== 확장/메타 필드 (UI/보상 연동용) =====
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Reward")

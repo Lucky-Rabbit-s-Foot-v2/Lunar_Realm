@@ -50,15 +50,6 @@ FGameplayTag ALREnemyAIController::TryAttackTarget(AActor* Target)
 		return FGameplayTag();
 	}
 
-	// TEST
-	LR_INFO(TEXT("[TryAttackTarget] NormalTag: %s / SpecialTag: %s / bHasSpecial: %s"),
-		*CachedNormalSkillTag.ToString(),
-		*CachedSpecialSkillTag.ToString(),
-		bHasSpecialSkill ? TEXT("TRUE") : TEXT("FALSE"));
-	LR_INFO(TEXT("[TryAttackTarget] Normal 쿨타임: %s / Special 쿨타임: %s"),
-		IsSkillOnCooldown(ASC, CachedNormalSkillTag) ? TEXT("ON") : TEXT("OFF"),
-		IsSkillOnCooldown(ASC, CachedSpecialSkillTag) ? TEXT("ON") : TEXT("OFF"));
-
 	// 우선순위 기반 스킬 + 몽타주 선택
 	FGameplayTag SelectedSkillTag;
 	UAnimMontage* SelectedMontage = nullptr;
@@ -87,9 +78,6 @@ FGameplayTag ALREnemyAIController::TryAttackTarget(AActor* Target)
 	EventData.Instigator = OwnerCharacter;
 	EventData.Target = Target;
 	EventData.OptionalObject = SelectedMontage; // GA에서 꺼내 몽타주 재생에 사용
-
-	// TEST
-	LR_INFO(TEXT("[TryAttackTarget] 선택된 스킬 태그: %s"), *SelectedSkillTag.ToString());
 
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerCharacter, SelectedSkillTag, EventData);
 
@@ -122,7 +110,6 @@ void ALREnemyAIController::InitializeFromEnemyData(FName EnemyID)
 		return;
 	}
 
-	// TEST
 	// Normal 스킬 태그 + 몽타주 캐싱
 	const FSkillStaticData& NormalSkillData = DataSys->GetSkillStaticData(EnemyData.SkillIDs[0]);
 	CachedNormalSkillTag = NormalSkillData.SkillTag;

@@ -54,6 +54,11 @@ void ALRMemberCharacter::BeginPlay()
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 
+		if (UnitTag.IsValid())                                                                                
+		{                                                                                                     
+			AbilitySystemComponent->AddLooseGameplayTag(UnitTag);                                             
+		}       
+		
 		if (MemberAttributeSet)
 		{
 			AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
@@ -124,6 +129,7 @@ void ALRMemberCharacter::OnPoolActivate_Implementation()
 	{
 		Capsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		Capsule->SetCollisionProfileName(TEXT("Pawn"));
+		Capsule->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);   
 	}
 
 	//ResetAttributes();

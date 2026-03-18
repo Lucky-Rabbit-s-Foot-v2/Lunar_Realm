@@ -55,7 +55,7 @@ void ALREnemyBossCharacter::OnBossHealthChanged(const FOnAttributeChangeData& Da
 	{
 		CurrentPhase = NewPhase;
 		// TEST
-		LR_ERROR(TEXT("[Boss] %d번째 페이즈로 전환"), CurrentPhase);
+		LR_ERROR(TEXT("========================== [Boss] %d번째 페이즈로 전환 =========================="), CurrentPhase);
 
 		if (ALRAIController* AICtrl = Cast<ALRAIController>(GetController()))
 		{
