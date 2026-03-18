@@ -52,5 +52,5 @@ protected:
 	FName ChapterID;
 
 	UPROPERTY(EditAnywhere, Category = "LR|UI")
-	TSubclassOf<class ULRStagePopupWidget> StageSelectorWidgetClass;
+	TSubclassOf<class ULRStagePageWidget> StageSelectorWidgetClass;
 };

@@ -399,6 +399,7 @@ void ALRPlayerState::ActivateSkill1()
 	//UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Cast<AActor>(GetPawn()), LRTags::Ability_Skill_Fireball, EvenData);
 	
 	LR_INFO(TEXT("[ActivateSkill1] Event 발송 완료"));
+	PlaySkillVoice(1);
 
 	const FSkillEffectData& EffectData = DataSubsystem->GetSkillEffectData(SkillData.SkillEffectID);
 	float CooldownTime = EffectData.Cooldown;
@@ -470,6 +471,8 @@ void ALRPlayerState::ActivateSkill2()
 
 	LR_INFO(TEXT("[ActivateSkill2] 무기 스킬 발송 완료"));
 
+	PlaySkillVoice(2);
+
 	const FSkillEffectData& EffectData = DataSubsystem->GetSkillEffectData(SkillData.SkillEffectID);
 	float CooldownTime = EffectData.Cooldown;
 
@@ -538,4 +541,33 @@ TArray<FName> ALRPlayerState::GetEquippedAutoSkillIDs() const
 	}
 
 	return SkillIDsToReturn;
+}
+
+void ALRPlayerState::PlaySkillVoice(int32 SkillIndex)
+{
+	UGameInstance* GI = GetGameInstance();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+	if (!DataSys) return;
+
+	const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(CharacterID);
+	if (CharData.CharacterName.IsEmpty()) return;
+
+	FName CharName = FName(*CharData.CharacterName);
+	const FCharacterSoundData& SoundData = DataSys->GetCharacterSoundData(CharName);
+
+	USoundBase* VoiceToPlay = nullptr;
+
+	if (SkillIndex == 1)
+	{
+		VoiceToPlay = SoundData.Skill1Voice.LoadSynchronous();
+	}
+	else if (SkillIndex == 2)
+	{
+		VoiceToPlay = SoundData.Skill2Voice.LoadSynchronous();
+	}
+
+	if (VoiceToPlay && GetPawn())
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, VoiceToPlay, GetPawn()->GetActorLocation());
+	}
 }

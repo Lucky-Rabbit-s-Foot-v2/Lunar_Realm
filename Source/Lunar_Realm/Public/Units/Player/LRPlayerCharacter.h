@@ -166,9 +166,34 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Equipment")
 	FName WeaponSocketName = TEXT("WeaponSocket");
 
-	public:
-		bool GetAutoMode() const { return bIsAutoMode; }
+public:
+	bool IsAutoMode() const { return bIsAutoMode; }
 
 protected:
 	bool bIsAutoMode = false;
+
+protected:
+		UFUNCTION(BlueprintCallable, Category = "LR|Sound")
+		void PlayHitSound();
+
+		UFUNCTION(BlueprintCallable, Category = "LR|Sound")
+		void PlayDeathSound();
+
+		float LastHitSoundTime = 0.0f;
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "LR|Sound")
+	void PlayVictoryVoice();
+
+	UFUNCTION(BlueprintCallable, Category = "LR|Sound")
+	void PlayDefeatVoice();
+
+	UFUNCTION(BlueprintCallable, Category = "LR|Sound")
+	void PlayLowHPVoice();
+
+	UFUNCTION(BlueprintCallable, Category = "LR|Sound")
+	void PlayIntroAndSummonSound();
+
+	void PlayFootstepSound();
+
 };

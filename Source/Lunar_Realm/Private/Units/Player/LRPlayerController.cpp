@@ -161,6 +161,35 @@ void ALRPlayerController::SetScreenGrayscale(float InWeight)
 	}
 }
 
+void ALRPlayerController::ToggleGameSpeed()
+{
+	ALRPlayerCharacter* MyCharacter = Cast<ALRPlayerCharacter>(GetPawn());
+	if (!MyCharacter) return;
+
+	if (!MyCharacter->IsAutoMode()) return;
+
+	if (CurrentGameSpeed == 1.0f)
+	{
+		CurrentGameSpeed = 1.5f;
+	}
+	else if (CurrentGameSpeed == 1.5f)
+	{
+		CurrentGameSpeed = 2.0f;
+	}
+	else
+	{
+		CurrentGameSpeed = 1.0f;
+	}
+
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), CurrentGameSpeed);
+	LR_INFO(TEXT("게임 배속 변경: x%.1f"), CurrentGameSpeed);
+
+	if (ULRInGamePersistentWidget* MyWidget = GetPlayerWidget())
+	{
+		MyWidget->UpdateSpeedVisual(CurrentGameSpeed);
+	}
+}
+
 void ALRPlayerController::ToggleAutoMode()
 {
 	ALRPlayerCharacter* MyCharacter = Cast<ALRPlayerCharacter>(GetPawn());
@@ -168,12 +197,22 @@ void ALRPlayerController::ToggleAutoMode()
 	{
 		MyCharacter->ToggleAutoMode();
 
+		bool bCurrentAutoMode = MyCharacter->IsAutoMode();
+
 		if (ULRInGamePersistentWidget* MyWidget = GetPlayerWidget())
 		{
-			bool bIsAutoNow = MyCharacter->GetAutoMode();
-			MyWidget->UpdateAutoButtonVisual(bIsAutoNow);
+			MyWidget->UpdateAutoButtonVisual(bCurrentAutoMode);
+			MyWidget->SetSpeedButtonLocked(!bCurrentAutoMode);
+
+			if (!bCurrentAutoMode)
+			{
+				CurrentGameSpeed = 1.0f;
+				UGameplayStatics::SetGlobalTimeDilation(GetWorld(), CurrentGameSpeed);
+				MyWidget->UpdateSpeedVisual(CurrentGameSpeed);
+			}
 		}
 	}
+
 }
 
 void ALRPlayerController::UsePotion()

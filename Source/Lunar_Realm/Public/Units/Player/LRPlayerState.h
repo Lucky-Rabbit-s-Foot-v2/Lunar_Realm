@@ -97,5 +97,8 @@ protected:
 public:
 	UFUNCTION(BlueprintCallable, Category = "LR | Combat")
 	TArray<FName> GetEquippedAutoSkillIDs() const;
+
+protected:
+	void PlaySkillVoice(int32 SkillIndex);
 };
 

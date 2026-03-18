@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Actor.h"
+#include "Kismet/GameplayStatics.h"
 
 ULRAnimNotify::ULRAnimNotify()
 {
@@ -18,6 +19,11 @@ void ULRAnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
 	if (MeshComp && MeshComp->GetOwner())
 	{
 		AActor* OwnerActor = MeshComp->GetOwner();
+
+		if (SoundToPlay)
+		{
+			UGameplayStatics::PlaySoundAtLocation(OwnerActor, SoundToPlay, OwnerActor->GetActorLocation(), VolumeMultiplier);
+		}
 
 		if (EventTag.IsValid())
 		{
