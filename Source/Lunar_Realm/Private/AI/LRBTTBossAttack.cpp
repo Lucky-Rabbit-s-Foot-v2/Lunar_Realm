@@ -25,7 +25,7 @@ EBTNodeResult::Type ULRBTTBossAttack::ExecuteTask(UBehaviorTreeComponent& OwnerC
 
 	// TODO: CurrentPhase에 따라 TryAttackTarget에 스킬 인덱스 전달
 	// 스킬 시스템 리팩토링(TryAttackTarget → TryAttackTargetBySkillIndex) 이후 구현 -> 일반 에너미 스킬 사용 부분 수정 후 추가 수정 필요
-	LR_INFO(TEXT("[BossAttack] 현재 페이즈: %d"), CurrentPhase);
+	// LR_INFO(TEXT("[BossAttack] 현재 페이즈: %d"), CurrentPhase);
 
 	// 현재는 기본 공격 로직 사용
 	return Super::ExecuteTask(OwnerComp, NodeMemory);

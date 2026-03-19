@@ -17,6 +17,7 @@
 // (260223) KWB 쿨다운 기능 추가
 // (260312) KWB OnAbilityActivated()의 "TargetActor" 값 저장 방식 변경 (Controller -> GameplayAbilityBase)
 // (260313) KWB 중복 로직 제거 (DT를 통해 AttackRange 값 결정 및 BTTask에서 검사)
+// (260319) KWB 보스 근접 공격 => 코어 즉시 파괴 위한 훅 추가
 //=============================================================================
 
 UCLASS()
@@ -31,6 +32,9 @@ protected:
 	//260219 KHS 베이스GA동작방식 변경으로 상속함수 변경
 	virtual void OnAbilityActivated(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
 	
+	// 자식 클래스가 GE Apply 직전에 Spec을 수정할 수 있는 훅
+	virtual void ModifyDamageSpec(FGameplayEffectSpecHandle& InSpecHandle) {}
+
 private:
 	UFUNCTION()
 	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
