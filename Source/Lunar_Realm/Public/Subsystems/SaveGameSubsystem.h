@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SaveGame/LRSaveGame.h"
+#include "Data/LRDataStructs.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SaveGameSubsystem.generated.h"
 
@@ -97,6 +98,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
 	void UpdateLastSavedTimeAndSave();
 	
+	//======================================
+	// 스테이지 정보 관리 (260319 PJB 추가)
+	//======================================
+	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame|Stage")
+	FStageClearedData GetStageClearedData(FName InID) const;
+
+	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame|Stage")
+	void SaveStageClearedData(FStageClearedData& InData);
+
 private:
 	UPROPERTY()
 	TObjectPtr<ULRSaveGame> CurrentSaveGame;

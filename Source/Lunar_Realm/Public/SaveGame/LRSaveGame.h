@@ -72,7 +72,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|SaveGame")
 	void InitializeNewPlayerDefaults();
 	
-	
+
+	// ========================================
+	// 스테이지 (260319 PJB추가)
+	// ========================================
+	TMap<FName, FStageClearedData> GetStageClearedDataList() const;
+	FStageClearedData GetStageClearedDataMap(FName InID);
+	void UpdateStageClearedData(FName InStageID, FStageClearedData& InData);
+
 private:
 	// ========================================
 	// 소유 도감 데이터(캐릭터/장비 인스턴스)
@@ -95,6 +102,12 @@ private:
 	const int PARTY_SLOT_SIZE = 5;
 	const int EQUIPMENT_SLOT_SIZE = 3;
 	
+	// ========================================
+	// 스테이지 정보
+	// ========================================
+	UPROPERTY(SaveGame)
+	TMap<FName, FStageClearedData> StageClearedDataMap; //키: 스테이지ID
+
 public:
 	// ========================================
 	// 재화 (260211 PYI추가)

@@ -7,16 +7,29 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 
+void ULRButtonWidget::NativePreConstruct()
+{
+	Super::NativeConstruct();
+
+	if (Text)
+	{
+		Text->SetText(ButtonText);
+	}
+}
+
 void ULRButtonWidget::BindProperties()
 {
 	Super::BindProperties();
 	if (Button)
 	{
-		Button->OnClicked.AddDynamic(this, &ULRButtonWidget::OnButtonClicked);
+		Button->OnClicked.AddUniqueDynamic(this, &ULRButtonWidget::OnButtonClicked);
 	}
 }
 
 void ULRButtonWidget::OnButtonClicked()
 {
-
+	if (OnLRButtonClickedDel.IsBound())
+	{
+		OnLRButtonClickedDel.Broadcast();
+	}
 }
