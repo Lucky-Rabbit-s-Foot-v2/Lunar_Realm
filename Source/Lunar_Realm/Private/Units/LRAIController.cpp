@@ -222,26 +222,6 @@ AActor* ALRAIController::FindActorWithGameplayTag(
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ActorClass, FoundActors);
 
-	// TEST : 이전 코드
-	//for (AActor* Actor : FoundActors)
-	//{
-	//	if (!Actor)
-	//	{
-	//		continue;
-	//	}
-
-	//	if (const IGameplayTagAssetInterface* TagInterface = Cast<IGameplayTagAssetInterface>(Actor))
-	//	{
-	//		FGameplayTagContainer OwnedTags;
-	//		TagInterface->GetOwnedGameplayTags(OwnedTags);
-
-	//		if (OwnedTags.HasTagExact(Tag))
-	//		{
-	//			return Actor;
-	//		}
-	//	}
-	//}
-
 	for (AActor* Actor : FoundActors)
 	{
 		if (!Actor)

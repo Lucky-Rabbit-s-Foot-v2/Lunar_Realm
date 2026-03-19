@@ -28,7 +28,7 @@
 //=============================================================================
 // (260205) KHS 추가. 제반 사항 구현.
 // (260317) KWB 에너미 스킬 GA/GE 태그 추가
-// (260319) KWB 보스 전용 GA/GE 태그 추가, 코어 즉시 파괴 태그 추가
+// (260319) KWB 보스 전용 즉발 GA/GE 태그 추가, 보스 전용 GameOver 노티파이 태그 추가
 // =============================================================================
 
 
@@ -87,7 +87,6 @@ namespace LRTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_EnemyRangedShoot_Cooldown); //GE
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_BossInstantAttack);     // GA
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_BossInstantAttack_Cooldown); // GE
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_InstantCoreDestroy); // GA
 	
 	
 	//===============================================

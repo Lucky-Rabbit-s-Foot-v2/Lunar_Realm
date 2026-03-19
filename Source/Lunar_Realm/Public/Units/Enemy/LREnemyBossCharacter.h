@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/SphereComponent.h"
 #include "GAS/Tags/LRGameplayTags.h"
 #include "GameplayEffectTypes.h"
+#include "Structures/Core/LRPlayerCore.h"
 #include "Units/Enemy/LREnemyCharacter.h"
 #include "Units/Enemy/LREnemyAIController.h"
 #include "LREnemyBossCharacter.generated.h"
@@ -32,12 +34,33 @@ public:
 
 	void InitializeBossSpeed();
 
+	void SetCoreAttackOverlapRadius(float InRadius);
+
+	void RegisterMontageNotifyDelegate();
+
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void FinishDeathSequence() override;
 
 private:
+	UPROPERTY(VisibleAnywhere, Category = "LR|Boss|Detection")
+	TObjectPtr<USphereComponent> CoreAttackOverlap;
+
+	// 몽타주 노티파이 콜백
+	UFUNCTION()
+	void OnMontageNotifyStart(FName NotifyName, const FBranchingPointNotifyPayload& Payload);
+
+	// Overlap 콜백
+	UFUNCTION()
+	void OnCoreOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+		bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnCoreOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
 	void OnBossHealthChanged(const FOnAttributeChangeData& Data);
 
 	int32 CalculatePhase(float HealthPercent) const;
@@ -50,7 +73,7 @@ private:
 	int32 CurrentPhase = 0;
 
 	// TEST : 추후 DT에서 관리 예정
-	static constexpr float SpeedPhase0 = 150.f;
-	static constexpr float SpeedPhase1 = 300.f;
-	static constexpr float SpeedPhase2 = 700.f;
+	static constexpr float SpeedPhase0 = 200.f;
+	static constexpr float SpeedPhase1 = 400.f;
+	static constexpr float SpeedPhase2 = 800.f;
 };

@@ -39,7 +39,6 @@ namespace LRTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_EnemyRangedShoot_Cooldown, "Ability.Skill.EnemyRangedShoot.Cooldown");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_BossInstantAttack, "Ability.Skill.BossInstantAttack");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_BossInstantAttack_Cooldown, "Ability.Skill.BossInstantAttack.Cooldown");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_InstantCoreDestroy, "Ability.Skill.InstantCoreDestroy");
 
 	//상태 태그
 	UE_DEFINE_GAMEPLAY_TAG(State_Debuff_Burning, "State.Debuff.Burning");
@@ -91,5 +90,4 @@ namespace LRTags
 	// 노티파이 태그
 	UE_DEFINE_GAMEPLAY_TAG(Notify_Combat_BasicHit, "Notify.Combat.BasicHit");
 	UE_DEFINE_GAMEPLAY_TAG(Notify_Combat_BasicShoot, "Notify.Combat.BasicShoot");
-	
 }

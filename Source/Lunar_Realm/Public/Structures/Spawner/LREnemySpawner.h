@@ -96,4 +96,8 @@ protected:
 	float CurrentSpawnInterval = 1.0f;
 
 	FTimerHandle SpawnTimerHandle;
+
+private:
+	// 보스 스폰 시 탐지 거리 조정을 위한 오프셋
+	float DetectionRangeOffset = 100.f;
 };
