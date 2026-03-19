@@ -22,7 +22,7 @@ void ULRButtonWidget::BindProperties()
 	Super::BindProperties();
 	if (Button)
 	{
-		Button->OnClicked.AddDynamic(this, &ULRButtonWidget::OnButtonClicked);
+		Button->OnClicked.AddUniqueDynamic(this, &ULRButtonWidget::OnButtonClicked);
 	}
 }
 

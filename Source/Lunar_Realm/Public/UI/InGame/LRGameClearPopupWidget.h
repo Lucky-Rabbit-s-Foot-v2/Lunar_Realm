@@ -38,6 +38,10 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRButtonWidget> Btn_Exit;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRStarBoxWidget> StarBox;
+
 protected:
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 	class UWidgetAnimation* victory;

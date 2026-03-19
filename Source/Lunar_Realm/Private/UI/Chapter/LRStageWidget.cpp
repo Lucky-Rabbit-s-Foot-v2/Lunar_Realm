@@ -54,8 +54,5 @@ void ULRStageWidget::RefreshUI()
 void ULRStageWidget::SetStageID(FName InStageID)
 {
 	StageID = InStageID;
-	
-	LR_INFO(TEXT("StageID set to %s in ULRStageWidget::SetStageID"), *StageID.ToString());
-
 	RefreshUI();
 }
