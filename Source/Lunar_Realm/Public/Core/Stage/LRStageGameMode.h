@@ -62,6 +62,9 @@ private:
 	bool IsStar2ConditionCheck();
 	bool IsStar3ConditionCheck();
 
+	int32 CalculateStarMasking();
+	void OpenGameClearPopupWidget(int32 InStarMasking);
+
 private:
 	bool bIsGamePause = false;
 

@@ -40,34 +40,84 @@ void ALRStageGameMode::OnGameClear()
 	OnPauseGame();
 
 	// TODO: 보상 반영 등 코드 추가 필요하면 여기에 작성
+	UStageManagerSubsystem* StageMgr = GetGameInstance()->GetSubsystem<UStageManagerSubsystem>();
+	FName CurrentStageID = StageMgr->GetCurrentStageID();
+
+	int32 StarMaskingBefore = StageMgr->GetStageClearedData(CurrentStageID).StarMasking;
+	int32 StarMasking = CalculateStarMasking();
+
+	const FStageRewardData& StageRewardData = StageMgr->GetCurrentStageRewardData();
 	
+	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+
+	if (StarMasking & 0b001)
+	{
+		SaveGameSubsystem->AddCurrency(ELRCurrencyType::Gold, StageRewardData.Gold);
+	}
+	
+	if (!(0b010 & StarMaskingBefore))
+	{
+		if (0b010 & StarMasking)
+		{
+			SaveGameSubsystem->AddCurrency(ELRCurrencyType::CrescentTicket, StageRewardData.NormalTicket);
+		}
+	}
+
+	if (!(0b100 & StarMaskingBefore))
+	{
+		if (0b100 & StarMasking)
+		{
+			SaveGameSubsystem->AddCurrency(ELRCurrencyType::FullMoonTicket, StageRewardData.EnhanceTicket);
+		}
+	}
+
+	StarMasking |= StarMaskingBefore;
+	StageMgr->ClearCurrentStage(StarMasking);
+	OpenGameClearPopupWidget(StarMasking);
+}
+
+int32 ALRStageGameMode::CalculateStarMasking()
+{
+	int32 StarMasking = 0;
+	if (IsStar1ConditionCheck())
+	{
+		StarMasking |= 0b001;
+	}
+	if (IsStar2ConditionCheck())
+	{
+		StarMasking |= 0b010;
+	}
+	if (IsStar3ConditionCheck())
+	{
+		StarMasking |= 0b100;
+	}
+	return StarMasking;
+}
+
+void ALRStageGameMode::OpenGameClearPopupWidget(int32 InStarMasking)
+{
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	ULRGameClearPopupWidget* GameClearPopupWidget = Cast<ULRGameClearPopupWidget>(UIManager->OpenUIByID(EUIID::GAMECLEAR));
 	if (GameClearPopupWidget)
 	{
-		int32 StarMasking = 0;
-		if (IsStar1ConditionCheck())
-		{
-			StarMasking |= 0b001;
-		}
-		if (IsStar2ConditionCheck())
-		{
-			StarMasking |= 0b010;
-		}
-		if (IsStar3ConditionCheck())
-		{
-			StarMasking |= 0b100;
-		}
-		
+		CalculateStarMasking();
+
 		UStageManagerSubsystem* StageMgr = GetGameInstance()->GetSubsystem<UStageManagerSubsystem>();
-		StarMasking = StageMgr->ClearCurrentStage(StarMasking);
-		GameClearPopupWidget->SetStarMasking(StarMasking);
+		GameClearPopupWidget->SetStarMasking(InStarMasking);
 	}
 }
 
 void ALRStageGameMode::OnRestartGame()
 {
-	OnResetStage();
+	//OnResetStage();
+
+	UStageManagerSubsystem* StageMgr = GetGameInstance()->GetSubsystem<UStageManagerSubsystem>();
+	FName CurrentStageID = StageMgr->GetCurrentStageID();
+	
+	ULRGameInstance* GI = Cast<ULRGameInstance>(GetGameInstance());
+	GI->OpenNextStage(CurrentStageID);
+	
+	OnResumeGame();
 }
 
 void ALRStageGameMode::OnPauseGame()
@@ -133,11 +183,14 @@ void ALRStageGameMode::OnExitStage()
 
 void ALRStageGameMode::OnStartNextStage()
 {
+
 	UStageManagerSubsystem* StageMgr = GetGameInstance()->GetSubsystem<UStageManagerSubsystem>();
 	FName NextStageID = StageMgr->GetCurrentStateData()->NextStageID;
-	StageMgr->LoadStage(NextStageID);
 
-	OnResetStage();
+	ULRGameInstance* GI = Cast<ULRGameInstance>(GetGameInstance());
+	GI->OpenNextStage(NextStageID);
+	
+	OnResumeGame();
 }
 
 void ALRStageGameMode::BeginPlay()
