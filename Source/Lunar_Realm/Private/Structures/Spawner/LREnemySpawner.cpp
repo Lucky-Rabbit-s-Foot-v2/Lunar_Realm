@@ -224,6 +224,11 @@ void ALREnemySpawner::SpawnBoss()
 		LR_ERROR(TEXT("EnemySpawner(%s): Failed to spawn boss actor"), *GetName());
 		return;
 	}
+	
+	if (UAbilitySystemComponent* BossASC = BossEnemy->GetAbilitySystemComponent())
+	{
+		BossASC->AddLooseGameplayTag(LRTags::Team_Enemy_Structure_Core);
+	}
 
 	BossEnemy->InitializeByEnemyID(CachedBossEnemyID);
 	BossEnemy->InitializeBossSpeed();

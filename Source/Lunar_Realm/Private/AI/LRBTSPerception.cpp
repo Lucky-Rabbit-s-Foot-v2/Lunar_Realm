@@ -40,6 +40,12 @@ void ULRBTSPerception::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 
 void ULRBTSPerception::UpdateHostileTarget(UBlackboardComponent* BB, ALRAIController* AIController)
 {
+	if (BB->GetValueAsObject(LRBBKeys::TargetCore) == nullptr)
+	{
+		AActor* CoreActor = AIController->FindTargetCore();
+		BB->SetValueAsObject(LRBBKeys::TargetCore, CoreActor);
+	}
+
 	AActor* NearestHostile = AIController->FindNearestHostile();
 
 	// 적대 캐릭터 있으면 타겟으로 설정, 없을 시 코어를 타겟으로 설정

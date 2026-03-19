@@ -27,11 +27,31 @@ public:
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly, Category = "Camera Limit")
-	float MinY = -2000.0f;
+	bool bIsInitialized = false;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Limit")
-	float MaxY = 2000.0f;
+	float MinY = -10000.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera Limit")
+	float MaxY = 10000.0f;
+
+	float CapturedX = 0.0f;
+	float CapturedZ = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Setting")
+	float OffsetX = 1100.0f; 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Setting")
+	float OffsetZ = 500.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Setting")
+	float CameraYaw = 180.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Setting")
+	float CameraPitch = -20.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera Setting")
+	float CameraLagSpeed = 5.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Camera Setting")
 	float FixedX = -1000.0f;
@@ -42,6 +62,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Setting")
 	FRotator FixedRotation = FRotator(-45.0f, 0.0f, 0.0f);
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera Setting")
-	float CameraLagSpeed = 5.0f;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera Setting")
+	//float CameraLagSpeed = 5.0f;
 };

@@ -13,6 +13,11 @@
 #include "Subsystems/SaveGameSubsystem.h"
 #include "Structures/Core/LREnemyCore.h"
 #include "System/LoggingSystem.h"
+#include "Units/LRAIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
+
+#include "GameFramework/PlayerStart.h"
+#include "EngineUtils.h"
 
 #include "UI/InGame/LRGameClearPopupWidget.h"
 
@@ -30,6 +35,7 @@ void ALRStageGameMode::OnGameClear()
 {
 	// 주의사항: UI 애니메이션도 멈춤
 	// TODO : 방법 고민 필요. 일단은 일시정지 로직 재활용
+
 	OnPauseGame();
 
 	// TODO: 보상 반영 등 코드 추가 필요하면 여기에 작성
@@ -183,8 +189,11 @@ void ALRStageGameMode::HideEnemyCoreIfBossStage()
 	{
 		ASC->RemoveLooseGameplayTag(LRTags::Team_Enemy_Structure_Core);
 	}
+	
+	EnemyCore->OwnedTags.RemoveTag(LRTags::Team_Enemy_Structure_Core);
 
 	LR_INFO(TEXT("[StageGameMode] Is BossStage - EnemyCore Hidden and Tag Removed"));
+
 }
 
 bool ALRStageGameMode::IsStar1ConditionCheck()
@@ -203,4 +212,38 @@ bool ALRStageGameMode::IsStar3ConditionCheck()
 {
 	// TODO: 실제 조건 체크 로직 작성 필요
 	return true;
+
+
+}
+
+AActor* ALRStageGameMode::ChoosePlayerStart_Implementation(AController* InPlayer)
+{
+	UGameInstance* GI = GetGameInstance();
+	UStageManagerSubsystem* StageSys = GI ? GI->GetSubsystem<UStageManagerSubsystem>() : nullptr;
+
+	if (StageSys)
+	{
+		const FStageStaticData* StageData = StageSys->GetCurrentStateData();
+
+		if (StageData && !StageData->PlayerStartTag.IsNone())
+		{
+			FName TargetTag = StageData->PlayerStartTag;
+
+			for (TActorIterator<APlayerStart> It(GetWorld()); It; ++It)
+			{
+				APlayerStart* StartPoint = *It;
+
+				if (StartPoint->PlayerStartTag == TargetTag)
+				{
+					LR_INFO(TEXT("[GameMode] %s 위치에서 플레이어 스폰"), *TargetTag.ToString());
+					return StartPoint;
+				}
+			}
+
+			LR_WARN(TEXT("[GameMode] %s 태그를 가진 PlayerStart가 맵에 없습니다"), *TargetTag.ToString());
+		}
+	}
+
+	return Super::ChoosePlayerStart_Implementation(InPlayer);
+
 }

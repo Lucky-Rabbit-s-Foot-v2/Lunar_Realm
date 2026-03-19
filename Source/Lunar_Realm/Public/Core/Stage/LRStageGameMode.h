@@ -64,4 +64,8 @@ private:
 
 private:
 	bool bIsGamePause = false;
+
+public:
+
+	virtual AActor* ChoosePlayerStart_Implementation(AController* InPlayer) override;
 };
