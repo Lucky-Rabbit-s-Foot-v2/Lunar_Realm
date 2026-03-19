@@ -3,6 +3,8 @@
 
 #include "SaveGame/LRSaveGame.h"
 
+#include "Subsystems/GameDataSubsystem.h"
+
 ULRSaveGame::ULRSaveGame(const FObjectInitializer& InitializerModule)
 {
 	SelectedCharactersIDs.SetNum(PARTY_SLOT_SIZE);
@@ -127,4 +129,20 @@ void ULRSaveGame::InitializeNewPlayerDefaults()
 	FCharacterInstance DefaultCharacterInstance(FName("Army_N"), 1);
 	DefaultCharacters.Add(FName("Army_N"), DefaultCharacterInstance);
 	SetOwnedCharactersList(DefaultCharacters);
+
+}
+
+TMap<FName, FStageClearedData> ULRSaveGame::GetStageClearedDataList() const
+{
+	return StageClearedDataMap;
+}
+
+FStageClearedData ULRSaveGame::GetStageClearedDataMap(FName InID)
+{
+	return StageClearedDataMap.Find(InID) ? *StageClearedDataMap.Find(InID) : FStageClearedData();
+}
+
+void ULRSaveGame::UpdateStageClearedData(FName InStageID, FStageClearedData& InData)
+{
+	StageClearedDataMap.Add(InStageID, InData);
 }

@@ -101,6 +101,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Stage")
 	FName GetCurrentStageID() const;
 
+	UFUNCTION(BlueprintCallable, Category = "LR|Stage")
+	FStageClearedData GetStageClearedData(FName StageID);
+
 private:
 	void CacheCurrentStageData();
 

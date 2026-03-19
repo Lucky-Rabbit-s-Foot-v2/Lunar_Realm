@@ -10,6 +10,14 @@
 #include "Subsystems/UIManagerSubsystem.h"
 
 #include "UI/Core/LRButtonWidget.h"
+#include "UI/InGame/LRStarBoxWidget.h"
+
+void ULRGameClearPopupWidget::RegisterSubWidgets()
+{
+	Super::RegisterSubWidgets();
+	
+	SubWidgets.Add(StarBox);
+}
 
 void ULRGameClearPopupWidget::BindProperties()
 {
@@ -39,6 +47,11 @@ void ULRGameClearPopupWidget::InitializeUI()
 	{
 		PlayAnimation(victory);
 	}
+}
+
+void ULRGameClearPopupWidget::SetStarMasking(int32 InMasking)
+{
+	StarBox->SetStarMasking(InMasking);
 }
 
 void ULRGameClearPopupWidget::OnNextStageButtonClicked()

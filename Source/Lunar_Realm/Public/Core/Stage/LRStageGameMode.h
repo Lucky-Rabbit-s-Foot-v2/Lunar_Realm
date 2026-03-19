@@ -58,6 +58,10 @@ protected:
 private:
 	void HideEnemyCoreIfBossStage();
 
+	bool IsStar1ConditionCheck();
+	bool IsStar2ConditionCheck();
+	bool IsStar3ConditionCheck();
+
 private:
 	bool bIsGamePause = false;
 };

@@ -570,6 +570,14 @@ const TArray<FName> UGameDataSubsystem::GetAllStageIDsByChapterID(FName ChapterI
 	return ChapterData.StageDataIDs;
 }
 
+const TArray<FName> UGameDataSubsystem::GetAllStageID() const
+{
+	TArray<FName> CachedStageIDs;
+	CachedStageStaticData.GetKeys(CachedStageIDs);
+
+	return CachedStageIDs;
+}
+
 const FCurrencyStaticData& UGameDataSubsystem::GetCurrencyStaticData(FName CurrencyID) const
 {
 	return GetCachedData(CachedCurrencyStaticData, CurrencyID, EmptyCurrencyStaticData, TEXT("CurrencyStaticData"));

@@ -47,7 +47,25 @@ void ULRStageWidget::RefreshUI()
 		UGameDataSubsystem* GameDataSubsystem = GI->GetSubsystem<UGameDataSubsystem>();
 		const FStageStaticData& StageData = GameDataSubsystem->GetStageStaticData(StageID);
 
+		UStageManagerSubsystem* StageMgr = GI->GetSubsystem<UStageManagerSubsystem>();
+		const FStageClearedData& ClearedData = StageMgr->GetStageClearedData(StageID);
+
 		Txt_Name->SetText(StageData.StageName);
+
+		Img_Star1->SetBrushFromTexture((ClearedData.StarMasking & 0b001) ? StarOnTexture : StarOffTexture);
+		Img_Star2->SetBrushFromTexture((ClearedData.StarMasking & 0b010) ? StarOnTexture : StarOffTexture);
+		Img_Star3->SetBrushFromTexture((ClearedData.StarMasking & 0b100) ? StarOnTexture : StarOffTexture);
+
+		if (ClearedData.bIsUnlocked)
+		{
+			Btn_Open->SetIsEnabled(true);
+			Img_Base->SetBrushFromTexture(BaseOnTexture);
+		}
+		else
+		{
+			Btn_Open->SetIsEnabled(false);
+			Img_Base->SetBrushFromTexture(BaseOffTexture);
+		}
 	}
 }
 

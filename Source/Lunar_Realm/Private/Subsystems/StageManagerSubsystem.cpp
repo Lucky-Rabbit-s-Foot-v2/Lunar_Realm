@@ -7,6 +7,7 @@
 #include "System/LoggingSystem.h"
 #include "Data/LRGameDataConfig.h"
 #include "Subsystems/GameDataSubsystem.h"
+#include "Subsystems/SaveGameSubsystem.h"
 
 void UStageManagerSubsystem::LoadStage(FName StageID)
 {
@@ -60,6 +61,31 @@ FName UStageManagerSubsystem::GetCurrentStageID() const
 		return NAME_None;
 	}
 	return CurrentStageData->DataID;
+}
+
+FStageClearedData UStageManagerSubsystem::GetStageClearedData(FName StageID)
+{
+	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+	if (!ensure(SaveGameSubsystem))
+	{
+		LR_SCREEN_INFO(TEXT("SaveGameSubsystem is null"));
+		return FStageClearedData();
+	}
+
+	FStageClearedData StageClearedData = SaveGameSubsystem->GetStageClearedData(StageID);
+	if (StageClearedData.StageID == NAME_None)
+	{
+		StageClearedData.StageID = StageID;
+
+		if (StageID == "LAKE_01")
+		{
+			StageClearedData.bIsUnlocked = true;
+		}
+
+		SaveGameSubsystem->SaveStageClearedData(StageClearedData);
+	}
+
+	return StageClearedData;
 }
 
 const FString UStageManagerSubsystem::GetStageName() const

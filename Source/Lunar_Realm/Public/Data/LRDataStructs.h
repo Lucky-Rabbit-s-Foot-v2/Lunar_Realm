@@ -1211,3 +1211,31 @@ struct FCharacterSoundData : public FTableRowBase
 	TSoftObjectPtr<USoundBase> SummonSound;
 
 };
+
+//=============================================================================
+// (260319) PJB 제작.
+// =============================================================================
+USTRUCT(BlueprintType)
+struct FStageClearedData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(SaveGame, BlueprintReadWrite)
+	FName StageID;
+
+	UPROPERTY(SaveGame, BlueprintReadWrite)
+	int32 StarMasking;
+
+	UPROPERTY(SaveGame, BlueprintReadWrite)
+	bool bIsUnlocked;
+
+	FStageClearedData()
+		: StageID(NAME_None), StarMasking(0), bIsUnlocked(false)
+	{
+	}
+
+	FStageClearedData(FName InID)
+		: StageID(InID), StarMasking(0), bIsUnlocked(false)
+	{
+	}
+};

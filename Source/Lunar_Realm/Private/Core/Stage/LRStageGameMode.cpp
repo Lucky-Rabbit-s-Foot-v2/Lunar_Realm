@@ -10,8 +10,11 @@
 #include "Subsystems/UIManagerSubsystem.h"
 #include "Subsystems/GameDataSubsystem.h"
 #include "Subsystems/StageManagerSubsystem.h"
+#include "Subsystems/SaveGameSubsystem.h"
 #include "Structures/Core/LREnemyCore.h"
 #include "System/LoggingSystem.h"
+
+#include "UI/InGame/LRGameClearPopupWidget.h"
 
 void ALRStageGameMode::OnGameOver()
 {
@@ -32,7 +35,32 @@ void ALRStageGameMode::OnGameClear()
 	// TODO: 보상 반영 등 코드 추가 필요하면 여기에 작성
 	
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->OpenUIByID(EUIID::GAMECLEAR);
+	ULRGameClearPopupWidget* GameClearPopupWidget = Cast<ULRGameClearPopupWidget>(UIManager->OpenUIByID(EUIID::GAMECLEAR));
+	if (GameClearPopupWidget)
+	{
+		UStageManagerSubsystem* StageMgr = GetGameInstance()->GetSubsystem<UStageManagerSubsystem>();
+		FName CurrentID = StageMgr->GetCurrentStageID();
+		FStageClearedData ClearedData = StageMgr->GetStageClearedData(CurrentID);
+
+		int32 StarMasking = ClearedData.StarMasking;
+		if (IsStar1ConditionCheck())
+		{
+			StarMasking |= 0b001;
+		}
+		if (IsStar2ConditionCheck())
+		{
+			StarMasking |= 0b010;
+		}
+		if (IsStar3ConditionCheck())
+		{
+			StarMasking |= 0b100;
+		}
+		ClearedData.StarMasking = StarMasking;
+
+		USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+		SaveGameSubsystem->SaveStageClearedData(ClearedData);
+		GameClearPopupWidget->SetStarMasking(StarMasking);
+	}
 }
 
 void ALRStageGameMode::OnRestartGame()
@@ -157,4 +185,22 @@ void ALRStageGameMode::HideEnemyCoreIfBossStage()
 	}
 
 	LR_INFO(TEXT("[StageGameMode] Is BossStage - EnemyCore Hidden and Tag Removed"));
+}
+
+bool ALRStageGameMode::IsStar1ConditionCheck()
+{
+	// TODO: 실제 조건 체크 로직 작성 필요
+	return true;
+}
+
+bool ALRStageGameMode::IsStar2ConditionCheck()
+{
+	// TODO: 실제 조건 체크 로직 작성 필요
+	return false;
+}
+
+bool ALRStageGameMode::IsStar3ConditionCheck()
+{
+	// TODO: 실제 조건 체크 로직 작성 필요
+	return true;
 }

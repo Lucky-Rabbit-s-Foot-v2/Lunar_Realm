@@ -53,6 +53,18 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UImage> Img_Base;
 
+	UPROPERTY(EditAnywhere, Category = "LR|UI|Star")
+	TObjectPtr<class UTexture2D> StarOnTexture = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "LR|UI|Star")
+	TObjectPtr<class UTexture2D> StarOffTexture = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "LR|UI|Star")
+	TObjectPtr<class UTexture2D> BaseOnTexture = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "LR|UI|Star")
+	TObjectPtr<class UTexture2D> BaseOffTexture = nullptr;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Chapter")
 	FName StageID;
 };

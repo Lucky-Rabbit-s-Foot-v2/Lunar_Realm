@@ -21,10 +21,14 @@ class LUNAR_REALM_API ULRGameClearPopupWidget : public ULRPopupWidget
 	GENERATED_BODY()
 	
 public:
+	virtual void RegisterSubWidgets() override;
+
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
 	virtual void InitializeUI() override;
+
+	void SetStarMasking(int32 InMasking);
 
 	UFUNCTION(BlueprintCallable)
 	void OnNextStageButtonClicked();
