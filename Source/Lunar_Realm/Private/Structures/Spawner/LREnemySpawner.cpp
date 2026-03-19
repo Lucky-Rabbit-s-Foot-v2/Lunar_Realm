@@ -32,44 +32,24 @@ void ALREnemySpawner::BeginPlay()
 {
 	Super::BeginPlay();
 
-	double StartTime = GetWorld()->GetTimeSeconds();
-
-	if (!InitializeFromStageData())
+	UStageManagerSubsystem* StageMgr = GetGameInstance() ? GetGameInstance()->GetSubsystem<UStageManagerSubsystem>() : nullptr;
+	if (!StageMgr)
 	{
-		LR_WARN(TEXT("EnemySpawner(%s) failed to initialize from stage data"), *GetName());
+		LR_ERROR(TEXT("EnemySpawner(%s): StageManagerSubsystem not found"), *GetName());
 		return;
 	}
 
-	if (!EnemyClass)
+	StageMgr->OnStageLoaded.AddDynamic(this, &ALREnemySpawner::OnStageLoaded);
+
+	const FName CurrentLoadedStageID = StageMgr->GetCurrentStageID();
+	if (CurrentLoadedStageID != NAME_None && CurrentLoadedStageID == StageIDToActivate)
 	{
-		LR_WARN(TEXT("EnemySpawner(%s) has no EnemyClass"), *GetName());
-		return;
-	}
-
-	UPoolingSubsystem* PoolSys = GetWorld() ? GetWorld()->GetSubsystem<UPoolingSubsystem>() : nullptr;
-	if (PoolSys)
-	{
-		PoolSys->InitializePool(ALREnemyAIController::StaticClass(), PrewarmCount);
-		PoolSys->InitializePool(EnemyClass, PrewarmCount);
-	}
-
-	if (bIsBossStage && CachedBossEnemyID != NAME_None)
-	{
-		SpawnBoss();
-	}
-
-	GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy, FMath::Max(CurrentSpawnInterval, 0.05f), true);
-
-	float Rate = FMath::Max(CurrentSpawnInterval, 0.05f);
-
-	if (WaitTime <= 0.0f)
-	{
-		SpawnEnemy();
-		GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy, Rate, true);
+		ActivateSpawner();
 	}
 	else
 	{
-		GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy, Rate, true, WaitTime);
+		// TEST
+		LR_INFO(TEXT("EnemySpawner(%s): Waiting for stage [%s] (current: [%s])"), *GetName(), *StageIDToActivate.ToString(), *CurrentLoadedStageID.ToString());
 	}
 }
 
@@ -168,6 +148,24 @@ bool ALREnemySpawner::InitializeFromStageData()
 //	return true;
 //}
 
+void ALREnemySpawner::OnStageLoaded(FName NewStageID)
+{
+	if (NewStageID == StageIDToActivate)
+	{
+		if (!bIsActivated)
+		{
+			ActivateSpawner();
+		}
+	}
+	else
+	{
+		if (bIsActivated)
+		{
+			DeactivateSpawner();
+		}
+	}
+}
+
 FName ALREnemySpawner::PickEnemyIDByWeight() const
 {
 	if (CachedEnemyIDs.Num() <= 0)
@@ -202,6 +200,62 @@ FTransform ALREnemySpawner::MakeRandomSpawnTransform() const
 	const FVector Extent = SpawnAreaBox->GetScaledBoxExtent();
 	const FVector RandomLocation = UKismetMathLibrary::RandomPointInBoundingBox(Origin, Extent);
 	return FTransform(GetActorRotation(), RandomLocation, FVector::OneVector);
+}
+
+void ALREnemySpawner::ActivateSpawner()
+{
+	LR_INFO(TEXT("EnemySpawner(%s): Activating for stage [%s]"), *GetName(), *StageIDToActivate.ToString());
+
+	if (!InitializeFromStageData())
+	{
+		LR_WARN(TEXT("EnemySpawner(%s): Failed to initialize from stage data"), *GetName());
+		return;
+	}
+
+	if (!EnemyClass)
+	{
+		LR_WARN(TEXT("EnemySpawner(%s): EnemyClass is null"), *GetName());
+		return;
+	}
+
+	bIsActivated = true;
+
+	// 풀 프리웜
+	UPoolingSubsystem* PoolSys = GetWorld() ? GetWorld()->GetSubsystem<UPoolingSubsystem>() : nullptr;
+	if (PoolSys)
+	{
+		PoolSys->InitializePool(ALREnemyAIController::StaticClass(), PrewarmCount);
+		PoolSys->InitializePool(EnemyClass, PrewarmCount);
+	}
+
+	// 보스 스테이지 처리
+	if (bIsBossStage && CachedBossEnemyID != NAME_None)
+	{
+		SpawnBoss();
+	}
+
+	// 스폰 타이머 시작
+	const float Rate = FMath::Max(CurrentSpawnInterval, 0.05f);
+	if (WaitTime <= 0.0f)
+	{
+		SpawnEnemy();
+		GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy, Rate, true);
+	}
+	else
+	{
+		GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy, Rate, true, WaitTime);
+	}
+}
+
+void ALREnemySpawner::DeactivateSpawner()
+{
+	// TEST : 빌드 직전에 지우기
+	LR_WARN(TEXT("EnemySpawner(%s): Deactivating (stage [%s] no longer active)"), *GetName(), *StageIDToActivate.ToString());
+
+	bIsActivated = false;
+	GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
+
+	// TODO: 이 스포너가 스폰한 잔여 에너미 풀 회수 로직, StageManager 또는 GameMode에서 일괄 처리할 수도 있음
 }
 
 void ALREnemySpawner::SpawnBoss()
@@ -244,6 +298,11 @@ void ALREnemySpawner::SpawnBoss()
 
 void ALREnemySpawner::SpawnEnemy()
 {
+	if (!bIsActivated)
+	{
+		return;
+	}
+
 	UPoolingSubsystem* PoolSys = GetWorld() ? GetWorld()->GetSubsystem<UPoolingSubsystem>() : nullptr;
 	if (!PoolSys || !EnemyClass)
 	{

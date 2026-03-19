@@ -49,8 +49,14 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	bool InitializeFromStageData();
 
+	UFUNCTION()
+	void OnStageLoaded(FName NewStageID);
+
 	FName PickEnemyIDByWeight() const;
 	FTransform MakeRandomSpawnTransform() const;
+
+	void ActivateSpawner();
+	void DeactivateSpawner();
 
 	void SpawnBoss();
 
@@ -61,7 +67,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner|Boss")
 	TSubclassOf<ALREnemyBossCharacter> BossClass;
 
-	// 사전 생성 오브젝트 풀 - 추후 개수 변경 필요 (50 ~ 100)
+	// TEST: 사전 생성 오브젝트 풀 - 추후 개수 변경 필요 (50 ~ 100)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
 	int32 PrewarmCount = 5;	// TEMP
 
@@ -94,6 +100,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
 	float CurrentSpawnInterval = 1.0f;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "LR|Spawner|StageID")
+	FName StageIDToActivate;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
+	bool bIsActivated = false;
 
 	FTimerHandle SpawnTimerHandle;
 
