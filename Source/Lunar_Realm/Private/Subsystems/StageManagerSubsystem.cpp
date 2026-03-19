@@ -82,6 +82,16 @@ bool UStageManagerSubsystem::IsBossStage() const
 	return CurrentStageData->bIsBossStage;
 }
 
+FName UStageManagerSubsystem::GetBossEnemyID() const
+{
+	if (!CurrentStageData)
+	{
+		LR_WARN(TEXT("CurrentStageData가 존재하지 않습니다!"));
+		return NAME_None;
+	}
+	return CurrentStageData->BossEnemyID;
+}
+
 void UStageManagerSubsystem::CacheCurrentStageData()
 {
 	CachedSpawnerData.SetByStaticData(*CurrentStageData);

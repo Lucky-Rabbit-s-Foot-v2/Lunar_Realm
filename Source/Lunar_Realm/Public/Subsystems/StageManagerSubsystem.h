@@ -60,6 +60,7 @@ struct FStageRewardData
  */
  //=============================================================================
  // (260211) PJB 제작. 제반 사항 구현.
+ // (260318) KWB GetBossEnemyID() 함수 추가
  //=============================================================================
 
 UCLASS()
@@ -93,6 +94,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "LR|Stage")
 	bool IsBossStage() const;
+
+	UFUNCTION(BlueprintCallable, Category = "LR|Stage")
+	FName GetBossEnemyID() const;
 
 	UFUNCTION(BlueprintCallable, Category = "LR|Stage")
 	FName GetCurrentStageID() const;

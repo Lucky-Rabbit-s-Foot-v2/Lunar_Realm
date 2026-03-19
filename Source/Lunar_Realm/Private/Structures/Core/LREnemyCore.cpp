@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GAS/Attributes/LRCoreAttributeSet.h"
 #include "GAS/Tags/LRGameplayTags.h"
+#include "Units/Player/LRPlayerCharacter.h"
 
 ALREnemyCore::ALREnemyCore()
 {
@@ -38,6 +39,11 @@ void ALREnemyCore::BeginPlay()
 void ALREnemyCore::OnCoreDestroyed()
 {
 	Super::OnCoreDestroyed();
+
+	if (ALRPlayerCharacter* PlayerChar = Cast<ALRPlayerCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0)))
+	{
+		PlayerChar->PlayVictoryVoice();
+	}
 
 	// TODO: GameMode에서 플레이어 승리 알림 호출
 	LR_WARN(TEXT("적 코어 파괴 플레이어 승리"));

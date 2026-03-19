@@ -9,6 +9,7 @@
 #include "System/LoggingSystem.h"
 #include "GAS/Attributes/LRCoreAttributeSet.h"
 #include "GAS/Tags/LRGameplayTags.h"
+#include "Units/Player/LRPlayerCharacter.h"
 
 ALRPlayerCore::ALRPlayerCore()
 {
@@ -55,6 +56,11 @@ void ALRPlayerCore::OnCoreDestroyed()
 
 	// TODO: GameMode에서 플레이어 패배 알림 호출
 	LR_WARN(TEXT("플레이어 코어가 파괴되었습니다! 게임 오버(패배)!"));
+	
+	if (ALRPlayerCharacter* PlayerChar = Cast<ALRPlayerCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0)))
+	{
+		PlayerChar->PlayDefeatVoice();
+	}
 
 	if (ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(UGameplayStatics::GetGameMode(this)))
 	{

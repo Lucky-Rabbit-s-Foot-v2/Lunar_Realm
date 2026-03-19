@@ -52,6 +52,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "LR|Basic Attack|Ranged", meta = (EditCondition = "!bIsMeleeAttack"))
 	float ProjectileSpeed = 1500.0f;
 
+	void PlayAttackGruntSound(class ALRCharacter* InOwnerChar);
+
 	//UPROPERTY(EditDefaultsOnly, Category = "LR|Basic Attack|Data")
 	//FName BasicAttackSkillID;
 

@@ -7,10 +7,12 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "Animation/AnimMontage.h"
+#include "NiagaraComponent.h"
 #include "LREnemyCharacter.generated.h"
 
-class ULREnemyAttributeSet;
 class UGameplayAbility;
+class ULREnemyAttributeSet;
+class UNiagaraSystem;
 
 /**
  * 적 캐릭터(Enemy) 베이스 클래스
@@ -64,6 +66,14 @@ protected:
 
 	void ApplyVisualData(const struct FEnemyStaticData& EnemyData);
 
+	// 엘리트, 보스 용 아우라 VFX
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|VFX")
+	TObjectPtr<UNiagaraComponent> AuraVFXComponent;
+
+	// DT에서 로드한 VFX 목록을 캐싱 (InitializeByEnemyID에서 채워짐)
+	UPROPERTY()
+	TArray<TObjectPtr<UNiagaraSystem>> CachedAuraVFXList;
+
 	void PlayDeathMontage();
 
 	UFUNCTION()
@@ -72,8 +82,14 @@ protected:
 	UFUNCTION()
 	void OnDeathMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
+	// 지정 인덱스의 Aura VFX를 활성화. 범위 밖이면 무시.
+	void ActivateAuraVFX(int32 Index = 0);
+
+	// Aura VFX 비활성화
+	void DeactivateAuraVFX();
+
 	// 몽타주 완료 후 호출되는 후속 처리 함수
-	void FinishDeathSequence();
+	virtual void FinishDeathSequence();
 
 protected:
 	UPROPERTY()
@@ -97,6 +113,8 @@ private:
 	float GetDropAetherAmount() const;
 
 	bool IsDead = false;
+
+	bool IsBoss = false;
 
 	// (260316) BJM: 타겟팅 마커(머리 위 화살표) UI 연동을 위한 함수 및 변수 추가
 public:

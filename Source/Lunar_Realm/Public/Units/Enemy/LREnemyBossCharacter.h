@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GAS/Tags/LRGameplayTags.h"
 #include "GameplayEffectTypes.h"
 #include "Units/Enemy/LREnemyCharacter.h"
+#include "Units/Enemy/LREnemyAIController.h"
 #include "LREnemyBossCharacter.generated.h"
 
 class ULRBossAttributeSet;
@@ -28,15 +30,27 @@ class LUNAR_REALM_API ALREnemyBossCharacter : public ALREnemyCharacter
 public:
 	ALREnemyBossCharacter();
 
+	void InitializeBossSpeed();
+
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly, Category = "LR|Boss|Phase")
-	TArray<float> PhaseThresholds = { 0.50f, 0.15f };
+	virtual void FinishDeathSequence() override;
 
 private:
 	void OnBossHealthChanged(const FOnAttributeChangeData& Data);
+
 	int32 CalculatePhase(float HealthPercent) const;
 
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Boss|Phase")
+	TArray<float> PhaseThresholds = { 0.50f, 0.20f };
+
+private:
 	int32 CurrentPhase = 0;
+
+	// TEST : 추후 DT에서 관리 예정
+	static constexpr float SpeedPhase0 = 150.f;
+	static constexpr float SpeedPhase1 = 300.f;
+	static constexpr float SpeedPhase2 = 700.f;
 };

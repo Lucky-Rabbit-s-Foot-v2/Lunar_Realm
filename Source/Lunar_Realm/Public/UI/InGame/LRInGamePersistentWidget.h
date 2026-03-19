@@ -18,6 +18,7 @@
 //=============================================================================
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnChangeClicked);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSpeedClicked);
 
 class ULRSkillPanelWidget;
 class URetainerBox;
@@ -110,5 +111,42 @@ protected:
 
 public:
 	void SetAutoEffectActive(bool bIsActive);
+
+// 시간 배수 옵션 버튼
+public:
+	FOnSpeedClicked OnSpeedClickedDel;
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void UpdateSpeedVisual(float InCurrentSpeed);
+
+	UFUNCTION(BlueprintCallable, Category = "LR|UI")
+	void SetSpeedButtonLocked(bool InbIsLocked);
+
+private:
+	UFUNCTION(BlueprintCallable)
+	void OnSpeedClicked();
+
+protected:
+	UPROPERTY(meta = (Bindwidget))
+	TObjectPtr<class UButton> Btn_Speed;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> Img_SpeedLock;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> Img_SpeedGlow;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> Img_SpeedArrow;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|UI|Speed")
+	class UTexture2D* Tex_Speed1; // 1배속 (화살표 1개)
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|UI|Speed")
+	class UTexture2D* Tex_Speed2; // 1.5배속 (화살표 2개)
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|UI|Speed")
+	class UTexture2D* Tex_Speed3; // 2배속 (화살표 3개)
+
 
 };

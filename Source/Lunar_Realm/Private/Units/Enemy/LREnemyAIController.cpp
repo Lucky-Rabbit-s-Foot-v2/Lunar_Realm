@@ -130,7 +130,7 @@ void ALREnemyAIController::InitializeFromEnemyData(FName EnemyID)
 	// Special 스킬 유효성 검사
 	if (EnemyData.SkillIDs.Num() < 2)
 	{
-		LR_WARN(TEXT("[%s] SkillIDs가 1개 — Special 없이 Normal만 사용합니다."), *GetName());
+		// LR_WARN(TEXT("[%s] SkillIDs가 1개 — Special 없이 Normal만 사용합니다."), *GetName());
 		return;
 	}
 

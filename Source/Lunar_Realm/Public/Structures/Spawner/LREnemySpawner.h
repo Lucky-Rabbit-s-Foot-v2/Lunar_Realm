@@ -7,8 +7,9 @@
 #include "Data/LRDataStructs.h"
 #include "LREnemySpawner.generated.h"
 
-class ALREnemyCharacter;
 class UBoxComponent;
+class ALREnemyCharacter;
+class ALREnemyBossCharacter;
 
 /**
  * 에너미 스포너 클래스
@@ -22,6 +23,7 @@ class UBoxComponent;
  // (260210) KWB 키값 타입 int32 -> FName 으로 변경 반영
  // (260219) KWB 스폰 인터벌 버그 픽스, 주석 수정
  // (260317) KWB SpawnManger 통한 데이터 초기화로 리팩토링 / 용이한 테스트 위해 잠시 원복
+ // (260318) KWB 보스 스폰 로직 추가 및 불필요 멤버 삭제, 예외 처리 로직 변경(보스 스테이지면 에너미 데이터 null 허용)
  //============================================================================
 UCLASS()
 class LUNAR_REALM_API ALREnemySpawner : public AActor
@@ -50,12 +52,14 @@ protected:
 	FName PickEnemyIDByWeight() const;
 	FTransform MakeRandomSpawnTransform() const;
 
+	void SpawnBoss();
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
 	TSubclassOf<ALREnemyCharacter> EnemyClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
-	bool bSpawnOnlyBossStage = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner|Boss")
+	TSubclassOf<ALREnemyBossCharacter> BossClass;
 
 	// 사전 생성 오브젝트 풀 - 추후 개수 변경 필요 (50 ~ 100)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
@@ -68,7 +72,7 @@ protected:
 	int32 SpawnCountAtOnce = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
-	float DefaultSpawnInterval = 1.0f;
+	float DefaultSpawnInterval = 5.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
 	TObjectPtr<UBoxComponent> SpawnAreaBox;
@@ -78,6 +82,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
 	TArray<float> CachedEnemyWeights;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Spawner|Boss")
+	FName CachedBossEnemyID;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
 	FName CurrentStageID;
