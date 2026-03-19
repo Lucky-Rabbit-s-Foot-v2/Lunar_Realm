@@ -64,4 +64,7 @@ private:
 public:
 
 	virtual AActor* ChoosePlayerStart_Implementation(AController* InPlayer) override;
+
+public:
+	void CleanupUnusedCores();
 };
