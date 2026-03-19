@@ -207,7 +207,7 @@ AActor* ALRAIController::FindTargetCore() const
 		return nullptr;
 	}
 
-	return FindActorWithGameplayTag(ALRCore::StaticClass(), CoreTag);
+	return FindActorWithGameplayTag(AActor::StaticClass(), CoreTag);
 }
 
 
@@ -222,6 +222,26 @@ AActor* ALRAIController::FindActorWithGameplayTag(
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ActorClass, FoundActors);
 
+	// TEST : 이전 코드
+	//for (AActor* Actor : FoundActors)
+	//{
+	//	if (!Actor)
+	//	{
+	//		continue;
+	//	}
+
+	//	if (const IGameplayTagAssetInterface* TagInterface = Cast<IGameplayTagAssetInterface>(Actor))
+	//	{
+	//		FGameplayTagContainer OwnedTags;
+	//		TagInterface->GetOwnedGameplayTags(OwnedTags);
+
+	//		if (OwnedTags.HasTagExact(Tag))
+	//		{
+	//			return Actor;
+	//		}
+	//	}
+	//}
+
 	for (AActor* Actor : FoundActors)
 	{
 		if (!Actor)
@@ -229,14 +249,27 @@ AActor* ALRAIController::FindActorWithGameplayTag(
 			continue;
 		}
 
-		if (const IGameplayTagAssetInterface* TagInterface = Cast<IGameplayTagAssetInterface>(Actor))
+		const IGameplayTagAssetInterface* TagInterface = Cast<IGameplayTagAssetInterface>(Actor);
+
+		if (TagInterface)
 		{
 			FGameplayTagContainer OwnedTags;
 			TagInterface->GetOwnedGameplayTags(OwnedTags);
-
 			if (OwnedTags.HasTagExact(Tag))
 			{
 				return Actor;
+			}
+		}
+		else
+		{
+			// IGameplayTagAssetInterface 미구현 액터는 ASC로 폴백
+			if (UAbilitySystemComponent* ASC =
+				UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Actor))
+			{
+				if (ASC->HasMatchingGameplayTag(Tag))
+				{
+					return Actor;
+				}
 			}
 		}
 	}

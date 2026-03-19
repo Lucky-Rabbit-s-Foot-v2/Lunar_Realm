@@ -12,6 +12,8 @@
 #include "Subsystems/StageManagerSubsystem.h"
 #include "Structures/Core/LREnemyCore.h"
 #include "System/LoggingSystem.h"
+#include "Units/LRAIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 #include "GameFramework/PlayerStart.h"
 #include "EngineUtils.h"
@@ -30,6 +32,7 @@ void ALRStageGameMode::OnGameClear()
 {
 	// 주의사항: UI 애니메이션도 멈춤
 	// TODO : 방법 고민 필요. 일단은 일시정지 로직 재활용
+
 	OnPauseGame();
 
 	// TODO: 보상 반영 등 코드 추가 필요하면 여기에 작성
@@ -158,6 +161,8 @@ void ALRStageGameMode::HideEnemyCoreIfBossStage()
 	{
 		ASC->RemoveLooseGameplayTag(LRTags::Team_Enemy_Structure_Core);
 	}
+	
+	EnemyCore->OwnedTags.RemoveTag(LRTags::Team_Enemy_Structure_Core);
 
 	LR_INFO(TEXT("[StageGameMode] Is BossStage - EnemyCore Hidden and Tag Removed"));
 
