@@ -87,4 +87,8 @@ protected:
 	TObjectPtr<ULRAttributeSet> AttributeSet;
 
 	bool bIsDestroyed;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Stage")
+	FName StageTag;
 };
