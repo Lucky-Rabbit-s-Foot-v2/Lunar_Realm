@@ -106,7 +106,7 @@ void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 	AnimInstance->OnMontageEnded.AddDynamic(this, &ULRGA_InstantAttack::OnMontageEnded);
 	AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &ULRGA_InstantAttack::OnMontageNotifyBegin);
 
-	// EndAbility 호출 안 함 → BT Task InProgress 유지
+	// EndAbility 호출 안 함 -> BT Task InProgress 유지
 }
 
 void ULRGA_InstantAttack::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& Payload)
@@ -137,24 +137,28 @@ void ULRGA_InstantAttack::OnMontageNotifyBegin(FName NotifyName, const FBranchin
 	const AActor* TargetActor = Cast<const AActor>(CachedTarget);
 	if (!TargetActor || !CurrentActorInfo)
 	{
+		LR_WARN(TEXT("[InstantAttack] OnNotify: CachedTarget cast 실패 또는 CurrentActorInfo 없음"));
 		return;
 	}
 
-	UAbilitySystemComponent* TargetASC =
-		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(const_cast<AActor*>(TargetActor));
+	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(const_cast<AActor*>(TargetActor));
 	UAbilitySystemComponent* SourceASC = CurrentActorInfo->AbilitySystemComponent.Get();
 
 	if (!TargetASC || !SourceASC || !DamageEffectClass)
 	{
+		LR_WARN(TEXT("[InstantAttack] OnNotify: TargetASC=%d, SourceASC=%d, DamageEffect=%d"),
+			TargetASC != nullptr, SourceASC != nullptr, DamageEffectClass != nullptr);
 		return;
 	}
+
+	// TEST
+	LR_INFO(TEXT("[InstantAttack] OnNotify: GE 적용 시도 - Target: %s"), *TargetActor->GetName());
 
 	FGameplayEffectContextHandle Ctx = SourceASC->MakeEffectContext();
 	Ctx.AddSourceObject(CurrentActorInfo->AvatarActor.Get());
 	Ctx.AddInstigator(CurrentActorInfo->AvatarActor.Get(), CurrentActorInfo->AvatarActor.Get());
 
-	FGameplayEffectSpecHandle Spec =
-		SourceASC->MakeOutgoingSpec(DamageEffectClass, 1.f, Ctx);
+	FGameplayEffectSpecHandle Spec = SourceASC->MakeOutgoingSpec(DamageEffectClass, 1.f, Ctx);
 	if (Spec.IsValid())
 	{
 		SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
