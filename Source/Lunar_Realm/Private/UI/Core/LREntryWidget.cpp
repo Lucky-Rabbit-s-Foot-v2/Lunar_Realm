@@ -18,6 +18,16 @@ void ULREntryWidget::RefreshData()
 	if (TileData && Img_Icon)
 	{
 		Img_Icon->SetBrushFromTexture(TileData->GetIcon());
-		Img_Frame->SetBrushFromTexture(TileData->GetFrame());
+
+		if (TileData->IsLocked())
+		{
+			Img_Locked->SetVisibility(ESlateVisibility::Visible);
+			Img_Black->SetVisibility(ESlateVisibility::Visible);
+		}
+		else
+		{
+			Img_Locked->SetVisibility(ESlateVisibility::Hidden);
+			Img_Black->SetVisibility(ESlateVisibility::Hidden);
+		}
 	}
 }

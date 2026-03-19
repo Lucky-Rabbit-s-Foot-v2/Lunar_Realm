@@ -72,6 +72,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UImage> Img_Locked;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> Img_Black;
+
 	UPROPERTY()
 	TObjectPtr<ULRTileData> TileData;
 };

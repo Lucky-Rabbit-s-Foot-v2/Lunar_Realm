@@ -55,8 +55,4 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Chapter")
 	FName StageID;
-
-private:
-	UPROPERTY(EditAnywhere, Category = "LR|UI")
-	TSubclassOf<class ULRReadyPopupWidget> StageReadyClass;
 };

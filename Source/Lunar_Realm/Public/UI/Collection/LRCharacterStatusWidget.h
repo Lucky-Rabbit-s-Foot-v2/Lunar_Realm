@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRBaseWidget.h"
+#include "Data/LREnumType.h"
 #include "LRCharacterStatusWidget.generated.h"
 
 /**
@@ -20,9 +21,18 @@ public:
 	void SetCharacterID(FName InID) { CharacterID = InID; }
 	FName GetCharacterID() const { return CharacterID; }
 
+private:
+	FString GetClassNameByType(ELRClassType ClassType) const;
+
 protected:
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UTextBlock> Txt_Level;
+
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UTextBlock> Txt_Name;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UTextBlock> Txt_Class;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UTextBlock> Txt_HP;

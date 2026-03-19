@@ -8,31 +8,55 @@
 #include "Components/TextBlock.h"
 
 #include "Data/LREnumType.h"
-#include "Subsystems/SaveGameSubsystem.h"
 #include "Subsystems/GameDataSubsystem.h"
+#include "Subsystems/CollectionSubsystem.h"
 
 void ULRCharacterStatusWidget::RefreshUI()
 {
 	Super::RefreshUI();
 
 	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
-	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
-	if(GameDataSubsystem == nullptr || SaveGameSubsystem == nullptr)
+	UCollectionSubsystem* CollectionSubsystem = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
+	
+	if (!GameDataSubsystem || !CollectionSubsystem)
 	{
-		LR_ERROR(TEXT("GameDataSubsystem or SaveGameSubsystem is not available"));
 		return;
 	}
 	const FCharacterStaticData& CharacterStaticData = GameDataSubsystem->GetCharacterStaticData(CharacterID);
+	const FCharacterInstance& CharacterInstance = CollectionSubsystem->GetCharacterInstance(CharacterID);
 
 	float CharacterHPBonus = GameDataSubsystem->GetCharacterFinalStat(CharacterID, ELRStatusType::HP, 1);
 	float CharacterATKBonus = GameDataSubsystem->GetCharacterFinalStat(CharacterID, ELRStatusType::ATK, 1);
 	float CharacterDEFBonus = GameDataSubsystem->GetCharacterFinalStat(CharacterID, ELRStatusType::DEF, 1);
 	
-	// TODO: 캐릭터 레벨 변동 시 추가 작업 필요
-	// TODO: 장비 보너스 적용 필요
-
 	Txt_Name->SetText(FText::FromString(CharacterStaticData.CharacterName));
 	Txt_HP->SetText(FText::AsNumber(CharacterHPBonus));
 	Txt_ATK->SetText(FText::AsNumber(CharacterATKBonus));
 	Txt_DEF->SetText(FText::AsNumber(CharacterDEFBonus));
+
+	float CurrentLevel = CharacterInstance.CurrentLevel;
+	float CurrentExp = CharacterInstance.CurrentExp;
+
+	// TODO: 레벨 구간 경험치 요구량 테이블 현재 없음. 향후 추가 예정.
+	const float ExpToNextLevel = 500.0f;
+
+	// Level과 경험치 표시 (예: "Lv. 5 (250/500 exp)")
+	FString LevelText = FString::Printf(TEXT("Lv. %d (%.0f/%.0f exp)"), static_cast<int32>(CurrentLevel), CurrentExp, ExpToNextLevel);
+	Txt_Level->SetText(FText::FromString(LevelText));
+	Txt_Class->SetText(FText::FromString(GetClassNameByType(CharacterStaticData.ClassType)));
+}
+
+FString ULRCharacterStatusWidget::GetClassNameByType(ELRClassType ClassType) const
+{
+	switch (ClassType)
+	{
+	case ELRClassType::WARRIOR:
+		return FString(TEXT("Warrior"));
+	case ELRClassType::MAGICIAN:
+		return FString(TEXT("Magician"));
+	case ELRClassType::ARCHER:
+		return FString(TEXT("Archer"));
+	default:
+		return FString();
+	}
 }

@@ -71,7 +71,7 @@ void UUIManagerSubsystem::CloseUIInternal(ULRBaseWidget* Widget)
 	{
 		return;
 	}
-    
+
 	EUILayer Layer = Widget->UILayer;
 	switch (Layer)
 	{
@@ -173,9 +173,39 @@ void UUIManagerSubsystem::ResetAllUIStates()
 	}
 	
 	//관련 컨테이너 비우기
+	UIHistoryStack.Empty();
 	PermenentUIMap.Empty();
 	TransientUIStack.Empty();
 	CachedWidgets.Empty ();
+}
+
+void UUIManagerSubsystem::DoUIHistory(ULRBaseWidget* Widget)
+{
+	if (UIHistoryStack.Num() > 0 && UIHistoryStack.Last() == Widget)
+	{
+		return;
+	}
+	UIHistoryStack.Add(Widget);
+	OnHistoryChangedDel.Broadcast();
+}
+
+void UUIManagerSubsystem::UndoUIHistory()
+{
+	if (ULRBaseWidget* CurrentWidget = UIHistoryStack.Num() > 1 ? UIHistoryStack.Pop() : nullptr)
+	{
+		CurrentWidget->CloseUI();
+	}
+	if (ULRBaseWidget* PreviousWidget = UIHistoryStack.Num() > 0 ? UIHistoryStack.Last() : nullptr)
+	{
+		PreviousWidget->OpenUI();
+	}
+	OnHistoryChangedDel.Broadcast();
+}
+
+void UUIManagerSubsystem::ClearUIHistory()
+{
+	UIHistoryStack.Empty();
+	OnHistoryChangedDel.Broadcast();
 }
 
 ULRBaseWidget* UUIManagerSubsystem::OpenUIByID(EUIID UIID)

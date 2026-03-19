@@ -24,13 +24,7 @@ class LUNAR_REALM_API ULRChapterPageWidget : public ULRPageWidget
 public:
 	virtual void InitializeUI() override;
 
-	virtual void BindProperties() override;	
-	virtual void UnbindProperties() override;
-
 	virtual void RegisterSubWidgets() override;
-
-	UFUNCTION(BlueprintCallable, Category = "LR|UI")
-	void OnBackButtonClicked();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -44,7 +38,4 @@ protected:
 
 	UPROPERTY()
 	TArray<TObjectPtr<ULRChapterWidget>> ChapterWidgets;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Back;
 };

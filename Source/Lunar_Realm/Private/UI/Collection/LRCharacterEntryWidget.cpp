@@ -41,14 +41,14 @@ void ULRCharacterEntryWidget::RefreshData()
 {
 	Super::RefreshData();
 
+	Img_Frame->SetBrushFromTexture(TileData->GetFrame());
+
 	if (TileData->IsLocked())
 	{
-		Img_Locked->SetVisibility(ESlateVisibility::Visible);
 		Btn_Selected->SetIsEnabled(false);
 	}
 	else
 	{
-		Img_Locked->SetVisibility(ESlateVisibility::Hidden);
 		Btn_Selected->SetIsEnabled(true);
 	}
 }
