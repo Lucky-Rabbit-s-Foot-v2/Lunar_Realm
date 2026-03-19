@@ -823,6 +823,7 @@ struct FEnemyStaticData : public FTableRowBase
  // (260208) KWB 제작. 제반 사항 구현.
  // (260210) KHS Int타입 참조키를 FName타입으로 변경. 
  // (260318) KWB BossEnemyID 멤버 추가
+ // (260319) BJM PlayerStartTag 멤버 추가 (스테이지별 플레이어 시작 위치 지정용)
  // =============================================================================
 USTRUCT(BlueprintType)
 struct FStageStaticData : public FTableRowBase
@@ -861,6 +862,9 @@ struct FStageStaticData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Reward")
 	int32 RewardEnhanceTicket = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Stage")
+	FName PlayerStartTag;
 
 };
 

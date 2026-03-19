@@ -51,13 +51,6 @@ void ALRPlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTi
 	float NewZ = CapturedZ;
 	float NewY = TargetLoc.Y + CurrentCameraOffset;
 
-	//float NewX = TargetLoc.X + OffsetX;
-
-	//float NewZ = TargetLoc.Z + OffsetZ;
-
-	//float NewY = TargetLoc.Y + CurrentCameraOffset;
-
-	//float NewY = FMath::Clamp(TargetLoc.Y + CurrentCameraOffset, MinY, MaxY);
 
 
 	FVector DesiredLoc = FVector(NewX, NewY, NewZ);
