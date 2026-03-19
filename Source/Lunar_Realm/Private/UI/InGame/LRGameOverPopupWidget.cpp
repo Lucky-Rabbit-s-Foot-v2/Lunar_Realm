@@ -3,28 +3,28 @@
 
 #include "UI/InGame/LRGameOverPopupWidget.h"
 
-#include "Components/Button.h"
-
 #include "Core/LRGameInstance.h"
-#include "Subsystems/Settings/UIManagerSettings.h"
-#include "Subsystems/UIManagerSubsystem.h"
 #include "Core/Stage/LRStageGameMode.h"
 
+#include "Subsystems/Settings/UIManagerSettings.h"
+#include "Subsystems/UIManagerSubsystem.h"
+
+#include "UI/Core/LRButtonWidget.h"
 
 void ULRGameOverPopupWidget::BindProperties()
 {
 	Super::BindProperties();
 
-	if (Btn_Regroup) Btn_Regroup->OnClicked.AddDynamic(this, &ULRGameOverPopupWidget::OnRegroupButtonClicked);
-	if (Btn_Restart) Btn_Restart->OnClicked.AddDynamic(this, &ULRGameOverPopupWidget::OnRestartButtonClicked);
-	if (Btn_Exit) Btn_Exit->OnClicked.AddDynamic(this, &ULRGameOverPopupWidget::OnExitButtonClicked);
+	if (Btn_Regroup) Btn_Regroup->OnLRButtonClickedDel.AddDynamic(this, &ULRGameOverPopupWidget::OnRegroupButtonClicked);
+	if (Btn_Restart) Btn_Restart->OnLRButtonClickedDel.AddDynamic(this, &ULRGameOverPopupWidget::OnRestartButtonClicked);
+	if (Btn_Exit) Btn_Exit->OnLRButtonClickedDel.AddDynamic(this, &ULRGameOverPopupWidget::OnExitButtonClicked);
 }
 
 void ULRGameOverPopupWidget::UnbindProperties()
 {
-	if (Btn_Exit) Btn_Exit->OnClicked.Clear();
-	if (Btn_Restart) Btn_Restart->OnClicked.Clear();
-	if (Btn_Regroup) Btn_Regroup->OnClicked.Clear();
+	if (Btn_Exit) Btn_Exit->OnLRButtonClickedDel.Clear();
+	if (Btn_Restart) Btn_Restart->OnLRButtonClickedDel.Clear();
+	if (Btn_Regroup) Btn_Regroup->OnLRButtonClickedDel.Clear();
 
 	Super::UnbindProperties();
 }
@@ -36,14 +36,18 @@ void ULRGameOverPopupWidget::OnRegroupButtonClicked()
 
 void ULRGameOverPopupWidget::OnRestartButtonClicked()
 {
-	ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode());
-	StageGM->OnRestartGame();
+	if (ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		StageGM->OnRestartGame();
+	}
 }
 
 void ULRGameOverPopupWidget::OnExitButtonClicked()
 {
-	ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode());
-	StageGM->OnExitStage();
+	if (ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		StageGM->OnExitStage();
+	}
 }
 
 void ULRGameOverPopupWidget::InitializeUI()

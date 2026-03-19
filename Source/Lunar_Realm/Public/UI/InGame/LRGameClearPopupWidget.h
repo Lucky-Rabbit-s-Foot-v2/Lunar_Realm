@@ -34,10 +34,10 @@ public:
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_NextStage;
+	TObjectPtr<class ULRButtonWidget> Btn_NextStage;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Exit;
+	TObjectPtr<class ULRButtonWidget> Btn_Exit;
 protected:
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 	class UWidgetAnimation* victory;

@@ -7,6 +7,16 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 
+void ULRButtonWidget::NativePreConstruct()
+{
+	Super::NativeConstruct();
+
+	if (Text)
+	{
+		Text->SetText(ButtonText);
+	}
+}
+
 void ULRButtonWidget::BindProperties()
 {
 	Super::BindProperties();
@@ -18,5 +28,8 @@ void ULRButtonWidget::BindProperties()
 
 void ULRButtonWidget::OnButtonClicked()
 {
-
+	if (OnLRButtonClickedDel.IsBound())
+	{
+		OnLRButtonClickedDel.Broadcast();
+	}
 }
