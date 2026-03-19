@@ -21,10 +21,16 @@ class LUNAR_REALM_API ULRGameClearPopupWidget : public ULRPopupWidget
 	GENERATED_BODY()
 	
 public:
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+	virtual void RegisterSubWidgets() override;
+
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
 	virtual void InitializeUI() override;
+
+	void SetStarMasking(int32 InMasking);
 
 	UFUNCTION(BlueprintCallable)
 	void OnNextStageButtonClicked();
@@ -34,10 +40,14 @@ public:
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_NextStage;
+	TObjectPtr<class ULRButtonWidget> Btn_NextStage;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Exit;
+	TObjectPtr<class ULRButtonWidget> Btn_Exit;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRStarBoxWidget> StarBox;
+
 protected:
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 	class UWidgetAnimation* victory;

@@ -9,13 +9,20 @@
 /**
  * 
  */
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLRButtonClicked);
+
 UCLASS()
 class LUNAR_REALM_API ULRButtonWidget : public ULRBaseWidget
 {
 	GENERATED_BODY()
-	
+
 public:
+	virtual void NativePreConstruct() override;
+
 	virtual void BindProperties() override;
+
+	FOnLRButtonClicked OnLRButtonClickedDel;
 
 	UFUNCTION()
 	virtual void OnButtonClicked();
@@ -28,4 +35,7 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UImage> Image = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Button")
+	FText ButtonText;
 };

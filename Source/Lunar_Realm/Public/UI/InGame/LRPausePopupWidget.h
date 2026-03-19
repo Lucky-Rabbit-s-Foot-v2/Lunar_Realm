@@ -38,14 +38,14 @@ public:
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Restart;
+	TObjectPtr<class ULRButtonWidget> Btn_Restart;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Resume;
+	TObjectPtr<class ULRButtonWidget> Btn_Resume;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Setting;
+	TObjectPtr<class ULRButtonWidget> Btn_Setting;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Exit;
+	TObjectPtr<class ULRButtonWidget> Btn_Exit;
 };
