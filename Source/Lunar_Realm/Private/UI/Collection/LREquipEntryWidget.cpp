@@ -36,16 +36,12 @@ void ULREquipEntryWidget::RefreshData()
 {
 	Super::RefreshData();
 
-
-	Img_Frame->SetOpacity(0.f);
 	if (TileData->IsLocked())
 	{
-		Img_Locked->SetVisibility(ESlateVisibility::Visible);
 		Btn_Selected->SetIsEnabled(false);
 	}
 	else
 	{
-		Img_Locked->SetVisibility(ESlateVisibility::Hidden);
 		Btn_Selected->SetIsEnabled(true);
 	}
 }
