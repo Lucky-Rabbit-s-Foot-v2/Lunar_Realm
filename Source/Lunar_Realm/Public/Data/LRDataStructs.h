@@ -866,6 +866,9 @@ struct FStageStaticData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Stage")
 	FName PlayerStartTag;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Stage")
+	FName NextStageID;
+
 };
 
 
