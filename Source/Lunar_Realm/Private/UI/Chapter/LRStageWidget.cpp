@@ -11,14 +11,17 @@
 #include "Subsystems/StageManagerSubsystem.h"
 #include "Subsystems/GameDataSubsystem.h"
 
+#include "Subsystems/Settings/UIManagerSettings.h"
 #include "Subsystems/UIManagerSubsystem.h"
 #include "UI/Chapter/LRReadyPopupWidget.h"
 
 void ULRStageWidget::OnOpenButtonClicked()
 {
-	UUIManagerSubsystem* UIManagerSubsystem = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	ULRReadyPopupWidget* Widget = UIManagerSubsystem->OpenUI<ULRReadyPopupWidget>(StageReadyClass);
-	Widget->SetStageID(StageID);
+	const UUIManagerSettings* Settings = GetDefault<UUIManagerSettings>();
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+
+	ULRReadyPopupWidget* ReadyPopup = Cast<ULRReadyPopupWidget>(UIManager->OpenUIByID(EUIID::READY));
+	ReadyPopup->SetStageID(StageID);
 }
 
 void ULRStageWidget::BindProperties()

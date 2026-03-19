@@ -20,6 +20,11 @@ class LUNAR_REALM_API ULREquipCollection : public ULRBaseWidget
 {
 	GENERATED_BODY()
 	
+public:
+	virtual void RefreshUI() override;
+	
+	void AddItemToTileView(class UGameDataSubsystem* GameDataSubsystem, const FName& LockedEquipID, bool bIsLocked);
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UTextBlock> Txt_Name;

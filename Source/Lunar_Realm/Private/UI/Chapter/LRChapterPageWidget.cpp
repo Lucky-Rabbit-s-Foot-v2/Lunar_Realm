@@ -20,20 +20,6 @@ void ULRChapterPageWidget::InitializeUI()
 	Chapter3->SetChapterID(FName("DESERT"));
 }
 
-void ULRChapterPageWidget::BindProperties()
-{
-	Super::BindProperties();
-	
-	if (Btn_Back) Btn_Back->OnClicked.AddDynamic(this, &ULRChapterPageWidget::OnBackButtonClicked);
-}
-
-void ULRChapterPageWidget::UnbindProperties()
-{
-	if (Btn_Back) Btn_Back->OnClicked.Clear();
-	
-	Super::UnbindProperties();
-}
-
 void ULRChapterPageWidget::RegisterSubWidgets()
 {
 	Super::RegisterSubWidgets();
@@ -41,10 +27,4 @@ void ULRChapterPageWidget::RegisterSubWidgets()
 	ChapterWidgets.Add(Chapter1);
 	ChapterWidgets.Add(Chapter2);
 	ChapterWidgets.Add(Chapter3);
-}
-
-void ULRChapterPageWidget::OnBackButtonClicked()
-{
-	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->OpenUIByID(EUIID::LOBBY);
 }

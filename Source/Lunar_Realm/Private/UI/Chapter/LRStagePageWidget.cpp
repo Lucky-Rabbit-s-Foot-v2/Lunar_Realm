@@ -5,6 +5,8 @@
 
 #include "Components/Button.h"
 #include "Components/Image.h"
+#include "Components/ComboBoxString.h"
+
 #include "UI/Chapter/LRStageWidget.h"
 
 #include "Units/LRControllerBase.h"
@@ -13,23 +15,22 @@
 #include "Subsystems/UIManagerSubsystem.h"
 #include "Subsystems/GameDataSubsystem.h"
 
-void ULRStagePageWidget::BindProperties()
+void ULRStagePageWidget::InitializeUI()
 {
-	Super::BindProperties();
+	Super::InitializeUI();
 
-	if (Btn_Back) Btn_Back->OnClicked.AddDynamic(this, &ULRStagePageWidget::OnBackButtonClicked);
-
-	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
+	if (ComboBox)
 	{
-		OnCloseUIRequestedDel.AddUniqueDynamic(UIManager, &UUIManagerSubsystem::CloseUI);
-	}
-}
+		ComboBox->ClearOptions();
+		ComboBox->AddOption(TEXT("LAKE"));
+		ComboBox->AddOption(TEXT("OCEAN"));
+		ComboBox->AddOption(TEXT("DESERT"));
 
-void ULRStagePageWidget::UnbindProperties()
-{
-	if (Btn_Back) Btn_Back->OnClicked.Clear();
+		ComboBox->SetSelectedOption(TEXT("LAKE"));
 
-	Super::UnbindProperties();
+		ComboBox->OnSelectionChanged.RemoveAll(this);
+		ComboBox->OnSelectionChanged.AddDynamic(this, &ULRStagePageWidget::OnChapterSelectionChanged);
+	}	
 }
 
 void ULRStagePageWidget::RegisterSubWidgets()
@@ -46,6 +47,10 @@ void ULRStagePageWidget::RegisterSubWidgets()
 void ULRStagePageWidget::SetChapterID(FName InID)
 {
 	CurrentChapterID = InID;
+	if (ComboBox)
+	{
+		ComboBox->SetSelectedOption(CurrentChapterID.ToString());
+	}
 
 	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
 	const FChapterStaticData& ChapterData = GameDataSubsystem->GetChapterStaticData(CurrentChapterID);
@@ -68,7 +73,7 @@ void ULRStagePageWidget::SetStageData(const TArray<FName>& StageIDs)
 	}
 }
 
-void ULRStagePageWidget::OnBackButtonClicked()
+void ULRStagePageWidget::OnChapterSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
 {
-	OnCloseUIRequestedDel.Broadcast(this);
+	SetChapterID(FName(SelectedItem));
 }

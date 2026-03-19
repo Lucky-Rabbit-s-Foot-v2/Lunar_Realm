@@ -27,6 +27,8 @@
 // (260303) PJB 수정. 데미지 UI 풀 기능 추가
 // =============================================================================
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHistoryChanged);
+
 UCLASS()
 class LUNAR_REALM_API UUIManagerSubsystem : public UGameInstanceSubsystem
 {
@@ -34,6 +36,9 @@ class LUNAR_REALM_API UUIManagerSubsystem : public UGameInstanceSubsystem
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
+
+	UPROPERTY(BlueprintAssignable, Category = "LR|UI Events")
+	FOnHistoryChanged OnHistoryChangedDel;
 
 private:
     /** UI 레이어에 따라 적절한 ZOrder 계산 (Persistent: 낮음, Popup: 높음) */
@@ -140,11 +145,14 @@ public:
 	template<typename T>
 	ULRBaseWidget* SwitchPageUI(TSubclassOf<T> TargetClassFactory);
 	
+	void DoUIHistory(class ULRBaseWidget* Widget);
+	void UndoUIHistory();
+	void ClearUIHistory();
 
     /** Popup UI가 하나라도 열려있는지 확인 */
     FORCEINLINE bool HasOpenTransientUI() const { return TransientUIStack.Num() > 0; }
 	FORCEINLINE int GetTransientStackSize() const { return TransientUIStack.Num(); }
-    
+	FORCEINLINE int32 GetUIHistoryStackSize() const { return UIHistoryStack.Num(); }
 
 	//=============================================================================
 	// Background UI
@@ -201,6 +209,9 @@ private:
 
 	UPROPERTY()
 	ULRBaseWidget* BackgroundWidget = nullptr;
+
+	UPROPERTY()
+	TArray<class ULRBaseWidget*> UIHistoryStack;
 
 	UPROPERTY()
 	TArray<TObjectPtr<ULRDamageWidget>> DamageWidgetPool;
@@ -262,6 +273,8 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
 		//BaseWidget->RemoveFromParent();
 		return nullptr;
 	}
+
+	DoUIHistory(BaseWidget);
 
     // 이미 열려있으면 갱신 후 조기 종료
     if (Widget->IsOpen())
