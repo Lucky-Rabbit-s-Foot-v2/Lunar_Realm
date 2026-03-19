@@ -26,14 +26,6 @@ void ULRCoreAttributeSet::OnDamageExecuted(float InDamageDone, const FGameplayEf
 		return;
 	}
 
-	if (Data.EffectSpec.DynamicAssetTags.HasTagExact(LRTags::Ability_Skill_InstantCoreDestroy))
-	{
-		// TEST
-		LR_ERROR(TEXT("~~~~~~~~~~~~~ [Core] 보스 근접 공격 감지 - 즉시 파괴 ~~~~~~~~~~~~~"));
-		Core->OnCoreDestroyed();
-		return;
-	}
-
 	if (GetHealth() <= 0.0f)
 	{
 		Core->OnCoreDestroyed();

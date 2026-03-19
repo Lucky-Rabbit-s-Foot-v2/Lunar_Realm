@@ -232,11 +232,13 @@ void ALREnemySpawner::SpawnBoss()
 
 	BossEnemy->InitializeByEnemyID(CachedBossEnemyID);
 	BossEnemy->InitializeBossSpeed();
+	BossEnemy->RegisterMontageNotifyDelegate();
 
 	if (ALREnemyAIController* EnemyAIC = Cast<ALREnemyAIController>(BossEnemy->GetController()))
 	{
-		// TEST : 보스 케이스에만 탐지 거리 조정(공격 범위 + 100.f)
-		EnemyAIC->SetDetectionRadius(EnemyAIC->GetAttackRange() + 100.f);
+		float NewRadius = EnemyAIC->GetAttackRange() + DetectionRangeOffset;
+		EnemyAIC->SetDetectionRadius(NewRadius);
+		BossEnemy->SetCoreAttackOverlapRadius(NewRadius);
 	}
 }
 
@@ -255,8 +257,7 @@ void ALREnemySpawner::SpawnEnemy()
 		const FName TargetEnemyID = PickEnemyIDByWeight();
 		if (TargetEnemyID == NAME_None)
 		{
-			// TEST : Boss 완성 후 해제 필요
-			// LR_WARN(TEXT("Failed to pick EnemyID By Random!"));
+			LR_WARN(TEXT("Failed to pick EnemyID By Random!"));
 			continue; // 특정 적 스폰에 실패해도 남은 횟수는 계속 진행하도록 continue 사용
 		}
 
