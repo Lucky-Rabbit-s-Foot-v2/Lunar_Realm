@@ -21,6 +21,8 @@ class LUNAR_REALM_API ULRGameClearPopupWidget : public ULRPopupWidget
 	GENERATED_BODY()
 	
 public:
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 	virtual void RegisterSubWidgets() override;
 
 	virtual void BindProperties() override;

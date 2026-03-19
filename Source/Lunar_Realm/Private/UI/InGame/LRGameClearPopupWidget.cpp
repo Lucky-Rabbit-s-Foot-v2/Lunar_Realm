@@ -12,6 +12,24 @@
 #include "UI/Core/LRButtonWidget.h"
 #include "UI/InGame/LRStarBoxWidget.h"
 
+void ULRGameClearPopupWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
+	{
+		OnCloseUIRequestedDel.RemoveAll(this);
+		OnCloseUIRequestedDel.AddUniqueDynamic(UIManager, &UUIManagerSubsystem::CloseUI);
+	}
+}
+
+void ULRGameClearPopupWidget::NativeDestruct()
+{
+	OnCloseUIRequestedDel.Clear();
+
+	Super::NativeDestruct();
+}
+
 void ULRGameClearPopupWidget::RegisterSubWidgets()
 {
 	Super::RegisterSubWidgets();
@@ -56,6 +74,8 @@ void ULRGameClearPopupWidget::SetStarMasking(int32 InMasking)
 
 void ULRGameClearPopupWidget::OnNextStageButtonClicked()
 {
+	OnCloseUIRequestedDel.Broadcast(this);
+
 	if (ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode()))
 	{
 		StageGM->OnStartNextStage();
@@ -64,6 +84,7 @@ void ULRGameClearPopupWidget::OnNextStageButtonClicked()
 
 void ULRGameClearPopupWidget::OnExitButtonClicked()
 {
+	OnCloseUIRequestedDel.Broadcast(this);
 	if (ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode()))
 	{
 		StageGM->OnExitStage();

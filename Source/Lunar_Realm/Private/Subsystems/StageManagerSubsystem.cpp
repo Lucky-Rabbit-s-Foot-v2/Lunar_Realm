@@ -33,6 +33,23 @@ void UStageManagerSubsystem::LoadStage(FName StageID)
 	LR_INFO(TEXT("Stage Loaded: %s"), *CurrentStageData->StageName.ToString());
 }
 
+int32 UStageManagerSubsystem::ClearCurrentStage(int32 InMasking)
+{
+	FName CurrentStageID = GetCurrentStageID();
+	FStageClearedData ClearedData = GetStageClearedData(CurrentStageID);
+	ClearedData.StarMasking |= InMasking;
+
+	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+	SaveGameSubsystem->SaveStageClearedData(ClearedData);
+	
+	FName NextStageID = CurrentStageData->NextStageID;
+	FStageClearedData NextStageData = GetStageClearedData(NextStageID);
+	NextStageData.bIsUnlocked = true;
+	SaveGameSubsystem->SaveStageClearedData(NextStageData);
+
+	return ClearedData.StarMasking;
+}
+
 FStageStaticData UStageManagerSubsystem::GetCurrentStageDataCopy() const
 {
 	return *CurrentStageData;

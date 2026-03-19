@@ -73,6 +73,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Stage")
 	void LoadStage(FName StageID);
 
+	UFUNCTION(BlueprintCallable, Category = "LR|Stage")
+	int32 ClearCurrentStage(int32 InMasking);
+
 	// ========================================
 	// 현재 스테이지 데이터 접근
 	// ========================================

@@ -20,6 +20,7 @@
 #include "EngineUtils.h"
 
 #include "UI/InGame/LRGameClearPopupWidget.h"
+#include "Subsystems/PoolingSubsystem.h"
 
 void ALRStageGameMode::OnGameOver()
 {
@@ -44,11 +45,7 @@ void ALRStageGameMode::OnGameClear()
 	ULRGameClearPopupWidget* GameClearPopupWidget = Cast<ULRGameClearPopupWidget>(UIManager->OpenUIByID(EUIID::GAMECLEAR));
 	if (GameClearPopupWidget)
 	{
-		UStageManagerSubsystem* StageMgr = GetGameInstance()->GetSubsystem<UStageManagerSubsystem>();
-		FName CurrentID = StageMgr->GetCurrentStageID();
-		FStageClearedData ClearedData = StageMgr->GetStageClearedData(CurrentID);
-
-		int32 StarMasking = ClearedData.StarMasking;
+		int32 StarMasking = 0;
 		if (IsStar1ConditionCheck())
 		{
 			StarMasking |= 0b001;
@@ -61,10 +58,9 @@ void ALRStageGameMode::OnGameClear()
 		{
 			StarMasking |= 0b100;
 		}
-		ClearedData.StarMasking = StarMasking;
-
-		USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
-		SaveGameSubsystem->SaveStageClearedData(ClearedData);
+		
+		UStageManagerSubsystem* StageMgr = GetGameInstance()->GetSubsystem<UStageManagerSubsystem>();
+		StarMasking = StageMgr->ClearCurrentStage(StarMasking);
 		GameClearPopupWidget->SetStarMasking(StarMasking);
 	}
 }
@@ -72,7 +68,6 @@ void ALRStageGameMode::OnGameClear()
 void ALRStageGameMode::OnRestartGame()
 {
 	OnResetStage();
-	LR_SCREEN_INFO(TEXT("Restart : Not implemented yet"));
 }
 
 void ALRStageGameMode::OnPauseGame()
@@ -105,7 +100,27 @@ void ALRStageGameMode::OnResumeGame()
 
 void ALRStageGameMode::OnResetStage()
 {
-	LR_SCREEN_INFO(TEXT("Reset : Not implemented yet"));
+	LR_SCREEN_INFO(TEXT("스테이지 초기화 중..."));
+	LR_SCREEN_INFO(TEXT("초기화 로직 미완성..."));
+	
+	/**
+	* TODO: 초기화 구현 필요
+	* - 플레이어 위치 초기화
+	* - 적 리스폰
+	* - 풀링 시스템 초기화
+	* - 코어 상태 초기화 (파괴된 경우 재생성)
+	* - 기타 등등 초기화 필요한 요소들
+	*/
+
+	UStageManagerSubsystem* StageMgr = GetGameInstance()->GetSubsystem<UStageManagerSubsystem>();
+	FText CurrentStageName = StageMgr->GetCurrentStateData()->StageName;
+	LR_SCREEN_INFO(TEXT("현재 스테이지: %s"), *CurrentStageName.ToString());
+
+	OnResumeGame();
+
+	// 임시 구현: 레벨 자체를 리셋하는 방식으로 초기화
+	ULRGameInstance* GI = Cast<ULRGameInstance>(GetGameInstance());
+	GI->OpenNextStage(GI->GetCurrentStageID());
 }
 
 void ALRStageGameMode::OnExitStage()
@@ -118,7 +133,11 @@ void ALRStageGameMode::OnExitStage()
 
 void ALRStageGameMode::OnStartNextStage()
 {
-	LR_SCREEN_INFO(TEXT("Start Next Stage : Not implemented yet"));
+	UStageManagerSubsystem* StageMgr = GetGameInstance()->GetSubsystem<UStageManagerSubsystem>();
+	FName NextStageID = StageMgr->GetCurrentStateData()->NextStageID;
+	StageMgr->LoadStage(NextStageID);
+
+	OnResetStage();
 }
 
 void ALRStageGameMode::BeginPlay()

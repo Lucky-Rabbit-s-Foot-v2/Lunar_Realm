@@ -105,6 +105,7 @@ private:
 	// ========================================
 	// 스테이지 정보
 	// ========================================
+	UPROPERTY(SaveGame)
 	TMap<FName, FStageClearedData> StageClearedDataMap; //키: 스테이지ID
 
 public:
