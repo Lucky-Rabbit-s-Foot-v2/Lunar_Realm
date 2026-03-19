@@ -157,6 +157,8 @@ void ULRGA_InstantAttack::OnMontageNotifyBegin(FName NotifyName, const FBranchin
 		SourceASC->MakeOutgoingSpec(DamageEffectClass, 1.f, Ctx);
 	if (Spec.IsValid())
 	{
+		// TEST
+		ModifyDamageSpec(Spec);
 		SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
 	}
 }
