@@ -13,6 +13,9 @@
 #include "Structures/Core/LREnemyCore.h"
 #include "System/LoggingSystem.h"
 
+#include "GameFramework/PlayerStart.h"
+#include "EngineUtils.h"
+
 void ALRStageGameMode::OnGameOver()
 {
 	// 주의사항: UI 애니메이션도 멈춤
@@ -157,4 +160,37 @@ void ALRStageGameMode::HideEnemyCoreIfBossStage()
 	}
 
 	LR_INFO(TEXT("[StageGameMode] Is BossStage - EnemyCore Hidden and Tag Removed"));
+
+
+}
+
+AActor* ALRStageGameMode::ChoosePlayerStart_Implementation(AController* InPlayer)
+{
+	UGameInstance* GI = GetGameInstance();
+	UStageManagerSubsystem* StageSys = GI ? GI->GetSubsystem<UStageManagerSubsystem>() : nullptr;
+
+	if (StageSys)
+	{
+		const FStageStaticData* StageData = StageSys->GetCurrentStateData();
+
+		if (StageData && !StageData->PlayerStartTag.IsNone())
+		{
+			FName TargetTag = StageData->PlayerStartTag;
+
+			for (TActorIterator<APlayerStart> It(GetWorld()); It; ++It)
+			{
+				APlayerStart* StartPoint = *It;
+
+				if (StartPoint->PlayerStartTag == TargetTag)
+				{
+					LR_INFO(TEXT("[GameMode] %s 위치에서 플레이어 스폰"), *TargetTag.ToString());
+					return StartPoint;
+				}
+			}
+
+			LR_WARN(TEXT("[GameMode] %s 태그를 가진 PlayerStart가 맵에 없습니다"), *TargetTag.ToString());
+		}
+	}
+
+	return Super::ChoosePlayerStart_Implementation(InPlayer);
 }

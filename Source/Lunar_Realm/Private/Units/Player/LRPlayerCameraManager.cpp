@@ -9,13 +9,17 @@
 ALRPlayerCameraManager::ALRPlayerCameraManager()
 {
 	//FixedRotation = FRotator(-30.0f, 0.0f, 0.0f);
-	FixedRotation = FRotator(-20.0f, 0.0f, 0.0f);
+	//FixedRotation = FRotator(-20.0f, 0.0f, 0.0f);
 	
 	// 카메라 위아래
-	//FixedX = -688.0f;
-	//FixedZ = 700.0f;
-	FixedX = -550.0f;
-	FixedZ = 500.0f;
+
+	//FixedX = -550.0f;
+	//FixedZ = 500.0f;
+
+	OffsetX = 1100.0f;
+	OffsetZ = 500.0f;
+	CameraYaw = 180.0f;
+	CameraPitch = -20.0f;
 
 
 }
@@ -36,14 +40,22 @@ void ALRPlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTi
 		CurrentCameraOffset = PlayerChar->GetCameraOffsetY();
 	}
 
-	float NewX = FixedX;
+	if (!bIsInitialized)
+	{
+		CapturedX = TargetLoc.X + OffsetX;
+		CapturedZ = TargetLoc.Z + OffsetZ;
+		bIsInitialized = true;
+	}
 
-	float NewY = FMath::Clamp(TargetLoc.Y + CurrentCameraOffset, MinY, MaxY);
+	float NewX = CapturedX;
+	float NewZ = CapturedZ;
+	float NewY = TargetLoc.Y + CurrentCameraOffset;
 
-	float NewZ = FixedZ;
+
 
 	FVector DesiredLoc = FVector(NewX, NewY, NewZ);
-	FRotator DesiredRot = FixedRotation;
+	FRotator DesiredRot = FRotator(CameraPitch, CameraYaw, 0.0f);
+	//FRotator DesiredRot = FixedRotation;
 
 	if (CameraLagSpeed > 0.0f)
 	{
@@ -58,7 +70,7 @@ void ALRPlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTi
 
 	OutVT.POV.ProjectionMode = ECameraProjectionMode::Orthographic;
 	//OutVT.POV.OrthoWidth = 1200.0f;
-	OutVT.POV.OrthoWidth = 900.0f;
+	OutVT.POV.OrthoWidth = 1200.0f;
 
 	//OutVT.POV.FOV = 90.0f;
 
