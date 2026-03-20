@@ -13,5 +13,11 @@ UCLASS()
 class LUNAR_REALM_API ULROutGamePersistentWidget : public ULRPersistentWidget
 {
 	GENERATED_BODY()
-	
+
+public:
+	virtual void RegisterSubWidgets() override;
+
+protected:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRCurrencyWidget> Currency = nullptr;
 };
