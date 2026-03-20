@@ -80,10 +80,10 @@ void ULRCombatComponent::TickComponent(float InDeltaTime, ELevelTick InTickType,
 	}
 	
 	// 기본공격 쿨다운
-	if (CurrentAttackCooldown > 0.0f)
-	{
-		CurrentAttackCooldown -= InDeltaTime;
-	}
+	//if (CurrentAttackCooldown > 0.0f)
+	//{
+	//	CurrentAttackCooldown -= InDeltaTime;
+	//}
 
 	ALRCharacter* OwnerCharacter = GetOwnerCharacter();
 	if (!OwnerCharacter) return;
@@ -208,10 +208,8 @@ void ULRCombatComponent::ProcessCombatLogic(ALRCharacter* InOwnerCharacter, floa
 			OwnerController->StopMovement();
 		}
 
-		if (CurrentAttackCooldown <= 0.0f)
-		{
-			AttemptAction(InDeltaTime);
-		}
+		AttemptAction(InDeltaTime);
+
 	}
 	else
 	{
@@ -324,7 +322,6 @@ void ULRCombatComponent::AttemptAction(float InDeltaTime)
 		OwnerCharacter, LRTags::Ability_Combat_BasicShoot, EventData);
 
 	LR_INFO(TEXT("공격 성공 / 타겟 : %s"), *CurrentTarget->GetName());
-	CurrentAttackCooldown = 1.0f;
 }
 
 void ULRCombatComponent::MoveToTarget(float InDeltaTime)

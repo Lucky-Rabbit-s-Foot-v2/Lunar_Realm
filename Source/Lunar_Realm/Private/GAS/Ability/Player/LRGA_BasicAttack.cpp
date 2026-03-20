@@ -26,6 +26,9 @@ ULRGA_BasicAttack::ULRGA_BasicAttack()
 	SetAssetTags(TempTags);
 
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	//CooldownTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Cooldown.Skill.BasicAttack")));
+	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Cooldown.Skill.BasicAttack")));
+
 	
 	//(260219) KHS 이벤트 태그를 전달하여 발동되도록 트리거 등록
 	FAbilityTriggerData TriggerData;
@@ -39,6 +42,13 @@ void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("[GA_Attack] 평타 GA 실행됨! 진입 성공!"));
+	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
+	FGameplayTag CooldownTag = FGameplayTag::RequestGameplayTag(FName("Cooldown.Skill.BasicAttack"));
+
+	if (!GetCooldownGameplayEffect())
+	{
+		LR_ERROR(TEXT("Cooldown GE가 비어있음"));
+	}
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
@@ -47,13 +57,48 @@ void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
 		return;
 	}
 
-	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
+	if (UGameplayEffect* CooldownGE = GetCooldownGameplayEffect())
+	{
+		FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(CooldownGE->GetClass(), 1.0f, ASC->MakeEffectContext());
+		if (SpecHandle.IsValid())
+		{
+			SpecHandle.Data.Get()->DynamicGrantedTags.AddTag(CooldownTag);
+
+			ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		}
+	}
+
 	if (ASC && ASC->GetNumericAttributeBase(ULRAttributeSet::GetHealthAttribute()) <= 0.0f)
 	{
 		LR_WARN(TEXT("[GA_Attack] 사망한 상태 공격 강제 취소"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
+
+	// 디버그 로그
+	//LR_WARN(TEXT("======================================"));
+	//LR_WARN(TEXT("[디버그] 1. 현재 실행 중인 스킬 클래스: %s"), *GetClass()->GetName());
+
+	//if (GetCooldownGameplayEffect())
+	//{
+	//	LR_WARN(TEXT("[디버그] 2. 쿨타임 GE: 정상적으로 들어있음"));
+	//}
+	//else
+	//{
+	//	LR_ERROR(TEXT("[디버그] 2. 쿨타임 GE: 텅 비어있음"));
+	//}
+
+	//LR_WARN(TEXT("[디버그] 3. Commit 전 쿨타임 태그 보유 여부: %d"), ASC->HasMatchingGameplayTag(CooldownTag));
+
+	//if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	//{
+	//	LR_ERROR(TEXT("[GA_Attack] 평타 GA 실행 실패 (CommitAbility 실패)"));
+	//	EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+	//	return;
+	//}
+
+	//LR_WARN(TEXT("[디버그] 4. Commit 후 쿨타임 태그 보유 여부: %d"), ASC->HasMatchingGameplayTag(CooldownTag));
+	//LR_WARN(TEXT("======================================"));
 
 	// 공격자 정보
 	ALRCharacter* OwnerChar = GetCharacterFromActorInfo(*ActorInfo);

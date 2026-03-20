@@ -118,7 +118,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float SearchRadius = 1000.0f;
 
-	float CurrentAttackCooldown = 1.0f;
+	//float CurrentAttackCooldown = 1.0f;
 	FTimerHandle CombatLogicTimerHandle;
 
 private:

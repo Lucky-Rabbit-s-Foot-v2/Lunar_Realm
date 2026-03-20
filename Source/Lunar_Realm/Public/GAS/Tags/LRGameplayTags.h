@@ -79,6 +79,7 @@ namespace LRTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Debuff_Poison); //GA
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Skill_Common);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Skill_BasicAttack);
 
 	// 에너미 스킬 GA/GE 태그
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_InstantAttack); //GA
