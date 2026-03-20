@@ -41,6 +41,7 @@ void UCurrencySubsystem::AddCurrency(ELRCurrencyType Type, int32 Amount)
 	if (USaveGameSubsystem* SaveGameSubsystem = GetSaveGameSubsystem())
 	{
 		SaveGameSubsystem->AddCurrency(Type, Amount);
+		OnCurrencyChangedDel.Broadcast();
 	}
 }
 
@@ -48,7 +49,9 @@ bool UCurrencySubsystem::SpendCurrency(ELRCurrencyType Type, int32 Amount)
 {
 	if (USaveGameSubsystem* SaveGameSubsystem = GetSaveGameSubsystem())
 	{
-		return SaveGameSubsystem->TrySpendCurrency(Type, Amount);
+		bool bSuccess = SaveGameSubsystem->TrySpendCurrency(Type, Amount);
+		OnCurrencyChangedDel.Broadcast();
+		return bSuccess;
 	}
 	return false;
 }

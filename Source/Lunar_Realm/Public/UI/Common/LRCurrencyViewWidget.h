@@ -31,10 +31,10 @@ public:
 	virtual void RefreshUI() override;
 	
 	UFUNCTION()
-	void RefreshCurrencyAmountOnSaved();
+	void RefreshOnLoaded(class ULRSaveGame* SaveGame);
 
 	UFUNCTION()
-	void RefreshCurrencyAmountOnLoaded(class ULRSaveGame* SaveGame);
+	void RefreshOnChanged();
 
 private:
 	UFUNCTION()
