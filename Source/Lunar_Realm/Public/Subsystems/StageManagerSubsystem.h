@@ -61,7 +61,10 @@ struct FStageRewardData
  //=============================================================================
  // (260211) PJB 제작. 제반 사항 구현.
  // (260318) KWB GetBossEnemyID() 함수 추가
+ // (260319) KWB 스테이지 별 스포너 활성/비활성 관리를 위한 델리게이트 추가, LoadStage()에 브로드캐스트 추가
  //=============================================================================
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStageLoaded, FName, StageID);
 
 UCLASS()
 class LUNAR_REALM_API UStageManagerSubsystem : public UGameInstanceSubsystem
@@ -106,6 +109,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "LR|Stage")
 	FStageClearedData GetStageClearedData(FName StageID);
+
+public:
+	UPROPERTY(BlueprintAssignable, Category = "LR|Stage")
+	FOnStageLoaded OnStageLoaded;
 
 private:
 	void CacheCurrentStageData();

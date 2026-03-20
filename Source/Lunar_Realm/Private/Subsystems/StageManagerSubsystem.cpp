@@ -31,6 +31,9 @@ void UStageManagerSubsystem::LoadStage(FName StageID)
 	CacheCurrentStageData();
 
 	LR_INFO(TEXT("Stage Loaded: %s"), *CurrentStageData->StageName.ToString());
+
+	// 260319 KWB : 스테이지 로드 완료 알림 목적 브로드캐스트
+	OnStageLoaded.Broadcast(CurrentStageData->DataID);
 }
 
 int32 UStageManagerSubsystem::ClearCurrentStage(int32 InMasking)
