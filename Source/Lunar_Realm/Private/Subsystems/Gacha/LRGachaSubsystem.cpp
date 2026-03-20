@@ -446,6 +446,11 @@ bool ULRGachaSubsystem::BuildRevealPresentationData(
 		OutData.RevealSound = RevealRow.RevealSFX.LoadSynchronous();
 	}
 
+	if (!RevealRow.ColorRevealSFX.IsNull())
+	{
+		OutData.ColorRevealSound = RevealRow.ColorRevealSFX.LoadSynchronous();
+	}
+
 	if (RevealRow.bUseVideo && !RevealRow.RevealVideoSource.IsNull())
 	{
 		OutData.VideoSource = RevealRow.RevealVideoSource.LoadSynchronous();
