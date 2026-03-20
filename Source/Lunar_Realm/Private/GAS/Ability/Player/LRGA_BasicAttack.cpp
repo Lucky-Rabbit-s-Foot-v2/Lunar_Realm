@@ -156,6 +156,8 @@ void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
 	EventTask->ReadyForActivation();
 }
 
+
+
 void ULRGA_BasicAttack::OnHitEventReceived(FGameplayEventData InPayload)
 {
 	const AActor* TargetActor = CachedTarget;

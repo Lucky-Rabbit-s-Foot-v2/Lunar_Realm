@@ -16,3 +16,5 @@
 15,"RESOURCE_ATTACK_LOOTER","None","None","None","None","None","None"
 16,"RESOURCE_ATTACK_MUZZLE","None","/Game/Assets/Mixed_Magic_VFX_Pack/VFX/NS_Shattering_Crystal_Owner_Cast.NS_Shattering_Crystal_Owner_Cast","None","None","/Game/Assets/Mixed_Magic_VFX_Pack/VFX/NS_Magma_Shot_Owner_Cast_Spell.NS_Magma_Shot_Owner_Cast_Spell","None"
 17,"RESOURCE_ATTACK_THINKER","None","None","None","None","None","None"
+18,"RESOURCE_BLOODPOOL","/Game/Assets/BlackStromAsset/UI/EventSeasonPass/Nurse/Frm_SoulPassGoods_003.Frm_SoulPassGoods_003","/Game/Assets/sA_BloodMagic_1/Fx/OptimizedEmissive/NS_Wave.NS_Wave","None","None","/Game/Assets/sA_BloodMagic_1/Fx/OptimizedEmissive/NS_SmokySphere.NS_SmokySphere","None"
+19,"RESOURCE_HOMINGFAIRY","/Game/Assets/BlackStromAsset/UI/EventSeasonPass/Muzzle/Frm_SoulPassGoods_003.Frm_SoulPassGoods_003","None","None","None","/Game/Assets/ARPGEssentials/Effects/NS_ChromaticSlash_OmniBurst.NS_ChromaticSlash_OmniBurst","None"
