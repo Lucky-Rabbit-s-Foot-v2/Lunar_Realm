@@ -65,6 +65,11 @@ void ULRGameClearPopupWidget::InitializeUI()
 	{
 		PlayAnimation(victory);
 	}
+}
+
+void ULRGameClearPopupWidget::SetIsLastStage(bool bInIsLastStage)
+{
+	bIsLastStage = bInIsLastStage;
 
 	if (bIsLastStage)
 	{

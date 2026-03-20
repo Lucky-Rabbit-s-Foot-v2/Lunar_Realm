@@ -30,7 +30,7 @@ public:
 
 	virtual void InitializeUI() override;
 
-	void SetIsLastStage(bool bInIsLastStage) { bIsLastStage = bInIsLastStage; }
+	void SetIsLastStage(bool bInIsLastStage);
 	void SetStarMasking(int32 InMasking);
 
 	UFUNCTION(BlueprintCallable)
