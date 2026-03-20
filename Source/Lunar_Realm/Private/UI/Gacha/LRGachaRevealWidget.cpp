@@ -1028,3 +1028,11 @@ void ULRGachaRevealWidget::ShowFinalResultOverlay()
 		UGameplayStatics::PlaySound2D(this, ResultOverlayOpenSound);
 	}
 }
+
+void ULRGachaRevealWidget::PlayCurrentColorRevealSound()
+{
+	if (CurrentPresentationData.ColorRevealSound)
+	{
+		UGameplayStatics::PlaySound2D(this, CurrentPresentationData.ColorRevealSound);
+	}
+}
