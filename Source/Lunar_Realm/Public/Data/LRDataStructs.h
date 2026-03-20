@@ -863,6 +863,9 @@ struct FStageStaticData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Reward")
 	int32 RewardEnhanceTicket = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Reward")
+	int32 RewardExp = 0;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Stage")
 	FName PlayerStartTag;
 
@@ -919,7 +922,7 @@ struct FCurrencyStaticData : public FTableRowBase
 // =============================================================================
 // (260210) PYI 제작
 // (260312) PYI 가챠 리빌 연출 전용 데이터 추가
-// (260320) PYI 리빌 화면 오픈 시 재생할 캐릭터별 사운드 추가
+// (260320) PYI 리빌 화면 오픈 시 재생할 사운드 추가
 // =============================================================================
 // Gacha Data Structs (Banner/Pool/Rate/DuplicateReward/Result/Txn)
 // =============================================================================
@@ -1076,9 +1079,13 @@ struct FLRGachaRevealVisualRow : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	// 리빌 화면 오픈 시 재생할 캐릭터별 사운드
+	// 리빌 화면 오픈 시 재생할 사운드
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<USoundBase> RevealSFX;
+
+	// 실루엣 -> 컬러 전환 순간 재생할 사운드
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<USoundBase> ColorRevealSFX;
 
 	// 실제 가챠 결과 ItemID와 동일하게 사용
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -1141,6 +1148,10 @@ struct FLRGachaRevealPresentationData
 
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<USoundBase> RevealSound = nullptr;
+
+	// 실루엣 -> 컬러 전환 시점 사운드
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<USoundBase> ColorRevealSound = nullptr;
 };
 
 // =============================================================================

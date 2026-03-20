@@ -30,6 +30,7 @@
 // (260225) PJB 챕터로 스테이지 불러오기
 // (260226) KHS 스킬 기획 변경에 따른 헬퍼함수 추가.
 // (260318) BJM 캐릭터 사운드 데이터 처리 핸들러 추가.
+// (260320) BJM 스킬 아이콘 데이터 헬퍼함수 추가
 // =============================================================================
 
 UCLASS()
@@ -100,6 +101,10 @@ public:
 	// 현재 착용장비가 보유한 스킬 ID 조회
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Skills")
 	TArray<FName> GetEquipmentSkillIDs(FName EquipmentID);
+
+	// 스킬 아이콘 텍스처 가져오기 (260320 BJM)
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Skills")
+	TSoftObjectPtr<UTexture2D> GetSkillIcon(FName InSkillID) const;
 	
 	// ========================================
 	// GA 데이터 조회
@@ -460,3 +465,4 @@ const T& UGameDataSubsystem::GetFlightData(FName SkillEffectID) const
 	
 	return *Found;
 }
+

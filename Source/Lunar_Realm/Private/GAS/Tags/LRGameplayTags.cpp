@@ -33,6 +33,7 @@ namespace LRTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_Debuff_Poison,  "Ability.Skill.Debuff.Poison");
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Skill_Heal, "Cooldown.Skill.Heal");
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Skill_Common, "Cooldown.Skill.Common");
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Skill_BasicAttack, "Cooldown.Skill.BasicAttack");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_InstantAttack, "Ability.Skill.InstantAttack");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_InstantAttack_Cooldown, "Ability.Skill.InstantAttack.Cooldown");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_EnemyRangedShoot, "Ability.Skill.EnemyRangedShoot");
