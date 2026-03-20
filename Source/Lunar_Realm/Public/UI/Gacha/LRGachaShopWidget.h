@@ -8,6 +8,8 @@
 #include "Data/LRDataStructs.h"
 #include "Data/LREnumType.h"
 
+#include "Sound/SoundBase.h"
+
 #include "UI/Core/LRPageWidget.h"
 #include "UI/Gacha/LRGachaRevealWidget.h"
 #include "LRGachaShopWidget.generated.h"
@@ -66,6 +68,15 @@ public:
 	FName DefaultEquipBannerID = TEXT("Equip_FullMoon");
 
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Sound")
+	TObjectPtr<USoundBase> TabClickSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Sound")
+	TObjectPtr<USoundBase> DrawClickSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Sound")
+	TObjectPtr<USoundBase> HomeClickSound;
+
 	// BP가 배경만 바꿀 수 있도록 이벤트 제공
 	UFUNCTION(BlueprintImplementableEvent, Category = "LR|Gacha")
 	void BP_ApplyTabBackground(ELRGachaShopTab NewTab);
@@ -106,6 +117,7 @@ protected:
 	UTextBlock* TextFullMoon;
 
 private:
+	void PlayUISound(USoundBase* InSound);
 	// ───────────────── 서브시스템 참조 ─────────────────
 
 	UPROPERTY()
