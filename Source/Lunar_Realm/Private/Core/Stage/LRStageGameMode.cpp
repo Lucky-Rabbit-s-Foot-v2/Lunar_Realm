@@ -18,6 +18,7 @@
 
 #include "GameFramework/PlayerStart.h"
 #include "EngineUtils.h"
+#include "Components/AudioComponent.h"
 
 #include "UI/InGame/LRGameClearPopupWidget.h"
 #include "Subsystems/PoolingSubsystem.h"
@@ -202,13 +203,49 @@ void ALRStageGameMode::OnStartNextStage()
 	OnResumeGame();
 }
 
+
+
 void ALRStageGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
 	CleanupUnusedCores();
 
-	HideEnemyCoreIfBossStage();
+	//BGM
+	PlayBGM();
+	
+}
+
+void ALRStageGameMode::PlayBGM()
+{
+	if (BGMList.Num() > 0 && BGMList[0])
+	{
+		AudioComponent = UGameplayStatics::SpawnSound2D(this, BGMList[0], 1.f, 1.f, 0.f, nullptr, false, false);
+
+		if (!ensureMsgf(AudioComponent, TEXT("Invalid AudioComp")))
+		{
+			return;
+		}
+		
+		AudioComponent->OnAudioFinished.AddDynamic(this, &ALRStageGameMode::OnBGMFinished);
+	}
+}
+
+void ALRStageGameMode::OnBGMFinished()
+{
+	if (!ensureMsgf(AudioComponent, TEXT("Invalid AudioComp")))
+	{
+		return;
+	}
+	
+	if (BGMList.IsValidIndex(1) && BGMList[1])
+	{
+		AudioComponent->OnAudioFinished.RemoveAll(this); 
+		AudioComponent->SetSound(BGMList[1]);
+		AudioComponent->Play();
+
+		AudioComponent->bStopWhenOwnerDestroyed = true;
+	}
 }
 
 void ALRStageGameMode::CleanupUnusedCores()
@@ -241,75 +278,6 @@ void ALRStageGameMode::CleanupUnusedCores()
 			}
 		}
 	}
-}
-
-void ALRStageGameMode::HideEnemyCoreIfBossStage()
-{
-	// TODO: 실제 빌드 시 사용할 버전
-	//UGameInstance* GI = GetGameInstance();
-	//UStageManagerSubsystem* StageMgr = GI ? GI->GetSubsystem<UStageManagerSubsystem>() : nullptr;
-	//if (!GI || !StageMgr)
-	//{
-	//	LR_ERROR(TEXT("Not Valid GetGameInstance Or StageManagerSubsystem"));
-	//	return;
-	//}
-
-	//if (!StageMgr->IsBossStage())
-	//{
-	//	// TEST
-	//	LR_ERROR(TEXT("보스 스테이지 X"));
-	//	return;
-	//}
-
-	// TEST: 테스트용 구현
-	//UGameInstance* GI = GetGameInstance();
-	//UGameDataSubsystem* DataSys = GI->GetSubsystem<UGameDataSubsystem>();
-	//if (!DataSys)
-	//{
-	//	return;
-	//}
-
-	//FName CurrentStageID = NAME_None;
-	//if (const ULRGameInstance* LRGameInstance = Cast<ULRGameInstance>(GI))
-	//{
-	//	CurrentStageID = LRGameInstance->GetCurrentStageID();
-	//}
-
-	//if (CurrentStageID == NAME_None)
-	//{
-	//	LR_ERROR(TEXT("CurrentStageID is Null"));
-	//	return;
-	//}
-	//// TEST: 테스트용 구현
-	//
-	//const FStageStaticData& StageData = DataSys->GetStageStaticData(CurrentStageID);
-	//if (!StageData.bIsBossStage)
-	//{
-	//	// TEST
-	//	LR_ERROR(TEXT("====== 보스 스테이지 아니라서 스킵됨 ======"));
-	//	return;
-	//}
-
-	//ALREnemyCore* EnemyCore = Cast<ALREnemyCore>(UGameplayStatics::GetActorOfClass(GetWorld(), ALREnemyCore::StaticClass()));
-
-	//if (!EnemyCore)
-	//{
-	//	LR_WARN(TEXT("[StageGameMode] Is BossStage, No EnemyCore Exist!"));
-	//	return;
-	//}
-
-	//EnemyCore->SetActorHiddenInGame(true);
-	//EnemyCore->SetActorEnableCollision(false);
-
-	//if (UAbilitySystemComponent* ASC = EnemyCore->GetAbilitySystemComponent())
-	//{
-	//	ASC->RemoveLooseGameplayTag(LRTags::Team_Enemy_Structure_Core);
-	//}
-	//
-	//EnemyCore->OwnedTags.RemoveTag(LRTags::Team_Enemy_Structure_Core);
-
-	//LR_INFO(TEXT("[StageGameMode] Is BossStage - EnemyCore Hidden and Tag Removed"));
-
 }
 
 bool ALRStageGameMode::IsStar1ConditionCheck()
