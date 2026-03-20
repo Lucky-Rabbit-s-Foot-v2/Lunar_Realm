@@ -18,6 +18,7 @@
 
 #include "GameFramework/PlayerStart.h"
 #include "EngineUtils.h"
+#include "Components/AudioComponent.h"
 
 #include "UI/InGame/LRGameClearPopupWidget.h"
 #include "Subsystems/PoolingSubsystem.h"
@@ -202,6 +203,8 @@ void ALRStageGameMode::OnStartNextStage()
 	OnResumeGame();
 }
 
+
+
 void ALRStageGameMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -209,6 +212,42 @@ void ALRStageGameMode::BeginPlay()
 	CleanupUnusedCores();
 
 	HideEnemyCoreIfBossStage();
+	
+	//BGM
+	PlayBGM();
+	
+}
+
+void ALRStageGameMode::PlayBGM()
+{
+	if (BGMList.Num() > 0 && BGMList[0])
+	{
+		AudioComponent = UGameplayStatics::SpawnSound2D(this, BGMList[0]);
+
+		if (!ensureMsgf(AudioComponent, TEXT("Invalid AudioComp")))
+		{
+			return;
+		}
+		
+		AudioComponent->OnAudioFinished.AddDynamic(this, &ALRStageGameMode::OnBGMFinished);
+	}
+}
+
+void ALRStageGameMode::OnBGMFinished()
+{
+	if (!ensureMsgf(AudioComponent, TEXT("Invalid AudioComp")))
+	{
+		return;
+	}
+	
+	if (BGMList.IsValidIndex(1) && BGMList[1])
+	{
+		AudioComponent->OnAudioFinished.RemoveAll(this); 
+		AudioComponent->SetSound(BGMList[1]);
+		AudioComponent->Play();
+
+		AudioComponent->bStopWhenOwnerDestroyed = true;
+	}
 }
 
 void ALRStageGameMode::CleanupUnusedCores()

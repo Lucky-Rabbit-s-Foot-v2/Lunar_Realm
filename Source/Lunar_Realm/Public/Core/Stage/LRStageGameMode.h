@@ -17,43 +17,45 @@
 // (260318) KWB 보스 스테이지에서 코어 숨기는 기능 추가
 //=============================================================================
 
+class USoundBase;
+class UAudioComponent;
+
 UCLASS()
 class LUNAR_REALM_API ALRStageGameMode : public ALRGameModeBase
 {
 	GENERATED_BODY()
 	
 public:
-	// TODO: 게임 멈추는 로직 필요
-
-	UFUNCTION(BlueprintCallable, Category = "GameLogic")
-	void OnGameOver();
-
-	UFUNCTION(BlueprintCallable, Category = "GameLogic")
-	void OnGameClear();
-
-	UFUNCTION(BlueprintCallable, Category = "GameLogic")
-	void OnRestartGame();
-	
-	UFUNCTION(BlueprintCallable, Category = "GameLogic")
-	void OnPauseGame();
-
-	UFUNCTION(BlueprintCallable, Category = "GameLogic")
-	void OnOpenPauseUI();
-
-	UFUNCTION(BlueprintCallable, Category = "GameLogic")
-	void OnResumeGame();
-
-	UFUNCTION(BlueprintCallable, Category = "GameLogic")
-	void OnResetStage();
-
-	UFUNCTION(BlueprintCallable, Category = "GameLogic")
-	void OnExitStage();
-
-	UFUNCTION(BlueprintCallable, Category = "GameLogic")
-	void OnStartNextStage();
+	virtual AActor* ChoosePlayerStart_Implementation(AController* InPlayer) override;
 
 protected:
 	virtual void BeginPlay() override;
+	
+	UFUNCTION()
+	void OnBGMFinished();
+public:
+	// TODO: 게임 멈추는 로직 필요
+	UFUNCTION(BlueprintCallable, Category = "GameLogic")
+	void OnGameOver();
+	UFUNCTION(BlueprintCallable, Category = "GameLogic")
+	void OnGameClear();
+	UFUNCTION(BlueprintCallable, Category = "GameLogic")
+	void OnRestartGame();
+	UFUNCTION(BlueprintCallable, Category = "GameLogic")
+	void OnPauseGame();
+	UFUNCTION(BlueprintCallable, Category = "GameLogic")
+	void OnOpenPauseUI();
+	UFUNCTION(BlueprintCallable, Category = "GameLogic")
+	void OnResumeGame();
+	UFUNCTION(BlueprintCallable, Category = "GameLogic")
+	void OnResetStage();
+	UFUNCTION(BlueprintCallable, Category = "GameLogic")
+	void OnExitStage();
+	UFUNCTION(BlueprintCallable, Category = "GameLogic")
+	void OnStartNextStage();
+	void PlayBGM();
+
+	void CleanupUnusedCores();
 
 private:
 	void HideEnemyCoreIfBossStage();
@@ -65,13 +67,14 @@ private:
 	int32 CalculateStarMasking();
 	void OpenGameClearPopupWidget(int32 InStarMasking);
 
+
 private:
 	bool bIsGamePause = false;
 
-public:
-
-	virtual AActor* ChoosePlayerStart_Implementation(AController* InPlayer) override;
-
-public:
-	void CleanupUnusedCores();
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "BGM")
+	TArray<TObjectPtr<USoundBase>> BGMList;
+	UPROPERTY()
+	TObjectPtr<UAudioComponent> AudioComponent;
+	
 };
