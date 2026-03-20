@@ -14,7 +14,6 @@
 // (260203) PJB 제작.
 // (260223) BJM 승패판정 로직 추가
 // (260226) PJB 일시정지, 승패판정 UI 연동 추가
-// (260318) KWB 보스 스테이지에서 코어 숨기는 기능 추가
 //=============================================================================
 
 class USoundBase;
@@ -58,8 +57,6 @@ public:
 	void CleanupUnusedCores();
 
 private:
-	void HideEnemyCoreIfBossStage();
-
 	bool IsStar1ConditionCheck();
 	bool IsStar2ConditionCheck();
 	bool IsStar3ConditionCheck();
