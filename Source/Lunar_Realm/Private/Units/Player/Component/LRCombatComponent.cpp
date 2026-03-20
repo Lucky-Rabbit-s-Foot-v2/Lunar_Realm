@@ -321,7 +321,7 @@ void ULRCombatComponent::AttemptAction(float InDeltaTime)
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
 		OwnerCharacter, LRTags::Ability_Combat_BasicShoot, EventData);
 
-	LR_INFO(TEXT("공격 성공 / 타겟 : %s"), *CurrentTarget->GetName());
+	//LR_INFO(TEXT("공격 성공 / 타겟 : %s"), *CurrentTarget->GetName());
 }
 
 void ULRCombatComponent::MoveToTarget(float InDeltaTime)
