@@ -257,11 +257,13 @@ void ULRGachaShopWidget::TryBeginDrawAndOpenReveal(FName BannerID, int32 Count)
 
 void ULRGachaShopWidget::OnClickHeroTab()
 {
+	PlayUISound(TabClickSound);
 	SetTab(ELRGachaShopTab::Hero);
 }
 
 void ULRGachaShopWidget::OnClickEquipTab()
 {
+	PlayUISound(TabClickSound);
 	SetTab(ELRGachaShopTab::Equip);
 }
 
@@ -271,24 +273,28 @@ void ULRGachaShopWidget::OnClickEquipTab()
 
 void ULRGachaShopWidget::OnClickCrescentDraw1()
 {
+	PlayUISound(DrawClickSound);
 	const FName BannerID = MakeBannerIDForTicket(false);
 	TryBeginDrawAndOpenReveal(BannerID, 1);
 }
 
 void ULRGachaShopWidget::OnClickCrescentDraw10()
 {
+	PlayUISound(DrawClickSound);
 	const FName BannerID = MakeBannerIDForTicket(false);
 	TryBeginDrawAndOpenReveal(BannerID, 10);
 }
 
 void ULRGachaShopWidget::OnClickFullMoonDraw1()
 {
+	PlayUISound(DrawClickSound);
 	const FName BannerID = MakeBannerIDForTicket(true);
 	TryBeginDrawAndOpenReveal(BannerID, 1);
 }
 
 void ULRGachaShopWidget::OnClickFullMoonDraw10()
 {
+	PlayUISound(DrawClickSound);
 	const FName BannerID = MakeBannerIDForTicket(true);
 	TryBeginDrawAndOpenReveal(BannerID, 10);
 }
@@ -386,6 +392,8 @@ FName ULRGachaShopWidget::MakeBannerIDForTicket(const bool bFullMoon) const
 
 void ULRGachaShopWidget::OnClickHome()
 {
+	PlayUISound(HomeClickSound);
+
 	// 로비 복귀 시 “샵 자동 오픈” 플래그 끄기
 	// - 사용자가 홈으로 빠지는 경우는 샵 자동 재오픈이 UX에 방해될 수 있음
 	if (UGameInstance* GI = GetGameInstance())
@@ -454,5 +462,13 @@ void ULRGachaShopWidget::SetTab(ELRGachaShopTab NewTab)
 	if (GachaSys)
 	{
 		GachaSys->SetLastShopBanner(CurrentBannerID);
+	}
+}
+
+void ULRGachaShopWidget::PlayUISound(USoundBase* InSound)
+{
+	if (InSound)
+	{
+		UGameplayStatics::PlaySound2D(this, InSound);
 	}
 }

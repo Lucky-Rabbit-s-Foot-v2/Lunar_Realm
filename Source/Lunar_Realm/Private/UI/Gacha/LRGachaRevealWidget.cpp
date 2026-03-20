@@ -374,17 +374,7 @@ void ULRGachaRevealWidget::OnClickSkip()
 	{
 		HidePresentation();
 
-		if (!bResultOverlayShown)
-		{
-			BuildResultSlotsSequential();
-			BP_OnAllRevealed(CachedResults);
-			bResultOverlayShown = true;
-
-			if (ResultOverlay)
-			{
-				ResultOverlay->SetVisibility(ESlateVisibility::Visible);
-			}
-		}
+		ShowFinalResultOverlay();
 		return;
 	}
 
@@ -414,14 +404,7 @@ void ULRGachaRevealWidget::OnClickSkip()
 			Image_RevealVideo->SetVisibility(ESlateVisibility::Collapsed);
 		}
 
-		BuildResultSlotsSequential();
-		BP_OnAllRevealed(CachedResults);
-		bResultOverlayShown = true;
-
-		if (ResultOverlay)
-		{
-			ResultOverlay->SetVisibility(ESlateVisibility::Visible);
-		}
+		ShowFinalResultOverlay();
 		return;
 	}
 
@@ -473,17 +456,7 @@ FReply ULRGachaRevealWidget::NativeOnMouseButtonUp(
 		// 모든 구슬 리빌이 끝난 뒤에만 결과창 표시
 		if (bAllRevealed)
 		{
-			if (!bResultOverlayShown)
-			{
-				BuildResultSlotsSequential();
-				BP_OnAllRevealed(CachedResults);
-				bResultOverlayShown = true;
-
-				if (ResultOverlay)
-				{
-					ResultOverlay->SetVisibility(ESlateVisibility::Visible);
-				}
-			}
+			ShowFinalResultOverlay();
 		}
 
 		return FReply::Handled();
@@ -615,6 +588,11 @@ void ULRGachaRevealWidget::ShowPresentation(int32 OrbIndex, const FLRGachaResult
 	bPresentationUsingVideo = CurrentPresentationData.bUseVideo;
 
 	ApplyPresentationDataToWidgets(CurrentPresentationData);
+
+	if (CurrentPresentationData.RevealSound)
+	{
+		UGameplayStatics::PlaySound2D(this, CurrentPresentationData.RevealSound);
+	}
 
 	// 영상이면 반복 재생 시작
 	if (bPresentationUsingVideo)
@@ -1026,5 +1004,27 @@ void ULRGachaRevealWidget::ResetTransitionVisuals()
 	if (Image_MagicFull)
 	{
 		Image_MagicFull->SetColorAndOpacity(FLinearColor::White);
+	}
+}
+
+void ULRGachaRevealWidget::ShowFinalResultOverlay()
+{
+	if (bResultOverlayShown)
+	{
+		return;
+	}
+
+	BuildResultSlotsSequential();
+	BP_OnAllRevealed(CachedResults);
+	bResultOverlayShown = true;
+
+	if (ResultOverlay)
+	{
+		ResultOverlay->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	if (ResultOverlayOpenSound)
+	{
+		UGameplayStatics::PlaySound2D(this, ResultOverlayOpenSound);
 	}
 }

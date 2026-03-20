@@ -919,6 +919,7 @@ struct FCurrencyStaticData : public FTableRowBase
 // =============================================================================
 // (260210) PYI 제작
 // (260312) PYI 가챠 리빌 연출 전용 데이터 추가
+// (260320) PYI 리빌 화면 오픈 시 재생할 캐릭터별 사운드 추가
 // =============================================================================
 // Gacha Data Structs (Banner/Pool/Rate/DuplicateReward/Result/Txn)
 // =============================================================================
@@ -1075,6 +1076,10 @@ struct FLRGachaRevealVisualRow : public FTableRowBase
 {
 	GENERATED_BODY()
 
+	// 리빌 화면 오픈 시 재생할 캐릭터별 사운드
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<USoundBase> RevealSFX;
+
 	// 실제 가챠 결과 ItemID와 동일하게 사용
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName ItemID;
@@ -1133,6 +1138,9 @@ struct FLRGachaRevealPresentationData
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bUseVideo = false;
+
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<USoundBase> RevealSound = nullptr;
 };
 
 // =============================================================================
