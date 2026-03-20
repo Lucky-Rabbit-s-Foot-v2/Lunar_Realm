@@ -33,20 +33,17 @@ protected:
 	TObjectPtr<class UImage> Img_Main;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Equip1;
+	TObjectPtr<class UImage> Img_Skill;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Equip2;
+	TObjectPtr<class UTextBlock> Txt_Description;
 
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Equip3;
-	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRCharacterStatusWidget> CharacterStatus;
 
+	UPROPERTY(EditAnywhere, Category = "LR|Character Info")
+	class UTexture2D* DefaultImage;
+
 private:
 	FName CharacterID;
-	FName Equip1ID;
-	FName Equip2ID;
-	FName Equip3ID;
 };
