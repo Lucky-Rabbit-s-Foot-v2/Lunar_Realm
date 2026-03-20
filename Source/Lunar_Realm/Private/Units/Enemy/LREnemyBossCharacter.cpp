@@ -3,6 +3,7 @@
 
 #include "Units/Enemy/LREnemyBossCharacter.h"
 
+#include "Animation/AnimInstance.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -23,11 +24,43 @@ ALREnemyBossCharacter::ALREnemyBossCharacter()
 	GetCapsuleComponent()->SetCapsuleSize(160.f, 200.f); // SetCapsuleSize(float InRadius, float InHalfHeight)
 
 	UnitTag = LRTags::Team_Enemy_Character_Boss;
+
+	CoreAttackOverlap = CreateDefaultSubobject<USphereComponent>(TEXT("CoreAttackOverlap"));
+	CoreAttackOverlap->SetupAttachment(RootComponent);
+	CoreAttackOverlap->SetSphereRadius(1100.f);
+	CoreAttackOverlap->SetCollisionProfileName(TEXT("OverlapAll"));
 }
 
 void ALREnemyBossCharacter::InitializeBossSpeed()
 {
 	GetCharacterMovement()->MaxWalkSpeed = SpeedPhase0;
+}
+
+void ALREnemyBossCharacter::SetCoreAttackOverlapRadius(float InRadius)
+{
+	if (CoreAttackOverlap)
+	{
+		CoreAttackOverlap->SetSphereRadius(InRadius);
+	}
+}
+
+void ALREnemyBossCharacter::RegisterMontageNotifyDelegate()
+{
+	USkeletalMeshComponent* MeshComp = GetMesh();
+	if (!MeshComp)
+	{
+		LR_ERROR(TEXT("[Boss] MeshComp NULL"));
+		return;
+	}
+
+	UAnimInstance* AnimInst = MeshComp->GetAnimInstance();
+	if (!AnimInst)
+	{
+		LR_ERROR(TEXT("[Boss] AnimInst NULL"));
+		return;
+	}
+
+	AnimInst->OnPlayMontageNotifyBegin.AddDynamic(this, &ALREnemyBossCharacter::OnMontageNotifyStart);
 }
 
 void ALREnemyBossCharacter::BeginPlay()
@@ -42,6 +75,9 @@ void ALREnemyBossCharacter::BeginPlay()
 	}
 
 	ASC->GetGameplayAttributeValueChangeDelegate(ULREnemyAttributeSet::GetHealthAttribute()).AddUObject(this, &ALREnemyBossCharacter::OnBossHealthChanged);
+
+	CoreAttackOverlap->OnComponentBeginOverlap.AddDynamic(this, &ALREnemyBossCharacter::OnCoreOverlapBegin);
+	CoreAttackOverlap->OnComponentEndOverlap.AddDynamic(this, &ALREnemyBossCharacter::OnCoreOverlapEnd);
 }
 
 void ALREnemyBossCharacter::FinishDeathSequence()
@@ -55,6 +91,72 @@ void ALREnemyBossCharacter::FinishDeathSequence()
 	else
 	{
 		LR_ERROR(TEXT("[Boss] StageGameMode를 찾을 수 없음 - GameClear 호출 실패"));
+	}
+}
+
+void ALREnemyBossCharacter::OnMontageNotifyStart(FName NotifyName, const FBranchingPointNotifyPayload& Payload)
+{
+	if (NotifyName != "GameOver")
+	{
+		return;
+	}
+
+	ALRAIController* AICtrl = Cast<ALRAIController>(GetController());
+	if (!AICtrl)
+	{
+		return;
+	}
+
+	UBlackboardComponent* BB = AICtrl->GetBlackboardComponent();
+	if (!BB)
+	{
+		return;
+	}
+
+	if (!BB->GetValueAsBool(LRBBKeys::CoreInRange))
+	{
+		return;
+	}
+
+	LR_WARN(TEXT("[Boss] GameOver 노티파이 감지 - 코어 파괴 시작"));
+
+	AActor* FoundCore = UGameplayStatics::GetActorOfClass(GetWorld(), ALRPlayerCore::StaticClass());
+	if (ALRPlayerCore* PlayerCore = Cast<ALRPlayerCore>(FoundCore))
+	{
+		PlayerCore->OnCoreDestroyed();
+	}
+	else
+	{
+		LR_ERROR(TEXT("[Boss] PlayerCore를 찾을 수 없음"));
+	}
+}
+
+void ALREnemyBossCharacter::OnCoreOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (!Cast<ALRPlayerCore>(OtherActor))
+	{
+		return;
+	}
+
+	if (ALRAIController* AICtrl = Cast<ALRAIController>(GetController()))
+	{
+		if (UBlackboardComponent* BB = AICtrl->GetBlackboardComponent())
+		{
+			BB->SetValueAsBool(LRBBKeys::CoreInRange, true);
+		}
+	}
+}
+
+void ALREnemyBossCharacter::OnCoreOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (!Cast<ALRPlayerCore>(OtherActor)) return;
+
+	if (ALRAIController* AICtrl = Cast<ALRAIController>(GetController()))
+	{
+		if (UBlackboardComponent* BB = AICtrl->GetBlackboardComponent())
+		{
+			BB->SetValueAsBool(LRBBKeys::CoreInRange, false);
+		}
 	}
 }
 
@@ -84,10 +186,6 @@ void ALREnemyBossCharacter::OnBossHealthChanged(const FOnAttributeChangeData& Da
 	if (NewPhase != CurrentPhase)
 	{
 		CurrentPhase = NewPhase;
-
-		// TEST
-		LR_ERROR(TEXT("=== [Boss] %d번째 페이즈로 전환 ==="), CurrentPhase);
-		LR_ERROR(TEXT("=== [Boss] 현재 속도 : %f ==="), GetCharacterMovement()->MaxWalkSpeed);
 
 		const float PhaseSpeedTable[] = { SpeedPhase0, SpeedPhase1, SpeedPhase2 };
 		if (CurrentPhase < UE_ARRAY_COUNT(PhaseSpeedTable))

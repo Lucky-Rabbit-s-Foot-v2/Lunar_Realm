@@ -6,9 +6,7 @@
 
 /**
  * 보스 전용 근접 공격 GA
- * - LRGA_InstantAttack을 상속
- * - GE Spec에 Attack.Boss.Melee 태그를 추가하여
- *   플레이어 코어에 닿으면 즉시 파괴되도록 신호를 보냄
+ * - 추후 사용 예정
  */
  // ============================================================================
  // (260319) KWB 제작.
@@ -21,7 +19,4 @@ class LUNAR_REALM_API ULRGA_BossInstantAttack : public ULRGA_InstantAttack
 
 public:
 	ULRGA_BossInstantAttack();
-
-protected:
-	virtual void ModifyDamageSpec(FGameplayEffectSpecHandle& InSpecHandle) override;
 };
