@@ -507,6 +507,19 @@ TArray<FName> UGameDataSubsystem::GetEquipmentSkillIDs(FName EquipmentID)
 	return data.SkillIDs;
 }
 
+TSoftObjectPtr<UTexture2D> UGameDataSubsystem::GetSkillIcon(FName InSkillID) const
+{
+	const FSkillStaticData& SkillData = GetSkillStaticData(InSkillID);
+
+	if (SkillData.ResourceID != NAME_None)
+	{
+		const FSkillResourceData& ResourceData = GetSkillResourceData(SkillData.ResourceID);
+		return ResourceData.SkillIcon;
+	}
+
+	return nullptr;
+}
+
 // ========================================
 // GA 데이터 조회
 // ========================================
