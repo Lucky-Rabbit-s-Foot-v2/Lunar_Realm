@@ -66,6 +66,8 @@ struct FStageRewardData
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStageLoaded, FName, StageID);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCheatStageUsed);
+
 UCLASS()
 class LUNAR_REALM_API UStageManagerSubsystem : public UGameInstanceSubsystem
 {
@@ -114,6 +116,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "LR|Stage")
 	FOnStageLoaded OnStageLoaded;
 
+	UPROPERTY(BlueprintAssignable, Category = "LR|Stage")
+	FOnCheatStageUsed OnCheatStageUsedDel;
+
 private:
 	void CacheCurrentStageData();
 
@@ -124,4 +129,17 @@ private:
 	
 	UPROPERTY()
 	FStageRewardData CachedRewardData;
+
+
+	//======================================
+	// 스테이지 치트 정보
+	//======================================
+public:
+	void SetCheatStageUnlocked(bool InIsUnlocked) { 
+		bCheatStageUnlocked = InIsUnlocked;
+		OnCheatStageUsedDel.Broadcast();
+	}
+	bool IsCheatStageUnlocked() const { return bCheatStageUnlocked; }
+private:
+	bool bCheatStageUnlocked = false;
 };

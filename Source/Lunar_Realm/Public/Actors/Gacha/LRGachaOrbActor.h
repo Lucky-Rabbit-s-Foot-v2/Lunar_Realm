@@ -146,6 +146,22 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
 	TObjectPtr<USoundBase> SoundUR;
 
+	/** 구슬 클릭 직후(중앙 이동 시작 시) 재생할 등급별 시작 사운드 */
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
+	TObjectPtr<USoundBase> StartSoundN;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
+	TObjectPtr<USoundBase> StartSoundR;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
+	TObjectPtr<USoundBase> StartSoundSR;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
+	TObjectPtr<USoundBase> StartSoundSSR;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
+	TObjectPtr<USoundBase> StartSoundUR;
+
 	// ===== Tuning Parameters (BP에서 조정) ===============================
 
 	/** 중앙으로 이동하는 시간 */
@@ -195,6 +211,9 @@ protected:
 	void BP_OnRevealStarted(const FLRGachaResult& Result);
 
 private:
+	/** 등급 → 시작 사운드 에셋 */
+	USoundBase* GetStartSoundByRarity(ELRGachaRarity Rarity) const;
+
 	/** 캐러셀에서 이 Orb가 담당하는 인덱스 */
 	UPROPERTY()
 	int32 OrbIndex = INDEX_NONE;

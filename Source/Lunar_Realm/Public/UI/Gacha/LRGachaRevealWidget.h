@@ -7,6 +7,8 @@
 #include "Data/LRDataStructs.h"
 #include "Data/LREnumType.h"
 
+#include "Sound/SoundBase.h"
+
 #include "UI/Core/LRBaseWidget.h"
 #include "LRGachaRevealWidget.generated.h"
 
@@ -69,6 +71,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UImage> Image_MagicFull;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Sound")
+	TObjectPtr<USoundBase> ResultOverlayOpenSound;
 
 	/** 문양 인트로/전환용 오버레이 */
 	UPROPERTY(BlueprintReadOnly, Category = "LR|Gacha|Reveal", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
@@ -216,8 +221,10 @@ private:
 
 	UTexture2D* GetRarityTextureByRarity(ELRGachaRarity Rarity) const;
 	UTexture2D* GetTransitionMagicTextureByRarity(ELRGachaRarity Rarity) const;
+
 	void ApplyTransitionTexturesByRarity(ELRGachaRarity Rarity);
 	void ResetTransitionVisuals();
+	void ShowFinalResultOverlay();
 
 	/** MediaTexture를 UI에 표시할 머티리얼 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Reveal|Video")

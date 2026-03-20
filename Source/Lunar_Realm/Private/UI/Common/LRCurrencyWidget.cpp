@@ -5,18 +5,6 @@
 
 #include "UI/Common/LRCurrencyViewWidget.h"
 
-void ULRCurrencyWidget::NativeConstruct()
-{
-	Super::NativeConstruct();
-	
-
-}
-
-void ULRCurrencyWidget::NativeDestruct()
-{
-	Super::NativeDestruct();
-}
-
 void ULRCurrencyWidget::RegisterSubWidgets()
 {
 	Super::RegisterSubWidgets();

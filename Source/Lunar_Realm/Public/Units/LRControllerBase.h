@@ -26,6 +26,8 @@ class LUNAR_REALM_API ALRControllerBase : public APlayerController
 	GENERATED_BODY()
 	
 public:
+	ALRControllerBase();
+
 	virtual void BeginPlay() override;
 	
 	UFUNCTION(BlueprintCallable)
