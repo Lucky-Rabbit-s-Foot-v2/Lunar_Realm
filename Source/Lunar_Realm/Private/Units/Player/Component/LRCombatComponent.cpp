@@ -269,6 +269,28 @@ void ULRCombatComponent::FindBestTarget()
 		return;
 	}
 
+	if (!CachedEnemyBase || !IsValid(CachedEnemyBase) || IsTargetDead(CachedEnemyBase))
+	{
+		TArray<AActor*> AllCores;
+
+		UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Enemy.Structure.Core"), AllCores);
+		if (AllCores.Num() > 0)
+		{
+			CachedEnemyBase = AllCores[0];
+		}
+		else
+		{
+			TArray<AActor*> AllEnemies;
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALREnemyCharacter::StaticClass(), AllEnemies);
+
+			if (AllEnemies.Num() > 0)
+			{
+				CachedEnemyBase = AllEnemies[0];
+				LR_INFO(TEXT("[Combat] 코어가 없어 보스(%s)를 타겟으로 캐싱"), *CachedEnemyBase->GetName());
+			}
+		}
+	}
+
 	if (CachedEnemyBase && IsValid(CachedEnemyBase))
 	{
 		CurrentTarget = CachedEnemyBase;
