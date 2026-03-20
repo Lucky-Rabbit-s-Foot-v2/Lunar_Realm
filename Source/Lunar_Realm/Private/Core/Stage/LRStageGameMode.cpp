@@ -211,8 +211,6 @@ void ALRStageGameMode::BeginPlay()
 
 	CleanupUnusedCores();
 
-	HideEnemyCoreIfBossStage();
-	
 	//BGM
 	PlayBGM();
 	
