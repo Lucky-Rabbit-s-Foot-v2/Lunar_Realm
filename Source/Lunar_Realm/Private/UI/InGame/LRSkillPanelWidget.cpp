@@ -139,20 +139,13 @@ void ULRSkillPanelWidget::UpdateSkillIcons(FName InPlayerSkillID, FName InWeapon
 		{
 			if (InSkillID == NAME_None || !InTargetButton) return;
 
-			// 스킬 데이터에서 리소스 ID 추출
-			const FSkillStaticData& SkillData = DataSubsystem->GetSkillStaticData(InSkillID);
-			FName ResourceID = SkillData.ResourceID;
+			TSoftObjectPtr<UTexture2D> SkillIconPtr = DataSubsystem->GetSkillIcon(InSkillID);
 
-			if (ResourceID == NAME_None) return;
 
-			// 리소스 ID로 리소스 데이터(이미지) 추출
-			const FSkillResourceData& ResourceData = DataSubsystem->GetSkillResourceData(ResourceID);
-
-			// 버튼 자체의 스타일에 이미지 덮어쓰기
-			if (!ResourceData.SkillIcon.IsNull())
+			if (!SkillIconPtr.IsNull())
 			{
-				UTexture2D* LoadedIcon = ResourceData.SkillIcon.LoadSynchronous();
-				if (LoadedIcon)
+				// 동기 로드
+				if (UTexture2D* LoadedIcon = SkillIconPtr.LoadSynchronous())
 				{
 					FButtonStyle NewStyle = InTargetButton->GetStyle();
 
@@ -163,6 +156,33 @@ void ULRSkillPanelWidget::UpdateSkillIcons(FName InPlayerSkillID, FName InWeapon
 					InTargetButton->SetStyle(NewStyle);
 				}
 			}
+
+			//// 스킬 데이터에서 리소스 ID 추출
+			//const FSkillStaticData& SkillData = DataSubsystem->GetSkillStaticData(InSkillID);
+			//FName ResourceID = SkillData.ResourceID;
+
+			//if (ResourceID == NAME_None) return;
+
+			//// 리소스 ID로 리소스 데이터(이미지) 추출
+			//const FSkillResourceData& ResourceData = DataSubsystem->GetSkillResourceData(ResourceID);
+
+			//
+
+			//// 버튼 자체의 스타일에 이미지 덮어쓰기
+			//if (!ResourceData.SkillIcon.IsNull())
+			//{
+			//	UTexture2D* LoadedIcon = ResourceData.SkillIcon.LoadSynchronous();
+			//	if (LoadedIcon)
+			//	{
+			//		FButtonStyle NewStyle = InTargetButton->GetStyle();
+
+			//		NewStyle.Normal.SetResourceObject(LoadedIcon);
+			//		NewStyle.Hovered.SetResourceObject(LoadedIcon);
+			//		NewStyle.Pressed.SetResourceObject(LoadedIcon);
+
+			//		InTargetButton->SetStyle(NewStyle);
+			//	}
+			//}
 		};
 
 	// 플레이어 스킬(1번)과 무기 스킬(2번) 버튼에 각각 람다 함수 실행
