@@ -41,13 +41,13 @@ private:
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Close;
+	TObjectPtr<class ULRButtonWidget> Btn_Close;
 	
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Save;
+	TObjectPtr<class ULRButtonWidget> Btn_Save;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Default;
+	TObjectPtr<class ULRButtonWidget> Btn_Default;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRSettingScrollWidget> SettingScrollWidget;
