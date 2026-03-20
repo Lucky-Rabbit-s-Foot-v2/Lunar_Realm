@@ -7,6 +7,7 @@
 #include "System/LoggingSystem.h"
 #include "Data/LRGameDataConfig.h"
 #include "Subsystems/GameDataSubsystem.h"
+#include "Subsystems/SaveGameSubsystem.h"
 
 void UStageManagerSubsystem::LoadStage(FName StageID)
 {
@@ -30,6 +31,23 @@ void UStageManagerSubsystem::LoadStage(FName StageID)
 	CacheCurrentStageData();
 
 	LR_INFO(TEXT("Stage Loaded: %s"), *CurrentStageData->StageName.ToString());
+}
+
+int32 UStageManagerSubsystem::ClearCurrentStage(int32 InMasking)
+{
+	FName CurrentStageID = GetCurrentStageID();
+	FStageClearedData ClearedData = GetStageClearedData(CurrentStageID);
+	ClearedData.StarMasking |= InMasking;
+
+	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+	SaveGameSubsystem->SaveStageClearedData(ClearedData);
+	
+	FName NextStageID = CurrentStageData->NextStageID;
+	FStageClearedData NextStageData = GetStageClearedData(NextStageID);
+	NextStageData.bIsUnlocked = true;
+	SaveGameSubsystem->SaveStageClearedData(NextStageData);
+
+	return ClearedData.StarMasking;
 }
 
 FStageStaticData UStageManagerSubsystem::GetCurrentStageDataCopy() const
@@ -60,6 +78,31 @@ FName UStageManagerSubsystem::GetCurrentStageID() const
 		return NAME_None;
 	}
 	return CurrentStageData->DataID;
+}
+
+FStageClearedData UStageManagerSubsystem::GetStageClearedData(FName StageID)
+{
+	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+	if (!ensure(SaveGameSubsystem))
+	{
+		LR_SCREEN_INFO(TEXT("SaveGameSubsystem is null"));
+		return FStageClearedData();
+	}
+
+	FStageClearedData StageClearedData = SaveGameSubsystem->GetStageClearedData(StageID);
+	if (StageClearedData.StageID == NAME_None)
+	{
+		StageClearedData.StageID = StageID;
+
+		if (StageID == "LAKE_01")
+		{
+			StageClearedData.bIsUnlocked = true;
+		}
+
+		SaveGameSubsystem->SaveStageClearedData(StageClearedData);
+	}
+
+	return StageClearedData;
 }
 
 const FString UStageManagerSubsystem::GetStageName() const

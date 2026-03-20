@@ -4,8 +4,11 @@
 #include "Subsystems/SaveGameSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 
+#include "Subsystems/GameDataSubsystem.h"
+
 void USaveGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
+	Collection.InitializeDependency<UGameDataSubsystem>();
 	Super::Initialize(Collection);
 	LR_INFO(TEXT("SaveGameSubsystem Initialized"));
 	LoadGame();
@@ -228,5 +231,20 @@ void USaveGameSubsystem::UpdateLastSavedTimeAndSave()
 	}
 
 	CurrentSaveGame->LastUpdatedUtc = FDateTime::UtcNow();
+	SaveGame();
+}
+
+FStageClearedData USaveGameSubsystem::GetStageClearedData(FName StageID) const
+{
+	return CurrentSaveGame->GetStageClearedDataMap(StageID);
+}
+
+void USaveGameSubsystem::SaveStageClearedData(FStageClearedData& InData)
+{
+	if (CurrentSaveGame == nullptr)
+	{
+		LoadGame();
+	}
+	CurrentSaveGame->UpdateStageClearedData(InData.StageID, InData);
 	SaveGame();
 }

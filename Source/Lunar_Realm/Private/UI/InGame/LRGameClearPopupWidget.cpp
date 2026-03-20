@@ -3,26 +3,57 @@
 
 #include "UI/InGame/LRGameClearPopupWidget.h"
 
-#include "Components/Button.h"
-
 #include "Core/LRGameInstance.h"
-#include "Subsystems/Settings/UIManagerSettings.h"
-#include "Subsystems/UIManagerSubsystem.h"
 #include "Core/Stage/LRStageGameMode.h"
 
+#include "Subsystems/Settings/UIManagerSettings.h"
+#include "Subsystems/UIManagerSubsystem.h"
+
+#include "UI/Core/LRButtonWidget.h"
+#include "UI/InGame/LRStarBoxWidget.h"
+
+void ULRGameClearPopupWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
+	{
+		OnCloseUIRequestedDel.RemoveAll(this);
+		OnCloseUIRequestedDel.AddUniqueDynamic(UIManager, &UUIManagerSubsystem::CloseUI);
+	}
+}
+
+void ULRGameClearPopupWidget::NativeDestruct()
+{
+	OnCloseUIRequestedDel.Clear();
+
+	Super::NativeDestruct();
+}
+
+void ULRGameClearPopupWidget::RegisterSubWidgets()
+{
+	Super::RegisterSubWidgets();
+	
+	SubWidgets.Add(StarBox);
+}
 
 void ULRGameClearPopupWidget::BindProperties()
 {
 	Super::BindProperties();
 
-	if (Btn_NextStage) Btn_NextStage->OnClicked.AddDynamic(this, &ULRGameClearPopupWidget::OnNextStageButtonClicked);
-	if (Btn_Exit) Btn_Exit->OnClicked.AddDynamic(this, &ULRGameClearPopupWidget::OnExitButtonClicked);
+	Btn_NextStage->OnLRButtonClickedDel.RemoveAll(this);
+	Btn_NextStage->OnLRButtonClickedDel.AddUniqueDynamic(this, &ULRGameClearPopupWidget::OnNextStageButtonClicked);
+	
+	Btn_Exit->OnLRButtonClickedDel.RemoveAll(this);
+	Btn_Exit->OnLRButtonClickedDel.AddUniqueDynamic(this, &ULRGameClearPopupWidget::OnExitButtonClicked);
 }
 
 void ULRGameClearPopupWidget::UnbindProperties()
 {
-	if (Btn_NextStage) Btn_NextStage->OnClicked.Clear();
-	if (Btn_Exit) Btn_Exit->OnClicked.Clear();
+	
+	Btn_NextStage->OnLRButtonClickedDel.Clear();
+	
+	Btn_Exit->OnLRButtonClickedDel.Clear();
 
 	Super::UnbindProperties();
 }
@@ -36,14 +67,26 @@ void ULRGameClearPopupWidget::InitializeUI()
 	}
 }
 
+void ULRGameClearPopupWidget::SetStarMasking(int32 InMasking)
+{
+	StarBox->SetStarMasking(InMasking);
+}
+
 void ULRGameClearPopupWidget::OnNextStageButtonClicked()
 {
-	ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode());
-	StageGM->OnStartNextStage();
+	OnCloseUIRequestedDel.Broadcast(this);
+
+	if (ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		StageGM->OnStartNextStage();
+	}
 }
 
 void ULRGameClearPopupWidget::OnExitButtonClicked()
 {
-	ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode());
-	StageGM->OnExitStage();
+	OnCloseUIRequestedDel.Broadcast(this);
+	if (ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		StageGM->OnExitStage();
+	}
 }

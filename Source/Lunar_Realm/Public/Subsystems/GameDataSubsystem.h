@@ -146,6 +146,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Stage")
 	const TArray<FName> GetAllStageIDsByChapterID(FName ChapterID) const;
 
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Stage")
+	const TArray<FName> GetAllStageID() const;
+
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Currecny")
 	const FCurrencyStaticData& GetCurrencyStaticData(FName CurrencyID) const;
 
