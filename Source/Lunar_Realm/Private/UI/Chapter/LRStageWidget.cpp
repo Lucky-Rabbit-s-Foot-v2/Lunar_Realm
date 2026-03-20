@@ -15,6 +15,28 @@
 #include "Subsystems/UIManagerSubsystem.h"
 #include "UI/Chapter/LRReadyPopupWidget.h"
 
+
+void ULRStageWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+	if (UStageManagerSubsystem* StageMgr = GetGameInstance()->GetSubsystem<UStageManagerSubsystem>())
+	{
+		StageMgr->OnCheatStageUsedDel.RemoveAll(this);
+		StageMgr->OnCheatStageUsedDel.AddUniqueDynamic(this, &ULRStageWidget::RefreshOnChanged);
+	}
+
+}
+
+void ULRStageWidget::NativeDestruct()
+{
+	if (UStageManagerSubsystem* StageMgr = GetGameInstance()->GetSubsystem<UStageManagerSubsystem>())
+	{
+		StageMgr->OnCheatStageUsedDel.RemoveAll(this);
+	}
+	Super::NativeDestruct();
+}
+
+
 void ULRStageWidget::OnOpenButtonClicked()
 {
 	const UUIManagerSettings* Settings = GetDefault<UUIManagerSettings>();
@@ -56,7 +78,8 @@ void ULRStageWidget::RefreshUI()
 		Img_Star2->SetBrushFromTexture((ClearedData.StarMasking & 0b010) ? StarOnTexture : StarOffTexture);
 		Img_Star3->SetBrushFromTexture((ClearedData.StarMasking & 0b100) ? StarOnTexture : StarOffTexture);
 
-		if (ClearedData.bIsUnlocked)
+		
+		if (StageMgr->IsCheatStageUnlocked() || ClearedData.bIsUnlocked)
 		{
 			Btn_Open->SetIsEnabled(true);
 			Img_Base->SetBrushFromTexture(BaseOnTexture);
@@ -67,6 +90,11 @@ void ULRStageWidget::RefreshUI()
 			Img_Base->SetBrushFromTexture(BaseOffTexture);
 		}
 	}
+}
+
+void ULRStageWidget::RefreshOnChanged()
+{
+	RefreshUI();
 }
 
 void ULRStageWidget::SetStageID(FName InStageID)

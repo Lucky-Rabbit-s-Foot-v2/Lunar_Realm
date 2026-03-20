@@ -67,6 +67,22 @@ void ULRGameClearPopupWidget::InitializeUI()
 	}
 }
 
+void ULRGameClearPopupWidget::SetIsLastStage(bool bInIsLastStage)
+{
+	bIsLastStage = bInIsLastStage;
+
+	if (bIsLastStage)
+	{
+		Btn_NextStage->SetVisibility(ESlateVisibility::Collapsed);
+		Btn_NextStage->SetIsEnabled(false);
+	}
+	else
+	{
+		Btn_NextStage->SetVisibility(ESlateVisibility::Visible);
+		Btn_NextStage->SetIsEnabled(true);
+	}
+}
+
 void ULRGameClearPopupWidget::SetStarMasking(int32 InMasking)
 {
 	StarBox->SetStarMasking(InMasking);

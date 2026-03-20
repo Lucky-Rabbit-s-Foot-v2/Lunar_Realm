@@ -8,6 +8,7 @@
 #include "Components/TextBlock.h"
 
 #include "Subsystems/SaveGameSubsystem.h"
+#include "Subsystems/CurrencySubsystem.h"
 #include "Subsystems/GameDataSubsystem.h"
 
 #include "Engine/GameInstance.h"
@@ -20,19 +21,29 @@ void ULRCurrencyViewWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	if (UCurrencySubsystem* CurrencySubsystem = GetGameInstance()->GetSubsystem<UCurrencySubsystem>())
+	{
+		CurrencySubsystem->OnCurrencyChangedDel.RemoveAll(this);
+		CurrencySubsystem->OnCurrencyChangedDel.AddUniqueDynamic(this, &ULRCurrencyViewWidget::RefreshOnChanged);
+	}
+
 	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
 	{
-		SaveGameSubsystem->OnSaveGameLoadedDel.AddUniqueDynamic(this, &ULRCurrencyViewWidget::RefreshCurrencyAmountOnLoaded);
-		SaveGameSubsystem->OnSaveGameSavedDel.AddUniqueDynamic(this, &ULRCurrencyViewWidget::RefreshCurrencyAmountOnSaved);
+		SaveGameSubsystem->OnSaveGameLoadedDel.RemoveAll(this);
+		SaveGameSubsystem->OnSaveGameLoadedDel.AddUniqueDynamic(this, &ULRCurrencyViewWidget::RefreshOnLoaded);
 	}
 }
 
 void ULRCurrencyViewWidget::NativeDestruct()
 {
+	if (UCurrencySubsystem* CurrencySubsystem = GetGameInstance()->GetSubsystem<UCurrencySubsystem>())
+	{
+		CurrencySubsystem->OnCurrencyChangedDel.RemoveAll(this);
+	}
+
 	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
 	{
-		SaveGameSubsystem->OnSaveGameLoadedDel.RemoveDynamic(this, &ULRCurrencyViewWidget::RefreshCurrencyAmountOnLoaded);
-		SaveGameSubsystem->OnSaveGameSavedDel.RemoveDynamic(this, &ULRCurrencyViewWidget::RefreshCurrencyAmountOnSaved);
+		SaveGameSubsystem->OnSaveGameLoadedDel.RemoveAll(this);
 	}
 
 	Super::NativeDestruct();
@@ -69,12 +80,12 @@ void ULRCurrencyViewWidget::RefreshUI()
 	}
 }
 
-void ULRCurrencyViewWidget::RefreshCurrencyAmountOnSaved()
+void ULRCurrencyViewWidget::RefreshOnLoaded(ULRSaveGame* SaveGame)
 {
 	RefreshUI();
 }
 
-void ULRCurrencyViewWidget::RefreshCurrencyAmountOnLoaded(ULRSaveGame* SaveGame)
+void ULRCurrencyViewWidget::RefreshOnChanged()
 {
 	RefreshUI();
 }

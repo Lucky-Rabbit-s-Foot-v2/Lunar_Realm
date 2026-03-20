@@ -115,6 +115,12 @@ void ALRGachaOrbActor::PlayRevealToCenter(const FVector& InTargetWorldLocation)
 	bEmissiveAnimating = false;
 	bRevealFinished = false;
 
+	// 클릭 직후 시작 사운드 재생
+	if (USoundBase* StartSound = GetStartSoundByRarity(CachedResult.Rarity))
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, StartSound, GetActorLocation());
+	}
+
 	// 중앙 이동 시작 시 Idle Aura는 정지
 	if (IdleAura)
 	{
@@ -251,6 +257,19 @@ USoundBase* ALRGachaOrbActor::GetSoundByRarity(ELRGachaRarity Rarity) const
 	case ELRGachaRarity::SSR: return SoundSSR;
 	case ELRGachaRarity::UR:  return SoundUR;
 	default:                  return SoundN;
+	}
+}
+
+USoundBase* ALRGachaOrbActor::GetStartSoundByRarity(ELRGachaRarity Rarity) const
+{
+	switch (Rarity)
+	{
+	case ELRGachaRarity::N:   return StartSoundN;
+	case ELRGachaRarity::R:   return StartSoundR;
+	case ELRGachaRarity::SR:  return StartSoundSR;
+	case ELRGachaRarity::SSR: return StartSoundSSR;
+	case ELRGachaRarity::UR:  return StartSoundUR;
+	default:                  return nullptr;
 	}
 }
 

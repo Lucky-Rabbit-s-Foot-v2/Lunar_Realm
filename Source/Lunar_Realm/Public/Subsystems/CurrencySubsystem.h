@@ -16,6 +16,9 @@ class USaveGameSubsystem;
  * - SaveGameSubsystem을 통해 재화 조회/증가/소비를 한 곳에서 처리
  * - 게임 내 다른 시스템은 이 Subsystem만 알면 재화 접근 가능
  */
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAllCurrencyChanged);
+
 UCLASS()
 class LUNAR_REALM_API UCurrencySubsystem : public UGameInstanceSubsystem
 {
@@ -24,6 +27,9 @@ class LUNAR_REALM_API UCurrencySubsystem : public UGameInstanceSubsystem
 public:
 	// UGameInstanceSubsystem
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
+	UPROPERTY(BlueprintAssignable, Category = "LR|Currency")
+	FOnAllCurrencyChanged OnCurrencyChangedDel;
 
 	// ───────────────── 재화 API ─────────────────
 
