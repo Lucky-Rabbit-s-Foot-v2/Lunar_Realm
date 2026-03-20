@@ -74,6 +74,11 @@ namespace LRTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_HomingArrow_Cooldown); //GE
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_RapidSlash); //GA
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_RapidSlash_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_BloodPool); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_BloodPool_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_HomingFairyArrow); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_HomingFairyArrow_Cooldown); //GA
+
 
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Debuff_Poison); //GA
