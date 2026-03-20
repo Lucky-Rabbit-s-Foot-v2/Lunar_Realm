@@ -80,10 +80,10 @@ void ULRCombatComponent::TickComponent(float InDeltaTime, ELevelTick InTickType,
 	}
 	
 	// 기본공격 쿨다운
-	if (CurrentAttackCooldown > 0.0f)
-	{
-		CurrentAttackCooldown -= InDeltaTime;
-	}
+	//if (CurrentAttackCooldown > 0.0f)
+	//{
+	//	CurrentAttackCooldown -= InDeltaTime;
+	//}
 
 	ALRCharacter* OwnerCharacter = GetOwnerCharacter();
 	if (!OwnerCharacter) return;
@@ -208,10 +208,8 @@ void ULRCombatComponent::ProcessCombatLogic(ALRCharacter* InOwnerCharacter, floa
 			OwnerController->StopMovement();
 		}
 
-		if (CurrentAttackCooldown <= 0.0f)
-		{
-			AttemptAction(InDeltaTime);
-		}
+		AttemptAction(InDeltaTime);
+
 	}
 	else
 	{
@@ -269,6 +267,28 @@ void ULRCombatComponent::FindBestTarget()
 		return;
 	}
 
+	if (!CachedEnemyBase || !IsValid(CachedEnemyBase) || IsTargetDead(CachedEnemyBase))
+	{
+		TArray<AActor*> AllCores;
+
+		UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Enemy.Structure.Core"), AllCores);
+		if (AllCores.Num() > 0)
+		{
+			CachedEnemyBase = AllCores[0];
+		}
+		else
+		{
+			TArray<AActor*> AllEnemies;
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALREnemyCharacter::StaticClass(), AllEnemies);
+
+			if (AllEnemies.Num() > 0)
+			{
+				CachedEnemyBase = AllEnemies[0];
+				LR_INFO(TEXT("[Combat] 코어가 없어 보스(%s)를 타겟으로 캐싱"), *CachedEnemyBase->GetName());
+			}
+		}
+	}
+
 	if (CachedEnemyBase && IsValid(CachedEnemyBase))
 	{
 		CurrentTarget = CachedEnemyBase;
@@ -302,7 +322,6 @@ void ULRCombatComponent::AttemptAction(float InDeltaTime)
 		OwnerCharacter, LRTags::Ability_Combat_BasicShoot, EventData);
 
 	LR_INFO(TEXT("공격 성공 / 타겟 : %s"), *CurrentTarget->GetName());
-	CurrentAttackCooldown = 1.0f;
 }
 
 void ULRCombatComponent::MoveToTarget(float InDeltaTime)
