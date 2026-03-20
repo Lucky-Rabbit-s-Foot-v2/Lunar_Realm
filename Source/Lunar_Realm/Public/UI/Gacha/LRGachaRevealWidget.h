@@ -60,6 +60,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Reveal")
 	void NotifyTransitionFinished();
 
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Reveal")
+	void PlayCurrentColorRevealSound();
+
 protected:
 	// ───────────────── UMG 바인딩 ─────────────────
 
