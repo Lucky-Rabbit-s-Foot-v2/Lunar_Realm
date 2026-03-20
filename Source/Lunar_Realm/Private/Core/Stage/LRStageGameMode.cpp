@@ -104,6 +104,15 @@ void ALRStageGameMode::OpenGameClearPopupWidget(int32 InStarMasking)
 
 		UStageManagerSubsystem* StageMgr = GetGameInstance()->GetSubsystem<UStageManagerSubsystem>();
 		GameClearPopupWidget->SetStarMasking(InStarMasking);
+
+		if (StageMgr->GetCurrentStageID() == FName("DESERT_05"))
+		{
+			GameClearPopupWidget->SetIsLastStage(true);
+		}
+		else
+		{
+			GameClearPopupWidget->SetIsLastStage(false);
+		}
 	}
 }
 

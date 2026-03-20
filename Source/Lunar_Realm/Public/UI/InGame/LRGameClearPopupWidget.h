@@ -30,6 +30,7 @@ public:
 
 	virtual void InitializeUI() override;
 
+	void SetIsLastStage(bool bInIsLastStage) { bIsLastStage = bInIsLastStage; }
 	void SetStarMasking(int32 InMasking);
 
 	UFUNCTION(BlueprintCallable)
@@ -47,6 +48,8 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRStarBoxWidget> StarBox;
+
+	bool bIsLastStage = false;
 
 protected:
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
