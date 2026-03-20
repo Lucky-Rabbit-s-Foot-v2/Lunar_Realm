@@ -22,6 +22,7 @@
 
 
 ALRPlayerController::ALRPlayerController()
+	: ALRControllerBase()
 {
 	PlayerCameraManagerClass = ALRPlayerCameraManager::StaticClass();
 }

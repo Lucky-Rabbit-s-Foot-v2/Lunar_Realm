@@ -24,6 +24,8 @@ class LUNAR_REALM_API ALROutGameController : public ALRControllerBase
 	GENERATED_BODY()
 	
 public:
+	ALROutGameController();
+
 	virtual void OpenFirstWidget() override;
 
 	UFUNCTION(BlueprintCallable)

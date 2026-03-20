@@ -23,10 +23,16 @@ class LUNAR_REALM_API ULRStageWidget : public ULRBaseWidget
 	GENERATED_BODY()
 	
 public:
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
 	virtual void RefreshUI() override;
+
+	UFUNCTION(BlueprintCallable, Category = "LR|UI")
+	void RefreshOnChanged();
 
 	void SetStageID(FName InStageID);
 

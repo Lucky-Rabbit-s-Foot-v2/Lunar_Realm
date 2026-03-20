@@ -3,6 +3,13 @@
 
 #include "Units/LRControllerBase.h"
 
+#include "System/LRCheatManager.h"
+
+ALRControllerBase::ALRControllerBase()
+{
+	CheatClass = ULRCheatManager::StaticClass();
+}
+
 void ALRControllerBase::BeginPlay()
 {
 	Super::BeginPlay();

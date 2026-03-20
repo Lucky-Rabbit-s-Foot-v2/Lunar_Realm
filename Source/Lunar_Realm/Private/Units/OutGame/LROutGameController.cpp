@@ -10,6 +10,11 @@
 #include "Subsystems/UIManagerSubsystem.h"
 
 
+ALROutGameController::ALROutGameController()
+	: ALRControllerBase()
+{
+}
+
 void ALROutGameController::OpenFirstWidget()
 {
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
