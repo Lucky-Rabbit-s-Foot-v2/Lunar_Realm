@@ -24,6 +24,7 @@ class ALREnemyBossCharacter;
  // (260219) KWB 스폰 인터벌 버그 픽스, 주석 수정
  // (260317) KWB SpawnManger 통한 데이터 초기화로 리팩토링 / 용이한 테스트 위해 잠시 원복
  // (260318) KWB 보스 스폰 로직 추가 및 불필요 멤버 삭제, 예외 처리 로직 변경(보스 스테이지면 에너미 데이터 null 허용)
+ // (260322) KWB LRStageGameMode 통해서 스포너 시작 로직으로 수정
  //============================================================================
 UCLASS()
 class LUNAR_REALM_API ALREnemySpawner : public AActor
@@ -37,6 +38,16 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	// GameMode의 OnGameStarted 델리게이트 수신 핸들러
+	UFUNCTION()
+	void OnGameStarted();
+
+	// 데이터 준비 + 게임 시작 신호 둘 다 충족 시 스폰 시작
+	void TryStartSpawning();
+
+	//실제 스폰 타이머 시작 + 보스 스폰
+	void StartEnemySpawning();
 
 public:	
 	// Called every frame
@@ -108,6 +119,12 @@ protected:
 	bool bIsActivated = false;
 
 	FTimerHandle SpawnTimerHandle;
+
+	// 스테이지 데이터 초기화 완료 여부
+	bool bIsDataReady = false;
+
+	// GameMode로부터 게임 시작 신호 수신 여부
+	bool bIsGameStarted = false;
 
 private:
 	// 보스 스폰 시 탐지 거리 조정을 위한 오프셋

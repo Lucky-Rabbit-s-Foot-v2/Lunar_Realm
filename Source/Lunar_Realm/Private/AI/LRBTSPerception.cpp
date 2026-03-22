@@ -2,8 +2,12 @@
 
 
 #include "AI/LRBTSPerception.h"
+
+#include "AbilitySystemInterface.h"
+#include "AbilitySystemComponent.h"
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GAS/Tags/LRGameplayTags.h"
 #include "System/LoggingSystem.h"
 #include "Units/LRAIController.h"
 
@@ -40,6 +44,35 @@ void ULRBTSPerception::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 
 void ULRBTSPerception::UpdateHostileTarget(UBlackboardComponent* BB, ALRAIController* AIController)
 {
+	// TEST
+	// 적 캐릭터 추적 중, 타겟이 사망시 즉시 BB 클리어 => 뒤돌아 보는 버그 수정
+	if (BB->GetValueAsBool(LRBBKeys::HasNearbyHostile))
+	{
+		AActor* CurrentTarget = Cast<AActor>(BB->GetValueAsObject(LRBBKeys::TargetActor));
+		if (CurrentTarget)
+		{
+			bool bShouldDrop = false;
+
+			if (const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(CurrentTarget))
+			{
+				if (UAbilitySystemComponent* ASC = ASCInterface->GetAbilitySystemComponent())
+				{
+					if (ASC->HasMatchingGameplayTag(LRTags::State_Dead))
+					{
+						bShouldDrop = true;
+					}
+				}
+			}
+
+			if (bShouldDrop)
+			{
+				BB->SetValueAsObject(LRBBKeys::TargetActor, nullptr);
+				BB->SetValueAsBool(LRBBKeys::HasNearbyHostile, false);
+				AIController->StopMovement();
+			}
+		}
+	}
+
 	if (BB->GetValueAsObject(LRBBKeys::TargetCore) == nullptr)
 	{
 		AActor* CoreActor = AIController->FindTargetCore();
