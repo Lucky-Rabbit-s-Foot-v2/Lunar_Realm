@@ -56,8 +56,11 @@ void ULRGA_HomingArrow::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
 	InitData.Lifetime          = EffectData.Lifetime;
 	InitData.SpawnData         = SpawnData;
 
-	FRotator RightRotation = FRotationMatrix::MakeFromX(FVector::RightVector).Rotator();
-	SpawnProjectiles(ProjectileClass, InitData, RightRotation);
+	// (260322) BJM수정 : 맵 축이 바껴서 오른쪽으로 발싸하게된 코드가 뒤로 보내게됨 
+	FRotator BaseRotation = CachedInstigator->GetActorRotation();
+	SpawnProjectiles(ProjectileClass, InitData, BaseRotation);
+	//FRotator RightRotation = FRotationMatrix::MakeFromX(FVector::RightVector).Rotator();
+	//SpawnProjectiles(ProjectileClass, InitData, RightRotation);
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 }

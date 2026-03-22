@@ -72,12 +72,49 @@ namespace LRTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Pierce_Cooldown); //GE
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_HomingArrow); //GA
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_HomingArrow_Cooldown); //GE
+
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_RapidSlash); //GA
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_RapidSlash_Cooldown); //GE
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_BloodPool); //GA
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_BloodPool_Cooldown); //GE
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_HomingFairyArrow); //GA
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_HomingFairyArrow_Cooldown); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_HomingFairyArrow_Cooldown); //GE
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Anubis); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Anubis_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Army); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Army_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Binder); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Binder_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Demonia); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Demonia_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Enchanter); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Enchanter_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Guard); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Guard_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Hermit); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Hermit_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Hornet); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Hornet_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Looter); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Looter_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Maid); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Maid_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Merry); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Merry_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Noble); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Noble_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Outsider); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Outsider_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Pioneer); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Pioneer_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Rogue); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Rogue_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Tinker); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Tinker_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Tuner); //GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_Tuner_Cooldown); //GE
+
 
 
 	

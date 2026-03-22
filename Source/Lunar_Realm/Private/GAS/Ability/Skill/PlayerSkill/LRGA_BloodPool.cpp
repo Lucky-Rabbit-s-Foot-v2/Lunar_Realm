@@ -27,9 +27,18 @@ ULRGA_BloodPool::ULRGA_BloodPool()
 
 void ULRGA_BloodPool::OnAbilityActivated(const FGameplayAbilitySpecHandle InHandle, const FGameplayAbilityActorInfo* InActorInfo, const FGameplayAbilityActivationInfo InActivationInfo)
 {
-
-	if (!CachedInstigator || !AoEActorClass)
+	LR_INFO(TEXT("[BloodPool/Anubis] 스킬 발동 시작!"));
+		
+	if (!CachedInstigator)
 	{
+		LR_WARN(TEXT("에러: CachedInstigator가 없습니다!"));
+		EndAbility(InHandle, InActorInfo, InActivationInfo, true, true);
+		return;
+	}
+
+	if (!AoEActorClass)
+	{
+		LR_WARN(TEXT("에러: 블루프린트에 AoEActorClass가 안 들어있습니다!"));
 		EndAbility(InHandle, InActorInfo, InActivationInfo, true, true);
 		return;
 	}
@@ -57,10 +66,13 @@ void ULRGA_BloodPool::OnHitEventReceived(FGameplayEventData InPayload)
 	SpawnParams.Owner = const_cast<ALRCharacter*>(CachedInstigator.Get());
 	SpawnParams.Instigator = const_cast<ALRCharacter*>(CachedInstigator.Get());
 
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
 	ALRAoEActor* SpawnedAoE = GetWorld()->SpawnActor<ALRAoEActor>(AoEActorClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
 
 	if (SpawnedAoE)
 	{
+		LR_INFO(TEXT("[BloodPool/Anubis] 장판 스폰 완벽 성공!"));
 		float Radius = EffectData.Range > 0.f ? EffectData.Range : 400.0f;
 		float Duration = EffectData.Lifetime > 0.f ? EffectData.Lifetime : 5.0f;
 
@@ -72,5 +84,9 @@ void ULRGA_BloodPool::OnHitEventReceived(FGameplayEventData InPayload)
 			Radius,
 			Duration
 		);
+	}
+	else
+	{
+		LR_WARN(TEXT("에러: 장판 스폰에 실패했습니다! (충돌 문제일 가능성 높음)"));
 	}
 }
