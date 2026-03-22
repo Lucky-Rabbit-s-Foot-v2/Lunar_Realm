@@ -30,6 +30,10 @@ ULRGA_HornetSkill::ULRGA_HornetSkill()
 
 	CooldownTagContainer.Reset();
 	CooldownTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Hornet.Cooldown")));
+
+	// 스킬중에 평타 안나가게 막기
+	BlockAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Combat.BasicShoot")));
+	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Combat.BasicShoot")));
 }
 
 void ULRGA_HornetSkill::OnAbilityActivated(const FGameplayAbilitySpecHandle InHandle, const FGameplayAbilityActorInfo* InActorInfo, const FGameplayAbilityActivationInfo InActivationInfo)
