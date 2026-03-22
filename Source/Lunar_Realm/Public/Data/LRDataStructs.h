@@ -36,6 +36,7 @@
 // (260224) KHS 스킬효과 데이터 추가.
 // (260225) BJM 플레이어가 직접 조종할 때 쓸 단일 평타 GA
 // (260316) BJM 플레이어 Ingame 아이콘 테두리, GradeImage 추가
+// (260322) KWB FEnemySoundData 추가
 // =============================================================================
 
 USTRUCT(BlueprintType)
@@ -1264,4 +1265,48 @@ struct FStageClearedData
 		: StageID(InID), StarMasking(0), bIsUnlocked(false)
 	{
 	}
+};
+
+// =============================================================================
+/** * FEnemySoundData 구성 요소
+ * - 에너미 전용 사운드 데이터 (소리 및 고유 효과음)
+ * - 스킬1,스킬2 사운드, 피격 사운드, 발걸음 사운드, 사망 사운드
+ */
+ // =============================================================================
+
+//=============================================================================
+// (260322) KWB 제작.
+// =============================================================================
+
+USTRUCT(BlueprintType)
+struct FEnemySoundData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
+	FName EnemyID;
+
+	// 스킬 1
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Skill")
+	TSoftObjectPtr<USoundBase> Skill1Sound;
+
+	// 스킬 2
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Skill")
+	TSoftObjectPtr<USoundBase> Skill2Sound;
+
+	// 피격음
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Effect")
+	TArray<TSoftObjectPtr<USoundBase>> HitSound;
+
+	// 발소리
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Effect")
+	TArray<TSoftObjectPtr<USoundBase>> FootstepSounds;
+
+	// 사망
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Effect")
+	TSoftObjectPtr<USoundBase> DeathSound;
+
+	// 등장 대사 (보스만 존재 예정)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Voice")
+	TSoftObjectPtr<USoundBase> IntroVoice;
 };

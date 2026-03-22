@@ -16,6 +16,7 @@
 #include "Engine/SkeletalMesh.h"
 
 #include "GAS/Attributes/LREnemyAttributeSet.h"
+#include "GAS/Tags/LRGameplayTags.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "NiagaraComponent.h"
@@ -61,6 +62,7 @@ void ALREnemyCharacter::OnDie()
 	if (AbilitySystemComponent && UnitTag.IsValid())
 	{
 		AbilitySystemComponent->SetLooseGameplayTagCount(UnitTag, 0);
+		AbilitySystemComponent->AddLooseGameplayTag(LRTags::State_Dead);
 	}
 
 	// 게임 스테이트에 에테르 추가
@@ -616,6 +618,12 @@ void ALREnemyCharacter::OnPoolActivate_Implementation()
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+
+		AbilitySystemComponent->RemoveLooseGameplayTag(LRTags::State_Dead);
+		if (UnitTag.IsValid())
+		{
+			AbilitySystemComponent->AddLooseGameplayTag(UnitTag);
+		}
 	}
 
 	IsDead = false;

@@ -209,11 +209,34 @@ void ALRStageGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CleanupUnusedCores();
+	OnInitializeStage();
 
-	//BGM
+	// 게임 시작 연출 시간
+	GetWorldTimerManager().SetTimer(
+		GameStartTimerHandle,
+		this,
+		&ALRStageGameMode::StartGame,
+		GameStartDelay,
+		false); // repeat = false
+}
+
+void ALRStageGameMode::OnInitializeStage()
+{
+	// 기존 BeginPlay에 있던 초기화 로직을 이쪽으로 이동
+	CleanupUnusedCores();
 	PlayBGM();
-	
+
+	// TEST
+	// TODO: 추후 Ready~/Start!! UI 표시 로직 추가
+	LR_INFO(TEXT("[GameMode] 스테이지 초기화 완료!!! %.1f 초 뒤 본 게임 시작[시작 연출 삽입 필요!]"), GameStartDelay);
+}
+
+void ALRStageGameMode::StartGame()
+{
+	// TEST
+	LR_INFO(TEXT("[GameMode] Game Start! Broadcasting OnGameStarted delegate."));
+
+	OnGameStarted.Broadcast();
 }
 
 void ALRStageGameMode::PlayBGM()
