@@ -72,8 +72,7 @@ void ULRGA_ArmySkill::PerformStrikeLogic()
 	ALRCharacter* OwnerChar = Cast<ALRCharacter>(GetAvatarActorFromActorInfo());
 	if (!OwnerChar) return;
 
-	// 캐릭터 앞쪽으로(ForwardVector) 타격 중심점 잡기 (예: 200만큼 앞)
-	FVector StrikeCenter = OwnerChar->GetActorLocation() + (OwnerChar->GetActorForwardVector() * 200.0f);
+	FVector StrikeCenter = OwnerChar->GetActorLocation() + (OwnerChar->GetActorForwardVector() * StrikeDistance);
 
 	FGameplayTag HostileTag = GetHostileTeamTag();
 
@@ -90,6 +89,10 @@ void ULRGA_ArmySkill::PerformStrikeLogic()
 	DrawDebugSphere(GetWorld(), StrikeCenter, CachedHitRadius, 16, FColor::Red, false, 0.5f);
 #endif
 
+	UGameInstance* GI = GetWorld()->GetGameInstance();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+	const FSkillResourceData* ResourceData = (DataSys && CachedResourceID != NAME_None) ? &DataSys->GetSkillResourceData(CachedResourceID) : nullptr;
+
 	for (AActor* HitActor : OutActors)
 	{
 		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
@@ -102,26 +105,33 @@ void ULRGA_ArmySkill::PerformStrikeLogic()
 			if (SpecHandle.IsValid())
 			{
 				GetOwnerASC()->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+
+				if (ResourceData)
+				{
+					if (UNiagaraSystem* LoadedImpactVFX = ResourceData->ImpactVFX.LoadSynchronous())
+					{
+						UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), LoadedImpactVFX, HitActor->GetActorLocation());
+					}
+
+					if (USoundBase* LoadedImpactSFX = ResourceData->ImpactSFX.LoadSynchronous())
+					{
+						UGameplayStatics::PlaySoundAtLocation(this, LoadedImpactSFX, HitActor->GetActorLocation());
+					}
+				}
 			}
 		}
 	}
 
-	UGameInstance* GI = GetWorld()->GetGameInstance();
-	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
-
-	if (DataSys && CachedResourceID != NAME_None)
+	if (ResourceData)
 	{
-		const FSkillResourceData& ResourceData = DataSys->GetSkillResourceData(CachedResourceID);
-
-		if (UNiagaraSystem* LoadedVFX = ResourceData.SpawnVFX.LoadSynchronous())
+		if (UNiagaraSystem* LoadedVFX = ResourceData->SpawnVFX.LoadSynchronous())
 		{
-			// 캐릭터가 바라보는 방향에 맞춰 이펙트 재생
 			FRotator SpawnRot = OwnerChar->GetActorRotation();
 			FVector Scale(1.0f, 1.0f, 1.0f);
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), LoadedVFX, StrikeCenter, SpawnRot, Scale);
 		}
 
-		if (USoundBase* LoadedSFX = ResourceData.SpawnSFX.LoadSynchronous())
+		if (USoundBase* LoadedSFX = ResourceData->SpawnSFX.LoadSynchronous())
 		{
 			UGameplayStatics::PlaySoundAtLocation(this, LoadedSFX, StrikeCenter);
 		}
@@ -130,6 +140,5 @@ void ULRGA_ArmySkill::PerformStrikeLogic()
 
 void ULRGA_ArmySkill::OnStrikeMontageFinished()
 {
-	// 몽타주가 끝나면 스킬 깔끔하게 종료
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }

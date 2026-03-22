@@ -35,4 +35,8 @@ private:
 	float CachedHitRadius;
 	FName CachedResourceID;
 
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "LR|Skill")
+	float StrikeDistance = 200.0f;
+
 };
