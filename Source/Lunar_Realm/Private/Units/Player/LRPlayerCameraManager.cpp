@@ -51,7 +51,7 @@ void ALRPlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTi
 	float NewZ = CapturedZ;
 	float NewY = TargetLoc.Y + CurrentCameraOffset;
 
-
+	NewY = FMath::Clamp(NewY, StageMinY, StageMaxY);
 
 	FVector DesiredLoc = FVector(NewX, NewY, NewZ);
 	FRotator DesiredRot = FRotator(CameraPitch, CameraYaw, 0.0f);
@@ -74,4 +74,15 @@ void ALRPlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTi
 
 	//OutVT.POV.FOV = 90.0f;
 
+}
+
+void ALRPlayerCameraManager::SetStageCameraBounds(float InMinY, float InMaxY)
+{
+	StageMinY = InMinY;
+	StageMaxY = InMaxY;
+}
+
+void ALRPlayerCameraManager::ResetCameraInitialization()
+{
+	bIsInitialized = false;
 }
