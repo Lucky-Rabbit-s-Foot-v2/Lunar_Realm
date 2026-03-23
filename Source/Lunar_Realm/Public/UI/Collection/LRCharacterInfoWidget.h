@@ -22,7 +22,9 @@ public:
 	virtual void RegisterSubWidgets() override;
 
 	UFUNCTION(BlueprintCallable)
-	void SetCharacterID(FName InID);
+	void SetCharacterIDCall(FName InID);
+
+	void SetCharacterID(const FName& InID);
 
 	FName GetCharacterID() const { return CharacterID; }
 
@@ -31,16 +33,10 @@ public:
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Grade;
-	
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Main;
+	TObjectPtr<class ULRCharacterCard> CharacterCard;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Skill;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UTextBlock> Txt_Description;
+	TObjectPtr<class ULRSkillInfoWidget> SkillInfo;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRButtonWidget> Btn_Enhance;

@@ -21,13 +21,16 @@
 
 #include "UI/Core/LRButtonWidget.h"
 
+#include "UI/Common/LRCharacterCard.h"
+#include "UI/Collection/LRSkillInfoWidget.h"
+
 void ULRCharacterInfoWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
 	if(ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
-		PC->OnSelectedCharacterChangedDel.AddUniqueDynamic(this, &ULRCharacterInfoWidget::SetCharacterID);
+		PC->OnSelectedCharacterChangedDel.AddUniqueDynamic(this, &ULRCharacterInfoWidget::SetCharacterIDCall);
 	}
 }
 
@@ -35,35 +38,23 @@ void ULRCharacterInfoWidget::RefreshUI()
 {
 	Super::RefreshUI();
 
-
+	FName SkillID = NAME_None;
 	if (USaveGameSubsystem* SaveGameSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
 	{
-		if(CharacterID.IsNone())
+		if (CharacterID.IsNone())
 		{
 			CharacterID = SaveGameSubsystem->GetLeaderCharacterID();
 		}
-
-		FCharacterStaticData CharacterStaticData = GetGameInstance()->GetSubsystem<UGameDataSubsystem>()->GetCharacterStaticData(CharacterID);
-		Img_Main->SetBrushFromTexture(CharacterStaticData.PortraitIcon.LoadSynchronous());
-		Img_Grade->SetBrushFromTexture(CharacterStaticData.GradeImage.LoadSynchronous());
-
-		FName SkillID = CharacterStaticData.SkillIDs.IsValidIndex(0) ? CharacterStaticData.SkillIDs[0] : NAME_None;
-		if (SkillID != NAME_None)
+		
+		if (UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>())
 		{
-			if (UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>())
-			{
-				UTexture2D* SkillIcon = GameDataSubsystem->GetSkillIcon(SkillID).LoadSynchronous();
-				Img_Skill->SetBrushFromTexture(SkillIcon ? SkillIcon : DefaultImage);
-			}
-		}
-		else
-		{
-			Img_Skill->SetBrushFromTexture(DefaultImage);
+			const FCharacterStaticData& CharacterStaticData = GameDataSubsystem->GetCharacterStaticData(CharacterID);
+			SkillID = CharacterStaticData.SkillIDs.IsValidIndex(0) ? CharacterStaticData.SkillIDs[0] : NAME_None;
 		}
 	}
-
+	SkillInfo->SetSkillID(SkillID);
+	CharacterCard->SetCharacterID(CharacterID);
 	CharacterStatus->SetCharacterID(CharacterID);
-	CharacterStatus->RefreshUI();
 }
 
 void ULRCharacterInfoWidget::BindSubWidgets()
@@ -80,10 +71,17 @@ void ULRCharacterInfoWidget::RegisterSubWidgets()
 {
 	Super::RegisterSubWidgets();
 
+	SubWidgets.Add(CharacterCard);
+	SubWidgets.Add(SkillInfo);
 	SubWidgets.Add(CharacterStatus);
 }
 
-void ULRCharacterInfoWidget::SetCharacterID(FName InID)
+void ULRCharacterInfoWidget::SetCharacterIDCall(FName InID)
+{
+	SetCharacterID(InID);
+}
+
+void ULRCharacterInfoWidget::SetCharacterID(const FName& InID)
 {
 	CharacterID = InID;
 	RefreshUI();

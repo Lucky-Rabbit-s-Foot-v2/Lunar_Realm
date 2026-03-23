@@ -17,6 +17,8 @@ class LUNAR_REALM_API ULREnhancePageWidget : public ULRPageWidget
 public:
 	virtual void RegisterSubWidgets() override;
 
+	virtual void InitializeUI() override;
+
 	void SetCharacterID(FName InID);
 
 protected:
