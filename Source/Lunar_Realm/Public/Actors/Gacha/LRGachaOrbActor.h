@@ -162,6 +162,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
 	TObjectPtr<USoundBase> StartSoundUR;
 
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings|Sound")
+	float StartSoundDelay = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings|Sound")
+	float SoundDelay = 0.08f;
+
 	// ===== Tuning Parameters (BP에서 조정) ===============================
 
 	/** 중앙으로 이동하는 시간 */

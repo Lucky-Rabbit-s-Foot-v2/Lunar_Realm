@@ -118,7 +118,34 @@ void ALRGachaOrbActor::PlayRevealToCenter(const FVector& InTargetWorldLocation)
 	// 클릭 직후 시작 사운드 재생
 	if (USoundBase* StartSound = GetStartSoundByRarity(CachedResult.Rarity))
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, StartSound, GetActorLocation());
+		if (StartSoundDelay <= 0.f)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, StartSound, GetActorLocation());
+		}
+		else
+		{
+			FTimerHandle TempHandle;
+			TWeakObjectPtr<ALRGachaOrbActor> WeakThis(this);
+
+			GetWorld()->GetTimerManager().SetTimer(
+				TempHandle,
+				[WeakThis, StartSound]()
+				{
+					if (!WeakThis.IsValid())
+					{
+						return;
+					}
+
+					UGameplayStatics::PlaySoundAtLocation(
+						WeakThis.Get(),
+						StartSound,
+						WeakThis->GetActorLocation()
+					);
+				},
+				StartSoundDelay,
+				false
+			);
+		}
 	}
 
 	// 중앙 이동 시작 시 Idle Aura는 정지
@@ -176,7 +203,34 @@ void ALRGachaOrbActor::OnMoveToCenterFinished()
 
 	if (USoundBase* Sound = GetSoundByRarity(CachedResult.Rarity))
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, Sound, GetActorLocation());
+		if (SoundDelay <= 0.f)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, Sound, GetActorLocation());
+		}
+		else
+		{
+			FTimerHandle TempHandle;
+			TWeakObjectPtr<ALRGachaOrbActor> WeakThis(this);
+
+			GetWorld()->GetTimerManager().SetTimer(
+				TempHandle,
+				[WeakThis, Sound]()
+				{
+					if (!WeakThis.IsValid())
+					{
+						return;
+					}
+
+					UGameplayStatics::PlaySoundAtLocation(
+						WeakThis.Get(),
+						Sound,
+						WeakThis->GetActorLocation()
+					);
+				},
+				SoundDelay,
+				false
+			);
+		}
 	}
 }
 
