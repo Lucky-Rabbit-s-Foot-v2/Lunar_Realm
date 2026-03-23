@@ -79,6 +79,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Sound")
 	TObjectPtr<USoundBase> ResultOverlayOpenSound;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Reveal|Sound")
+	TObjectPtr<USoundBase> RevealStageBGMSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Gacha|Reveal|Sound", meta = (ClampMin = "0.0", ClampMax = "2.0"))
+	float RevealStageBGMVolume = 1.0f;
+
 	/** 문양 인트로/전환용 오버레이 */
 	UPROPERTY(BlueprintReadOnly, Category = "LR|Gacha|Reveal", meta = (BindWidgetOptional, AllowPrivateAccess = "true"))
 	TObjectPtr<UWidget> TransitionOverlay;
@@ -228,6 +234,10 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<UAudioComponent> ActiveRevealSFXComponent = nullptr;
 
+	/** 가챠 리빌 배경음 컴포넌트 */
+	UPROPERTY(Transient)
+	TObjectPtr<UAudioComponent> RevealStageBGMComponent = nullptr;
+
 	/** 리빌 사운드 지연 재생용 타이머 */
 	FTimerHandle TimerRevealSFXDelay;
 
@@ -236,9 +246,13 @@ private:
 	UTexture2D* GetRarityTextureByRarity(ELRGachaRarity Rarity) const;
 	UTexture2D* GetTransitionMagicTextureByRarity(ELRGachaRarity Rarity) const;
 
+	void StartRevealStageBGM();
+	void StopRevealStageBGM();
+
 	void StopActiveRevealSFX();
 	void StopAllResultSlotSounds();
 	void StopAllPreviousStageSounds();
+
 	void ApplyTransitionTexturesByRarity(ELRGachaRarity Rarity);
 	void ResetTransitionVisuals();
 	void ShowFinalResultOverlay();

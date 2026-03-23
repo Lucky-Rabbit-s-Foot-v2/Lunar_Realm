@@ -51,6 +51,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Orb")
 	void StopAllOrbSounds();
 
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Orb")
+	void CancelRevealAndStopAllEffects();
+
 	ALRGachaOrbActor();
 
 	/** (SceneActor가 바인딩) 이 Orb의 인덱스 세팅 */
@@ -262,6 +265,12 @@ private:
 
 	/** 중앙 유지 후 종료용 타이머 */
 	FTimerHandle TimerFinishReveal;
+
+	/** 시작 사운드 지연 재생용 타이머 */
+	FTimerHandle TimerStartSoundDelay;
+
+	/** 중앙 도착 사운드 지연 재생용 타이머 */
+	FTimerHandle TimerMainSoundDelay;
 
 	// ===== Internal Functions =============================================
 
