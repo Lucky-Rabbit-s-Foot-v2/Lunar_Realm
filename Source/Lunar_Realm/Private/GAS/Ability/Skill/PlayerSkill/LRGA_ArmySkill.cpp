@@ -15,6 +15,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 
 
+
 ULRGA_ArmySkill::ULRGA_ArmySkill()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;

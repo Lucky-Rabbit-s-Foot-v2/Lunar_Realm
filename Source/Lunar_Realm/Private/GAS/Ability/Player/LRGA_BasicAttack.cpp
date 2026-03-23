@@ -17,6 +17,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Subsystems/GameDataSubsystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/GameInstance.h"
 
 
 ULRGA_BasicAttack::ULRGA_BasicAttack()
