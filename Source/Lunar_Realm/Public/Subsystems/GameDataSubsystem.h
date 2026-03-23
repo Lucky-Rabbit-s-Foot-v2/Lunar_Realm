@@ -31,6 +31,7 @@
 // (260226) KHS 스킬 기획 변경에 따른 헬퍼함수 추가.
 // (260318) BJM 캐릭터 사운드 데이터 처리 핸들러 추가.
 // (260320) BJM 스킬 아이콘 데이터 헬퍼함수 추가
+// (260322) KWB 에너미 사운드 데이터 처리 핸들러 추가.
 // =============================================================================
 
 UCLASS()
@@ -139,6 +140,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Enemy")
 	TArray<FName> GetAllEnemyIDs();
 	
+	// 에너미 사운드 데이터 조회(260322 KWB)
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Enemy|Sound")
+	const FEnemySoundData& GetEnemySoundData(FName EnemyID) const;
+
 	// ========================================
 	// 스테이지 정적 데이터 조회
 	// ========================================
@@ -298,6 +303,9 @@ private:
 	//에너미 정적 데이터 캐시
 	UPROPERTY()
 	TMap<FName, FEnemyStaticData> CachedEnemyStaticData;
+	//(260323) KWB 에너미 사운드 데이터 캐시
+	UPROPERTY()
+	TMap<FName, FEnemySoundData> CachedEnemySoundData;
 	//스테이지 정적 데이터 캐시
 	UPROPERTY()
 	TMap<FName, FStageStaticData> CachedStageStaticData;
@@ -323,6 +331,7 @@ private:
 	static FSkillHitAreaData EmptySkillHitAreaData;
 	static FStatusEffectData EmptyStatusEffectData;
 	static FEnemyStaticData EmptyEnemyStaticData;
+	static FEnemySoundData EmptyEnemySoundData;
 	static FStageStaticData EmptyStageStaticData;
 	static FChapterStaticData EmptyChapterStaticData;
 	static FCurrencyStaticData EmptyCurrencyStaticData;

@@ -21,6 +21,7 @@ FFlightExplodeData		UGameDataSubsystem::EmptyFlightExplodeData;
 FSkillHitAreaData		UGameDataSubsystem::EmptySkillHitAreaData;
 FStatusEffectData		UGameDataSubsystem::EmptyStatusEffectData;
 FEnemyStaticData		UGameDataSubsystem::EmptyEnemyStaticData;
+FEnemySoundData			UGameDataSubsystem::EmptyEnemySoundData;
 FStageStaticData		UGameDataSubsystem::EmptyStageStaticData;
 FChapterStaticData		UGameDataSubsystem::EmptyChapterStaticData;
 FCurrencyStaticData		UGameDataSubsystem::EmptyCurrencyStaticData;
@@ -565,6 +566,12 @@ TArray<FName> UGameDataSubsystem::GetAllEnemyIDs()
 	LR_INFO(TEXT("Found %d Enemy"), EnemyIDs.Num());
 	
 	return EnemyIDs;
+}
+
+// (260322) KWB, 에너미 사운드 데이터 조회 함수 추가
+const FEnemySoundData& UGameDataSubsystem::GetEnemySoundData(FName EnemyID) const
+{
+	return GetCachedData(CachedEnemySoundData, EnemyID, EmptyEnemySoundData, TEXT("EnemySoundData"));
 }
 
 const FStageStaticData& UGameDataSubsystem::GetStageStaticData(FName StageID) const

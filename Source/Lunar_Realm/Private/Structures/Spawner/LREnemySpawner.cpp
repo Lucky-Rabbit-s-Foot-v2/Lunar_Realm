@@ -3,6 +3,7 @@
 
 #include "Structures/Spawner/LREnemySpawner.h"
 #include "Components/BoxComponent.h"
+#include "Core/Stage/LRStageGameMode.h"
 #include "Engine/GameInstance.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Subsystems/StageManagerSubsystem.h" // TEST : 실제 빌드 전 해제 
@@ -50,6 +51,57 @@ void ALREnemySpawner::BeginPlay()
 	{
 		// TEST
 		LR_INFO(TEXT("EnemySpawner(%s): Waiting for stage [%s] (current: [%s])"), *GetName(), *StageIDToActivate.ToString(), *CurrentLoadedStageID.ToString());
+	}
+
+	if (ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		StageGM->OnGameStarted.AddDynamic(this, &ALREnemySpawner::OnGameStarted);
+	}
+	else
+	{
+		LR_WARN(TEXT("EnemySpawner(%s): StageGameMode not found — cannot bind OnGameStarted"), *GetName());
+	}
+}
+
+void ALREnemySpawner::OnGameStarted()
+{
+	// TEST
+	LR_INFO(TEXT("EnemySpawner(%s): Received game start signal"), *GetName());
+	bIsGameStarted = true;
+	TryStartSpawning();
+}
+
+void ALREnemySpawner::TryStartSpawning()
+{
+	if (!bIsDataReady || !bIsGameStarted)
+	{
+		return;
+	}
+
+	StartEnemySpawning();
+}
+
+void ALREnemySpawner::StartEnemySpawning()
+{
+	// TEST
+	LR_INFO(TEXT("EnemySpawner(%s): Starting to spawn enemies!"), *GetName());
+
+	// 보스 스테이지 처리
+	if (bIsBossStage && CachedBossEnemyID != NAME_None)
+	{
+		SpawnBoss();
+	}
+
+	// 스폰 타이머 시작
+	const float Rate = FMath::Max(CurrentSpawnInterval, 0.05f);
+	if (WaitTime <= 0.0f)
+	{
+		SpawnEnemy();
+		GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy, Rate, true);
+	}
+	else
+	{
+		GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy, Rate, true, WaitTime);
 	}
 }
 
@@ -228,23 +280,29 @@ void ALREnemySpawner::ActivateSpawner()
 		PoolSys->InitializePool(EnemyClass, PrewarmCount);
 	}
 
-	// 보스 스테이지 처리
-	if (bIsBossStage && CachedBossEnemyID != NAME_None)
-	{
-		SpawnBoss();
-	}
+	bIsDataReady = true;
 
-	// 스폰 타이머 시작
-	const float Rate = FMath::Max(CurrentSpawnInterval, 0.05f);
-	if (WaitTime <= 0.0f)
-	{
-		SpawnEnemy();
-		GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy, Rate, true);
-	}
-	else
-	{
-		GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy, Rate, true, WaitTime);
-	}
+	TryStartSpawning();
+
+	// TEST
+	// 하위 로직 [TryStartSpawning()] 에서 처리
+	//// 보스 스테이지 처리
+	//if (bIsBossStage && CachedBossEnemyID != NAME_None)
+	//{
+	//	SpawnBoss();
+	//}
+
+	//// 스폰 타이머 시작
+	//const float Rate = FMath::Max(CurrentSpawnInterval, 0.05f);
+	//if (WaitTime <= 0.0f)
+	//{
+	//	SpawnEnemy();
+	//	GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy, Rate, true);
+	//}
+	//else
+	//{
+	//	GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALREnemySpawner::SpawnEnemy, Rate, true, WaitTime);
+	//}
 }
 
 void ALREnemySpawner::DeactivateSpawner()
