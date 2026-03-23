@@ -373,6 +373,9 @@ void ULRGachaRevealWidget::OnClickSkip()
 		return;
 	}
 
+	// 스킵 진입 즉시 모든 구슬 리빌 진행/지연 사운드/틱을 강제 중단
+	OrbSceneActor->CancelAllOrbRevealsAndSounds();
+
 	// 전환 애니메이션 중 스킵하면 캐릭터 등장화면으로 가지 말고
 	// 바로 최종 결과창으로 직행
 	if (bTransitionPlaying)

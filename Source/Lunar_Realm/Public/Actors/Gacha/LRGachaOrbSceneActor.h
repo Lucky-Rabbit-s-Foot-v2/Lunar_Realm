@@ -110,6 +110,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Scene")
 	void StopAllOrbSounds();
 
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Scene")
+	void CancelAllOrbRevealsAndSounds();
+
 protected:
 	// ===== Root ============================================================
 

@@ -263,6 +263,8 @@ void ALRGachaOrbSceneActor::OnTapCenterOrb()
 
 void ALRGachaOrbSceneActor::SkipAllReveal()
 {
+	CancelAllOrbRevealsAndSounds();
+
 	for (int32 i = 0; i < OrbActors.Num(); i++)
 	{
 		if (OrbStates[i] != ELROrbState::Revealed)
@@ -551,6 +553,17 @@ void ALRGachaOrbSceneActor::StopAllOrbSounds()
 		if (ALRGachaOrbActor* TypedOrb = Cast<ALRGachaOrbActor>(Orb))
 		{
 			TypedOrb->StopAllOrbSounds();
+		}
+	}
+}
+
+void ALRGachaOrbSceneActor::CancelAllOrbRevealsAndSounds()
+{
+	for (AActor* Orb : OrbActors)
+	{
+		if (ALRGachaOrbActor* TypedOrb = Cast<ALRGachaOrbActor>(Orb))
+		{
+			TypedOrb->CancelRevealAndStopAllEffects();
 		}
 	}
 }
