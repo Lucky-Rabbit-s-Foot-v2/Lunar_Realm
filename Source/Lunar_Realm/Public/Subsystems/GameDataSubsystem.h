@@ -171,8 +171,11 @@ private:
 	//초기 데이터 캐싱
 	void CacheAllData();
 	
+public:
 	// 베이스 스탯 가져오기 (CurveTable에서 레벨에 따른 값)
 	float GetBaseStatAtLevel(ELRStatusType StatusType, int32 Level);
+
+protected:
 	// 스테이터스 승수값 가져오기 (캐싱 없음)
 	float GetStatusMultiplier(FName CharacterID, ELRStatusType StatusType);
 	// 착용 장비 보너스 데이터 가져오기

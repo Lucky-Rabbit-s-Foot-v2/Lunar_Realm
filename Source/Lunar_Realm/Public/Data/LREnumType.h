@@ -150,6 +150,7 @@ enum class ELRStatusType : uint8
 	HP,
 	ATK,
 	DEF,
+	EXP,
 	MAX UMETA(Hidden)
 };
 
