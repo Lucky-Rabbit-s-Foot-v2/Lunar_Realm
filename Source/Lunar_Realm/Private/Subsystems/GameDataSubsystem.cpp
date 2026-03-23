@@ -100,6 +100,7 @@ float UGameDataSubsystem::GetStatusMultiplier(FName CharacterID, ELRStatusType S
 	case ELRStatusType::HP: return data.HPMultiplier;
 	case ELRStatusType::ATK: return data.AttackMultiplier;
 	case ELRStatusType::DEF : return data.DefenseMultiplier;
+	
 	default:
 		{
 			LR_WARN(TEXT("Invalid EnumType"));
@@ -213,6 +214,7 @@ FName UGameDataSubsystem::StatTypeToName(ELRStatusType StatusType)
 	case ELRStatusType::HP : return FName(TEXT("HP")); 
 	case ELRStatusType::ATK: return FName(TEXT("ATK"));
 	case ELRStatusType::DEF : return FName(TEXT("DEF"));
+	case ELRStatusType::EXP : return FName(TEXT("EXP"));
 	
 	default:
 		{
