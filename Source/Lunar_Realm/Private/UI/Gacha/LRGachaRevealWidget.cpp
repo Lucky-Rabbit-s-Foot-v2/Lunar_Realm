@@ -66,6 +66,7 @@ void ULRGachaRevealWidget::NativeDestruct()
 	}
 
 	StopAllPreviousStageSounds();
+	StopRevealStageBGM();
 
 	CachedResultSlotWidgets.Empty();
 
@@ -148,6 +149,8 @@ void ULRGachaRevealWidget::StartReveal(FName InBannerID, const TArray<FLRGachaRe
 
 	ResetTransitionVisuals();
 
+	StartRevealStageBGM();
+
 	ForceUIInputNextTick();
 
 	FindOrSpawnOrbSceneActor();
@@ -173,6 +176,7 @@ void ULRGachaRevealWidget::StartReveal(FName InBannerID, const TArray<FLRGachaRe
 void ULRGachaRevealWidget::FinishAndClose()
 {
 	StopAllPreviousStageSounds();
+	StopRevealStageBGM();
 
 	if (UGameInstance* GI = GetGameInstance())
 	{
@@ -1095,6 +1099,7 @@ void ULRGachaRevealWidget::ResetTransitionVisuals()
 void ULRGachaRevealWidget::ShowFinalResultOverlay()
 {
 	StopAllPreviousStageSounds();
+	StopRevealStageBGM();
 
 	if (bResultOverlayShown)
 	{
@@ -1162,5 +1167,35 @@ void ULRGachaRevealWidget::StopAllPreviousStageSounds()
 	if (OrbSceneActor)
 	{
 		OrbSceneActor->StopAllOrbSounds();
+	}
+}
+
+void ULRGachaRevealWidget::StartRevealStageBGM()
+{
+	if (!RevealStageBGMSound)
+	{
+		return;
+	}
+
+	if (RevealStageBGMComponent && RevealStageBGMComponent->IsPlaying())
+	{
+		return;
+	}
+
+	RevealStageBGMComponent = UGameplayStatics::SpawnSound2D(this, RevealStageBGMSound);
+	if (RevealStageBGMComponent)
+	{
+		RevealStageBGMComponent->SetVolumeMultiplier(RevealStageBGMVolume);
+		RevealStageBGMComponent->bIsUISound = true;
+		RevealStageBGMComponent->bAutoDestroy = false;
+	}
+}
+
+void ULRGachaRevealWidget::StopRevealStageBGM()
+{
+	if (RevealStageBGMComponent)
+	{
+		RevealStageBGMComponent->Stop();
+		RevealStageBGMComponent = nullptr;
 	}
 }
