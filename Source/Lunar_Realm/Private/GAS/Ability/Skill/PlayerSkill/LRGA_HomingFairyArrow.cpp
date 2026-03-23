@@ -72,10 +72,8 @@ void ULRGA_HomingFairyArrow::SpawnDistributedArrows(TSubclassOf<ALRProjectile> I
 	IgnoreActors.Add(const_cast<ALRCharacter*>(CachedInstigator.Get()));
 
 	TArray<AActor*> OutActors;
-	// 반경 1500 내의 적들 스캔
 	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), CachedInstigator->GetActorLocation(), 1500.0f, ObjectTypes, AActor::StaticClass(), IgnoreActors, OutActors);
 
-	// 진짜 살아있는 적대적 타겟만 추려내기
 	TArray<AActor*> ValidEnemies;
 	FGameplayTag HostileTag = GetHostileTeamTag();
 
@@ -96,7 +94,7 @@ void ULRGA_HomingFairyArrow::SpawnDistributedArrows(TSubclassOf<ALRProjectile> I
 	{
 		FSkillObjectInitData ArrowData = InInitData;
 
-		// 360도 원형(CIRCLE)으로 쏘기 위한 각도 계산
+		// 360도 원형으로 쏘기 위한 각도 계산
 		FVector SpawnLocation = CachedInstigator->GetActorLocation() + CachedInstigator->GetActorForwardVector() * 50.f;
 		FRotator SpawnRotation = BaseRotation;
 
@@ -106,7 +104,6 @@ void ULRGA_HomingFairyArrow::SpawnDistributedArrows(TSubclassOf<ALRProjectile> I
 			SpawnRotation.Yaw += Yaw;
 		}
 
-		// 액터 스폰 세팅
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = const_cast<ALRCharacter*>(CachedInstigator.Get());
 		SpawnParams.Instigator = const_cast<ALRCharacter*>(CachedInstigator.Get());
@@ -118,35 +115,34 @@ void ULRGA_HomingFairyArrow::SpawnDistributedArrows(TSubclassOf<ALRProjectile> I
 
 			Projectile->InitSkillObject(ArrowData);
 
-			// 2. 🎯 즉시 켜진 유도를 강제로 끄고, 0.3초 뒤에 켜지도록 '타이머' 예약!
+			// 즉시 켜진 유도를 강제로 끄고, 0.3초 뒤에 켜지도록 타이머 예약
 			if (ValidEnemies.Num() > 0)
 			{
 				AActor* AssignedTarget = ValidEnemies[i % ValidEnemies.Num()];
 
 				if (UProjectileMovementComponent* MovementComp = Projectile->FindComponentByClass<UProjectileMovementComponent>())
 				{
-					// [핵심] 일단 유도 능력을 압수! (그래야 앞을 향해 십자 모양으로 퍼져나감)
 					MovementComp->bIsHomingProjectile = false;
 					MovementComp->HomingTargetComponent = nullptr;
 
-					// 안전한 포인터로 변환 (0.3초 사이에 총알이나 적이 파괴될 수도 있으니까!)
+					// 포인터로 변환 
 					TWeakObjectPtr<UProjectileMovementComponent> WeakMovement = MovementComp;
 					TWeakObjectPtr<AActor> WeakTarget = AssignedTarget;
 
-					// 0.3초 뒤에 실행될 예약 함수(Lambda) 만들기
+					// 0.3초 뒤에 실행될 예약 함수 만들기
 					FTimerHandle HomingTimer;
 					FTimerDelegate HomingDelegate = FTimerDelegate::CreateLambda([WeakMovement, WeakTarget]()
 						{
 							if (WeakMovement.IsValid() && WeakTarget.IsValid())
 							{
-								// 0.3초 뒤에 타겟을 물고 유도 모드 ON!
+								// 0.3초 뒤에 타겟을 물고 유도 모드
 								WeakMovement->bIsHomingProjectile = true;
 								WeakMovement->HomingTargetComponent = WeakTarget->GetRootComponent();
-								WeakMovement->HomingAccelerationMagnitude = 4000.f; // 꺾이는 힘 (취향껏 조절)
+								WeakMovement->HomingAccelerationMagnitude = 4000.f;
 							}
 						});
 
-					// 타이머 실행! (0.3초 지연)
+					// 타이머 실행
 					GetWorld()->GetTimerManager().SetTimer(HomingTimer, HomingDelegate, 0.3f, false);
 				}
 			}
