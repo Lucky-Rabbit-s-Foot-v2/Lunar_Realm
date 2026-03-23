@@ -13,6 +13,9 @@ ULRMMC_Damage::ULRMMC_Damage()
 
 	// 캡처 목록에 등록
 	RelevantAttributesToCapture.Add(AttackPowerDef);
+
+	DefenseDef = FGameplayEffectAttributeCaptureDefinition(ULRAttributeSet::GetDefenseAttribute(), EGameplayEffectAttributeCaptureSource::Target, false);
+	RelevantAttributesToCapture.Add(DefenseDef);
 }
 
 float ULRMMC_Damage::CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& InSpec) const
@@ -24,17 +27,25 @@ float ULRMMC_Damage::CalculateBaseMagnitude_Implementation(const FGameplayEffect
 	float AttackPower = 0.0f;
 	GetCapturedAttributeMagnitude(AttackPowerDef, InSpec, EvaluationParameters, AttackPower);
 
-	AActor* SourceActor = InSpec.GetContext().GetInstigator();
+	float Defense = 0.0f;
+	GetCapturedAttributeMagnitude(DefenseDef, InSpec, EvaluationParameters, Defense);
 
-	LR_INFO(TEXT("[MMC_Damage] 소스 : %s | 계산된 공격력: %.1f"),
-		SourceActor ? *SourceActor->GetName() : TEXT("NULL"),
-		AttackPower);
-
-
+	Defense = FMath::Max(Defense, 0.0f);
 
 	// 오차범위 적용 로직
 	float MinDamage = AttackPower * 0.85f;
 	float MaxDamage = AttackPower * 1.15f;
+	float BaseDamage = FMath::RandRange(MinDamage, MaxDamage);
 
-	return FMath::RandRange(MinDamage, MaxDamage);
+	float FinalDamage = BaseDamage * (100.0f / (100.0f + Defense));
+
+	AActor* SourceActor = InSpec.GetContext().GetInstigator();
+
+	LR_INFO(TEXT("[MMC_Damage] 소스 : %s | 기본공격력: %.1f | 타겟방어력: %.1f | 최종데미지: %.1f"),
+		SourceActor ? *SourceActor->GetName() : TEXT("NULL"),
+		BaseDamage,
+		Defense,
+		FinalDamage);
+
+	return FinalDamage;
 }

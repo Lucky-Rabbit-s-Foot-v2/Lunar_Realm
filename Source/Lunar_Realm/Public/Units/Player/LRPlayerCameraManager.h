@@ -72,4 +72,8 @@ public:
 private:
 	float StageMinY = -999999.0f;
 	float StageMaxY = 999999.0f;
+
+public:
+	float GetStageMinY() const { return StageMinY; }
+	float GetStageMaxY() const { return StageMaxY; }
 };

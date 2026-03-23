@@ -1,6 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Units/Player/LRPlayerCharacter.h"
+#include "Units/Player/LRPlayerCameraManager.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
@@ -164,38 +165,6 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 void ALRPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	//AActor* Target = nullptr;
-	//if (CombatComponent)
-	//{
-	//	Target = CombatComponent->GetCurrentTarget();
-	//}
-
-	//if (Target && TargetIndicatorMesh)
-	//{
-	//	TargetIndicatorMesh->SetVisibility(true);
-
-	//	FVector TargetLoc = Target->GetActorLocation();
-
-	//	ACharacter* TargetChar = Cast<ACharacter>(Target);
-	//	if (TargetChar)
-	//	{
-	//		float HalfHeight = TargetChar->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-	//		TargetLoc.Z -= HalfHeight;
-
-	//		TargetLoc.Z += 2.0f;
-	//	}
-	//	else
-	//	{
-	//		TargetLoc.Z -= 88.0f;
-	//	}
-
-	//	TargetIndicatorMesh->SetWorldLocation(TargetLoc);
-	//}
-	//else if (TargetIndicatorMesh)
-	//{
-	//	TargetIndicatorMesh->SetVisibility(false);
-	//}
 }
 
 void ALRPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -293,17 +262,21 @@ void ALRPlayerCharacter::Move(const FInputActionValue& Value)
 	{
 		CameraOffsetY += MovementVector.X * DeadCameraSpeed * GetWorld()->GetDeltaSeconds();
 
-		//float CurrentY = GetActorLocation().Y;
+		if (ALRPlayerController* PC = Cast<ALRPlayerController>(Controller))
+		{
+			if (ALRPlayerCameraManager* CamManager = Cast<ALRPlayerCameraManager>(PC->PlayerCameraManager))
+			{
+				float CurrentY = GetActorLocation().Y;
 
-		//// TODO_BJM : 추후 맵 확정될때 CameraManager의 MinY, MaxY랑 값 맞춰줘야함
-		//float MapMinY = -2000.0f;
-		//float MapMaxY = 2000.0f;
+				float MapMinY = CamManager->GetStageMinY();
+				float MapMaxY = CamManager->GetStageMaxY();
 
-		//float LimitMin = MapMinY - CurrentY;
-		//float LimitMax = MapMaxY - CurrentY;
+				float LimitMin = MapMinY - CurrentY;
+				float LimitMax = MapMaxY - CurrentY;
 
-		//CameraOffsetY = FMath::Clamp(CameraOffsetY, LimitMin, LimitMax);
-
+				CameraOffsetY = FMath::Clamp(CameraOffsetY, LimitMin, LimitMax);
+			}
+		}
 		return;
 	}
 
