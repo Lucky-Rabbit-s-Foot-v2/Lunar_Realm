@@ -9,7 +9,7 @@
 
 void ULRButtonWidget::NativePreConstruct()
 {
-	Super::NativeConstruct();
+	Super::NativePreConstruct();
 
 	if (Text)
 	{

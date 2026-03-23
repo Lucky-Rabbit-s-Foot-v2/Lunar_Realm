@@ -18,12 +18,16 @@ public:
 	virtual void NativeConstruct() override;
 	virtual void RefreshUI() override;
 	
+	virtual void BindSubWidgets() override;
 	virtual void RegisterSubWidgets() override;
 
 	UFUNCTION(BlueprintCallable)
 	void SetCharacterID(FName InID);
 
 	FName GetCharacterID() const { return CharacterID; }
+
+	UFUNCTION(BlueprintCallable)
+	void OnEnhanceButtonClicked();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -37,6 +41,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UTextBlock> Txt_Description;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRButtonWidget> Btn_Enhance;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRCharacterStatusWidget> CharacterStatus;

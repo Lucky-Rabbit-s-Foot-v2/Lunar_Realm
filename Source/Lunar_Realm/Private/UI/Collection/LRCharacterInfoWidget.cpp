@@ -12,9 +12,14 @@
 #include "Subsystems/SaveGameSubsystem.h"
 #include "Subsystems/GameDataSubsystem.h"
 
+#include "Subsystems/Settings/UIManagerSettings.h"
+#include "Subsystems/UIManagerSubsystem.h"
+
 #include "Units/OutGame/LROutGameController.h"
 #include "UI/Collection/LRCharacterStatusWidget.h"
+#include "UI/Collection/LREnhancePageWidget.h"
 
+#include "UI/Core/LRButtonWidget.h"
 
 void ULRCharacterInfoWidget::NativeConstruct()
 {
@@ -61,6 +66,16 @@ void ULRCharacterInfoWidget::RefreshUI()
 	CharacterStatus->RefreshUI();
 }
 
+void ULRCharacterInfoWidget::BindSubWidgets()
+{
+	Super::BindSubWidgets();
+	if (Btn_Enhance)
+	{
+		Btn_Enhance->OnLRButtonClickedDel.RemoveAll(this);
+		Btn_Enhance->OnLRButtonClickedDel.AddDynamic(this, &ULRCharacterInfoWidget::OnEnhanceButtonClicked);
+	}
+}
+
 void ULRCharacterInfoWidget::RegisterSubWidgets()
 {
 	Super::RegisterSubWidgets();
@@ -72,4 +87,22 @@ void ULRCharacterInfoWidget::SetCharacterID(FName InID)
 {
 	CharacterID = InID;
 	RefreshUI();
+}
+
+void ULRCharacterInfoWidget::OnEnhanceButtonClicked()
+{
+	UUIManagerSubsystem* UIManagerSubsystem = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	if (UIManagerSubsystem)
+	{
+		ULRBaseWidget* Widget = UIManagerSubsystem->OpenUIByID(EUIID::ENHANCE);
+		if (!Widget)
+		{
+			return;
+		}
+		
+		if (ULREnhancePageWidget* EnhanceWidget = Cast<ULREnhancePageWidget>(Widget))
+		{
+			EnhanceWidget->SetCharacterID(CharacterID);
+		}
+	}
 }
