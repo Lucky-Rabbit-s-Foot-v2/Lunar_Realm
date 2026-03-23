@@ -21,43 +21,40 @@ class LUNAR_REALM_API ULRSettingScrollWidget : public ULRBaseWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void InitializeUI() override;
-
-	void SetDefaultSettings();
-
 	void SaveAllSettings();
+	void SetDefaultSettings();
 
 	virtual void RegisterSubWidgets() override;
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRNameButtonsWidget> TextureWidget;
+	TObjectPtr<class ULROptionNameButtonsWidget> TextureWidget;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRNameButtonsWidget> ShadowWidget;
+	TObjectPtr<class ULROptionNameButtonsWidget> ShadowWidget;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRNameButtonsWidget> AntiAliasingWidget;
+	TObjectPtr<class ULROptionNameButtonsWidget> AntiAliasingWidget;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRNameButtonsWidget> PostProcessingWidget;
+	TObjectPtr<class ULROptionNameButtonsWidget> PostProcessingWidget;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRNameButtonsWidget> VFXWidget;
+	TObjectPtr<class ULROptionNameButtonsWidget> VFXWidget;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRNameBarWidget> ResolutionScaleWidget;
+	TObjectPtr<class ULROptionNameBarWidget> ResolutionScaleWidget;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRNameBarWidget> FrameRateWidget;
+	TObjectPtr<class ULROptionNameBarWidget> FrameRateWidget;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRNameBarWidget> MasterSoundWidget;
+	TObjectPtr<class ULROptionNameBarWidget> MasterSoundWidget;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRNameBarWidget> BGMWidget;
+	TObjectPtr<class ULROptionNameBarWidget> BGMWidget;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRNameBarWidget> SFXWidget;
+	TObjectPtr<class ULROptionNameBarWidget> SFXWidget;
 
 };

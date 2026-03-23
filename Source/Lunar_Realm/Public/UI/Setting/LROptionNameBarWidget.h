@@ -11,7 +11,7 @@
  * 
  */
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnOptionBarChanged, ESettingType, InType, int32, Value);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnOptionBarChanged, ESettingType, InType, int32, InValue);
 
 UCLASS()
 class LUNAR_REALM_API ULROptionNameBarWidget : public ULRBaseWidget
@@ -24,23 +24,19 @@ public:
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
-	UPROPERTY(BlueprintAssignable, Category = "Events")
+	UPROPERTY(BlueprintAssignable, Category = "LR|Events")
 	FOnOptionBarChanged OnOptionBarChangedDel;
 
 protected:
-	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-	virtual FReply NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-
-
-	void UpdateValueFromMouse(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent);
+	UFUNCTION()
+	void OnSliderValueChanged(float InValue);
 
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UTextBlock> Txt_Name;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UProgressBar> Bar_Progress;
+	TObjectPtr<class USlider> Slider_Option;
 
 	UPROPERTY(EditAnywhere, Category = "Settings")
 	ESettingType SettingType;
@@ -51,7 +47,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Settings")
 	int32 MaxValue = 0.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Settings")
+	UPROPERTY(EditAnywhere, Category = "LR|Settings")
 	FText OptionName = FText();
 
 private:

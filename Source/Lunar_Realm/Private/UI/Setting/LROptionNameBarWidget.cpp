@@ -6,7 +6,7 @@
 #include "Engine/GameInstance.h"
 
 #include "Components/TextBlock.h"
-#include "Components/ProgressBar.h"
+#include "Components/Slider.h"
 
 #include "Subsystems/Option/OptionManagerSubsystem.h"
 
@@ -19,6 +19,8 @@ void ULROptionNameBarWidget::BindProperties()
 {
 	Super::BindProperties();
 
+	Slider_Option->OnValueChanged.AddDynamic(this, &ULROptionNameBarWidget::OnSliderValueChanged);
+
 	if (UOptionManagerSubsystem* OptionManager = GetGameInstance()->GetSubsystem<UOptionManagerSubsystem>())
 	{
 		OnOptionBarChangedDel.AddUniqueDynamic(OptionManager, &UOptionManagerSubsystem::UpdateOptionValue);
@@ -27,61 +29,21 @@ void ULROptionNameBarWidget::BindProperties()
 
 void ULROptionNameBarWidget::UnbindProperties()
 {
+	Slider_Option->OnValueChanged.Clear();
 	OnOptionBarChangedDel.Clear();
+
 	Super::UnbindProperties();
 }
 
-
-FReply ULROptionNameBarWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+void ULROptionNameBarWidget::OnSliderValueChanged(float Value)
 {
-	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+	// 슬라이더의 0.0 ~ 1.0 값을 정수 범위(Min~Max)로 변환
+	int32 Range = MaxValue - MinValue;
+	CurrentValue = FMath::RoundToInt(MinValue + (Value * Range));
+
+	// 옵션 매니저에 알림
+	if (OnOptionBarChangedDel.IsBound())
 	{
-		bIsDragging = true;
-		UpdateValueFromMouse(InGeometry, InMouseEvent);
-
-		return FReply::Handled().CaptureMouse(TakeWidget());
+		OnOptionBarChangedDel.Broadcast(SettingType, CurrentValue);
 	}
-	return FReply::Unhandled();
-}
-
-FReply ULROptionNameBarWidget::NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
-{
-	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton && bIsDragging)
-	{
-		bIsDragging = false;
-
-		int32 Range = FMath::Clamp(MaxValue - MinValue, 0, MaxValue);
-
-		CurrentValue = MinValue + Range * Bar_Progress->GetPercent();
-
-		if (OnOptionBarChangedDel.IsBound())
-		{
-			OnOptionBarChangedDel.Broadcast(SettingType, CurrentValue);
-		}
-
-		return FReply::Handled().ReleaseMouseCapture();
-	}
-	return FReply::Unhandled();
-}
-
-FReply ULROptionNameBarWidget::NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
-{
-	if (bIsDragging)
-	{
-		UpdateValueFromMouse(InGeometry, InMouseEvent);
-		return FReply::Handled();
-	}
-	return FReply::Unhandled();
-}
-
-void ULROptionNameBarWidget::UpdateValueFromMouse(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
-{
-	if (!Bar_Progress) return;
-
-	FVector2D LocalPos = MyGeometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition());
-	FVector2D WidgetSize = MyGeometry.GetLocalSize();
-
-	float NewPercent = FMath::Clamp(LocalPos.X / WidgetSize.X, 0.0f, 1.0f);
-
-	Bar_Progress->SetPercent(NewPercent);
 }
