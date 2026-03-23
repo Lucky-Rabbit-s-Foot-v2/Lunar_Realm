@@ -107,6 +107,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "LR|Gacha|Scene")
 	FOnRevealPresentationRequested OnRevealPresentationRequested;
 
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Scene")
+	void StopAllOrbSounds();
+
 protected:
 	// ===== Root ============================================================
 

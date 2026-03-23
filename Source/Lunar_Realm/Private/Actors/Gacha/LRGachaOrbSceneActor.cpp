@@ -512,3 +512,14 @@ void ALRGachaOrbSceneActor::HandleOrbRevealFinished(int32 OrbIndex, const FLRGac
 		OnAllOrbsRevealed.Broadcast();
 	}
 }
+
+void ALRGachaOrbSceneActor::StopAllOrbSounds()
+{
+	for (AActor* Orb : OrbActors)
+	{
+		if (ALRGachaOrbActor* TypedOrb = Cast<ALRGachaOrbActor>(Orb))
+		{
+			TypedOrb->StopAllOrbSounds();
+		}
+	}
+}
