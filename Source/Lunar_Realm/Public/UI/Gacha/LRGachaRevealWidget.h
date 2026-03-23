@@ -23,6 +23,7 @@ class UMediaTexture;
 class ULRGachaResultSlotWidget;
 class UMaterialInterface;
 class UMaterialInstanceDynamic;
+class UAudioComponent;
 
 /**
  * ULRGachaRevealWidget (가챠 리빌 UI)
@@ -223,6 +224,10 @@ protected:
 	float RevealSFXDelay = 0.0f;
 
 private:
+	/** 현재 재생 중인 리빌 사운드 컴포넌트 */
+	UPROPERTY(Transient)
+	TObjectPtr<UAudioComponent> ActiveRevealSFXComponent = nullptr;
+
 	/** 리빌 사운드 지연 재생용 타이머 */
 	FTimerHandle TimerRevealSFXDelay;
 
@@ -231,6 +236,7 @@ private:
 	UTexture2D* GetRarityTextureByRarity(ELRGachaRarity Rarity) const;
 	UTexture2D* GetTransitionMagicTextureByRarity(ELRGachaRarity Rarity) const;
 
+	void StopActiveRevealSFX();
 	void ApplyTransitionTexturesByRarity(ELRGachaRarity Rarity);
 	void ResetTransitionVisuals();
 	void ShowFinalResultOverlay();
