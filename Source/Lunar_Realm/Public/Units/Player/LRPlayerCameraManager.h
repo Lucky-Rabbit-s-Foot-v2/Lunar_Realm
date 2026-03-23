@@ -62,6 +62,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Setting")
 	FRotator FixedRotation = FRotator(-45.0f, 0.0f, 0.0f);
 
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera Setting")
-	//float CameraLagSpeed = 5.0f;
+public:
+	UFUNCTION(BlueprintCallable, Category = "Camera")
+	void SetStageCameraBounds(float InMinY, float InMaxY);
+
+	UFUNCTION(BlueprintCallable, Category = "Camera")
+	void ResetCameraInitialization();
+
+private:
+	float StageMinY = -999999.0f;
+	float StageMaxY = 999999.0f;
 };

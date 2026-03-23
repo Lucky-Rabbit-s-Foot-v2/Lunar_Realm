@@ -293,16 +293,16 @@ void ALRPlayerCharacter::Move(const FInputActionValue& Value)
 	{
 		CameraOffsetY += MovementVector.X * DeadCameraSpeed * GetWorld()->GetDeltaSeconds();
 
-		float CurrentY = GetActorLocation().Y;
+		//float CurrentY = GetActorLocation().Y;
 
-		// TODO_BJM : 추후 맵 확정될때 CameraManager의 MinY, MaxY랑 값 맞춰줘야함
-		float MapMinY = -2000.0f;
-		float MapMaxY = 2000.0f;
+		//// TODO_BJM : 추후 맵 확정될때 CameraManager의 MinY, MaxY랑 값 맞춰줘야함
+		//float MapMinY = -2000.0f;
+		//float MapMaxY = 2000.0f;
 
-		float LimitMin = MapMinY - CurrentY;
-		float LimitMax = MapMaxY - CurrentY;
+		//float LimitMin = MapMinY - CurrentY;
+		//float LimitMax = MapMaxY - CurrentY;
 
-		CameraOffsetY = FMath::Clamp(CameraOffsetY, LimitMin, LimitMax);
+		//CameraOffsetY = FMath::Clamp(CameraOffsetY, LimitMin, LimitMax);
 
 		return;
 	}
