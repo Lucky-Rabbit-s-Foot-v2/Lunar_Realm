@@ -11,11 +11,14 @@
 
 #include "Sound/SoundBase.h"
 
+#include "Components/AudioComponent.h"
+
 #include "LRGachaResultSlotWidget.generated.h"
 
 class UImage;
 class UTextBlock;
 class UBorder;
+class UAudioComponent;
 
 /**
  * 가챠 결과 한 칸을 표시하는 슬롯 위젯.
@@ -48,6 +51,9 @@ public:
 	/* 결과 슬롯이 화면에 생성된 직후 호출되는 등장 연출 시작 함수.*/
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|ResultSlot")
 	void PlayAppearEffect();
+
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|ResultSlot")
+	void StopAppearSound();
 
 	/** 현재 슬롯이 보여주는 결과 (BP에서 읽어 쓰기용) */
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|ResultSlot")
@@ -119,4 +125,7 @@ protected:
 
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UImage> Image_NewBadge;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UAudioComponent> ActiveAppearSoundComponent = nullptr;
 };
