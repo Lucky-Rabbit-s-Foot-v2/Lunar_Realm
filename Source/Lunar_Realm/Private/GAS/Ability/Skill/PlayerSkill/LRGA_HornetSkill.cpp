@@ -15,6 +15,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "TimerManager.h"
 
+
 ULRGA_HornetSkill::ULRGA_HornetSkill()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;

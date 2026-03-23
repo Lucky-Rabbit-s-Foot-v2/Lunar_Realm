@@ -23,6 +23,10 @@
 #include "UI/InGame/LRGameClearPopupWidget.h"
 #include "Subsystems/PoolingSubsystem.h"
 
+#include "Units/Player/LRPlayerStart.h"
+#include "Units/Player/LRPlayerController.h"
+#include "Units/Player/LRPlayerCameraManager.h"
+
 void ALRStageGameMode::OnGameOver()
 {
 	// 주의사항: UI 애니메이션도 멈춤
@@ -343,6 +347,18 @@ AActor* ALRStageGameMode::ChoosePlayerStart_Implementation(AController* InPlayer
 				if (StartPoint->PlayerStartTag == TargetTag)
 				{
 					LR_INFO(TEXT("[GameMode] %s 위치에서 플레이어 스폰"), *TargetTag.ToString());
+					if (ALRPlayerStart* LRStart = Cast<ALRPlayerStart>(StartPoint))
+					{
+						if (ALRPlayerController* PC = Cast<ALRPlayerController>(InPlayer))
+						{
+							if (ALRPlayerCameraManager* CamManager = Cast<ALRPlayerCameraManager>(PC->PlayerCameraManager))
+							{
+								CamManager->SetStageCameraBounds(LRStart->StageMinY, LRStart->StageMaxY);
+								CamManager->ResetCameraInitialization();
+								LR_INFO(TEXT("[GameMode] 카메라 한계선 세팅 완료: Min(%.1f), Max(%.1f)"), LRStart->StageMinY, LRStart->StageMaxY);
+							}
+						}
+					}
 					return StartPoint;
 				}
 			}

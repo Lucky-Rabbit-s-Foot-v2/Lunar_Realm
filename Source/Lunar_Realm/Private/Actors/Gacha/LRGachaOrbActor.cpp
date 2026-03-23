@@ -118,7 +118,48 @@ void ALRGachaOrbActor::PlayRevealToCenter(const FVector& InTargetWorldLocation)
 	// 클릭 직후 시작 사운드 재생
 	if (USoundBase* StartSound = GetStartSoundByRarity(CachedResult.Rarity))
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, StartSound, GetActorLocation());
+		if (StartSoundDelay <= 0.f)
+		{
+			if (ActiveStartSoundComponent)
+			{
+				ActiveStartSoundComponent->Stop();
+				ActiveStartSoundComponent = nullptr;
+			}
+
+			ActiveStartSoundComponent = UGameplayStatics::SpawnSoundAttached(
+				StartSound,
+				GetRootComponent()
+			);
+		}
+		else
+		{
+			FTimerHandle TempHandle;
+			TWeakObjectPtr<ALRGachaOrbActor> WeakThis(this);
+
+			GetWorld()->GetTimerManager().SetTimer(
+				TempHandle,
+				[WeakThis, StartSound]()
+				{
+					if (!WeakThis.IsValid())
+					{
+						return;
+					}
+
+					if (WeakThis->ActiveStartSoundComponent)
+					{
+						WeakThis->ActiveStartSoundComponent->Stop();
+						WeakThis->ActiveStartSoundComponent = nullptr;
+					}
+
+					WeakThis->ActiveStartSoundComponent = UGameplayStatics::SpawnSoundAttached(
+						StartSound,
+						WeakThis->GetRootComponent()
+					);
+				},
+				StartSoundDelay,
+				false
+			);
+		}
 	}
 
 	// 중앙 이동 시작 시 Idle Aura는 정지
@@ -176,7 +217,48 @@ void ALRGachaOrbActor::OnMoveToCenterFinished()
 
 	if (USoundBase* Sound = GetSoundByRarity(CachedResult.Rarity))
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, Sound, GetActorLocation());
+		if (SoundDelay <= 0.f)
+		{
+			if (ActiveMainSoundComponent)
+			{
+				ActiveMainSoundComponent->Stop();
+				ActiveMainSoundComponent = nullptr;
+			}
+
+			ActiveMainSoundComponent = UGameplayStatics::SpawnSoundAttached(
+				Sound,
+				GetRootComponent()
+			);
+		}
+		else
+		{
+			FTimerHandle TempHandle;
+			TWeakObjectPtr<ALRGachaOrbActor> WeakThis(this);
+
+			GetWorld()->GetTimerManager().SetTimer(
+				TempHandle,
+				[WeakThis, Sound]()
+				{
+					if (!WeakThis.IsValid())
+					{
+						return;
+					}
+
+					if (WeakThis->ActiveMainSoundComponent)
+					{
+						WeakThis->ActiveMainSoundComponent->Stop();
+						WeakThis->ActiveMainSoundComponent = nullptr;
+					}
+
+					WeakThis->ActiveMainSoundComponent = UGameplayStatics::SpawnSoundAttached(
+						Sound,
+						WeakThis->GetRootComponent()
+					);
+				},
+				SoundDelay,
+				false
+			);
+		}
 	}
 }
 
@@ -320,5 +402,20 @@ UMaterialInterface* ALRGachaOrbActor::GetMaterialByRarity(ELRGachaRarity Rarity)
 
 	default:
 		return OrbMaterialDefault;
+	}
+}
+
+void ALRGachaOrbActor::StopAllOrbSounds()
+{
+	if (ActiveStartSoundComponent)
+	{
+		ActiveStartSoundComponent->Stop();
+		ActiveStartSoundComponent = nullptr;
+	}
+
+	if (ActiveMainSoundComponent)
+	{
+		ActiveMainSoundComponent->Stop();
+		ActiveMainSoundComponent = nullptr;
 	}
 }

@@ -194,6 +194,7 @@ void ALRPlayerState::InitializeAttributes()
 	AttributeSet->InitMaxHealth(FinalHP);
 	AttributeSet->InitHealth(FinalHP);
 	AttributeSet->InitAttackPower(FinalAtk);
+	AttributeSet->InitDefense(FinalDef);
 
 	// 테스트용
 	//AttributeSet->SetHealth(10.0f);

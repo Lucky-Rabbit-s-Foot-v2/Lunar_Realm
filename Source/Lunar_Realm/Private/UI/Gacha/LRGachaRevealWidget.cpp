@@ -15,6 +15,7 @@
 #include "Components/UniformGridSlot.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "Components/AudioComponent.h"
 
 #include "Core/LRGameInstance.h"
 
@@ -61,7 +62,10 @@ void ULRGachaRevealWidget::NativeDestruct()
 	if (GetWorld())
 	{
 		GetWorld()->GetTimerManager().ClearTimer(TimerSequentialResultSlots);
+		GetWorld()->GetTimerManager().ClearTimer(TimerRevealSFXDelay);
 	}
+
+	StopAllPreviousStageSounds();
 
 	CachedResultSlotWidgets.Empty();
 
@@ -168,6 +172,8 @@ void ULRGachaRevealWidget::StartReveal(FName InBannerID, const TArray<FLRGachaRe
 
 void ULRGachaRevealWidget::FinishAndClose()
 {
+	StopAllPreviousStageSounds();
+
 	if (UGameInstance* GI = GetGameInstance())
 	{
 		if (ULRGachaSubsystem* GachaSys = GI->GetSubsystem<ULRGachaSubsystem>())
@@ -589,9 +595,49 @@ void ULRGachaRevealWidget::ShowPresentation(int32 OrbIndex, const FLRGachaResult
 
 	ApplyPresentationDataToWidgets(CurrentPresentationData);
 
+	StopActiveRevealSFX();
+
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimerRevealSFXDelay);
+	}
+
 	if (CurrentPresentationData.RevealSound)
 	{
-		UGameplayStatics::PlaySound2D(this, CurrentPresentationData.RevealSound);
+		const float Delay = FMath::Max(0.0f, RevealSFXDelay);
+
+		if (Delay <= 0.0f)
+		{
+			ActiveRevealSFXComponent = UGameplayStatics::SpawnSound2D(
+				this,
+				CurrentPresentationData.RevealSound
+			);
+		}
+		else if (GetWorld())
+		{
+			TWeakObjectPtr<ULRGachaRevealWidget> WeakThis(this);
+			USoundBase* RevealSound = CurrentPresentationData.RevealSound;
+
+			GetWorld()->GetTimerManager().SetTimer(
+				TimerRevealSFXDelay,
+				[WeakThis, RevealSound]()
+				{
+					if (!WeakThis.IsValid() || !RevealSound)
+					{
+						return;
+					}
+
+					WeakThis->StopActiveRevealSFX();
+
+					WeakThis->ActiveRevealSFXComponent = UGameplayStatics::SpawnSound2D(
+						WeakThis.Get(),
+						RevealSound
+					);
+				},
+				Delay,
+				false
+			);
+		}
 	}
 
 	// 영상이면 반복 재생 시작
@@ -630,6 +676,8 @@ void ULRGachaRevealWidget::ShowPresentation(int32 OrbIndex, const FLRGachaResult
 
 void ULRGachaRevealWidget::HidePresentation()
 {
+	StopAllPreviousStageSounds();
+
 	if (!bPresentationVisible)
 	{
 		return;
@@ -1009,6 +1057,8 @@ void ULRGachaRevealWidget::ResetTransitionVisuals()
 
 void ULRGachaRevealWidget::ShowFinalResultOverlay()
 {
+	StopAllPreviousStageSounds();
+
 	if (bResultOverlayShown)
 	{
 		return;
@@ -1031,8 +1081,49 @@ void ULRGachaRevealWidget::ShowFinalResultOverlay()
 
 void ULRGachaRevealWidget::PlayCurrentColorRevealSound()
 {
+	StopActiveRevealSFX();
+
 	if (CurrentPresentationData.ColorRevealSound)
 	{
-		UGameplayStatics::PlaySound2D(this, CurrentPresentationData.ColorRevealSound);
+		ActiveRevealSFXComponent = UGameplayStatics::SpawnSound2D(
+			this,
+			CurrentPresentationData.ColorRevealSound
+		);
+	}
+}
+
+void ULRGachaRevealWidget::StopActiveRevealSFX()
+{
+	if (ActiveRevealSFXComponent)
+	{
+		ActiveRevealSFXComponent->Stop();
+		ActiveRevealSFXComponent = nullptr;
+	}
+}
+
+void ULRGachaRevealWidget::StopAllResultSlotSounds()
+{
+	for (ULRGachaResultSlotWidget* SlotWidget : CachedResultSlotWidgets)
+	{
+		if (SlotWidget)
+		{
+			SlotWidget->StopAppearSound();
+		}
+	}
+}
+
+void ULRGachaRevealWidget::StopAllPreviousStageSounds()
+{
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimerRevealSFXDelay);
+	}
+
+	StopActiveRevealSFX();
+	StopAllResultSlotSounds();
+
+	if (OrbSceneActor)
+	{
+		OrbSceneActor->StopAllOrbSounds();
 	}
 }
