@@ -16,6 +16,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
+
 ULRGA_RapidSlash::ULRGA_RapidSlash()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;

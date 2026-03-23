@@ -12,6 +12,7 @@
 #include "Units/LRCharacter.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "TimerManager.h"
+#include "Engine/GameInstance.h"
 
 ULRGA_HomingFairyArrow::ULRGA_HomingFairyArrow()
 {
