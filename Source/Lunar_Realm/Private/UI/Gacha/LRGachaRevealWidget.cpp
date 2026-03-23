@@ -364,22 +364,59 @@ void ULRGachaRevealWidget::SpawnNextResultSlot()
 
 void ULRGachaRevealWidget::OnClickSkip()
 {
-	if (bTransitionPlaying)
-	{
-		NotifyTransitionFinished();
-		return;
-	}
-
 	if (!OrbSceneActor)
 	{
 		return;
 	}
 
-	// 개별 리빌 화면이 떠 있으면 닫고, 마지막이면 결과창으로
+	// 전환 애니메이션 중 스킵하면 캐릭터 등장화면으로 가지 말고
+	// 바로 최종 결과창으로 직행
+	if (bTransitionPlaying)
+	{
+		bTransitionPlaying = false;
+
+		PendingTransitionOrbIndex = INDEX_NONE;
+		PendingTransitionResult = FLRGachaResult();
+
+		if (TransitionOverlay)
+		{
+			TransitionOverlay->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
+		BP_OnTransitionClosed();
+		ResetTransitionVisuals();
+
+		if (!bAllRevealed)
+		{
+			OrbSceneActor->SkipAllReveal();
+			bAllRevealed = true;
+		}
+
+		bPresentationVisible = false;
+
+		if (PresentationOverlay)
+		{
+			PresentationOverlay->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
+		if (RevealMediaPlayer)
+		{
+			RevealMediaPlayer->Close();
+		}
+
+		if (Image_RevealVideo)
+		{
+			Image_RevealVideo->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
+		ShowFinalResultOverlay();
+		return;
+	}
+
+	// 개별 리빌 화면이 떠 있으면 닫고 결과창으로
 	if (bPresentationVisible)
 	{
 		HidePresentation();
-
 		ShowFinalResultOverlay();
 		return;
 	}
