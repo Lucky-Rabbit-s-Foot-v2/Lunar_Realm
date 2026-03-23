@@ -237,6 +237,8 @@ private:
 	UTexture2D* GetTransitionMagicTextureByRarity(ELRGachaRarity Rarity) const;
 
 	void StopActiveRevealSFX();
+	void StopAllResultSlotSounds();
+	void StopAllPreviousStageSounds();
 	void ApplyTransitionTexturesByRarity(ELRGachaRarity Rarity);
 	void ResetTransitionVisuals();
 	void ShowFinalResultOverlay();

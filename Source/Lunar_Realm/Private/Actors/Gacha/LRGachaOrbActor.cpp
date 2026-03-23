@@ -120,7 +120,16 @@ void ALRGachaOrbActor::PlayRevealToCenter(const FVector& InTargetWorldLocation)
 	{
 		if (StartSoundDelay <= 0.f)
 		{
-			UGameplayStatics::PlaySoundAtLocation(this, StartSound, GetActorLocation());
+			if (ActiveStartSoundComponent)
+			{
+				ActiveStartSoundComponent->Stop();
+				ActiveStartSoundComponent = nullptr;
+			}
+
+			ActiveStartSoundComponent = UGameplayStatics::SpawnSoundAttached(
+				StartSound,
+				GetRootComponent()
+			);
 		}
 		else
 		{
@@ -136,10 +145,15 @@ void ALRGachaOrbActor::PlayRevealToCenter(const FVector& InTargetWorldLocation)
 						return;
 					}
 
-					UGameplayStatics::PlaySoundAtLocation(
-						WeakThis.Get(),
+					if (WeakThis->ActiveStartSoundComponent)
+					{
+						WeakThis->ActiveStartSoundComponent->Stop();
+						WeakThis->ActiveStartSoundComponent = nullptr;
+					}
+
+					WeakThis->ActiveStartSoundComponent = UGameplayStatics::SpawnSoundAttached(
 						StartSound,
-						WeakThis->GetActorLocation()
+						WeakThis->GetRootComponent()
 					);
 				},
 				StartSoundDelay,
@@ -205,7 +219,16 @@ void ALRGachaOrbActor::OnMoveToCenterFinished()
 	{
 		if (SoundDelay <= 0.f)
 		{
-			UGameplayStatics::PlaySoundAtLocation(this, Sound, GetActorLocation());
+			if (ActiveMainSoundComponent)
+			{
+				ActiveMainSoundComponent->Stop();
+				ActiveMainSoundComponent = nullptr;
+			}
+
+			ActiveMainSoundComponent = UGameplayStatics::SpawnSoundAttached(
+				Sound,
+				GetRootComponent()
+			);
 		}
 		else
 		{
@@ -221,10 +244,15 @@ void ALRGachaOrbActor::OnMoveToCenterFinished()
 						return;
 					}
 
-					UGameplayStatics::PlaySoundAtLocation(
-						WeakThis.Get(),
+					if (WeakThis->ActiveMainSoundComponent)
+					{
+						WeakThis->ActiveMainSoundComponent->Stop();
+						WeakThis->ActiveMainSoundComponent = nullptr;
+					}
+
+					WeakThis->ActiveMainSoundComponent = UGameplayStatics::SpawnSoundAttached(
 						Sound,
-						WeakThis->GetActorLocation()
+						WeakThis->GetRootComponent()
 					);
 				},
 				SoundDelay,
@@ -374,5 +402,20 @@ UMaterialInterface* ALRGachaOrbActor::GetMaterialByRarity(ELRGachaRarity Rarity)
 
 	default:
 		return OrbMaterialDefault;
+	}
+}
+
+void ALRGachaOrbActor::StopAllOrbSounds()
+{
+	if (ActiveStartSoundComponent)
+	{
+		ActiveStartSoundComponent->Stop();
+		ActiveStartSoundComponent = nullptr;
+	}
+
+	if (ActiveMainSoundComponent)
+	{
+		ActiveMainSoundComponent->Stop();
+		ActiveMainSoundComponent = nullptr;
 	}
 }

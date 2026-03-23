@@ -48,6 +48,9 @@ class LUNAR_REALM_API ALRGachaOrbActor : public AActor
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Orb")
+	void StopAllOrbSounds();
+
 	ALRGachaOrbActor();
 
 	/** (SceneActor가 바인딩) 이 Orb의 인덱스 세팅 */
@@ -99,6 +102,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Gacha|Orb")
 	TObjectPtr<UAudioComponent> AudioComp;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UAudioComponent> ActiveStartSoundComponent = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UAudioComponent> ActiveMainSoundComponent = nullptr;
 
 	// ===== Assets (BP에서만 세팅) ========================================
 
