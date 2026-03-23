@@ -61,6 +61,7 @@ void ULRGachaRevealWidget::NativeDestruct()
 	if (GetWorld())
 	{
 		GetWorld()->GetTimerManager().ClearTimer(TimerSequentialResultSlots);
+		GetWorld()->GetTimerManager().ClearTimer(TimerRevealSFXDelay);
 	}
 
 	CachedResultSlotWidgets.Empty();
@@ -589,9 +590,39 @@ void ULRGachaRevealWidget::ShowPresentation(int32 OrbIndex, const FLRGachaResult
 
 	ApplyPresentationDataToWidgets(CurrentPresentationData);
 
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimerRevealSFXDelay);
+	}
+
 	if (CurrentPresentationData.RevealSound)
 	{
-		UGameplayStatics::PlaySound2D(this, CurrentPresentationData.RevealSound);
+		const float Delay = FMath::Max(0.0f, RevealSFXDelay);
+
+		if (Delay <= 0.0f)
+		{
+			UGameplayStatics::PlaySound2D(this, CurrentPresentationData.RevealSound);
+		}
+		else if (GetWorld())
+		{
+			TWeakObjectPtr<ULRGachaRevealWidget> WeakThis(this);
+			USoundBase* RevealSound = CurrentPresentationData.RevealSound;
+
+			GetWorld()->GetTimerManager().SetTimer(
+				TimerRevealSFXDelay,
+				[WeakThis, RevealSound]()
+				{
+					if (!WeakThis.IsValid() || !RevealSound)
+					{
+						return;
+					}
+
+					UGameplayStatics::PlaySound2D(WeakThis.Get(), RevealSound);
+				},
+				Delay,
+				false
+			);
+		}
 	}
 
 	// 영상이면 반복 재생 시작
@@ -630,6 +661,11 @@ void ULRGachaRevealWidget::ShowPresentation(int32 OrbIndex, const FLRGachaResult
 
 void ULRGachaRevealWidget::HidePresentation()
 {
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimerRevealSFXDelay);
+	}
+
 	if (!bPresentationVisible)
 	{
 		return;

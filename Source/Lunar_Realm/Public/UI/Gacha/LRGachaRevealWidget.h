@@ -218,8 +218,14 @@ protected:
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
+	/** 모든 캐릭터 리빌 사운드 공통 딜레이(초) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Gacha|Reveal|Sound")
+	float RevealSFXDelay = 0.0f;
 
 private:
+	/** 리빌 사운드 지연 재생용 타이머 */
+	FTimerHandle TimerRevealSFXDelay;
+
 	FLinearColor GetNameColorByRarity(ELRGachaRarity Rarity) const;
 
 	UTexture2D* GetRarityTextureByRarity(ELRGachaRarity Rarity) const;
