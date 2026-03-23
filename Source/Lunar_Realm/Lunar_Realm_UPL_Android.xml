@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+  <androidManifestUpdates>
+    <removePermission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <loopElements tag="meta-data">
+      <setStringFromAttribute result="NameTagValue" tag="$" name="android:name"/>
+      <setBoolIsEqual result="IsStartupPerm" arg1="$S(NameTagValue)" arg2="com.epicgames.unreal.GameActivity.StartupPermissions"/>
+      <if condition="IsStartupPerm">
+        <true>
+          <removeElement tag="$"/>
+        </true>
+      </if>
+    </loopElements>
+  </androidManifestUpdates>
+
+  <buildGradleAdditions>
+    <insert>
+      afterEvaluate {
+      tasks.matching { it.name.startsWith('process') &amp;&amp; it.name.contains('Manifest') }.all { task ->
+      task.doLast {
+      fileTree(buildDir).matching { include '**/AndroidManifest.xml' }.each { File f ->
+      if (f.text.contains('WRITE_EXTERNAL_STORAGE') || f.text.contains('StartupPermissions')) {
+      def lines = f.readLines()
+      def filtered = lines.findAll { !it.contains('WRITE_EXTERNAL_STORAGE') }
+      filtered = filtered.collect { line ->
+      if (line.contains('StartupPermissions')) {
+      return line.replaceAll('android:value="[^"]*"', 'android:value=""')
+      }
+      return line
+      }
+      f.text = filtered.join(System.lineSeparator())
+      }
+      }
+      }
+      }
+      }
+    </insert>
+  </buildGradleAdditions>
+</root>

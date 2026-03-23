@@ -44,7 +44,6 @@ void ULRBTSPerception::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 
 void ULRBTSPerception::UpdateHostileTarget(UBlackboardComponent* BB, ALRAIController* AIController)
 {
-	// TEST
 	// 적 캐릭터 추적 중, 타겟이 사망시 즉시 BB 클리어 => 뒤돌아 보는 버그 수정
 	if (BB->GetValueAsBool(LRBBKeys::HasNearbyHostile))
 	{

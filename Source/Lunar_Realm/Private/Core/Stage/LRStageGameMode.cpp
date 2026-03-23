@@ -233,9 +233,6 @@ void ALRStageGameMode::OnInitializeStage()
 
 void ALRStageGameMode::StartGame()
 {
-	// TEST
-	LR_INFO(TEXT("[GameMode] Game Start! Broadcasting OnGameStarted delegate."));
-
 	OnGameStarted.Broadcast();
 }
 

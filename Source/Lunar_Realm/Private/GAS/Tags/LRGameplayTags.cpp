@@ -77,6 +77,10 @@ namespace LRTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_InstantAttack_Cooldown, "Ability.Skill.InstantAttack.Cooldown");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_EnemyRangedShoot, "Ability.Skill.EnemyRangedShoot");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_EnemyRangedShoot_Cooldown, "Ability.Skill.EnemyRangedShoot.Cooldown");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_EnemyArcShoot, "Ability.Skill.EnemyArcShoot");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_EnemyArcShoot_Cooldown, "Ability.Skill.EnemyArcShoot.Cooldown");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_EnemyAreaAttack, "Ability.Skill.EnemyAreaAttack");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_EnemyAreaAttack_Cooldown, "Ability.Skill.EnemyAreaAttack.Cooldown");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_BossInstantAttack, "Ability.Skill.BossInstantAttack");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Skill_BossInstantAttack_Cooldown, "Ability.Skill.BossInstantAttack.Cooldown");
 
