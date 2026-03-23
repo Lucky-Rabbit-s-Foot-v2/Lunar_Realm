@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GAS/Ability/Skill/LRGA_RapidSlash.h"
+#include "GAS/Ability/Skill/PlayerSkill/LRGA_RapidSlash.h"
 
 #include "DrawDebugHelpers.h"
 #include "Units/LRCharacter.h"
