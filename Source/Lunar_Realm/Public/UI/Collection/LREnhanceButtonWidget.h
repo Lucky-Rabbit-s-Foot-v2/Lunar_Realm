@@ -15,9 +15,17 @@ class LUNAR_REALM_API ULREnhanceButtonWidget : public ULRButtonWidget
 	GENERATED_BODY()
 	
 
-protected:
+public:
 	virtual void NativePreConstruct() override;
 
+	virtual void RefreshUI() override;
+
+	virtual void OnButtonClicked() override;
+
+	void SetCharacterID(const FName& InID);
+
+	void CalculateExp(int32 CurrentLevel, int32 CurrentExp, int32 MaxLevel);
+protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UImage> Img_Icon = nullptr;
 
@@ -26,4 +34,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Enhance")
 	int32 EnhanceCount = 0;
+
+	FName CharacterID = NAME_None;
+
+	const int32 CostPerExp = 10;
+	const int32 MaxLevel = 100;
+	int32 EnhanceExp = 0;
+	int32 EnhanceCost = 0;
 };

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRBaseWidget.h"
+#include "Data/LRDataStructs.h"
 #include "LRCharacterEnhanceWidget.generated.h"
 
 /**
@@ -15,9 +16,13 @@ class LUNAR_REALM_API ULRCharacterEnhanceWidget : public ULRBaseWidget
 	GENERATED_BODY()
 	
 public:
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
+
 	virtual void RegisterSubWidgets() override;
 
-	virtual void RefreshUI() override;
+	UFUNCTION()
+	void RefreshUICall();
 
 	void SetCharacterID(const FName& InID);
 
@@ -38,4 +43,5 @@ protected:
 	TObjectPtr<class ULREnhanceButtonWidget> Enhance10 = nullptr;
 
 	FName ID = NAME_None;
+	FCharacterInstance CharacterData;
 };
