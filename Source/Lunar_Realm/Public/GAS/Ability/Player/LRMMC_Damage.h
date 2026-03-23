@@ -20,6 +20,8 @@ public:
 	virtual float CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& InSpec) const override;
 
 private:
-	// 공격력을 잡아올 캡처 정의
 	FGameplayEffectAttributeCaptureDefinition AttackPowerDef;
+	FGameplayEffectAttributeCaptureDefinition DefenseDef;
+
+
 };
