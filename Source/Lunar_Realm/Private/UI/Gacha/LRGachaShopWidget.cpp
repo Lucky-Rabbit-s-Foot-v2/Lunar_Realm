@@ -5,6 +5,7 @@
 
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "Components/AudioComponent.h"
 
 #include "Subsystems/Gacha/LRGachaSubsystem.h"
 #include "Subsystems/UIManagerSubsystem.h"
@@ -139,10 +140,13 @@ void ULRGachaShopWidget::NativeConstruct()
 			return;
 		}
 	}
+
+	StartShopBGM();
 }
 
 void ULRGachaShopWidget::NativeDestruct()
 {
+	StopShopBGM();
 	// ───────────────── 버튼 델리게이트 해제 ─────────────────
 	if (ButtonHome)          ButtonHome->OnClicked.RemoveDynamic(this, &ULRGachaShopWidget::OnClickHome);
 	if (ButtonHeroTab)       ButtonHeroTab->OnClicked.RemoveDynamic(this, &ULRGachaShopWidget::OnClickHeroTab);
@@ -470,5 +474,40 @@ void ULRGachaShopWidget::PlayUISound(USoundBase* InSound)
 	if (InSound)
 	{
 		UGameplayStatics::PlaySound2D(this, InSound);
+	}
+}
+
+void ULRGachaShopWidget::StopShopBGM()
+{
+	if (ShopBGMComponent)
+	{
+		ShopBGMComponent->Stop();
+		ShopBGMComponent = nullptr;
+	}
+}
+
+void ULRGachaShopWidget::StartShopBGM()
+{
+	if (!bUseShopBGM)
+	{
+		return;
+	}
+
+	if (!ShopBGMSound)
+	{
+		return;
+	}
+
+	if (ShopBGMComponent && ShopBGMComponent->IsPlaying())
+	{
+		return;
+	}
+
+	ShopBGMComponent = UGameplayStatics::SpawnSound2D(this, ShopBGMSound);
+	if (ShopBGMComponent)
+	{
+		ShopBGMComponent->SetVolumeMultiplier(ShopBGMVolume);
+		ShopBGMComponent->bIsUISound = true;
+		ShopBGMComponent->bAutoDestroy = false;
 	}
 }

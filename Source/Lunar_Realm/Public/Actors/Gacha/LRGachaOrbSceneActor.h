@@ -107,6 +107,12 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "LR|Gacha|Scene")
 	FOnRevealPresentationRequested OnRevealPresentationRequested;
 
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Scene")
+	void StopAllOrbSounds();
+
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Scene")
+	void CancelAllOrbRevealsAndSounds();
+
 protected:
 	// ===== Root ============================================================
 
@@ -138,6 +144,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Gacha|Moon")
 	TObjectPtr<UNiagaraComponent> MoonAuraComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Gacha|Moon")
+	TObjectPtr<UStaticMeshComponent> MoonLightBeamComp;
+
 	// ===== Moon Assets =====================================================
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Moon|Assets")
@@ -148,6 +157,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Moon|Assets")
 	TObjectPtr<UNiagaraSystem> MoonAuraSystem;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Moon|Assets")
+	TObjectPtr<UStaticMesh> LightBeamMesh;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Moon|Assets")
+	TObjectPtr<UMaterialInterface> LightBeamMaterial;
 
 	// ===== Moon Settings ===================================================
 
@@ -162,6 +177,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Moon|Settings")
 	FVector MoonMeshScale = FVector(2.0f, 2.0f, 2.0f);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Moon|Settings")
+	FVector LightBeamRelativeLocation = FVector(0.f, 0.f, -250.f);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Moon|Settings")
+	FVector LightBeamScale = FVector(1.2f, 1.2f, 6.0f);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Moon|Settings")
+	bool bUseMoonLightBeam = true;
 
 	// ===== BP Events =======================================================
 

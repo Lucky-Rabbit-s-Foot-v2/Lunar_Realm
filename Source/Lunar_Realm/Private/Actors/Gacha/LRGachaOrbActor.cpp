@@ -103,6 +103,8 @@ void ALRGachaOrbActor::PlayRevealToCenter(const FVector& InTargetWorldLocation)
 	}
 
 	GetWorld()->GetTimerManager().ClearTimer(TimerFinishReveal);
+	GetWorld()->GetTimerManager().ClearTimer(TimerStartSoundDelay);
+	GetWorld()->GetTimerManager().ClearTimer(TimerMainSoundDelay);
 
 	CachedStartLocation = GetActorLocation();
 	CachedStartScale = GetActorScale3D();
@@ -118,7 +120,55 @@ void ALRGachaOrbActor::PlayRevealToCenter(const FVector& InTargetWorldLocation)
 	// 클릭 직후 시작 사운드 재생
 	if (USoundBase* StartSound = GetStartSoundByRarity(CachedResult.Rarity))
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, StartSound, GetActorLocation());
+		if (StartSoundDelay <= 0.f)
+		{
+			if (ActiveStartSoundComponent)
+			{
+				ActiveStartSoundComponent->Stop();
+				ActiveStartSoundComponent = nullptr;
+			}
+
+			ActiveStartSoundComponent = UGameplayStatics::SpawnSoundAttached(
+				StartSound,
+				GetRootComponent()
+			);
+		}
+		else
+		{
+			GetWorld()->GetTimerManager().ClearTimer(TimerStartSoundDelay);
+
+			TWeakObjectPtr<ALRGachaOrbActor> WeakThis(this);
+
+			GetWorld()->GetTimerManager().SetTimer(
+				TimerStartSoundDelay,
+				[WeakThis, StartSound]()
+				{
+					if (!WeakThis.IsValid() || !StartSound)
+					{
+						return;
+					}
+
+					// 스킵 등으로 이미 정리된 상태면 재생하지 않음
+					if (WeakThis->bRevealFinished)
+					{
+						return;
+					}
+
+					if (WeakThis->ActiveStartSoundComponent)
+					{
+						WeakThis->ActiveStartSoundComponent->Stop();
+						WeakThis->ActiveStartSoundComponent = nullptr;
+					}
+
+					WeakThis->ActiveStartSoundComponent = UGameplayStatics::SpawnSoundAttached(
+						StartSound,
+						WeakThis->GetRootComponent()
+					);
+				},
+				StartSoundDelay,
+				false
+			);
+		}
 	}
 
 	// 중앙 이동 시작 시 Idle Aura는 정지
@@ -161,6 +211,11 @@ void ALRGachaOrbActor::SetFocused(bool bFocused)
 
 void ALRGachaOrbActor::OnMoveToCenterFinished()
 {
+	if (bRevealFinished)
+	{
+		return;
+	}
+
 	bRevealMoving = false;
 	bEmissiveAnimating = true;
 
@@ -176,7 +231,55 @@ void ALRGachaOrbActor::OnMoveToCenterFinished()
 
 	if (USoundBase* Sound = GetSoundByRarity(CachedResult.Rarity))
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, Sound, GetActorLocation());
+		if (SoundDelay <= 0.f)
+		{
+			if (ActiveMainSoundComponent)
+			{
+				ActiveMainSoundComponent->Stop();
+				ActiveMainSoundComponent = nullptr;
+			}
+
+			ActiveMainSoundComponent = UGameplayStatics::SpawnSoundAttached(
+				Sound,
+				GetRootComponent()
+			);
+		}
+		else
+		{
+			GetWorld()->GetTimerManager().ClearTimer(TimerMainSoundDelay);
+
+			TWeakObjectPtr<ALRGachaOrbActor> WeakThis(this);
+
+			GetWorld()->GetTimerManager().SetTimer(
+				TimerMainSoundDelay,
+				[WeakThis, Sound]()
+				{
+					if (!WeakThis.IsValid() || !Sound)
+					{
+						return;
+					}
+
+					// 스킵 등으로 이미 정리된 상태면 재생하지 않음
+					if (WeakThis->bRevealFinished)
+					{
+						return;
+					}
+
+					if (WeakThis->ActiveMainSoundComponent)
+					{
+						WeakThis->ActiveMainSoundComponent->Stop();
+						WeakThis->ActiveMainSoundComponent = nullptr;
+					}
+
+					WeakThis->ActiveMainSoundComponent = UGameplayStatics::SpawnSoundAttached(
+						Sound,
+						WeakThis->GetRootComponent()
+					);
+				},
+				SoundDelay,
+				false
+			);
+		}
 	}
 }
 
@@ -321,4 +424,48 @@ UMaterialInterface* ALRGachaOrbActor::GetMaterialByRarity(ELRGachaRarity Rarity)
 	default:
 		return OrbMaterialDefault;
 	}
+}
+
+void ALRGachaOrbActor::StopAllOrbSounds()
+{
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimerStartSoundDelay);
+		GetWorld()->GetTimerManager().ClearTimer(TimerMainSoundDelay);
+	}
+
+	if (ActiveStartSoundComponent)
+	{
+		ActiveStartSoundComponent->Stop();
+		ActiveStartSoundComponent = nullptr;
+	}
+
+	if (ActiveMainSoundComponent)
+	{
+		ActiveMainSoundComponent->Stop();
+		ActiveMainSoundComponent = nullptr;
+	}
+}
+
+void ALRGachaOrbActor::CancelRevealAndStopAllEffects()
+{
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimerFinishReveal);
+		GetWorld()->GetTimerManager().ClearTimer(TimerStartSoundDelay);
+		GetWorld()->GetTimerManager().ClearTimer(TimerMainSoundDelay);
+	}
+
+	bRevealMoving = false;
+	bEmissiveAnimating = false;
+	bRevealFinished = true;
+
+	SetActorTickEnabled(false);
+
+	if (IdleAura)
+	{
+		IdleAura->Deactivate();
+	}
+
+	StopAllOrbSounds();
 }

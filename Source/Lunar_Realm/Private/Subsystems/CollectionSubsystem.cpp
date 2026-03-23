@@ -186,17 +186,41 @@ void UCollectionSubsystem::AddCharacterExp(FName CharacterID, int32 ExpAmount)
 
 	instance->CurrentExp += ExpAmount;
 
-	//레벨업 체크
-	//TODO 레벨 구간 경험치 요구량 테이블 연결 예정
-	const int32 EXPforLevelup = 500;
-	if (instance->CurrentExp >= EXPforLevelup)
+	UGameDataSubsystem* GameDataSys = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+
+	bool bHasLeveledUp = false;
+
+	while (true)
 	{
-		LevelUpCharacter(CharacterID);
+		float RequiredExpFloat = GameDataSys->GetBaseStatAtLevel(ELRStatusType::EXP, instance->CurrentLevel);
+		int32 RequiredExp = FMath::RoundToInt(RequiredExpFloat);
+
+		if (instance->CurrentExp >= RequiredExp)
+		{
+			instance->CurrentExp -= RequiredExp;
+			instance->CurrentLevel++;
+			bHasLeveledUp = true;
+
+			OnCharacterUpdatedDel.Broadcast(CharacterID, instance->CurrentLevel);
+			LR_INFO(TEXT("Character %s leveled up to %d"), *CharacterID.ToString(), instance->CurrentLevel);
+		}
+		else
+		{
+			break; 
+		}
 	}
-	else
-	{
-		SyncToSaveGame();
-	}
+
+	SyncToSaveGame();
+
+	//const int32 EXPforLevelup = 500;
+	//if (instance->CurrentExp >= EXPforLevelup)
+	//{
+	//	LevelUpCharacter(CharacterID);
+	//}
+	//else
+	//{
+	//	SyncToSaveGame();
+	//}
 }
 
 

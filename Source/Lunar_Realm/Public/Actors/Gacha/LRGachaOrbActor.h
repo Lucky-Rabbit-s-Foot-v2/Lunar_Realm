@@ -48,6 +48,12 @@ class LUNAR_REALM_API ALRGachaOrbActor : public AActor
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Orb")
+	void StopAllOrbSounds();
+
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Orb")
+	void CancelRevealAndStopAllEffects();
+
 	ALRGachaOrbActor();
 
 	/** (SceneActor가 바인딩) 이 Orb의 인덱스 세팅 */
@@ -99,6 +105,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Gacha|Orb")
 	TObjectPtr<UAudioComponent> AudioComp;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UAudioComponent> ActiveStartSoundComponent = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UAudioComponent> ActiveMainSoundComponent = nullptr;
 
 	// ===== Assets (BP에서만 세팅) ========================================
 
@@ -161,6 +173,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
 	TObjectPtr<USoundBase> StartSoundUR;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings|Sound")
+	float StartSoundDelay = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings|Sound")
+	float SoundDelay = 0.08f;
 
 	// ===== Tuning Parameters (BP에서 조정) ===============================
 
@@ -247,6 +265,12 @@ private:
 
 	/** 중앙 유지 후 종료용 타이머 */
 	FTimerHandle TimerFinishReveal;
+
+	/** 시작 사운드 지연 재생용 타이머 */
+	FTimerHandle TimerStartSoundDelay;
+
+	/** 중앙 도착 사운드 지연 재생용 타이머 */
+	FTimerHandle TimerMainSoundDelay;
 
 	// ===== Internal Functions =============================================
 

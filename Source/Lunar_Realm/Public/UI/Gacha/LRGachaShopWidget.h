@@ -10,6 +10,8 @@
 
 #include "Sound/SoundBase.h"
 
+#include "Components/AudioComponent.h"
+
 #include "UI/Core/LRPageWidget.h"
 #include "UI/Gacha/LRGachaRevealWidget.h"
 #include "LRGachaShopWidget.generated.h"
@@ -17,6 +19,7 @@
 class UButton;
 class UTextBlock;
 class ULRGachaSubsystem;
+class UAudioComponent;
 
 UENUM(BlueprintType)
 enum class ELRGachaShopTab : uint8
@@ -77,6 +80,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Sound")
 	TObjectPtr<USoundBase> HomeClickSound;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Sound")
+	TObjectPtr<USoundBase> ShopBGMSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Gacha|Sound")
+	bool bUseShopBGM = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Gacha|Sound", meta = (ClampMin = "0.0", ClampMax = "2.0"))
+	float ShopBGMVolume = 1.0f;
+
 	// BP가 배경만 바꿀 수 있도록 이벤트 제공
 	UFUNCTION(BlueprintImplementableEvent, Category = "LR|Gacha")
 	void BP_ApplyTabBackground(ELRGachaShopTab NewTab);
@@ -117,7 +129,13 @@ protected:
 	UTextBlock* TextFullMoon;
 
 private:
+	// 사운드
 	void PlayUISound(USoundBase* InSound);
+	void StartShopBGM();
+	void StopShopBGM();
+
+	UPROPERTY(Transient)
+	TObjectPtr<UAudioComponent> ShopBGMComponent = nullptr;
 	// ───────────────── 서브시스템 참조 ─────────────────
 
 	UPROPERTY()

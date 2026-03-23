@@ -76,10 +76,22 @@ void ULRGachaResultSlotWidget::PlayAppearEffect()
 		break;
 	}
 
-	// 3) 사운드 재생
+	// 3) 이전에 재생 중이던 슬롯 사운드가 있으면 먼저 정지
+	StopAppearSound();
+
+	// 4) 사운드 재생 (나중에 Stop 할 수 있게 AudioComponent 보관)
 	if (PlaySound)
 	{
-		UGameplayStatics::PlaySound2D(this, PlaySound);
+		ActiveAppearSoundComponent = UGameplayStatics::SpawnSound2D(this, PlaySound);
+	}
+}
+
+void ULRGachaResultSlotWidget::StopAppearSound()
+{
+	if (ActiveAppearSoundComponent)
+	{
+		ActiveAppearSoundComponent->Stop();
+		ActiveAppearSoundComponent = nullptr;
 	}
 }
 

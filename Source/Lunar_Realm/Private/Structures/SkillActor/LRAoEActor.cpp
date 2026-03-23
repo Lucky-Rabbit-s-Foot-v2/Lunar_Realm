@@ -12,8 +12,10 @@
 #include "GAS/Tags/LRGameplayTags.h"
 #include "Data/LRDataStructs.h"
 #include "Engine/World.h"
+#include "Engine/GameInstance.h"
 #include "Engine/TimerHandle.h"
 #include "TimerManager.h"
+#include "GameFramework/Pawn.h"
 
 // Sets default values
 ALRAoEActor::ALRAoEActor()
