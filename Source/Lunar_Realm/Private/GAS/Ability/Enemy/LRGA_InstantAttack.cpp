@@ -1,7 +1,5 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "GAS/Ability/Enemy/LRGA_InstantAttack.h"
 
-
-#include "GAS/Ability/Enemy/LRGA_InstantAttack.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Animation/AnimInstance.h"
@@ -9,7 +7,10 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GAS/Tags/LRGameplayTags.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
 #include "System/LoggingSystem.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Units/LRAIController.h"
 #include "Units/LRCharacter.h"
 
@@ -151,9 +152,6 @@ void ULRGA_InstantAttack::OnMontageNotifyBegin(FName NotifyName, const FBranchin
 		return;
 	}
 
-	// TEST
-	LR_INFO(TEXT("[InstantAttack] OnNotify: GE 적용 시도 - Target: %s"), *TargetActor->GetName());
-
 	FGameplayEffectContextHandle Ctx = SourceASC->MakeEffectContext();
 	Ctx.AddSourceObject(CurrentActorInfo->AvatarActor.Get());
 	Ctx.AddInstigator(CurrentActorInfo->AvatarActor.Get(), CurrentActorInfo->AvatarActor.Get());
@@ -162,6 +160,35 @@ void ULRGA_InstantAttack::OnMontageNotifyBegin(FName NotifyName, const FBranchin
 	if (Spec.IsValid())
 	{
 		SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
+	}
+
+	// VFX 재생
+	if (!AttackVFX.IsNull())
+	{
+		if (UNiagaraSystem* LoadedVFX = AttackVFX.LoadSynchronous())
+		{	
+			OwnerChar = GetCharacterFromActorInfo(*CurrentActorInfo);
+			if (OwnerChar)
+			{
+				FVector SpawnLoc = OwnerChar->GetActorLocation() + OwnerChar->GetActorForwardVector() * 100.f;
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+					GetWorld(), LoadedVFX, SpawnLoc);
+			}
+		}
+	}
+
+	// SFX 재생
+	if (!AttackSFX.IsNull())
+	{
+		if (USoundBase* LoadedSFX = AttackSFX.LoadSynchronous())
+		{
+			OwnerChar = GetCharacterFromActorInfo(*CurrentActorInfo);
+			if (OwnerChar)
+			{
+				UGameplayStatics::PlaySoundAtLocation(
+					this, LoadedSFX, OwnerChar->GetActorLocation());
+			}
+		}
 	}
 }
 

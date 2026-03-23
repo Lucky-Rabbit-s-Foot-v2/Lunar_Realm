@@ -128,6 +128,10 @@ namespace LRTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_InstantAttack_Cooldown); //GE
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_EnemyRangedShoot); //GA
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_EnemyRangedShoot_Cooldown); //GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_EnemyArcShoot);     // GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_EnemyArcShoot_Cooldown); // GE
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_EnemyAreaAttack);     // GA
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_EnemyAreaAttack_Cooldown); // GE
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_BossInstantAttack);     // GA
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Skill_BossInstantAttack_Cooldown); // GE
 	
