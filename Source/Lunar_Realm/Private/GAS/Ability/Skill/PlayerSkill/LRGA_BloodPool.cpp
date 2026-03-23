@@ -9,6 +9,7 @@
 #include "Subsystems/GameDataSubsystem.h"
 #include "System/LoggingSystem.h"
 #include "GAS/Tags/LRGameplayTags.h"
+#include "Engine/GameInstance.h"
 
 ULRGA_BloodPool::ULRGA_BloodPool()
 {
