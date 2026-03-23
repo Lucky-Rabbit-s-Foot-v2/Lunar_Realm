@@ -66,6 +66,7 @@ void ULRGachaRevealWidget::NativeDestruct()
 	}
 
 	StopAllPreviousStageSounds();
+	StopRevealStageBGM();
 
 	CachedResultSlotWidgets.Empty();
 
@@ -148,6 +149,8 @@ void ULRGachaRevealWidget::StartReveal(FName InBannerID, const TArray<FLRGachaRe
 
 	ResetTransitionVisuals();
 
+	StartRevealStageBGM();
+
 	ForceUIInputNextTick();
 
 	FindOrSpawnOrbSceneActor();
@@ -173,6 +176,7 @@ void ULRGachaRevealWidget::StartReveal(FName InBannerID, const TArray<FLRGachaRe
 void ULRGachaRevealWidget::FinishAndClose()
 {
 	StopAllPreviousStageSounds();
+	StopRevealStageBGM();
 
 	if (UGameInstance* GI = GetGameInstance())
 	{
@@ -364,22 +368,62 @@ void ULRGachaRevealWidget::SpawnNextResultSlot()
 
 void ULRGachaRevealWidget::OnClickSkip()
 {
-	if (bTransitionPlaying)
-	{
-		NotifyTransitionFinished();
-		return;
-	}
-
 	if (!OrbSceneActor)
 	{
 		return;
 	}
 
-	// 개별 리빌 화면이 떠 있으면 닫고, 마지막이면 결과창으로
+	// 스킵 진입 즉시 모든 구슬 리빌 진행/지연 사운드/틱을 강제 중단
+	OrbSceneActor->CancelAllOrbRevealsAndSounds();
+
+	// 전환 애니메이션 중 스킵하면 캐릭터 등장화면으로 가지 말고
+	// 바로 최종 결과창으로 직행
+	if (bTransitionPlaying)
+	{
+		bTransitionPlaying = false;
+
+		PendingTransitionOrbIndex = INDEX_NONE;
+		PendingTransitionResult = FLRGachaResult();
+
+		if (TransitionOverlay)
+		{
+			TransitionOverlay->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
+		BP_OnTransitionClosed();
+		ResetTransitionVisuals();
+
+		if (!bAllRevealed)
+		{
+			OrbSceneActor->SkipAllReveal();
+			bAllRevealed = true;
+		}
+
+		bPresentationVisible = false;
+
+		if (PresentationOverlay)
+		{
+			PresentationOverlay->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
+		if (RevealMediaPlayer)
+		{
+			RevealMediaPlayer->Close();
+		}
+
+		if (Image_RevealVideo)
+		{
+			Image_RevealVideo->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
+		ShowFinalResultOverlay();
+		return;
+	}
+
+	// 개별 리빌 화면이 떠 있으면 닫고 결과창으로
 	if (bPresentationVisible)
 	{
 		HidePresentation();
-
 		ShowFinalResultOverlay();
 		return;
 	}
@@ -1058,6 +1102,7 @@ void ULRGachaRevealWidget::ResetTransitionVisuals()
 void ULRGachaRevealWidget::ShowFinalResultOverlay()
 {
 	StopAllPreviousStageSounds();
+	StopRevealStageBGM();
 
 	if (bResultOverlayShown)
 	{
@@ -1125,5 +1170,35 @@ void ULRGachaRevealWidget::StopAllPreviousStageSounds()
 	if (OrbSceneActor)
 	{
 		OrbSceneActor->StopAllOrbSounds();
+	}
+}
+
+void ULRGachaRevealWidget::StartRevealStageBGM()
+{
+	if (!RevealStageBGMSound)
+	{
+		return;
+	}
+
+	if (RevealStageBGMComponent && RevealStageBGMComponent->IsPlaying())
+	{
+		return;
+	}
+
+	RevealStageBGMComponent = UGameplayStatics::SpawnSound2D(this, RevealStageBGMSound);
+	if (RevealStageBGMComponent)
+	{
+		RevealStageBGMComponent->SetVolumeMultiplier(RevealStageBGMVolume);
+		RevealStageBGMComponent->bIsUISound = true;
+		RevealStageBGMComponent->bAutoDestroy = false;
+	}
+}
+
+void ULRGachaRevealWidget::StopRevealStageBGM()
+{
+	if (RevealStageBGMComponent)
+	{
+		RevealStageBGMComponent->Stop();
+		RevealStageBGMComponent = nullptr;
 	}
 }

@@ -477,8 +477,22 @@ void ULRGachaShopWidget::PlayUISound(USoundBase* InSound)
 	}
 }
 
+void ULRGachaShopWidget::StopShopBGM()
+{
+	if (ShopBGMComponent)
+	{
+		ShopBGMComponent->Stop();
+		ShopBGMComponent = nullptr;
+	}
+}
+
 void ULRGachaShopWidget::StartShopBGM()
 {
+	if (!bUseShopBGM)
+	{
+		return;
+	}
+
 	if (!ShopBGMSound)
 	{
 		return;
@@ -495,14 +509,5 @@ void ULRGachaShopWidget::StartShopBGM()
 		ShopBGMComponent->SetVolumeMultiplier(ShopBGMVolume);
 		ShopBGMComponent->bIsUISound = true;
 		ShopBGMComponent->bAutoDestroy = false;
-	}
-}
-
-void ULRGachaShopWidget::StopShopBGM()
-{
-	if (ShopBGMComponent)
-	{
-		ShopBGMComponent->Stop();
-		ShopBGMComponent = nullptr;
 	}
 }
