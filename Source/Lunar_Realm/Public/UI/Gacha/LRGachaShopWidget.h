@@ -13,7 +13,6 @@
 #include "Components/AudioComponent.h"
 
 #include "UI/Core/LRPageWidget.h"
-#include "UI/Gacha/LRGachaRevealWidget.h"
 #include "LRGachaShopWidget.generated.h"
 
 class UButton;
@@ -69,6 +68,10 @@ public:
 	/** 초기 장비 배너(BP에서 설정 가능) */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Gacha")
 	FName DefaultEquipBannerID = TEXT("Equip_FullMoon");
+
+	//확률표용
+	void RefreshRateTexts();
+	FText MakeDualPercentText(float CrescentRate, float FullMoonRate) const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Sound")
@@ -128,6 +131,20 @@ protected:
 	UPROPERTY(meta = (BindWidgetOptional))
 	UTextBlock* TextFullMoon;
 
+	UPROPERTY(meta = (BindWidgetOptional))
+	UTextBlock* TextRateN;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	UTextBlock* TextRateR;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	UTextBlock* TextRateSR;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	UTextBlock* TextRateSSR;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	UTextBlock* TextRateUR;
 private:
 	// 사운드
 	void PlayUISound(USoundBase* InSound);
