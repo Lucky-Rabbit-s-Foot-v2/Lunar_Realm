@@ -38,6 +38,10 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UImage> Img_Slot;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> Img_Grade;
+
+
 	UPROPERTY(EditAnywhere, Category = "LR|UI Party")
 	int32 SlotIndex = 0;
 

@@ -36,11 +36,14 @@ void ULRPartySlotWidget::RefreshUI()
 	{
 		if (ID.IsNone())
 		{
+			Img_Grade->SetVisibility(ESlateVisibility::Hidden);
 			Img_Slot->SetBrushFromTexture(EmptySlotTexture);
 			return;
 		}
 
 		const FCharacterStaticData& StaticData = GameDataSubsystem->GetCharacterStaticData(ID);
+		Img_Grade->SetVisibility(ESlateVisibility::Visible);
+		Img_Grade->SetBrushFromTexture(StaticData.GradeImage.LoadSynchronous());
 		Img_Slot->SetBrushFromTexture(StaticData.PortraitIcon.LoadSynchronous());
 	}
 }

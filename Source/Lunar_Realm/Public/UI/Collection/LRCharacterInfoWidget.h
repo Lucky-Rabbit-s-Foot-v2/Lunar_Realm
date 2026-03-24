@@ -18,35 +18,35 @@ public:
 	virtual void NativeConstruct() override;
 	virtual void RefreshUI() override;
 	
+	virtual void BindSubWidgets() override;
 	virtual void RegisterSubWidgets() override;
 
 	UFUNCTION(BlueprintCallable)
-	void SetCharacterID(FName InID);
+	void SetCharacterIDCall(FName InID);
+
+	void SetCharacterID(const FName& InID);
 
 	FName GetCharacterID() const { return CharacterID; }
 
+	UFUNCTION(BlueprintCallable)
+	void OnEnhanceButtonClicked();
+
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Grade;
-	
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Main;
+	TObjectPtr<class ULRCharacterCard> CharacterCard;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Equip1;
+	TObjectPtr<class ULRSkillInfoWidget> SkillInfo;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Equip2;
+	TObjectPtr<class ULRButtonWidget> Btn_Enhance;
 
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Equip3;
-	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRCharacterStatusWidget> CharacterStatus;
 
+	UPROPERTY(EditAnywhere, Category = "LR|Character Info")
+	class UTexture2D* DefaultImage;
+
 private:
 	FName CharacterID;
-	FName Equip1ID;
-	FName Equip2ID;
-	FName Equip3ID;
 };

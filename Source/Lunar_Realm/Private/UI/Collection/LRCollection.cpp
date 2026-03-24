@@ -3,8 +3,9 @@
 
 #include "UI/Collection/LRCollection.h"
 
-#include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
+
+#include "UI/Core/LRButtonWidget.h"
 
 #include "UI/Collection/LRCharacterCollection.h"
 #include "UI/Collection/LREquipCollection.h"
@@ -20,14 +21,17 @@ void ULRCollection::BindProperties()
 {
 	Super::BindProperties();
 
-	if (Btn_Character) Btn_Character->OnClicked.AddDynamic(this, &ULRCollection::OnBtnCharacterClicked);
-	if (Btn_Equip) Btn_Equip->OnClicked.AddDynamic(this, &ULRCollection::OnBtnEquipClicked);
+	Btn_Character->OnLRButtonClickedDel.RemoveAll(this);
+	Btn_Character->OnLRButtonClickedDel.AddDynamic(this, &ULRCollection::OnBtnCharacterClicked);
+	
+	Btn_Equip->OnLRButtonClickedDel.RemoveAll(this);
+	Btn_Equip->OnLRButtonClickedDel.AddDynamic(this, &ULRCollection::OnBtnEquipClicked);
 }
 
 void ULRCollection::UnbindProperties()
 {
-	if (Btn_Character) Btn_Character->OnClicked.Clear();
-	if (Btn_Equip) Btn_Equip->OnClicked.Clear();
+	Btn_Character->OnLRButtonClickedDel.RemoveAll(this);
+	Btn_Equip->OnLRButtonClickedDel.RemoveAll(this);
 
 	Super::UnbindProperties();
 }
@@ -42,7 +46,7 @@ void ULRCollection::RegisterSubWidgets()
 
 void ULRCollection::OnBtnCharacterClicked()
 {
-	if(Switcher_Collection)
+	if (Switcher_Collection)
 	{
 		CharacterCollection->RefreshUI();
 		Switcher_Collection->SetActiveWidgetIndex(0);

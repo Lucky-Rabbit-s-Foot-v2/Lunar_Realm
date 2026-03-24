@@ -30,6 +30,10 @@ public:
 
 	virtual void SetStageID(FName InStageID);
 	
+
+	UFUNCTION()
+	void OnPartyButtonClicked();
+
 	UFUNCTION()
 	void OnEntranceButtonClicked();
 
@@ -47,10 +51,13 @@ protected:
 	TObjectPtr<class UButton> Btn_EmptyPoint;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Entrance;
+	TObjectPtr<class ULRButtonWidget> Btn_Party;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Close;
+	TObjectPtr<class ULRButtonWidget> Btn_Entrance;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRButtonWidget> Btn_Close;
 
 private:
 	FName StageID;
