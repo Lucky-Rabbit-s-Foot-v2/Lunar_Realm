@@ -84,10 +84,11 @@ EBTNodeResult::Type ULRBTTBossAttack::ExecuteTask(UBehaviorTreeComponent& OwnerC
 		return EBTNodeResult::Failed;
 	}
 
-	// ── 보스 전용: Phase 기반 공격 ──
+	// 보스 전용: Phase 기반 공격
 	const int32 CurrentPhase = BB->GetValueAsInt(LRBBKeys::CurrentPhase);
-	FGameplayTag AttackTag = EnemyAICtrl->TryAttackTargetByPhase(TargetActor, CurrentPhase);
 
-	// 부모의 헬퍼를 사용하여 델리게이트 등록 + InProgress 패턴 처리
-	return FinishExecuteWithTag(OwnerComp, NodeMemory, ASC, AttackTag);
+	// 델리게이트 먼저 등록 -> 페이즈 기반 공격 발동-> 결과 체크
+	PrepareAttackDelegates(OwnerComp, NodeMemory, ASC);
+	FGameplayTag AttackTag = EnemyAICtrl->TryAttackTargetByPhase(TargetActor, CurrentPhase);
+	return EvaluateAttackResult(NodeMemory, AttackTag);
 }

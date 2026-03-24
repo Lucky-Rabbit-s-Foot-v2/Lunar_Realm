@@ -89,13 +89,12 @@ EBTNodeResult::Type ULRBTTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 	}
 
 	// AIController에게 공격을 위임하고, 헬퍼를 통해 델리게이트 등록 + InProgress 패턴 처리
+	PrepareAttackDelegates(OwnerComp, NodeMemory, ASC);
 	FGameplayTag AttackTag = AIController->TryAttackTarget(TargetActor);
-	return FinishExecuteWithTag(OwnerComp, NodeMemory, ASC, AttackTag);
+	return EvaluateAttackResult(NodeMemory, AttackTag);
 }
 
-EBTNodeResult::Type ULRBTTAttack::FinishExecuteWithTag(
-	UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
-	UAbilitySystemComponent* ASC, FGameplayTag AttackTag)
+void ULRBTTAttack::PrepareAttackDelegates(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, UAbilitySystemComponent* ASC)
 {
 	FLRBTAttackTaskMemory* Memory = CastInstanceNodeMemory<FLRBTAttackTaskMemory>(NodeMemory);
 	Memory->BTComp = &OwnerComp;
@@ -104,15 +103,20 @@ EBTNodeResult::Type ULRBTTAttack::FinishExecuteWithTag(
 	Memory->bAbilityFailedSynchronously = false;
 
 	UnregisterDelegate(Memory);
+	UnregisterDelegate(Memory);
 
 	Memory->AbilityEndedHandle = ASC->OnAbilityEnded.AddUObject(
 		this, &ULRBTTAttack::OnAbilityEnded, &OwnerComp, NodeMemory);
 	Memory->AbilityFailedHandle = ASC->AbilityFailedCallbacks.AddUObject(
-		this, &ULRBTTAttack::OnAbilityFailed, &OwnerComp, NodeMemory);
+		this, &ULRBTTAttack::OnAbilityFailed, &OwnerComp, NodeMemory);	
+}
 
+EBTNodeResult::Type ULRBTTAttack::EvaluateAttackResult(uint8* NodeMemory, FGameplayTag AttackTag)
+{
+	FLRBTAttackTaskMemory* Memory = CastInstanceNodeMemory<FLRBTAttackTaskMemory>(NodeMemory);
 	Memory->ActivatedAbilityTag = AttackTag;
 
-	// GA가 동기적으로 이미 실패한 경우 처리
+	// GA가 동기적으로 이미 실패한 경우 처리s
 	if (Memory->bAbilityFailedSynchronously || (!Memory->ActivatedAbilityTag.IsValid() && !Memory->CooldownTagHandle.IsValid()))
 	{
 		UnregisterDelegate(Memory);
@@ -128,6 +132,8 @@ EBTNodeResult::Type ULRBTTAttack::FinishExecuteWithTag(
 
 	return EBTNodeResult::InProgress;
 }
+
+
 
 EBTNodeResult::Type ULRBTTAttack::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {

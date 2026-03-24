@@ -56,9 +56,12 @@ protected:
 	virtual EBTNodeResult::Type ExecuteTask(
 		UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
-	EBTNodeResult::Type FinishExecuteWithTag(
+	void PrepareAttackDelegates(
 		UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
-		UAbilitySystemComponent* ASC, FGameplayTag AttackTag);
+		UAbilitySystemComponent* ASC);
+
+	EBTNodeResult::Type EvaluateAttackResult(
+		uint8* NodeMemory, FGameplayTag AttackTag);
 
 	// BT가 Task를 강제 중단할 때 호출 (델리게이트 정리용)
 	virtual EBTNodeResult::Type AbortTask(
