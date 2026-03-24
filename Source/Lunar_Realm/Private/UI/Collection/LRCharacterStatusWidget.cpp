@@ -69,8 +69,9 @@ void ULRCharacterStatusWidget::UpdateLevel()
 
 void ULRCharacterStatusWidget::UpdateEXP()
 {
-	// TODO: 레벨 구간 경험치 요구량 테이블 현재 없음. 향후 추가 예정.
-	const int32 ExpToNextLevel = 500;
+	UGameDataSubsystem* GameDataSys = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+	int32 ExpToNextLevel = static_cast<int32>(GameDataSys->GetBaseStatAtLevel(ELRStatusType::EXP, CharacterInstance.CurrentLevel));
+
 	int32 CurrentExp = CharacterInstance.CurrentExp;
 
 	float ExpProgress = (ExpToNextLevel > 0) ? static_cast<float>(CurrentExp) / ExpToNextLevel : 0.0f;

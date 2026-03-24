@@ -9,6 +9,7 @@
 #include "Engine/GameInstance.h"
 #include "Subsystems/CurrencySubsystem.h"
 #include "Subsystems/CollectionSubsystem.h"
+#include "Subsystems/GameDataSubsystem.h"
 
 void ULREnhanceButtonWidget::NativePreConstruct()
 {
@@ -25,6 +26,11 @@ void ULREnhanceButtonWidget::NativePreConstruct()
 void ULREnhanceButtonWidget::RefreshUI()
 {
 	Super::RefreshUI();
+
+	UCollectionSubsystem* CollectionSub = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
+	FCharacterInstance CharacterData = CollectionSub->GetCharacterInstance(CharacterID);
+
+	CalculateExp(CharacterData.CurrentLevel, CharacterData.CurrentExp, MaxLevel);
 
 	Txt_Cost->SetText(FText::AsNumber(EnhanceCost));
 }
@@ -46,21 +52,17 @@ void ULREnhanceButtonWidget::SetCharacterID(const FName& InID)
 {
 	CharacterID = InID;
 
-	UCollectionSubsystem* CollectionSub = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
-	FCharacterInstance CharacterData = CollectionSub->GetCharacterInstance(CharacterID);
-
-	CalculateExp(CharacterData.CurrentLevel, CharacterData.CurrentExp, MaxLevel);
-
 	RefreshUI();
 }
 
 void ULREnhanceButtonWidget::CalculateExp(int32 CurrentLevel, int32 CurrentExp, int32 InMaxLevel)
 {
 	EnhanceExp = 0;
+	UGameDataSubsystem* GameDataSys = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
 	for (int32 i = CurrentLevel; i < CurrentLevel + EnhanceCount && i < InMaxLevel; i++)
 	{
-		//TODO: 레벨 구간별 경험치 요구량 테이블 연결 예정
-		EnhanceExp += 500;
+		int32 RequiredExpFloat = static_cast<int32>(GameDataSys->GetBaseStatAtLevel(ELRStatusType::EXP, i));
+		EnhanceExp += RequiredExpFloat;
 	}
 	EnhanceExp -= CurrentExp;
 	EnhanceCost = EnhanceExp * CostPerExp;
