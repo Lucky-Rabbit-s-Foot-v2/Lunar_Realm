@@ -175,18 +175,18 @@ public:
 	// 베이스 스탯 가져오기 (CurveTable에서 레벨에 따른 값)
 	float GetBaseStatAtLevel(ELRStatusType StatusType, int32 Level);
 
+	// 착용 장비 스탯 보너스값 가져오기
+	float GetEquipmentStatBonus(FName EquipmentID, ELRStatusType StatusType, int32 EquipmentLevel);
+
 protected:
 	// 스테이터스 승수값 가져오기 (캐싱 없음)
 	float GetStatusMultiplier(FName CharacterID, ELRStatusType StatusType);
 	// 착용 장비 보너스 데이터 가져오기
 	const FEquipmentBonus& GetEquipmentBonus(FName EquipmentID) const;
-	// 착용 장비 스탯 보너스값 가져오기
-	float GetEquipmentStatBonus(FName EquipmentID, ELRStatusType StatusType, int32 EquipmentLevel);
 	// 착용 장비 세트효과 데이터 조회
 	const FSetEffectData& GetSetEffectData(FName SetID) const;
 	//활성화된 세트 ID 체크
 	TArray<FName> CheckActiveSetIDs(const TArray<FName>& EquipmentIDs) const;
-	
 	//Enum->FName 변환 헬퍼(CT 접근용)
 	static FName StatTypeToName(ELRStatusType StatusType);
 	//Enum->FName 변환 헬퍼(세트 아이템 체크용
