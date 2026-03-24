@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "Subsystems/GameDataSubsystem.h"
 #include "Subsystems/SaveGameSubsystem.h"
+#include "Subsystems/CollectionSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/GameInstance.h"
 #include "GameFramework/Pawn.h"
@@ -87,8 +88,19 @@ void ALRPlayerState::InitializePlayerData()
 		CharacterID = FName("Nurse");
 	}
 
-	// TODO_BJM : 테스트용으로 임시 배치. 추후 덱 데이터 로드 방식 확정되면 제거 예정
-	CharacterLevel = FName("10");;
+	if (UCollectionSubsystem* CollectionSys = GI->GetSubsystem<UCollectionSubsystem>())
+	{
+		FCharacterInstance CharInst = CollectionSys->GetCharacterInstance(CharacterID);
+
+		CharacterLevel = FName(*FString::FromInt(CharInst.CurrentLevel));
+
+		UE_LOG(LogTemp, Log, TEXT("[LRPlayerState] 리더 캐릭터 [%s]의 실제 레벨 [%d] 로드 완료"), *CharacterID.ToString(), CharInst.CurrentLevel);
+	}
+	else
+	{
+		// 시스템을 못 찾았을 경우 혹시 모를 크래시 방지용 1레벨 세팅
+		CharacterLevel = FName("1");
+	}
 
 	//EquippedItems.Add(EEquipmentSlotType::WEAPON, FName(TEXT("EQUIP_MELEE_01")));
 	EquippedItemLevels.Add(EEquipmentSlotType::WEAPON, 1);

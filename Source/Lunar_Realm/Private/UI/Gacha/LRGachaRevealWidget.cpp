@@ -137,6 +137,11 @@ void ULRGachaRevealWidget::StartReveal(FName InBannerID, const TArray<FLRGachaRe
 		ResultOverlay->SetVisibility(ESlateVisibility::Collapsed);
 	}
 
+	if (DuplicateGoldPanel)
+	{
+		DuplicateGoldPanel->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
 	if (PresentationOverlay)
 	{
 		PresentationOverlay->SetVisibility(ESlateVisibility::Collapsed);
@@ -1110,6 +1115,7 @@ void ULRGachaRevealWidget::ShowFinalResultOverlay()
 	}
 
 	BuildResultSlotsSequential();
+	RefreshDuplicateGoldTotalUI();
 	BP_OnAllRevealed(CachedResults);
 	bResultOverlayShown = true;
 
@@ -1200,5 +1206,45 @@ void ULRGachaRevealWidget::StopRevealStageBGM()
 	{
 		RevealStageBGMComponent->Stop();
 		RevealStageBGMComponent = nullptr;
+	}
+}
+
+int32 ULRGachaRevealWidget::CalculateTotalDuplicateGold() const
+{
+	int32 TotalGold = 0;
+
+	for (const FLRGachaResult& Result : CachedResults)
+	{
+		if (Result.bConvertedToGold)
+		{
+			TotalGold += Result.ConvertedGoldAmount;
+		}
+	}
+
+	return TotalGold;
+}
+
+void ULRGachaRevealWidget::RefreshDuplicateGoldTotalUI()
+{
+	const int32 TotalDuplicateGold = CalculateTotalDuplicateGold();
+
+	if (TotalDuplicateGold > 0)
+	{
+		if (TextDuplicateGoldTotal)
+		{
+			TextDuplicateGoldTotal->SetText(FText::AsNumber(TotalDuplicateGold));
+		}
+
+		if (DuplicateGoldPanel)
+		{
+			DuplicateGoldPanel->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+	else
+	{
+		if (DuplicateGoldPanel)
+		{
+			DuplicateGoldPanel->SetVisibility(ESlateVisibility::Collapsed);
+		}
 	}
 }

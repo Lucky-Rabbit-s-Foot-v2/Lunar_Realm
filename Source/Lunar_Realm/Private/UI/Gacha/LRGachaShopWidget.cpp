@@ -142,6 +142,7 @@ void ULRGachaShopWidget::NativeConstruct()
 	}
 
 	StartShopBGM();
+	RefreshRateTexts();
 }
 
 void ULRGachaShopWidget::NativeDestruct()
@@ -458,6 +459,7 @@ void ULRGachaShopWidget::SetTab(ELRGachaShopTab NewTab)
 	// UI 값 갱신(천장/재화 등)
 	RefreshCurrencyTexts();
 	RefreshPityText();
+	RefreshRateTexts();
 
 	// BP에게 “배경만” 적용하라고 신호
 	BP_ApplyTabBackground(CurrentTab);
@@ -509,5 +511,81 @@ void ULRGachaShopWidget::StartShopBGM()
 		ShopBGMComponent->SetVolumeMultiplier(ShopBGMVolume);
 		ShopBGMComponent->bIsUISound = true;
 		ShopBGMComponent->bAutoDestroy = false;
+	}
+}
+
+FText ULRGachaShopWidget::MakeDualPercentText(float CrescentRate, float FullMoonRate) const
+{
+	return FText::FromString(
+		FString::Printf(TEXT("%.1f%% / %.1f%%"), CrescentRate, FullMoonRate)
+	);
+}
+
+void ULRGachaShopWidget::RefreshRateTexts()
+{
+	if (!GachaSys)
+	{
+		return;
+	}
+
+	const bool bHero = IsHeroTabSelected();
+
+	const FName CrescentBannerID = bHero
+		? FName(TEXT("Hero_Crescent"))
+		: FName(TEXT("Equip_Crescent"));
+
+	const FName FullMoonBannerID = bHero
+		? FName(TEXT("Hero_FullMoon"))
+		: FName(TEXT("Equip_FullMoon"));
+
+	const ELRGachaItemType ItemType = bHero
+		? ELRGachaItemType::Hero
+		: ELRGachaItemType::Equipment;
+
+	TMap<ELRGachaRarity, float> CrescentRateMap;
+	TMap<ELRGachaRarity, float> FullMoonRateMap;
+
+	const bool bHasCrescentRates =
+		GachaSys->GetRarityRatesForBanner(CrescentBannerID, ItemType, CrescentRateMap);
+
+	const bool bHasFullMoonRates =
+		GachaSys->GetRarityRatesForBanner(FullMoonBannerID, ItemType, FullMoonRateMap);
+
+	auto GetRateText = [&](ELRGachaRarity Rarity) -> FText
+		{
+			if (!bHasCrescentRates && !bHasFullMoonRates)
+			{
+				return FText::GetEmpty();
+			}
+
+			const float CrescentRate = CrescentRateMap.FindRef(Rarity);
+			const float FullMoonRate = FullMoonRateMap.FindRef(Rarity);
+
+			return MakeDualPercentText(CrescentRate, FullMoonRate);
+		};
+
+	if (TextRateN)
+	{
+		TextRateN->SetText(GetRateText(ELRGachaRarity::N));
+	}
+
+	if (TextRateR)
+	{
+		TextRateR->SetText(GetRateText(ELRGachaRarity::R));
+	}
+
+	if (TextRateSR)
+	{
+		TextRateSR->SetText(GetRateText(ELRGachaRarity::SR));
+	}
+
+	if (TextRateSSR)
+	{
+		TextRateSSR->SetText(GetRateText(ELRGachaRarity::SSR));
+	}
+
+	if (TextRateUR)
+	{
+		TextRateUR->SetText(GetRateText(ELRGachaRarity::UR));
 	}
 }

@@ -48,15 +48,21 @@ void ULRCombatComponent::BeginPlay()
 	TArray<AActor*> AllBases;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Enemy.Structure.Core"), AllBases);
 
-	if (AllBases.Num() > 0)
+	for (AActor* Base : AllBases)
 	{
-		CachedEnemyBase = AllBases[0];
-		LR_INFO(TEXT("[Combat] 적 기지 캐싱 완료: %s"), *CachedEnemyBase->GetName());
+		if (IsValid(Base) && !IsTargetDead(Base))
+		{
+			CachedEnemyBase = Base;
+			LR_INFO(TEXT("[Combat] 적 기지 캐싱 완료: %s"), *CachedEnemyBase->GetName());
+			break;
+		}
 	}
-	else
+
+	if (!CachedEnemyBase)
 	{
-		LR_WARN(TEXT("[Combat] 맵에 'Enemy.Structure.Core' 태그를 가진 액터가 없음."));
+		LR_WARN(TEXT("[Combat] 맵에 활성화된 'Enemy.Structure.Core' 태그를 가진 액터가 없음."));
 	}
+
 
 	float RandomDelay = FMath::RandRange(0.1f, 0.3f);
 	GetWorld()->GetTimerManager().SetTimer(
@@ -272,21 +278,49 @@ void ULRCombatComponent::FindBestTarget()
 		TArray<AActor*> AllCores;
 
 		UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Enemy.Structure.Core"), AllCores);
-		if (AllCores.Num() > 0)
+
+		CachedEnemyBase = nullptr;
+		for (AActor* Core : AllCores)
 		{
-			CachedEnemyBase = AllCores[0];
+			if (IsValid(Core) && !IsTargetDead(Core))
+			{
+				CachedEnemyBase = Core;
+				break;
+			}
 		}
-		else
+
+		if (!CachedEnemyBase)
 		{
 			TArray<AActor*> AllEnemies;
 			UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALREnemyCharacter::StaticClass(), AllEnemies);
 
-			if (AllEnemies.Num() > 0)
+			for (AActor* Enemy : AllEnemies)
 			{
-				CachedEnemyBase = AllEnemies[0];
-				LR_INFO(TEXT("[Combat] 코어가 없어 보스(%s)를 타겟으로 캐싱"), *CachedEnemyBase->GetName());
+				if (IsValid(Enemy) && !IsTargetDead(Enemy))
+				{
+					CachedEnemyBase = Enemy;
+					LR_INFO(TEXT("[Combat] 코어가 없어 보스(%s)를 타겟으로 캐싱"), *CachedEnemyBase->GetName());
+					break;
+				}
 			}
 		}
+
+
+		//if (AllCores.Num() > 0)
+		//{
+		//	CachedEnemyBase = AllCores[0];
+		//}
+		//else
+		//{
+		//	TArray<AActor*> AllEnemies;
+		//	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALREnemyCharacter::StaticClass(), AllEnemies);
+
+		//	if (AllEnemies.Num() > 0)
+		//	{
+		//		CachedEnemyBase = AllEnemies[0];
+		//		LR_INFO(TEXT("[Combat] 코어가 없어 보스(%s)를 타겟으로 캐싱"), *CachedEnemyBase->GetName());
+		//	}
+		//}
 	}
 
 	if (CachedEnemyBase && IsValid(CachedEnemyBase))
