@@ -279,6 +279,8 @@ void ALREnemySpawner::SpawnBoss()
 		EnemyAIC->SetDetectionRadius(NewRadius);
 		BossEnemy->SetCoreAttackOverlapRadius(NewRadius);
 	}
+
+	OnBossSpawned.Broadcast(BossEnemy);
 }
 
 void ALREnemySpawner::SpawnEnemy()
