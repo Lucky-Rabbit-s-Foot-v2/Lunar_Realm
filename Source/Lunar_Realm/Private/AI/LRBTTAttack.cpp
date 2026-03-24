@@ -88,6 +88,15 @@ EBTNodeResult::Type ULRBTTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 		return EBTNodeResult::Failed;
 	}
 
+	// AIController에게 공격을 위임하고, 헬퍼를 통해 델리게이트 등록 + InProgress 패턴 처리
+	FGameplayTag AttackTag = AIController->TryAttackTarget(TargetActor);
+	return FinishExecuteWithTag(OwnerComp, NodeMemory, ASC, AttackTag);
+}
+
+EBTNodeResult::Type ULRBTTAttack::FinishExecuteWithTag(
+	UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
+	UAbilitySystemComponent* ASC, FGameplayTag AttackTag)
+{
 	FLRBTAttackTaskMemory* Memory = CastInstanceNodeMemory<FLRBTAttackTaskMemory>(NodeMemory);
 	Memory->BTComp = &OwnerComp;
 	Memory->ASC = ASC;
@@ -96,12 +105,14 @@ EBTNodeResult::Type ULRBTTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 
 	UnregisterDelegate(Memory);
 
-	Memory->AbilityEndedHandle = ASC->OnAbilityEnded.AddUObject(this, &ULRBTTAttack::OnAbilityEnded, &OwnerComp, NodeMemory);
-	Memory->AbilityFailedHandle = ASC->AbilityFailedCallbacks.AddUObject(this, &ULRBTTAttack::OnAbilityFailed, &OwnerComp, NodeMemory);
-	
-	Memory->ActivatedAbilityTag = AIController->TryAttackTarget(TargetActor);
+	Memory->AbilityEndedHandle = ASC->OnAbilityEnded.AddUObject(
+		this, &ULRBTTAttack::OnAbilityEnded, &OwnerComp, NodeMemory);
+	Memory->AbilityFailedHandle = ASC->AbilityFailedCallbacks.AddUObject(
+		this, &ULRBTTAttack::OnAbilityFailed, &OwnerComp, NodeMemory);
 
-	// GA가 동기적으로 이미 종료된 경우 처리
+	Memory->ActivatedAbilityTag = AttackTag;
+
+	// GA가 동기적으로 이미 실패한 경우 처리
 	if (Memory->bAbilityFailedSynchronously || (!Memory->ActivatedAbilityTag.IsValid() && !Memory->CooldownTagHandle.IsValid()))
 	{
 		UnregisterDelegate(Memory);

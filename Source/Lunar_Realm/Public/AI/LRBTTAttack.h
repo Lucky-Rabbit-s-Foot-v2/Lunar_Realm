@@ -27,6 +27,7 @@
  // (260303) BJM 수정, TryAttackTarget() 호출로 변경
  // (260312) KWB 수정. Enemy 종류 세분화에 따른 엔진에서 타겟 설정용 멤버 추가
  // (260313) KWB 수정. BT 루프 방지를 위한 InProgress 패턴 도입. NodeMemory 구조체 추가. TryAttackTarget 반환 타입 bool -> FGameplayTag 변경.
+ // (260324) KWB 수정. FinishExecuteWithTag => 자식 클래스에서 사용할 헬퍼 함수 추가
  // =============================================================================
 
 // 에너미별 Task 상태를 저장하는 구조체
@@ -54,6 +55,10 @@ public:
 protected:
 	virtual EBTNodeResult::Type ExecuteTask(
 		UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
+	EBTNodeResult::Type FinishExecuteWithTag(
+		UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
+		UAbilitySystemComponent* ASC, FGameplayTag AttackTag);
 
 	// BT가 Task를 강제 중단할 때 호출 (델리게이트 정리용)
 	virtual EBTNodeResult::Type AbortTask(

@@ -789,10 +789,7 @@ struct FEnemyStaticData : public FTableRowBase
 	TSoftClassPtr<UAnimInstance> AnimBlueprintClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
-	TSoftObjectPtr<UAnimMontage> AttackNormalMontage;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
-	TSoftObjectPtr<UAnimMontage> AttackSpecialMontage;
+	TArray<TSoftObjectPtr<UAnimMontage>> AttackMontages;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
 	TSoftObjectPtr<UAnimMontage> AttackedMontage;

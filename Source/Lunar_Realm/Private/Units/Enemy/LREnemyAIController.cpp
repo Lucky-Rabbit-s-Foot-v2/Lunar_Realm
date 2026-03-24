@@ -20,6 +20,11 @@ ALREnemyAIController::ALREnemyAIController()
 
 FGameplayTag ALREnemyAIController::TryAttackTarget(AActor* Target)
 {
+	// 일반/엘리트: 항상 Phase 0 (index 0, 1)으로 동작
+	return TryAttackTargetByPhase(Target, 0);
+}
+FGameplayTag ALREnemyAIController::TryAttackTargetByPhase(AActor* Target, int32 Phase)
+{
 	if (!Target)
 	{
 		return FGameplayTag();
@@ -44,44 +49,50 @@ FGameplayTag ALREnemyAIController::TryAttackTarget(AActor* Target)
 		return FGameplayTag();
 	}
 
-	if (!CachedNormalSkillTag.IsValid())
+	// 페이즈에 따른 스킬 인덱스 산출
+	const int32 NormalIdx = Phase * 2;
+	const int32 SpecialIdx = NormalIdx + 1;
+
+	// Normal 인덱스 유효성 체크
+	if (!CachedSkillTags.IsValidIndex(NormalIdx))
 	{
-		LR_WARN(TEXT("[%s] TryAttackTarget: CachedNormalSkillTag가 유효하지 않습니다."), *GetName());
+		LR_WARN(TEXT("[%s] TryAttackTargetByPhase: Phase %d에 해당하는 Normal 스킬(index %d)이 없음"),
+			*GetName(), Phase, NormalIdx);
 		return FGameplayTag();
 	}
 
 	// 우선순위 기반 스킬 + 몽타주 선택
-	FGameplayTag SelectedSkillTag;
+	FGameplayTag SelectedTag;
 	UAnimMontage* SelectedMontage = nullptr;
 
-	if (!IsSkillOnCooldown(ASC, CachedNormalSkillTag))
+	if (!IsSkillOnCooldown(ASC, CachedSkillTags[NormalIdx]))
 	{
 		// Normal 사용 가능 → Normal 선택
-		SelectedSkillTag = CachedNormalSkillTag;
-		SelectedMontage = CachedNormalMontage;
+		SelectedTag = CachedSkillTags[NormalIdx];
+		SelectedMontage = CachedAttackMontages.IsValidIndex(NormalIdx) ? CachedAttackMontages[NormalIdx] : nullptr;
 	}
-	else if (bHasSpecialSkill && !IsSkillOnCooldown(ASC, CachedSpecialSkillTag))
+	else if (CachedSkillTags.IsValidIndex(SpecialIdx) && !IsSkillOnCooldown(ASC, CachedSkillTags[SpecialIdx]))
 	{
 		// Normal 쿨타임 중, Special 사용 가능 → Special 선택
-		SelectedSkillTag = CachedSpecialSkillTag;
-		SelectedMontage = CachedSpecialMontage;
+		SelectedTag = CachedSkillTags[SpecialIdx];
+		SelectedMontage = CachedAttackMontages.IsValidIndex(SpecialIdx) ? CachedAttackMontages[SpecialIdx] : nullptr;
 	}
 	else
 	{
 		// 둘 다 쿨타임 중 → Normal을 그냥 시도, GAS가 쿨타임으로 실패 처리
 		// → LRBTTAttack의 OnAbilityFailed가 쿨타임 대기를 자동으로 처리함
-		SelectedSkillTag = CachedNormalSkillTag;
-		SelectedMontage = CachedNormalMontage;
+		SelectedTag = CachedSkillTags[NormalIdx];
+		SelectedMontage = CachedAttackMontages.IsValidIndex(NormalIdx) ? CachedAttackMontages[NormalIdx] : nullptr;
 	}
 
 	FGameplayEventData EventData;
 	EventData.Instigator = OwnerCharacter;
 	EventData.Target = Target;
-	EventData.OptionalObject = SelectedMontage; // GA에서 꺼내 몽타주 재생에 사용
+	EventData.OptionalObject = SelectedMontage;
 
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerCharacter, SelectedSkillTag, EventData);
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerCharacter, SelectedTag, EventData);
 
-	return SelectedSkillTag;
+	return SelectedTag;
 }
 
 void ALREnemyAIController::InitializeFromEnemyData(FName EnemyID)
@@ -98,11 +109,9 @@ void ALREnemyAIController::InitializeFromEnemyData(FName EnemyID)
 	AttackRange = EnemyData.AttackRange;
 	DetectionRadius = AttackRange + DetectionRadiusOffset;
 
-	CachedNormalMontage = nullptr;
-	CachedSpecialMontage = nullptr;
-	CachedNormalSkillTag = FGameplayTag();
-	CachedSpecialSkillTag = FGameplayTag();
-	bHasSpecialSkill = false;
+	// 배열 초기화
+	CachedSkillTags.Empty();
+	CachedAttackMontages.Empty();
 
 	if (EnemyData.SkillIDs.Num() < 1)
 	{
@@ -110,48 +119,30 @@ void ALREnemyAIController::InitializeFromEnemyData(FName EnemyID)
 		return;
 	}
 
-	// Normal 스킬 태그 + 몽타주 캐싱
-	const FSkillStaticData& NormalSkillData = DataSys->GetSkillStaticData(EnemyData.SkillIDs[0]);
-	CachedNormalSkillTag = NormalSkillData.SkillTag;
-
-	if (!EnemyData.AttackNormalMontage.IsNull())
+	// SkillIDs 수만큼 루프: 스킬 태그 + 몽타주 캐싱
+	for (int32 i = 0; i < EnemyData.SkillIDs.Num(); ++i)
 	{
-		CachedNormalMontage = EnemyData.AttackNormalMontage.LoadSynchronous();
-		if (!CachedNormalMontage)
+		// 스킬 태그 캐싱
+		const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(EnemyData.SkillIDs[i]);
+		CachedSkillTags.Add(SkillData.SkillTag);
+
+		// 몽타주 캐싱
+		UAnimMontage* LoadedMontage = nullptr;
+		if (EnemyData.AttackMontages.IsValidIndex(i) && !EnemyData.AttackMontages[i].IsNull())
 		{
-			LR_WARN(TEXT("[%s] AttackNormalMontage 로드 실패"), *GetName());
+			LoadedMontage = EnemyData.AttackMontages[i].LoadSynchronous();
+			if (!LoadedMontage)
+			{
+				LR_WARN(TEXT("[%s] AttackMontages[%d] 로드 실패"), *GetName(), i);
+			}
 		}
-	}
-	else
-	{
-		LR_WARN(TEXT("[%s] AttackNormalMontage가 DT에 없습니다."), *GetName());
-	}
+		else
+		{
+			LR_WARN(TEXT("[%s] AttackMontages[%d]가 DT에 없거나 유효하지 않습니다."), *GetName(), i);
+		}
 
-	// Special 스킬 유효성 검사
-	if (EnemyData.SkillIDs.Num() < 2)
-	{
-		// LR_WARN(TEXT("[%s] SkillIDs가 1개 — Special 없이 Normal만 사용합니다."), *GetName());
-		return;
+		CachedAttackMontages.Add(LoadedMontage);
 	}
-
-	if (EnemyData.AttackSpecialMontage.IsNull())
-	{
-		LR_WARN(TEXT("[%s] AttackSpecialMontage가 DT에 없음 — Normal만 사용합니다."), *GetName());
-		return;
-	}
-
-	// Special 스킬 태그 + 몽타주 캐싱
-	const FSkillStaticData& SpecialSkillData = DataSys->GetSkillStaticData(EnemyData.SkillIDs[1]);
-	CachedSpecialSkillTag = SpecialSkillData.SkillTag;
-	CachedSpecialMontage = EnemyData.AttackSpecialMontage.LoadSynchronous();
-
-	if (!CachedSpecialMontage)
-	{
-		LR_WARN(TEXT("[%s] AttackSpecialMontage 로드 실패 — Normal만 사용합니다."), *GetName());
-		return;
-	}
-
-	bHasSpecialSkill = true;
 }
 
 void ALREnemyAIController::OnPoolDeactivate_Implementation()
@@ -160,11 +151,8 @@ void ALREnemyAIController::OnPoolDeactivate_Implementation()
 	Super::OnPoolDeactivate_Implementation();
 
 	// Enemy 전용 캐싱 데이터 리셋
-	CachedNormalMontage = nullptr;
-	CachedSpecialMontage = nullptr;
-	CachedNormalSkillTag = FGameplayTag();
-	CachedSpecialSkillTag = FGameplayTag();
-	bHasSpecialSkill = false;
+	CachedSkillTags.Empty();
+	CachedAttackMontages.Empty();
 }
 
 bool ALREnemyAIController::IsSkillOnCooldown(UAbilitySystemComponent* ASC, FGameplayTag SkillTag) const

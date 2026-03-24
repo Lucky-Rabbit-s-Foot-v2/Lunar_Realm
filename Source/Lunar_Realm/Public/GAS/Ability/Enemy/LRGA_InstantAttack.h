@@ -53,6 +53,7 @@ protected:
 
 private:
 	TObjectPtr<UAnimMontage> ActiveMontage = nullptr;
+
 	bool bDamageApplied = false;
 
 	// 에디터의 AnimMontage에 설정해야 하는 Notify 이름
