@@ -103,6 +103,8 @@ void ALRGachaOrbActor::PlayRevealToCenter(const FVector& InTargetWorldLocation)
 	}
 
 	GetWorld()->GetTimerManager().ClearTimer(TimerFinishReveal);
+	GetWorld()->GetTimerManager().ClearTimer(TimerStartSoundDelay);
+	GetWorld()->GetTimerManager().ClearTimer(TimerMainSoundDelay);
 
 	CachedStartLocation = GetActorLocation();
 	CachedStartScale = GetActorScale3D();
@@ -133,14 +135,21 @@ void ALRGachaOrbActor::PlayRevealToCenter(const FVector& InTargetWorldLocation)
 		}
 		else
 		{
-			FTimerHandle TempHandle;
+			GetWorld()->GetTimerManager().ClearTimer(TimerStartSoundDelay);
+
 			TWeakObjectPtr<ALRGachaOrbActor> WeakThis(this);
 
 			GetWorld()->GetTimerManager().SetTimer(
-				TempHandle,
+				TimerStartSoundDelay,
 				[WeakThis, StartSound]()
 				{
-					if (!WeakThis.IsValid())
+					if (!WeakThis.IsValid() || !StartSound)
+					{
+						return;
+					}
+
+					// 스킵 등으로 이미 정리된 상태면 재생하지 않음
+					if (WeakThis->bRevealFinished)
 					{
 						return;
 					}
@@ -202,6 +211,11 @@ void ALRGachaOrbActor::SetFocused(bool bFocused)
 
 void ALRGachaOrbActor::OnMoveToCenterFinished()
 {
+	if (bRevealFinished)
+	{
+		return;
+	}
+
 	bRevealMoving = false;
 	bEmissiveAnimating = true;
 
@@ -232,14 +246,21 @@ void ALRGachaOrbActor::OnMoveToCenterFinished()
 		}
 		else
 		{
-			FTimerHandle TempHandle;
+			GetWorld()->GetTimerManager().ClearTimer(TimerMainSoundDelay);
+
 			TWeakObjectPtr<ALRGachaOrbActor> WeakThis(this);
 
 			GetWorld()->GetTimerManager().SetTimer(
-				TempHandle,
+				TimerMainSoundDelay,
 				[WeakThis, Sound]()
 				{
-					if (!WeakThis.IsValid())
+					if (!WeakThis.IsValid() || !Sound)
+					{
+						return;
+					}
+
+					// 스킵 등으로 이미 정리된 상태면 재생하지 않음
+					if (WeakThis->bRevealFinished)
 					{
 						return;
 					}
@@ -407,6 +428,12 @@ UMaterialInterface* ALRGachaOrbActor::GetMaterialByRarity(ELRGachaRarity Rarity)
 
 void ALRGachaOrbActor::StopAllOrbSounds()
 {
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimerStartSoundDelay);
+		GetWorld()->GetTimerManager().ClearTimer(TimerMainSoundDelay);
+	}
+
 	if (ActiveStartSoundComponent)
 	{
 		ActiveStartSoundComponent->Stop();
@@ -418,4 +445,27 @@ void ALRGachaOrbActor::StopAllOrbSounds()
 		ActiveMainSoundComponent->Stop();
 		ActiveMainSoundComponent = nullptr;
 	}
+}
+
+void ALRGachaOrbActor::CancelRevealAndStopAllEffects()
+{
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimerFinishReveal);
+		GetWorld()->GetTimerManager().ClearTimer(TimerStartSoundDelay);
+		GetWorld()->GetTimerManager().ClearTimer(TimerMainSoundDelay);
+	}
+
+	bRevealMoving = false;
+	bEmissiveAnimating = false;
+	bRevealFinished = true;
+
+	SetActorTickEnabled(false);
+
+	if (IdleAura)
+	{
+		IdleAura->Deactivate();
+	}
+
+	StopAllOrbSounds();
 }

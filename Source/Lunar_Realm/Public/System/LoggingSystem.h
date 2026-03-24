@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -62,31 +62,31 @@ enum class EKLogLevel : uint8
 			switch(Level) {																					  \
                 case EKLogLevel::Trace:																		  \
                     UE_LOG(Category, VeryVerbose, TEXT("[%s][%s:%d] " Format),								  \
-                        TEXT(__FUNCTION__), *FPaths::GetCleanFilename(__FILE__), __LINE__, ##__VA_ARGS__);	  \
+                        *FString(__FUNCTION__), *FPaths::GetCleanFilename(__FILE__), __LINE__, ##__VA_ARGS__);	  \
                     break;																					  \
                 case EKLogLevel::Debug:																		  \
                     UE_LOG(Category, Verbose, TEXT("[%s][%s:%d] " Format),									  \
-                        TEXT(__FUNCTION__), *FPaths::GetCleanFilename(__FILE__), __LINE__, ##__VA_ARGS__);    \
+                        *FString(__FUNCTION__), *FPaths::GetCleanFilename(__FILE__), __LINE__, ##__VA_ARGS__);    \
                     break;																					  \
                 case EKLogLevel::Info:																		  \
                     UE_LOG(Category, Log, TEXT("[%s][%s:%d] " Format),										  \
-                        TEXT(__FUNCTION__), *FPaths::GetCleanFilename(__FILE__), __LINE__, ##__VA_ARGS__);    \
+                        *FString(__FUNCTION__), *FPaths::GetCleanFilename(__FILE__), __LINE__, ##__VA_ARGS__);    \
                     break;																					  \
                 case EKLogLevel::Warn:																		  \
                     UE_LOG(Category, Warning, TEXT("[%s][%s:%d] " Format),									  \
-                        TEXT(__FUNCTION__), *FPaths::GetCleanFilename(__FILE__), __LINE__, ##__VA_ARGS__);    \
+                        *FString(__FUNCTION__), *FPaths::GetCleanFilename(__FILE__), __LINE__, ##__VA_ARGS__);    \
                     break;																					  \
                 case EKLogLevel::Error:																		  \
                     UE_LOG(Category, Error, TEXT("[%s][%s:%d] " Format),									  \
-                        TEXT(__FUNCTION__), *FPaths::GetCleanFilename(__FILE__), __LINE__, ##__VA_ARGS__);    \
+                        *FString(__FUNCTION__), *FPaths::GetCleanFilename(__FILE__), __LINE__, ##__VA_ARGS__);    \
                     break;																					  \
                 case EKLogLevel::Fatal:																		  \
                     UE_LOG(Category, Fatal, TEXT("[%s][%s:%d] " Format),									  \
-                        TEXT(__FUNCTION__), *FPaths::GetCleanFilename(__FILE__), __LINE__, ##__VA_ARGS__);    \
+                        *FString(__FUNCTION__), *FPaths::GetCleanFilename(__FILE__), __LINE__, ##__VA_ARGS__);    \
                     break;																					  \
 				default:																					  \
 					UE_LOG(Category, Log, TEXT("[%s][%s:%d] " Format),										  \
-						TEXT(__FUNCTION__), *FPaths::GetCleanFilename(__FILE__), __LINE__, ##__VA_ARGS__);    \
+						*FString(__FUNCTION__), *FPaths::GetCleanFilename(__FILE__), __LINE__, ##__VA_ARGS__);    \
 				break;																						  \
             }																								  \
 		} \

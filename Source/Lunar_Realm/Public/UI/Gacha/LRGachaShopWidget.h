@@ -83,6 +83,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Gacha|Sound")
 	TObjectPtr<USoundBase> ShopBGMSound;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Gacha|Sound")
+	bool bUseShopBGM = true;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Gacha|Sound", meta = (ClampMin = "0.0", ClampMax = "2.0"))
 	float ShopBGMVolume = 1.0f;
 

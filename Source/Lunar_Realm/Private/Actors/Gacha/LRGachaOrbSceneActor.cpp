@@ -24,6 +24,13 @@ ALRGachaOrbSceneActor::ALRGachaOrbSceneActor()
 	MoonAuraComponent->SetupAttachment(GetRootComponent());
 	MoonAuraComponent->bAutoActivate = false;
 
+	MoonLightBeamComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MoonLightBeam"));
+	MoonLightBeamComp->SetupAttachment(MoonMeshComp);
+	MoonLightBeamComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MoonLightBeamComp->SetCastShadow(false);
+	MoonLightBeamComp->SetReceivesDecals(false);
+	MoonLightBeamComp->SetVisibility(true);
+
 	// === Camera ============================================================
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -117,6 +124,30 @@ void ALRGachaOrbSceneActor::InitializeWithResults(const TArray<FLRGachaResult>& 
 
 		MoonMeshComp->SetWorldLocation(GetActorLocation() + MoonStartOffset);
 		MoonMeshComp->SetWorldScale3D(MoonMeshScale);
+	}
+
+	if (MoonLightBeamComp)
+	{
+		if (bUseMoonLightBeam)
+		{
+			if (LightBeamMesh)
+			{
+				MoonLightBeamComp->SetStaticMesh(LightBeamMesh);
+			}
+
+			if (LightBeamMaterial)
+			{
+				MoonLightBeamComp->SetMaterial(0, LightBeamMaterial);
+			}
+
+			MoonLightBeamComp->SetRelativeLocation(LightBeamRelativeLocation);
+			MoonLightBeamComp->SetRelativeScale3D(LightBeamScale);
+			MoonLightBeamComp->SetVisibility(true);
+		}
+		else
+		{
+			MoonLightBeamComp->SetVisibility(false);
+		}
 	}
 
 	if (MoonAuraComponent && MoonAuraSystem)
@@ -232,6 +263,8 @@ void ALRGachaOrbSceneActor::OnTapCenterOrb()
 
 void ALRGachaOrbSceneActor::SkipAllReveal()
 {
+	CancelAllOrbRevealsAndSounds();
+
 	for (int32 i = 0; i < OrbActors.Num(); i++)
 	{
 		if (OrbStates[i] != ELROrbState::Revealed)
@@ -520,6 +553,17 @@ void ALRGachaOrbSceneActor::StopAllOrbSounds()
 		if (ALRGachaOrbActor* TypedOrb = Cast<ALRGachaOrbActor>(Orb))
 		{
 			TypedOrb->StopAllOrbSounds();
+		}
+	}
+}
+
+void ALRGachaOrbSceneActor::CancelAllOrbRevealsAndSounds()
+{
+	for (AActor* Orb : OrbActors)
+	{
+		if (ALRGachaOrbActor* TypedOrb = Cast<ALRGachaOrbActor>(Orb))
+		{
+			TypedOrb->CancelRevealAndStopAllEffects();
 		}
 	}
 }

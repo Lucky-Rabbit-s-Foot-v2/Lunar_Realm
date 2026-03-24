@@ -5,6 +5,7 @@
 
 #include "CoreMinimal.h"
 #include "GAS/Ability/LRGameplayAbilityBase.h"
+#include "NiagaraSystem.h"
 #include "LRGA_InstantAttack.generated.h"
 
 /**
@@ -43,6 +44,12 @@ private:
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|MeleeEffect")
+	TSoftObjectPtr<UNiagaraSystem> AttackVFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|MeleeEffect")
+	TSoftObjectPtr<USoundBase> AttackSFX;
 
 private:
 	TObjectPtr<UAnimMontage> ActiveMontage = nullptr;
