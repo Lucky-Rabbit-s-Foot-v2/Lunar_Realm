@@ -216,7 +216,7 @@ void USaveGameSubsystem::AddCurrency(ELRCurrencyType Type, int32 Delta)
 
 bool USaveGameSubsystem::TrySpendCurrency(ELRCurrencyType Type, int32 Cost)
 {
-	if (Cost <= 0) return true;
+	if (Cost < 0) return true;
 	if (GetCurrency(Type) < Cost) return false;
 
 	AddCurrency(Type, -Cost);

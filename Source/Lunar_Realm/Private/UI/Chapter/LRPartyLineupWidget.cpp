@@ -12,6 +12,7 @@
 
 #include "Subsystems/SaveGameSubsystem.h"
 #include "Subsystems/GameDataSubsystem.h"
+#include "Subsystems/CollectionSubsystem.h"
 
 void ULRPartyLineupWidget::NativeOnInitialized()
 {
@@ -23,20 +24,11 @@ void ULRPartyLineupWidget::NativeOnInitialized()
 	MemberImages.Add(Img_Member2);
 	MemberImages.Add(Img_Member3);
 	MemberImages.Add(Img_Member4);
-}
 
-void ULRPartyLineupWidget::BindProperties()
-{
-	Super::BindProperties();
-
-	if (Btn_Regroup) Btn_Regroup->OnClicked.AddDynamic(this, &ULRPartyLineupWidget::OnRegroupButtonClicked);
-}
-
-void ULRPartyLineupWidget::UnbindProperties()
-{
-	if (Btn_Regroup) Btn_Regroup->OnClicked.Clear();
-
-	Super::UnbindProperties();
+	EquipImages.Empty();
+	EquipImages.Add(Img_Equip1);
+	EquipImages.Add(Img_Equip2);
+	EquipImages.Add(Img_Equip3);
 }
 
 void ULRPartyLineupWidget::RefreshUI()
@@ -45,25 +37,39 @@ void ULRPartyLineupWidget::RefreshUI()
 	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
 	
 	TArray<FName> PartyCharacterIDs = SaveGameSubsystem->GetAllPartyCharactersIDs();
-
 	for (int32 i = 0; i < MemberImages.Num(); i++)
 	{
-		if (PartyCharacterIDs.IsValidIndex(i))
-		{
-			MemberImages[i]->SetBrushFromTexture(GameDataSubsystem->GetCharacterStaticData(PartyCharacterIDs[i]).PortraitIcon.LoadSynchronous());
-		}
-		else
+		FName CharacterID = PartyCharacterIDs.IsValidIndex(i) ? PartyCharacterIDs[i] : NAME_None;
+
+		if(CharacterID.IsNone())
 		{
 			MemberImages[i]->SetBrushFromTexture(EmptySlotTexture);
 		}
+		else
+		{
+			MemberImages[i]->SetBrushFromTexture(GameDataSubsystem->GetCharacterStaticData(PartyCharacterIDs[i]).PortraitIcon.LoadSynchronous());
+		}
 	}
-	// TODO: 장비 이미지 설정
-	TArray<FGuid> LeaderEquipmentIDs = SaveGameSubsystem->GetAllLeaderEquipmentIDs();
-}
 
-void ULRPartyLineupWidget::OnRegroupButtonClicked()
-{
-	UUIManagerSubsystem* UIManagerSubsystem = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManagerSubsystem->OpenUIByID(EUIID::PARTY);
-}
+	UCollectionSubsystem* CollectionSubsystem = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
+	for (int32 i = 0; i < EquipImages.Num(); i++)
+	{
+		FGuid Guid = SaveGameSubsystem->GetLeaderEquipmentID(i);
+		if (!Guid.IsValid())
+		{
+			EquipImages[i]->SetBrushFromTexture(EmptySlotTexture);
+			continue;
+		}
 
+		FEquipmentInstance EquipmentInstance = CollectionSubsystem->GetEquipmentInstance(Guid);
+		const FEquipmentStaticData& EquipmentData = GameDataSubsystem->GetEquipmentStaticData(EquipmentInstance.EquipmentID);
+		if (EquipmentData.DataID.IsNone())
+		{
+			EquipImages[i]->SetBrushFromTexture(EmptySlotTexture);
+		}
+		else
+		{
+			EquipImages[i]->SetBrushFromTexture(EquipmentData.EquipmentTexture.LoadSynchronous());
+		}
+	}	
+}

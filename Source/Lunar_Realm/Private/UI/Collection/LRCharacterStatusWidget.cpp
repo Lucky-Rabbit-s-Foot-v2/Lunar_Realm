@@ -3,60 +3,107 @@
 
 #include "UI/Collection/LRCharacterStatusWidget.h"
 
+#include "Components/TextBlock.h"
+#include "Components/ProgressBar.h"
+
 #include "Engine/GameInstance.h"
 
-#include "Components/TextBlock.h"
-
-#include "Data/LREnumType.h"
 #include "Subsystems/GameDataSubsystem.h"
 #include "Subsystems/CollectionSubsystem.h"
+
+void ULRCharacterStatusWidget::SetCharacterID(const FName& InID)
+{
+	ID = InID;
+	RefreshUI();
+}
 
 void ULRCharacterStatusWidget::RefreshUI()
 {
 	Super::RefreshUI();
 
+	UpdateCharacterData();
+	UpdateCharacterStatus();
+}
+
+void ULRCharacterStatusWidget::UpdateCharacterData()
+{
 	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
 	UCollectionSubsystem* CollectionSubsystem = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
-	
+
 	if (!GameDataSubsystem || !CollectionSubsystem)
 	{
 		return;
 	}
-	const FCharacterStaticData& CharacterStaticData = GameDataSubsystem->GetCharacterStaticData(CharacterID);
-	const FCharacterInstance& CharacterInstance = CollectionSubsystem->GetCharacterInstance(CharacterID);
-
-	float CharacterHPBonus = GameDataSubsystem->GetCharacterFinalStat(CharacterID, ELRStatusType::HP, 1);
-	float CharacterATKBonus = GameDataSubsystem->GetCharacterFinalStat(CharacterID, ELRStatusType::ATK, 1);
-	float CharacterDEFBonus = GameDataSubsystem->GetCharacterFinalStat(CharacterID, ELRStatusType::DEF, 1);
 	
-	Txt_Name->SetText(FText::FromString(CharacterStaticData.CharacterName));
-	Txt_HP->SetText(FText::AsNumber(CharacterHPBonus));
-	Txt_ATK->SetText(FText::AsNumber(CharacterATKBonus));
-	Txt_DEF->SetText(FText::AsNumber(CharacterDEFBonus));
+	CharacterStaticData = GameDataSubsystem->GetCharacterStaticData(ID);
+	CharacterInstance = CollectionSubsystem->GetCharacterInstance(ID);
+}
 
-	float CurrentLevel = CharacterInstance.CurrentLevel;
-	float CurrentExp = CharacterInstance.CurrentExp;
-
-	// TODO: 레벨 구간 경험치 요구량 테이블 현재 없음. 향후 추가 예정.
-	const float ExpToNextLevel = 500.0f;
-
-	// Level과 경험치 표시 (예: "Lv. 5 (250/500 exp)")
-	FString LevelText = FString::Printf(TEXT("Lv. %d (%.0f/%.0f exp)"), static_cast<int32>(CurrentLevel), CurrentExp, ExpToNextLevel);
-	Txt_Level->SetText(FText::FromString(LevelText));
-	Txt_Class->SetText(FText::FromString(GetClassNameByType(CharacterStaticData.ClassType)));
+void ULRCharacterStatusWidget::UpdateCharacterStatus()
+{
+	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+	UpdateLevel();
+	UpdateEXP();
+	UpdateClass();
+	UpdateHP();
+	UpdateATK();
+	UpdateDEF();
 }
 
 FString ULRCharacterStatusWidget::GetClassNameByType(ELRClassType ClassType) const
 {
 	switch (ClassType)
 	{
-	case ELRClassType::WARRIOR:
-		return FString(TEXT("Warrior"));
-	case ELRClassType::MAGICIAN:
-		return FString(TEXT("Magician"));
-	case ELRClassType::ARCHER:
-		return FString(TEXT("Archer"));
-	default:
-		return FString();
+	case ELRClassType::WARRIOR:		return FString(TEXT("전사"));
+	case ELRClassType::MAGICIAN:	return FString(TEXT("마법사"));
+	case ELRClassType::ARCHER:		return FString(TEXT("궁수"));
+	default:						return FString();
 	}
+}
+
+void ULRCharacterStatusWidget::UpdateLevel()
+{
+	int32 CurrentLevel = CharacterInstance.CurrentLevel;
+	Level->SetText(FText::AsNumber(CurrentLevel));
+}
+
+void ULRCharacterStatusWidget::UpdateEXP()
+{
+	UGameDataSubsystem* GameDataSys = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+	int32 ExpToNextLevel = static_cast<int32>(GameDataSys->GetBaseStatAtLevel(ELRStatusType::EXP, CharacterInstance.CurrentLevel));
+
+	int32 CurrentExp = CharacterInstance.CurrentExp;
+
+	float ExpProgress = (ExpToNextLevel > 0) ? static_cast<float>(CurrentExp) / ExpToNextLevel : 0.0f;
+	Bar->SetPercent(ExpProgress);
+
+	FString ExpText = FString::Printf(TEXT("%d / %d (%.1f%%)"), CurrentExp, ExpToNextLevel, ExpProgress * 100.0f);
+	EXP->SetText(FText::FromString(ExpText));
+}
+
+void ULRCharacterStatusWidget::UpdateClass()
+{
+	FString CharacterClassName = GetClassNameByType(CharacterStaticData.ClassType);
+	Class->SetText(FText::FromString(CharacterClassName));
+}
+
+void ULRCharacterStatusWidget::UpdateHP()
+{
+	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+	float CharacterHPBonus = GameDataSubsystem->GetCharacterFinalStat(ID, ELRStatusType::HP, CharacterInstance.CurrentLevel);
+	HP->SetText(FText::AsNumber(CharacterHPBonus));
+}
+
+void ULRCharacterStatusWidget::UpdateATK()
+{
+	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+	float CharacterATKBonus = GameDataSubsystem->GetCharacterFinalStat(ID, ELRStatusType::ATK, CharacterInstance.CurrentLevel);
+	ATK->SetText(FText::AsNumber(CharacterATKBonus));
+}
+
+void ULRCharacterStatusWidget::UpdateDEF()
+{
+	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+	float CharacterDEFBonus = GameDataSubsystem->GetCharacterFinalStat(ID, ELRStatusType::DEF, CharacterInstance.CurrentLevel);
+	DEF->SetText(FText::AsNumber(CharacterDEFBonus));
 }

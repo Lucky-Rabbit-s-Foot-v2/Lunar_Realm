@@ -161,7 +161,6 @@ void UCollectionSubsystem::LevelUpCharacter(FName CharacterID)
 
 	if (!instance->bIsUnlocked)
 	{
-		LR_ERROR(TEXT("Cannot level up unlocked character : %s "), *CharacterID.ToString());
 		return;
 	}
 
@@ -172,8 +171,6 @@ void UCollectionSubsystem::LevelUpCharacter(FName CharacterID)
 
 	OnCharacterUpdatedDel.Broadcast(CharacterID, instance->CurrentLevel);
 	SyncToSaveGame();
-
-	LR_INFO(TEXT("Character %s leveled up to %d"), *CharacterID.ToString(), instance->CurrentLevel);
 }
 
 void UCollectionSubsystem::AddCharacterExp(FName CharacterID, int32 ExpAmount)
@@ -188,12 +185,13 @@ void UCollectionSubsystem::AddCharacterExp(FName CharacterID, int32 ExpAmount)
 
 	UGameDataSubsystem* GameDataSys = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
 
-	bool bHasLeveledUp = false;
-
-	while (true)
+	bool bHasLeveledUp = true;
+	while (bHasLeveledUp)
 	{
+		bHasLeveledUp = false;
+
 		float RequiredExpFloat = GameDataSys->GetBaseStatAtLevel(ELRStatusType::EXP, instance->CurrentLevel);
-		int32 RequiredExp = FMath::RoundToInt(RequiredExpFloat);
+		int32 RequiredExp = static_cast<int32>(RequiredExpFloat);
 
 		if (instance->CurrentExp >= RequiredExp)
 		{
@@ -202,25 +200,10 @@ void UCollectionSubsystem::AddCharacterExp(FName CharacterID, int32 ExpAmount)
 			bHasLeveledUp = true;
 
 			OnCharacterUpdatedDel.Broadcast(CharacterID, instance->CurrentLevel);
-			LR_INFO(TEXT("Character %s leveled up to %d"), *CharacterID.ToString(), instance->CurrentLevel);
-		}
-		else
-		{
-			break; 
 		}
 	}
 
 	SyncToSaveGame();
-
-	//const int32 EXPforLevelup = 500;
-	//if (instance->CurrentExp >= EXPforLevelup)
-	//{
-	//	LevelUpCharacter(CharacterID);
-	//}
-	//else
-	//{
-	//	SyncToSaveGame();
-	//}
 }
 
 

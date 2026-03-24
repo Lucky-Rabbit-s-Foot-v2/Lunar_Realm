@@ -21,20 +21,11 @@ class LUNAR_REALM_API ULRCollectionPageWidget : public ULRPageWidget
 	GENERATED_BODY()
 	
 protected:
-	virtual void BindProperties() override;
-	virtual void UnbindProperties() override;
-
 	virtual void RegisterSubWidgets() override;
-
-	UFUNCTION(BlueprintCallable, Category = "LR|UI Events")
-	void OnBackButtonClicked();
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRBaseWidget> CharacterInfo;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRCollection> Collection;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Back;
 };
