@@ -91,17 +91,15 @@ void ULREquipStatus::UpdateEXP()
 
 void ULREquipStatus::UpdateSetType()
 {
-	FString SetTypeName = 
-		(EquipmentStaticData.SetType != ELRSetItemType::NONE) ? 
-		UEnum::GetValueAsString(EquipmentStaticData.SetType).RightChop(17) : 
-		FString(TEXT("없음"));
-
+	FString SetTypeName = UEnum::GetValueAsString(EquipmentStaticData.SetType);
+	SetTypeName.RemoveAt(0, SetTypeName.Find(TEXT("::")) + 2);
 	SetType->SetText(FText::FromString(SetTypeName));
 }
 
 void ULREquipStatus::UpdateType()
 {
-	FString TypeName = UEnum::GetValueAsString(EquipmentStaticData.ItemType).RightChop(15);
+	FString TypeName = UEnum::GetValueAsString(EquipmentStaticData.ItemType);
+	TypeName.RemoveAt(0, TypeName.Find(TEXT("::")) + 2);
 	Type->SetText(FText::FromString(TypeName));
 }
 
