@@ -18,7 +18,8 @@
 #include "Subsystems/GameDataSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/GameInstance.h"
-
+#include "Animation/AnimMontage.h"
+#include "TimerManager.h"
 
 ULRGA_BasicAttack::ULRGA_BasicAttack()
 {
@@ -147,9 +148,12 @@ void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
 		MontageTask->OnCompleted.AddDynamic(this, &ULRGA_BasicAttack::OnMontageEnded);
 		MontageTask->OnInterrupted.AddDynamic(this, &ULRGA_BasicAttack::OnMontageEnded);
 		MontageTask->OnCancelled.AddDynamic(this, &ULRGA_BasicAttack::OnMontageEnded);
-
 		MontageTask->ReadyForActivation();
 
+
+		float SafeTime = AttackMontage->GetPlayLength() + 0.1f; 
+		FTimerHandle FallbackTimer;
+		GetWorld()->GetTimerManager().SetTimer(FallbackTimer, this, &ULRGA_BasicAttack::OnMontageEnded, SafeTime, false);
 	}
 
 	UAbilityTask_WaitGameplayEvent* EventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, LRTags::Notify_Combat_BasicHit);
@@ -237,6 +241,8 @@ void ULRGA_BasicAttack::OnHitEventReceived(FGameplayEventData InPayload)
 	{
 		LR_WARN(TEXT("[GA_Attack] 원거리 모드인데 ProjectileClass가 비어있음"));
 	}
+	//bool bWasSuccessful = true;
+	//EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, bWasSuccessful);
 }
 
 void ULRGA_BasicAttack::OnMontageEnded()
