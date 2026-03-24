@@ -21,18 +21,4 @@ class LUNAR_REALM_API ULRShopPageWidget : public ULRPageWidget
 {
 	GENERATED_BODY()
 	
-public:
-	virtual void BindProperties() override;
-	virtual void UnbindProperties() override;
-
-private:
-	UFUNCTION(BlueprintCallable, Category = "LR|UI")
-	void CloseButtonClicked();
-
-protected:
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Close;
-
-	UPROPERTY(EditAnywhere, Category = "LR|UI")
-	TSubclassOf<class ULRLobbyPageWidget> LobbyWidgetClass;
 };

@@ -44,9 +44,9 @@ protected:
 	TObjectPtr<class ULREquipCollection> EquipCollection;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Character;
+	TObjectPtr<class ULRButtonWidget> Btn_Character;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Equip;
+	TObjectPtr<class ULRButtonWidget> Btn_Equip;
 
 };

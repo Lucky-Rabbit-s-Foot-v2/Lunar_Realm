@@ -38,6 +38,7 @@ enum class EUIID : uint8
 	OUTGAME,
 	STAGE,
 	READY,
+	ENHANCE,
 };
 
 UCLASS(Config = Game, defaultconfig, meta = (DisplayName = "UI Manager Settings"))

@@ -5,18 +5,16 @@
 
 #include "Engine/GameInstance.h"
 
-#include "Components/Button.h"
-
 #include "Subsystems/UIManagerSubsystem.h"
 
 #include "UI/Setting/LRSettingScrollWidget.h"
-
+#include "UI/Core/LRButtonWidget.h"
 
 void ULRSettingPopupWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	if(UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
+	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
 	{
 		OnCloseUIRequestedDel.AddUniqueDynamic(UIManager, &UUIManagerSubsystem::CloseUI);
 	}
@@ -40,16 +38,16 @@ void ULRSettingPopupWidget::BindProperties()
 {
 	Super::BindProperties();
 
-	if (Btn_Close) Btn_Close->OnClicked.AddDynamic(this, &ULRSettingPopupWidget::OnCloseButtonClicked);
-	if (Btn_Save) Btn_Save->OnClicked.AddDynamic(this, &ULRSettingPopupWidget::OnSaveButtonClicked);
-	if (Btn_Default) Btn_Default->OnClicked.AddDynamic(this, &ULRSettingPopupWidget::OnDefaultButtonClicked);
+	if (Btn_Close) Btn_Close->OnLRButtonClickedDel.AddDynamic(this, &ULRSettingPopupWidget::OnCloseButtonClicked);
+	if (Btn_Save) Btn_Save->OnLRButtonClickedDel.AddDynamic(this, &ULRSettingPopupWidget::OnSaveButtonClicked);
+	if (Btn_Default) Btn_Default->OnLRButtonClickedDel.AddDynamic(this, &ULRSettingPopupWidget::OnDefaultButtonClicked);
 }
 
 void ULRSettingPopupWidget::UnbindProperties()
 {
-	if (Btn_Close) Btn_Close->OnClicked.Clear();
-	if (Btn_Save) Btn_Save->OnClicked.Clear();
-	if (Btn_Default) Btn_Default->OnClicked.Clear();
+	if (Btn_Close) Btn_Close->OnLRButtonClickedDel.Clear();
+	if (Btn_Save) Btn_Save->OnLRButtonClickedDel.Clear();
+	if (Btn_Default) Btn_Default->OnLRButtonClickedDel.Clear();
 
 	Super::UnbindProperties();
 }

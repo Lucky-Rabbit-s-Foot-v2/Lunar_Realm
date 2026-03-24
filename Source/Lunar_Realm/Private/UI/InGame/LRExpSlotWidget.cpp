@@ -16,7 +16,10 @@ void ULRExpSlotWidget::SetSlotInfo(FName InCharID, int32 InOldLevel, float InOld
 	CurrentVisualExp = static_cast<float>(InOldExp);
 	TargetExp = static_cast<float>(InOldExp + InGainedExp);
 
-	MaxExp = GetRequiredExpForLevel(CurrentLevel);
+	MaxExpAmount = GetRequiredExpForLevel(CurrentLevel);
+
+	FillSpeed = InGainedExp / 1.5f;
+	if (FillSpeed < 20.0f) FillSpeed = 20.0f;
 
 	if (UGameInstance* GI = GetGameInstance())
 	{
@@ -29,16 +32,26 @@ void ULRExpSlotWidget::SetSlotInfo(FName InCharID, int32 InOldLevel, float InOld
 				{
 					CharIcon->SetBrushFromTexture(LoadedIcon);
 				}
-				else
+			}
+			if (UTexture2D* LoadedGrade = CharData.GradeImage.LoadSynchronous())
+			{
+				if (GradeImage)
 				{
-					LR_WARN(TEXT("CharIcon 위젯이 바인딩되지 않음! 블루프린트 확인 필요."));
+					GradeImage->SetBrushFromTexture(LoadedGrade);
 				}
+			}
+			if (NameText)
+			{
+				NameText->SetText(FText::FromString(CharData.CharacterName));
 			}
 		}
 	}
 
 	RefreshUI();
 	bIsFilling = true;
+
+	LR_INFO(TEXT("[%s] 시작Lv: %d | 시작Exp: %.1f | 얻은Exp: %.1f | 필요MaxExp: %.1f"), *CharacterID.ToString(), CurrentLevel, CurrentVisualExp, InGainedExp, MaxExpAmount);
+
 }
 
 
@@ -47,11 +60,12 @@ void ULRExpSlotWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
+
 	if (!bIsFilling) return;
 
 	CurrentVisualExp = FMath::FInterpConstantTo(CurrentVisualExp, TargetExp, InDeltaTime, FillSpeed);
 
-	if (CurrentVisualExp >= MaxExp)
+	if (CurrentVisualExp >= MaxExpAmount)
 	{
 		HandleLevelUp();
 	}
@@ -63,6 +77,8 @@ void ULRExpSlotWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 		CurrentVisualExp = TargetExp;
 		bIsFilling = false;
 	}
+
+	
 }
 
 void ULRExpSlotWidget::RefreshUI()
@@ -79,21 +95,32 @@ void ULRExpSlotWidget::RefreshUI()
 	}
 	if (ExpBar)
 	{
-		ExpBar->SetPercent(CurrentVisualExp / MaxExp);
+		ExpBar->SetPercent(CurrentVisualExp / MaxExpAmount);
 	}
 	else
 	{
 		LR_WARN(TEXT("ExpBar 위젯이 바인딩되지 않았거나 MaxExp가 0"));
 	}
+	if (CurrentExp)
+	{
+		int32 CurrentExpInt = FMath::RoundToInt(CurrentVisualExp);
+		CurrentExp->SetText(FText::AsNumber(CurrentExpInt));
+	}
+
+	if (MaxExp)
+	{
+		int32 MaxExpInt = FMath::RoundToInt(MaxExpAmount);
+		MaxExp->SetText(FText::AsNumber(MaxExpInt));
+	}
 }
 
 void ULRExpSlotWidget::HandleLevelUp()
 {
-	CurrentVisualExp -= MaxExp;
-	TargetExp -= MaxExp;
+	CurrentVisualExp -= MaxExpAmount;
+	TargetExp -= MaxExpAmount;
 	CurrentLevel++;
 
-	MaxExp = GetRequiredExpForLevel(CurrentLevel);
+	MaxExpAmount = GetRequiredExpForLevel(CurrentLevel);
 
 	if (LevelUpAnim)
 	{
@@ -103,12 +130,21 @@ void ULRExpSlotWidget::HandleLevelUp()
 
 float ULRExpSlotWidget::GetRequiredExpForLevel(int32 InLevel) const
 {
+	float ReqExp = 500.0f;
 	if (UGameInstance* GI = GetGameInstance())
 	{
 		if (UGameDataSubsystem* DataSys = GI->GetSubsystem<UGameDataSubsystem>())
 		{
-			return DataSys->GetBaseStatAtLevel(ELRStatusType::EXP, InLevel);
+			float CurveExp = DataSys->GetBaseStatAtLevel(ELRStatusType::EXP, InLevel);
+			if (CurveExp > 0.0f)
+			{
+				ReqExp = CurveExp;
+			}
+			else
+			{
+				LR_WARN(TEXT("레벨 %d의 경험치 커브 데이터를 못 찾음"), InLevel);
+			}
 		}
 	}
-	return 500.0f;
+	return ReqExp;
 }

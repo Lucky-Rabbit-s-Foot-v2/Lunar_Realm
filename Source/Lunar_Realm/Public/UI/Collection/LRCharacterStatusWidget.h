@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRBaseWidget.h"
+#include "Data/LRDataStructs.h"
 #include "Data/LREnumType.h"
 #include "LRCharacterStatusWidget.generated.h"
 
@@ -18,31 +19,44 @@ class LUNAR_REALM_API ULRCharacterStatusWidget : public ULRBaseWidget
 public:
 	virtual void RefreshUI() override;
 
-	void SetCharacterID(FName InID) { CharacterID = InID; }
-	FName GetCharacterID() const { return CharacterID; }
+	void SetCharacterID(const FName& InID);
+	void UpdateCharacterData();
+	void UpdateCharacterStatus();
 
 private:
 	FString GetClassNameByType(ELRClassType ClassType) const;
 
+	void UpdateLevel();
+	void UpdateEXP();
+	void UpdateClass();
+	void UpdateHP();
+	void UpdateATK();
+	void UpdateDEF();
+
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UTextBlock> Txt_Level;
+	TObjectPtr<class UTextBlock> Level;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UTextBlock> Txt_Name;
+	TObjectPtr<class UTextBlock> EXP;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UTextBlock> Txt_Class;
+	TObjectPtr<class UProgressBar> Bar;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UTextBlock> Txt_HP;
+	TObjectPtr<class UTextBlock> Class;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UTextBlock> Txt_ATK;
+	TObjectPtr<class UTextBlock> HP;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UTextBlock> Txt_DEF;
+	TObjectPtr<class UTextBlock> ATK;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UTextBlock> DEF;
 
 private:
-	FName CharacterID;
+	FName ID;
+	FCharacterStaticData CharacterStaticData;
+	FCharacterInstance CharacterInstance;
 };

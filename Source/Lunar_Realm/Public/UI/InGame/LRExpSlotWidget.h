@@ -33,6 +33,18 @@ protected:
 	UImage* CharIcon;
 
 	UPROPERTY(meta = (BindWidget))
+	UImage* GradeImage;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* NameText;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* CurrentExp;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* MaxExp;
+
+	UPROPERTY(meta = (BindWidget))
 	UTextBlock* LevelText;
 
 	UPROPERTY(meta = (BindWidget))
@@ -42,13 +54,15 @@ protected:
 	UWidgetAnimation* LevelUpAnim;
 
 
+
+
 private:
 	FName CharacterID;
 	int32 CurrentLevel;
 
 	float CurrentVisualExp;
 	float TargetExp;
-	float MaxExp = 500;
+	float MaxExpAmount;
 	float FillSpeed = 500.0f;
 	bool bIsFilling = false;
 

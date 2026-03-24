@@ -22,13 +22,7 @@ class LUNAR_REALM_API ULRPartyLineupWidget : public ULRBaseWidget
 public:
 	virtual void NativeOnInitialized() override;
 
-	virtual void BindProperties() override;
-	virtual void UnbindProperties() override;
-
 	virtual void RefreshUI() override;
-
-	UFUNCTION(BlueprintCallable, Category = "LR|UI")
-	void OnRegroupButtonClicked();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -55,12 +49,12 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UImage> Img_Equip3;
 
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Regroup;
-
 	UPROPERTY(EditAnywhere, Category = "LR|UI|Empty")
 	TObjectPtr<class UTexture2D> EmptySlotTexture;
 
 	UPROPERTY()
 	TArray<class UImage*> MemberImages;
+
+	UPROPERTY()
+	TArray<class UImage*> EquipImages;
 };
