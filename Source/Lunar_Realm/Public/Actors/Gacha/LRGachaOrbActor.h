@@ -104,6 +104,9 @@ protected:
 	TObjectPtr<UNiagaraComponent> IdleAura;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Gacha|Orb")
+	TObjectPtr<UNiagaraComponent> IdleAuraSecondary;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Gacha|Orb")
 	TObjectPtr<UAudioComponent> AudioComp;
 
 	UPROPERTY(Transient)
@@ -137,6 +140,10 @@ protected:
 	/** 기본 아이들 아우라 나이아가라 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
 	TObjectPtr<UNiagaraSystem> IdleAuraSystem;
+
+	/** 추가 아이들 아우라 나이아가라 */
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
+	TObjectPtr<UNiagaraSystem> IdleAuraSystemSecondary;
 
 	/** 리빌 순간 버스트 이펙트 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")

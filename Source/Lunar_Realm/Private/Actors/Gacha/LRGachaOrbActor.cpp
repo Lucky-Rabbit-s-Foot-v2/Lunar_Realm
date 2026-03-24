@@ -19,6 +19,10 @@ ALRGachaOrbActor::ALRGachaOrbActor()
 	IdleAura->SetupAttachment(OrbMesh);
 	IdleAura->bAutoActivate = false;
 
+	IdleAuraSecondary = CreateDefaultSubobject<UNiagaraComponent>(TEXT("IdleAuraSecondary"));
+	IdleAuraSecondary->SetupAttachment(OrbMesh);
+	IdleAuraSecondary->bAutoActivate = false;
+
 	AudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComp"));
 	AudioComp->SetupAttachment(OrbMesh);
 	AudioComp->bAutoActivate = false;
@@ -87,10 +91,49 @@ void ALRGachaOrbActor::SetupOrb(const FLRGachaResult& InResult)
 
 	ApplyMaterialParams(InResult.Rarity);
 
+	const FLinearColor PrimaryColor = GetOrbColorByRarity(InResult.Rarity);
+	FLinearColor SecondaryColor = PrimaryColor;
+
+	switch (InResult.Rarity)
+	{
+	case ELRGachaRarity::N:
+		SecondaryColor = FLinearColor(0.85f, 0.85f, 0.85f, 1.f);
+		break;
+
+	case ELRGachaRarity::R:
+		SecondaryColor = FLinearColor(0.75f, 1.00f, 0.55f, 1.f);
+		break;
+
+	case ELRGachaRarity::SR:
+		SecondaryColor = FLinearColor(0.45f, 0.75f, 1.00f, 1.f);
+		break;
+
+	case ELRGachaRarity::SSR:
+		SecondaryColor = FLinearColor(0.85f, 0.45f, 1.00f, 1.f);
+		break;
+
+	case ELRGachaRarity::UR:
+		SecondaryColor = FLinearColor(1.00f, 0.92f, 0.45f, 1.f);
+		break;
+
+	default:
+		break;
+	}
+
 	if (IdleAura && IdleAuraSystem)
 	{
 		IdleAura->SetAsset(IdleAuraSystem);
+		IdleAura->SetVariableLinearColor(TEXT("Color 1"), PrimaryColor);
+		IdleAura->SetVariableLinearColor(TEXT("Color 2"), SecondaryColor);
 		IdleAura->Activate(true);
+	}
+
+	if (IdleAuraSecondary && IdleAuraSystemSecondary)
+	{
+		IdleAuraSecondary->SetAsset(IdleAuraSystemSecondary);
+		IdleAuraSecondary->SetVariableLinearColor(TEXT("Color 1"), PrimaryColor);
+		IdleAuraSecondary->SetVariableLinearColor(TEXT("Color 2"), SecondaryColor);
+		IdleAuraSecondary->Activate(true);
 	}
 }
 
@@ -177,6 +220,11 @@ void ALRGachaOrbActor::PlayRevealToCenter(const FVector& InTargetWorldLocation)
 		IdleAura->Deactivate();
 	}
 
+	if (IdleAuraSecondary)
+	{
+		IdleAuraSecondary->Deactivate();
+	}
+
 	if (OrbMesh)
 	{
 		UMaterialInterface* SelectedMaterial = GetMaterialByRarity(CachedResult.Rarity);
@@ -203,6 +251,11 @@ void ALRGachaOrbActor::SetFocused(bool bFocused)
 	{
 		IdleAura->SetFloatParameter(TEXT("User.Scale"), bFocused ? 1.5f : 1.0f);
 	}
+
+	if (IdleAuraSecondary)
+	{
+		IdleAuraSecondary->SetFloatParameter(TEXT("User.Scale"), bFocused ? 1.5f : 1.0f);
+	}
 }
 
 // ==========================================================================
@@ -222,11 +275,15 @@ void ALRGachaOrbActor::OnMoveToCenterFinished()
 	// 중앙 도착 시 버스트/사운드 재생
 	if (RevealBurstSystem)
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+		if (UNiagaraComponent* BurstComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
 			GetWorld(),
 			RevealBurstSystem,
 			GetActorLocation()
-		);
+		))
+		{
+			BurstComp->SetVariableLinearColor(TEXT("Color 1"), GetOrbColorByRarity(CachedResult.Rarity));
+			BurstComp->SetVariableLinearColor(TEXT("Color 2"), FLinearColor::White);
+		}
 	}
 
 	if (USoundBase* Sound = GetSoundByRarity(CachedResult.Rarity))
@@ -465,6 +522,11 @@ void ALRGachaOrbActor::CancelRevealAndStopAllEffects()
 	if (IdleAura)
 	{
 		IdleAura->Deactivate();
+	}
+
+	if (IdleAuraSecondary)
+	{
+		IdleAuraSecondary->Deactivate();
 	}
 
 	StopAllOrbSounds();
