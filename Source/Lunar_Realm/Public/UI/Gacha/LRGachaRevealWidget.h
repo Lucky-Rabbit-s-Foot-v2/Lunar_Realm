@@ -153,6 +153,14 @@ protected:
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UPanelWidget> ResultSlotContainer;
 
+	/** 총 중복 골드 표시 패널 (중복 없으면 숨김) */
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UWidget> DuplicateGoldPanel;
+
+	/** 총 중복 골드 텍스트 */
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> TextDuplicateGoldTotal;
+
 	/** 슬롯 위젯 클래스 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Result")
 	TSubclassOf<ULRGachaResultSlotWidget> ResultSlotWidgetClass;
@@ -256,6 +264,9 @@ private:
 	void ApplyTransitionTexturesByRarity(ELRGachaRarity Rarity);
 	void ResetTransitionVisuals();
 	void ShowFinalResultOverlay();
+
+	int32 CalculateTotalDuplicateGold() const;
+	void RefreshDuplicateGoldTotalUI();
 
 	/** MediaTexture를 UI에 표시할 머티리얼 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Reveal|Video")

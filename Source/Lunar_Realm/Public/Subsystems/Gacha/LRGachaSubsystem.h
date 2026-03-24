@@ -169,6 +169,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Pity")
 	int32 GetDisplayPityCount(ELRGachaItemType ItemType) const;
 
+	bool GetRarityRatesForBanner(
+		FName BannerID,
+		ELRGachaItemType ItemType,
+		TMap<ELRGachaRarity, float>& OutRates
+	) const;
+
 	// ───────────────── 리빌 맵 연동: Pending Reveal ─────────────────
 
 	void SetPendingReveal(FName InBannerID, const FGuid& InTxnId, const TArray<FLRGachaResult>& InResults);
