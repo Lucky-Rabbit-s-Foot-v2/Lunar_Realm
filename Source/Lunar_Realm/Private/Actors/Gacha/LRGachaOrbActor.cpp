@@ -235,6 +235,7 @@ void ALRGachaOrbActor::PlayRevealToCenter(const FVector& InTargetWorldLocation)
 			{
 				OrbMesh->SetMaterial(0, DynMat);
 				DynMat->SetVectorParameterValue(ColorParamName, GetOrbColorByRarity(CachedResult.Rarity));
+				DynMat->SetVectorParameterValue(GalaxyColorParamName, GetGalaxyColorByRarity(CachedResult.Rarity));
 				DynMat->SetScalarParameterValue(EmissiveParamName, 0.f);
 			}
 		}
@@ -394,6 +395,30 @@ FLinearColor ALRGachaOrbActor::GetOrbColorByRarity(ELRGachaRarity Rarity)
 	}
 }
 
+FLinearColor ALRGachaOrbActor::GetGalaxyColorByRarity(ELRGachaRarity Rarity)
+{
+	switch (Rarity)
+	{
+	case ELRGachaRarity::N:
+		return FLinearColor(0.75f, 0.75f, 0.78f, 1.f); // 회백색
+
+	case ELRGachaRarity::R:
+		return FLinearColor(0.65f, 1.00f, 0.45f, 1.f); // 연두
+
+	case ELRGachaRarity::SR:
+		return FLinearColor(0.35f, 0.65f, 1.00f, 1.f); // 블루
+
+	case ELRGachaRarity::SSR:
+		return FLinearColor(0.85f, 0.35f, 1.00f, 1.f); // 보라/핑크
+
+	case ELRGachaRarity::UR:
+		return FLinearColor(1.00f, 0.85f, 0.35f, 1.f); // 골드
+
+	default:
+		return FLinearColor::White;
+	}
+}
+
 float ALRGachaOrbActor::GetEmissiveByRarity(ELRGachaRarity Rarity) const
 {
 	switch (Rarity)
@@ -456,6 +481,7 @@ void ALRGachaOrbActor::ApplyMaterialParams(ELRGachaRarity Rarity)
 
 	// 공통 파라미터를 쓰는 머티리얼이면 적용
 	DynMat->SetVectorParameterValue(ColorParamName, GetOrbColorByRarity(Rarity));
+	DynMat->SetVectorParameterValue(GalaxyColorParamName, GetGalaxyColorByRarity(Rarity));
 	DynMat->SetScalarParameterValue(EmissiveParamName, GetEmissiveByRarity(Rarity));
 }
 
