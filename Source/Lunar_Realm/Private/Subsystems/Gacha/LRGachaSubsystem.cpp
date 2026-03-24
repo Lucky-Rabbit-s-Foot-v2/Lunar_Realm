@@ -1023,6 +1023,30 @@ int32 ULRGachaSubsystem::GetDisplayPityCount(ELRGachaItemType ItemType) const
 	return GetPityCount(FullMoonBannerID);
 }
 
+bool ULRGachaSubsystem::GetRarityRatesForBanner(
+	FName BannerID,
+	ELRGachaItemType ItemType,
+	TMap<ELRGachaRarity, float>& OutRates
+) const
+{
+	OutRates.Empty();
+
+	TArray<FLRGachaRarityRateRow> Rows;
+	GetRarityRateRowsForBanner(BannerID, ItemType, Rows);
+
+	if (Rows.Num() == 0)
+	{
+		return false;
+	}
+
+	for (const FLRGachaRarityRateRow& Row : Rows)
+	{
+		OutRates.Add(Row.Rarity, Row.Rate);
+	}
+
+	return true;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  Pending Reveal (리빌 맵 연동)
 // ─────────────────────────────────────────────────────────────────────────────
