@@ -10,6 +10,9 @@
 
 #include "Core/Stage/LRStageGameMode.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "Structures/Core/LREnemyCore.h"
+
 void ULRCheatManager::ToggleStages()
 {
 	if (UStageManagerSubsystem* StageMgr = GetWorld()->GetGameInstance()->GetSubsystem<UStageManagerSubsystem>())
@@ -53,7 +56,7 @@ void ULRCheatManager::GameOver()
 
 void ULRCheatManager::ShowMeTheMoney()
 {
-	AddGold(9999);
+	AddGold(999999);
 	AddCrescentTicket(999);
 	AddFullMoonTicket(999);
 }
@@ -79,5 +82,22 @@ void ULRCheatManager::AddFullMoonTicket(int32 Amount)
 	if (UCurrencySubsystem* CurrencySS = GetWorld()->GetGameInstance()->GetSubsystem<UCurrencySubsystem>())
 	{
 		CurrencySS->AddCurrency(ELRCurrencyType::FullMoonTicket, Amount);
+	}
+}
+
+void ULRCheatManager::ClearStage()
+{
+	if (AActor* FoundActor = UGameplayStatics::GetActorOfClass(GetWorld(), ALREnemyCore::StaticClass()))
+	{
+		if (ALREnemyCore* EnemyCore = Cast<ALREnemyCore>(FoundActor))
+		{
+			EnemyCore->OnCoreDestroyed();
+
+			LR_INFO(TEXT("[Cheat] ClearStage 치트 발동 적 코어를 파괴."));
+		}
+	}
+	else
+	{
+		LR_WARN(TEXT("[Cheat] 월드에서 에너미 코어를 찾을 수 없음."));
 	}
 }

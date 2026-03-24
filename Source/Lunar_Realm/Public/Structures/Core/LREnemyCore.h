@@ -23,8 +23,8 @@ class LUNAR_REALM_API ALREnemyCore : public ALRCore
 public:
 	ALREnemyCore();
 
+	virtual void OnCoreDestroyed() override;
 protected:
 	virtual void BeginPlay() override;
 
-	virtual void OnCoreDestroyed() override;
 };
