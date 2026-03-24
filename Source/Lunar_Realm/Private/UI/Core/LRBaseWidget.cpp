@@ -52,11 +52,11 @@ void ULRBaseWidget::InitializeUI()
 void ULRBaseWidget::DeinitializeUI()
 {
 	// 자식 클래스에서 오버라이드하여 정리 로직 구현
-	for (auto& SubWidget : SubWidgets)
+	for (int32 i = SubWidgets.Num() - 1; i >= 0; --i)
 	{
-		if (SubWidget)
+		if (IsValid(SubWidgets[i]))
 		{
-			SubWidget->DeinitializeUI();
+			SubWidgets[i]->DeinitializeUI();
 		}
 	}
 	SubWidgets.Empty();

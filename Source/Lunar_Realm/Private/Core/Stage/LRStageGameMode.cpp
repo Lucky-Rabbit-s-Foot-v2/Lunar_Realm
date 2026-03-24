@@ -12,6 +12,10 @@
 #include "Subsystems/StageManagerSubsystem.h"
 #include "Subsystems/SaveGameSubsystem.h"
 #include "Structures/Core/LREnemyCore.h"
+#include "Structures/Core/LRPlayerCore.h"
+#include "Structures/Core/LRCore.h"
+#include "GAS/Attributes/LRCoreAttributeSet.h"
+
 #include "System/LoggingSystem.h"
 #include "Units/LRAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -120,6 +124,7 @@ void ALRStageGameMode::OpenGameClearPopupWidget(int32 InStarMasking)
 		}
 	}
 }
+
 
 void ALRStageGameMode::OnRestartGame()
 {
@@ -230,6 +235,8 @@ void ALRStageGameMode::OnInitializeStage()
 	CleanupUnusedCores();
 	PlayBGM();
 
+	PlayerDeathCount = 0;
+
 	// TEST
 	// TODO: 추후 Ready~/Start!! UI 표시 로직 추가
 	LR_INFO(TEXT("[GameMode] 스테이지 초기화 완료!!! %.1f 초 뒤 본 게임 시작[시작 연출 삽입 필요!]"), GameStartDelay);
@@ -304,23 +311,33 @@ void ALRStageGameMode::CleanupUnusedCores()
 	}
 }
 
+void ALRStageGameMode::AddPlayerDeathCount()
+{
+	PlayerDeathCount++;
+	LR_INFO(TEXT("[GameMode] 플레이어 사망 현재 데스 카운트: %d"), PlayerDeathCount);
+}
+
 bool ALRStageGameMode::IsStar1ConditionCheck()
 {
-	// TODO: 실제 조건 체크 로직 작성 필요
 	return true;
 }
 
 bool ALRStageGameMode::IsStar2ConditionCheck()
 {
-	// TODO: 실제 조건 체크 로직 작성 필요
-	return false;
+	return PlayerDeathCount <= 5;
 }
 
 bool ALRStageGameMode::IsStar3ConditionCheck()
 {
-	// TODO: 실제 조건 체크 로직 작성 필요
-	return true;
+	ALRPlayerCore* PlayerCore = Cast<ALRPlayerCore>(UGameplayStatics::GetActorOfClass(GetWorld(), ALRPlayerCore::StaticClass()));
+	if (!PlayerCore || !PlayerCore->AttributeSet) return false;
 
+	float CurrentHP = PlayerCore->AttributeSet->GetHealth();
+	float MaxHP = PlayerCore->AttributeSet->GetMaxHealth();
+
+	if (MaxHP <= 0.0f) return false;
+
+	return (CurrentHP / MaxHP) >= 0.5f;
 
 }
 

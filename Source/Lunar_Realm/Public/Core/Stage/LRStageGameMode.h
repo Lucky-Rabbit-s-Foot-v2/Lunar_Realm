@@ -90,4 +90,12 @@ protected:
 public:
 	UPROPERTY(BlueprintAssignable, Category = "GameLogic")
 	FOnGameStarted OnGameStarted;
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Stage")
+	int32 PlayerDeathCount = 0;
+
+public:
+	void AddPlayerDeathCount();
+
 };

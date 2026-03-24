@@ -78,8 +78,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Tags")
 	FGameplayTagContainer OwnedTags;
 
-
-protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
