@@ -15,6 +15,8 @@
  // (260226) PJB 제작. 제반 사항 구현
  //============================================================================
 
+class ULRExpPanelWidget;
+
 UCLASS()
 class LUNAR_REALM_API ULRGameClearPopupWidget : public ULRPopupWidget
 {
@@ -54,5 +56,17 @@ protected:
 protected:
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 	class UWidgetAnimation* victory;
+
+protected:
+	UPROPERTY(meta = (BindWidget))
+	ULRExpPanelWidget* LeaderExpPanel;
+
+	UPROPERTY(meta = (BindWidget))
+	ULRExpPanelWidget* MemberExpPanel;
+
+	virtual void OnAnimationFinished_Implementation(const UWidgetAnimation* Animation) override;
+
+	UFUNCTION()
+	void ShowExpPanel();
 
 };
