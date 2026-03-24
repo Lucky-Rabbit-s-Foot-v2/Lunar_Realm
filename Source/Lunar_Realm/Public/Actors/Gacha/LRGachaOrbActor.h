@@ -90,6 +90,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Orb")
 	static FLinearColor GetOrbColorByRarity(ELRGachaRarity Rarity);
 
+	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Orb")
+	static FLinearColor GetGalaxyColorByRarity(ELRGachaRarity Rarity);
+
 	/** 현재 Orb가 가진 결과 데이터 */
 	UFUNCTION(BlueprintCallable, Category = "LR|Gacha|Orb")
 	const FLRGachaResult& GetResult() const { return CachedResult; }
@@ -102,6 +105,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Gacha|Orb")
 	TObjectPtr<UNiagaraComponent> IdleAura;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Gacha|Orb")
+	TObjectPtr<UNiagaraComponent> IdleAuraSecondary;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Gacha|Orb")
 	TObjectPtr<UAudioComponent> AudioComp;
@@ -137,6 +143,10 @@ protected:
 	/** 기본 아이들 아우라 나이아가라 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
 	TObjectPtr<UNiagaraSystem> IdleAuraSystem;
+
+	/** 추가 아이들 아우라 나이아가라 */
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
+	TObjectPtr<UNiagaraSystem> IdleAuraSystemSecondary;
 
 	/** 리빌 순간 버스트 이펙트 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Assets")
@@ -197,6 +207,10 @@ protected:
 	/** 머티리얼 컬러 파라미터 이름 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
 	FName ColorParamName = TEXT("OrbColor");
+
+	/** 머티리얼 은하 내부 컬러 파라미터 이름 */
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
+	FName GalaxyColorParamName = TEXT("GalaxyColor");
 
 	/** 머티리얼 이미시브 세기 파라미터 이름 */
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Gacha|Orb|Settings")
