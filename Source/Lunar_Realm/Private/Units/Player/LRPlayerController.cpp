@@ -57,7 +57,7 @@ void ALRPlayerController::EquipWeapon1()
 {
 	if (ALRPlayerState* PS = GetPlayerState<ALRPlayerState>())
 	{
-		FName WeaponID = FName("EQUIP_BLUNT_06");
+		FName WeaponID = FName("EQUIP_BLUNT_05");
 		PS->EquipItem(EEquipmentSlotType::WEAPON, WeaponID);
 
 		// DT에서 무기 이름 꺼내오기
@@ -100,7 +100,7 @@ void ALRPlayerController::EquipWeapon3()
 {
 	if (ALRPlayerState* PS = GetPlayerState<ALRPlayerState>())
 	{
-		FName WeaponID = FName("EQUIP_SWORD_02");
+		FName WeaponID = FName("EQUIP_SWORD_10");
 		PS->EquipItem(EEquipmentSlotType::WEAPON, WeaponID);
 
 		FString EqName = TEXT("Unknown");
