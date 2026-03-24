@@ -25,9 +25,13 @@ void ULREquipCollection::RefreshUI()
 	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
 
 	TArray<FName> AllEquipmentIDs = GameDataSubsystem->GetAllEquipmentIDs();
+
+	LR_ERROR(TEXT("ULREquipCollection::RefreshUI - AllEquipmentIDs.Num(): %d"), AllEquipmentIDs.Num());
+
+
 	for (const FName& EquipmentID : AllEquipmentIDs)
 	{
-		if(CollectionSubsystem->HasEquipment(EquipmentID))
+		if (CollectionSubsystem->HasEquipment(EquipmentID))
 		{
 			AddItemToTileView(GameDataSubsystem, EquipmentID, false);
 		}

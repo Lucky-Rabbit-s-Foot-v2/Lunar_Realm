@@ -36,12 +36,30 @@ void ULREquipStatus::UpdateEquipData()
 		return;
 	}
 
+	if (ID.IsNone())
+	{
+		return;
+	}
+
 	EquipmentStaticData = GameDataSubsystem->GetEquipmentStaticData(ID);
-	EquipmentInstance = CollectionSubsystem->GetEquipmentInstancesByKey(ID)[0];
+	TArray<FEquipmentInstance> Instances = CollectionSubsystem->GetEquipmentInstancesByKey(ID);
+	if(Instances.Num() > 0)
+	{
+		EquipmentInstance = Instances[0];
+	}
+	else
+	{
+		EquipmentInstance = FEquipmentInstance();
+	}
 }
 
 void ULREquipStatus::UpdateEquipStatus()
 {
+	if (ID.IsNone())
+	{
+		return;
+	}
+
 	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
 	UpdateLevel();
 	UpdateEXP();

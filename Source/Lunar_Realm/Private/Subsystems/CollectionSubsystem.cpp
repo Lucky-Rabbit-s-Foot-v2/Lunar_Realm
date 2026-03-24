@@ -230,6 +230,14 @@ TArray<FName> UCollectionSubsystem::GetUnlockedCharacterIDs() const
 
 bool UCollectionSubsystem::HasEquipment(FName EquipmentID) const
 {
+	bool AAAA = OwnedEquipmentsArray.ContainsByPredicate(
+		[EquipmentID](const auto& instance)
+		{
+			return instance.EquipmentID == EquipmentID;
+		});
+
+	LR_WARN(TEXT("HasEquipment check for %s: %s"), *EquipmentID.ToString(), AAAA ? TEXT("true") : TEXT("false"));
+
 	return OwnedEquipmentsArray.ContainsByPredicate(
 		[EquipmentID](const auto& instance)
 		{
