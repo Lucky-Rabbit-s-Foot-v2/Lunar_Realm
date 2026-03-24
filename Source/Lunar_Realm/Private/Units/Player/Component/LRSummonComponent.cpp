@@ -44,6 +44,11 @@ void ULRSummonComponent::LoadDeckData(const TArray<FName>& InUnitIDs)
 }
 float ULRSummonComponent::GetRemainingCooldown(FName InUnitID) const
 {
+	if (InUnitID.IsNone())
+	{
+		return 0.0f;
+	}
+
 	if (!LastSummonTimeMap.Contains(InUnitID))
 	{
 		return 0.0f;
@@ -98,6 +103,10 @@ bool ULRSummonComponent::IsValidSummonRequest(int32 InSlotIndex, FName& OutUnitI
 	}
 
 	OutUnitID = SummonDeck[InSlotIndex];
+	if (OutUnitID.IsNone())
+	{
+		return false;
+	}
 	OutCharData = GetCharacterData(OutUnitID);
 
 	if (!OutCharData)
