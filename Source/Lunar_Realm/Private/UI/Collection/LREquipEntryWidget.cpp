@@ -16,6 +16,11 @@
 void ULREquipEntryWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
+	{
+		OnEquipTileClickedDel.AddUniqueDynamic(PC, &ALROutGameController::SetSelectedEquipmentID);
+	}
 }
 
 void ULREquipEntryWidget::BindProperties()

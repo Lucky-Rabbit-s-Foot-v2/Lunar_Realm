@@ -19,14 +19,26 @@ public:
 
 	virtual void InitializeUI() override;
 
-	void SetCharacterID(FName InID);
+	void SetCurrentTypeIndex(int32 InIndex);
+	void SetMainID(FName InID);
+
+	void SetCharacterID(const FName& InID);
+	void SetEquipID(const FName& InID);
 
 protected:
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UWidgetSwitcher> Switcher;
+
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRCharacterEnhanceWidget> CharacterEnhance;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULREquipEnhance> EquipEnhance;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRCollection> Collection;
 
-	FName CharacterID = FName();
+	FName ID = NAME_None;
+
+	int32 CurrentTypeIndex = 0; // 0: Character, 1: Equipment
 };

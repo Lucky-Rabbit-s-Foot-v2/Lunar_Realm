@@ -30,6 +30,12 @@ void ALROutGameController::SetSelectedCharacterID(FName InID)
 	OnSelectedCharacterChangedDel.Broadcast(SelectedCharacterID);
 }
 
+void ALROutGameController::SetSelectedEquipmentID(FName InID)
+{
+	SelectedEquipmentID = InID;
+	OnSelectedEquipmentChangedDel.Broadcast(SelectedEquipmentID);
+}
+
 void ALROutGameController::GachaSim(const FString& BannerIdStr, int32 TotalPulls, int32 Seed)
 {
 	UGameInstance* GI = GetGameInstance();

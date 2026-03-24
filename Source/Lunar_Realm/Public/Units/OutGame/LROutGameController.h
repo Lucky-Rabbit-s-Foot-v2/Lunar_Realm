@@ -17,6 +17,7 @@
  //=============================================================================
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSelectedCharacterChanged, FName, NewCharacterID);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSelectedEquipmentChanged, FName, NewEquipmentID);
 
 UCLASS()
 class LUNAR_REALM_API ALROutGameController : public ALRControllerBase
@@ -31,10 +32,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetSelectedCharacterID(FName InID);
 
+	UFUNCTION(BlueprintCallable)
+	void SetSelectedEquipmentID(FName InID);
+
 	FName GetSelectedCharacterID() { return SelectedCharacterID; }
 
 	UPROPERTY(BlueprintAssignable)
 	FOnSelectedCharacterChanged OnSelectedCharacterChangedDel;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnSelectedEquipmentChanged OnSelectedEquipmentChangedDel;
+
 
 	// 콘솔 명령어로 캐릭터나 장비가 활률대로 나오는지 확인하는 함수
 	UFUNCTION(Exec)
@@ -46,4 +54,7 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "LR|UI Party")
 	FName SelectedCharacterID = NAME_None;
+
+	UPROPERTY(VisibleAnywhere, Category = "LR|UI Party")
+	FName SelectedEquipmentID = NAME_None;
 };

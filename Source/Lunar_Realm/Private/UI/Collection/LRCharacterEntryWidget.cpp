@@ -19,7 +19,7 @@ void ULRCharacterEntryWidget::NativeConstruct()
 
 	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
-		OnTileClickedDel.AddDynamic(PC, &ALROutGameController::SetSelectedCharacterID);
+		OnTileClickedDel.AddUniqueDynamic(PC, &ALROutGameController::SetSelectedCharacterID);
 	}
 }
 

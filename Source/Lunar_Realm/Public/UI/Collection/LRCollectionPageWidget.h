@@ -22,10 +22,25 @@ class LUNAR_REALM_API ULRCollectionPageWidget : public ULRPageWidget
 	
 protected:
 	virtual void RegisterSubWidgets() override;
+	
+	virtual void BindToController(class ALRControllerBase* Controller) override;
+
+	UFUNCTION()
+	void SetCharacterID(FName InID);
+	UFUNCTION()
+	void SetEquipmentID(FName InID);
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRBaseWidget> CharacterInfo;
+	TObjectPtr<class UWidgetSwitcher> Switcher;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULREquipmentInfo> EquipmentInfo;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRCharacterInfoWidget> CharacterInfo;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRCollection> Collection;
+
+	FName ID = NAME_None;
 };

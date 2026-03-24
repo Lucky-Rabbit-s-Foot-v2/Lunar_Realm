@@ -28,10 +28,16 @@ void ULREnhanceButtonWidget::RefreshUI()
 	Super::RefreshUI();
 
 	UCollectionSubsystem* CollectionSub = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
-	FCharacterInstance CharacterData = CollectionSub->GetCharacterInstance(CharacterID);
-
-	CalculateExp(CharacterData.CurrentLevel, CharacterData.CurrentExp, MaxLevel);
-
+	if (CurrentTypeIndex == 0)
+	{
+		FCharacterInstance CharacterData = CollectionSub->GetCharacterInstance(ID);
+		CalculateExp(CharacterData.CurrentLevel, CharacterData.CurrentExp, MaxLevel);
+	}
+	else if(CurrentTypeIndex == 1)
+	{
+		FEquipmentInstance EquipmentData = CollectionSub->GetEquipmentInstancesByKey(ID)[0];
+		CalculateExp(EquipmentData.CurrentLevel, EquipmentData.CurrentExp, MaxLevel);
+	}
 	Txt_Cost->SetText(FText::AsNumber(EnhanceCost));
 }
 
@@ -42,7 +48,15 @@ void ULREnhanceButtonWidget::OnButtonClicked()
 
 	if (CurrencySub->SpendCurrency(ELRCurrencyType::Gold, EnhanceCost))
 	{
-		CollectionSub->AddCharacterExp(CharacterID, EnhanceExp);
+		if (CurrentTypeIndex == 0)
+		{
+			CollectionSub->AddCharacterExp(ID, EnhanceExp);
+		}
+		else if (CurrentTypeIndex == 1)
+		{
+			FEquipmentInstance EquipmentInstance = CollectionSub->GetEquipmentInstancesByKey(ID)[0];
+			CollectionSub->AddEquipmentExp(EquipmentInstance.InstanceID, EnhanceExp);
+		}
 	}
 
 	OnLRButtonClickedDel.Broadcast();
@@ -50,8 +64,15 @@ void ULREnhanceButtonWidget::OnButtonClicked()
 
 void ULREnhanceButtonWidget::SetCharacterID(const FName& InID)
 {
-	CharacterID = InID;
+	ID = InID;
+	CurrentTypeIndex = 0;
+	RefreshUI();
+}
 
+void ULREnhanceButtonWidget::SetEquipID(const FName& InID)
+{
+	ID = InID;
+	CurrentTypeIndex = 1;
 	RefreshUI();
 }
 

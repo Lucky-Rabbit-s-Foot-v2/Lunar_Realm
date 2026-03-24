@@ -1,7 +1,8 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Collection/LRCharacterInfoWidget.h"
+#include "UI/Collection/LREquipmentInfo.h"
+
 
 #include "Engine/GameInstance.h"
 #include "Engine/Texture2D.h"
@@ -21,74 +22,74 @@
 
 #include "UI/Core/LRButtonWidget.h"
 
-#include "UI/Common/LRCharacterCard.h"
+#include "UI/Common/LREquipmentCard.h"
 #include "UI/Collection/LRSkillInfoWidget.h"
-#include "UI/Collection/LRCharacterStatusWidget.h"
+#include "UI/Collection/LREquipStatus.h"
 
-void ULRCharacterInfoWidget::NativeConstruct()
+void ULREquipmentInfo::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if(ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
+	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
-		PC->OnSelectedCharacterChangedDel.AddUniqueDynamic(this, &ULRCharacterInfoWidget::SetCharacterIDCall);
+		PC->OnSelectedCharacterChangedDel.AddUniqueDynamic(this, &ULREquipmentInfo::SetEquipIDCall);
 	}
 }
 
-void ULRCharacterInfoWidget::RefreshUI()
+void ULREquipmentInfo::RefreshUI()
 {
 	Super::RefreshUI();
 
 	FName SkillID = NAME_None;
 	if (USaveGameSubsystem* SaveGameSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
 	{
-		if (CharacterID.IsNone())
+		if (EquipID.IsNone())
 		{
-			CharacterID = SaveGameSubsystem->GetLeaderCharacterID();
+			EquipID = SaveGameSubsystem->GetLeaderCharacterID();
 		}
-		
+
 		if (UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>())
 		{
-			const FCharacterStaticData& CharacterStaticData = GameDataSubsystem->GetCharacterStaticData(CharacterID);
-			SkillID = CharacterStaticData.SkillIDs.IsValidIndex(0) ? CharacterStaticData.SkillIDs[0] : NAME_None;
+			const FEquipmentStaticData& EquipmentStaticData = GameDataSubsystem->GetEquipmentStaticData(EquipID);
+			SkillID = EquipmentStaticData.SkillIDs.IsValidIndex(0) ? EquipmentStaticData.SkillIDs[0] : NAME_None;
 		}
 	}
 	SkillInfo->SetSkillID(SkillID);
-	CharacterCard->SetCharacterID(CharacterID);
-	CharacterStatus->SetCharacterID(CharacterID);
+	EquipmentCard->SetEquipID(EquipID);
+	EquipmentStatus->SetEquipID(EquipID);
 }
 
-void ULRCharacterInfoWidget::BindSubWidgets()
+void ULREquipmentInfo::BindSubWidgets()
 {
 	Super::BindSubWidgets();
 	if (Btn_Enhance)
 	{
 		Btn_Enhance->OnLRButtonClickedDel.RemoveAll(this);
-		Btn_Enhance->OnLRButtonClickedDel.AddDynamic(this, &ULRCharacterInfoWidget::OnEnhanceButtonClicked);
+		Btn_Enhance->OnLRButtonClickedDel.AddDynamic(this, &ULREquipmentInfo::OnEnhanceButtonClicked);
 	}
 }
 
-void ULRCharacterInfoWidget::RegisterSubWidgets()
+void ULREquipmentInfo::RegisterSubWidgets()
 {
 	Super::RegisterSubWidgets();
 
-	SubWidgets.Add(CharacterCard);
+	SubWidgets.Add(EquipmentCard);
 	SubWidgets.Add(SkillInfo);
-	SubWidgets.Add(CharacterStatus);
+	SubWidgets.Add(EquipmentStatus);
 }
 
-void ULRCharacterInfoWidget::SetCharacterIDCall(FName InID)
+void ULREquipmentInfo::SetEquipIDCall(FName InID)
 {
-	SetCharacterID(InID);
+	SetEquipID(InID);
 }
 
-void ULRCharacterInfoWidget::SetCharacterID(const FName& InID)
+void ULREquipmentInfo::SetEquipID(const FName& InID)
 {
-	CharacterID = InID;
+	EquipID = InID;
 	RefreshUI();
 }
 
-void ULRCharacterInfoWidget::OnEnhanceButtonClicked()
+void ULREquipmentInfo::OnEnhanceButtonClicked()
 {
 	UUIManagerSubsystem* UIManagerSubsystem = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	if (UIManagerSubsystem)
@@ -98,10 +99,10 @@ void ULRCharacterInfoWidget::OnEnhanceButtonClicked()
 		{
 			return;
 		}
-		
+
 		if (ULREnhancePageWidget* EnhanceWidget = Cast<ULREnhancePageWidget>(Widget))
 		{
-			EnhanceWidget->SetCharacterID(CharacterID);
+			EnhanceWidget->SetEquipID(EquipID);
 		}
 	}
 }

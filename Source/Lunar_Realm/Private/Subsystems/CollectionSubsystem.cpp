@@ -312,12 +312,6 @@ void UCollectionSubsystem::LevelUpEquipment(FGuid InstanceID)
 
 	OnEquipmentUpdatedDel.Broadcast(InstanceID, instance->CurrentLevel);
 	SyncToSaveGame();
-
-	LR_INFO(TEXT("Equipment %s (ID: %s) leveled up to %d"),
-		*instance->EquipmentID.ToString(),
-		*InstanceID.ToString(),
-		instance->CurrentLevel);
-
 }
 
 void UCollectionSubsystem::AddEquipmentExp(FGuid EquipmentID, int32 ExpAmount)
@@ -336,17 +330,27 @@ void UCollectionSubsystem::AddEquipmentExp(FGuid EquipmentID, int32 ExpAmount)
 
 	instance->CurrentExp += ExpAmount;
 
-	//레벨업 체크
-	//TODO 레벨 구간 경험치 요구량 테이블 연결 예정
-	const int32 EXPforLevelup = 500;
-	if (instance->CurrentExp >= EXPforLevelup)
+	UGameDataSubsystem* GameDataSys = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+
+	bool bHasLeveledUp = true;
+	while (bHasLeveledUp)
 	{
-		LevelUpEquipment(EquipmentID);
+		bHasLeveledUp = false;
+
+		float RequiredExpFloat = GameDataSys->GetBaseStatAtLevel(ELRStatusType::EXP, instance->CurrentLevel);
+		int32 RequiredExp = static_cast<int32>(RequiredExpFloat);
+
+		if (instance->CurrentExp >= RequiredExp)
+		{
+			instance->CurrentExp -= RequiredExp;
+			instance->CurrentLevel++;
+			bHasLeveledUp = true;
+
+			OnEquipmentUpdatedDel.Broadcast(EquipmentID, instance->CurrentLevel);
+		}
 	}
-	else
-	{
-		SyncToSaveGame();
-	}
+
+	SyncToSaveGame();
 }
 
 int32 UCollectionSubsystem::GetEquipmentCounts(FName EquipmentID) const
