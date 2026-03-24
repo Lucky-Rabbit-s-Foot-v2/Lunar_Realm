@@ -21,7 +21,7 @@ ALRPlayerCore::ALRPlayerCore()
 	SpawnArea->SetRelativeLocation(FVector(300.0f, 0.0f, 0.0f));
 
 	SpawnArea->SetCollisionProfileName(TEXT("NoCollision"));
-	SpawnArea->SetHiddenInGame(false);
+	SpawnArea->SetHiddenInGame(true);
 }
 
 void ALRPlayerCore::BeginPlay()

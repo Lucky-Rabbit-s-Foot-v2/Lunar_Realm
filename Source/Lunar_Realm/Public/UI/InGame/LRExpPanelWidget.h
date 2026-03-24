@@ -25,13 +25,20 @@ public:
 	void SetupExpPanel();
 
 protected:
-	UPROPERTY(meta = (BindWidget))
-	UVerticalBox* SlotContainer;
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(meta = (BindWidgetOptional))
+	UVerticalBox* LeaderSlotContainer;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	UVerticalBox* MemberSlotContainer;
+
+	UPROPERTY(meta = (BindWidgetOptional))
 	UTextBlock* NoticeText;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
 	TSubclassOf<ULRExpSlotWidget> ExpSlotClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|UI")
+	bool bSaveExpToDB = false;
 
 };

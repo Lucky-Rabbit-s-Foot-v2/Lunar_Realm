@@ -11,6 +11,7 @@
 
 #include "UI/Core/LRButtonWidget.h"
 #include "UI/InGame/LRStarBoxWidget.h"
+#include "UI/InGame/LRExpPanelWidget.h"
 
 void ULRGameClearPopupWidget::NativeConstruct()
 {
@@ -35,6 +36,7 @@ void ULRGameClearPopupWidget::RegisterSubWidgets()
 	Super::RegisterSubWidgets();
 	
 	SubWidgets.Add(StarBox);
+
 }
 
 void ULRGameClearPopupWidget::BindProperties()
@@ -65,6 +67,7 @@ void ULRGameClearPopupWidget::InitializeUI()
 	{
 		PlayAnimation(victory);
 	}
+
 }
 
 void ULRGameClearPopupWidget::SetIsLastStage(bool bInIsLastStage)
@@ -104,5 +107,33 @@ void ULRGameClearPopupWidget::OnExitButtonClicked()
 	if (ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode()))
 	{
 		StageGM->OnExitStage();
+	}
+}
+
+void ULRGameClearPopupWidget::OnAnimationFinished_Implementation(const UWidgetAnimation* Animation)
+{
+	Super::OnAnimationFinished_Implementation(Animation);
+
+	if (Animation == victory)
+	{
+		LR_INFO(TEXT("Victory 애니메이션 종료! 경험치 패널 표시 명령"));
+		ShowExpPanel();
+	}
+}
+
+void ULRGameClearPopupWidget::ShowExpPanel()
+{
+	LR_INFO(TEXT("2.75초 경과 경험치 패널 표시 명령"));
+
+	if (LeaderExpPanel)
+	{
+		LeaderExpPanel->SetVisibility(ESlateVisibility::Visible);
+		LeaderExpPanel->SetupExpPanel();
+	}
+
+	if (MemberExpPanel)
+	{
+		MemberExpPanel->SetVisibility(ESlateVisibility::Visible);
+		MemberExpPanel->SetupExpPanel();
 	}
 }

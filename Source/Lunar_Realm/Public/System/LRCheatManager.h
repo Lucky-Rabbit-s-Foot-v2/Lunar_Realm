@@ -42,5 +42,8 @@ public:
 	UFUNCTION(Exec)
 	void AddFullMoonTicket(int32 Amount);
 
+	UFUNCTION(Exec)
+	void ClearStage();
+
 
 };

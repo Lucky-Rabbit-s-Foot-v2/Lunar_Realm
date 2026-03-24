@@ -11,6 +11,7 @@
 #include "Subsystems/CollectionSubsystem.h"
 #include "Subsystems/StageManagerSubsystem.h"
 #include "Engine/GameInstance.h"
+#include "Components/VerticalBoxSlot.h"
 
 void ULRExpPanelWidget::SetupExpPanel()
 {
@@ -49,7 +50,7 @@ void ULRExpPanelWidget::SetupExpPanel()
 	{
 		if (bAlreadyCleared)
 		{
-			NoticeText->SetText(FText::FromString(TEXT("완료한 스테이지라 경험치가 75%만 지급됩니다.")));
+			NoticeText->SetText(FText::FromString(TEXT("완료된 스테이지는\n75 % 경험치만 제공합니다.")));
 			NoticeText->SetVisibility(ESlateVisibility::Visible);
 		}
 		else
@@ -58,17 +59,17 @@ void ULRExpPanelWidget::SetupExpPanel()
 		}
 	}
 
-	if (!SlotContainer)
-	{
-		LR_ERROR(TEXT("SlotContainer가 바인딩되지 않았습니다! BP_ExpPanelWidget을 확인하세요."));
-		return;
-	}
 
 	// 컨테이너 초기화
-	SlotContainer->ClearChildren();
+	if (LeaderSlotContainer) LeaderSlotContainer->ClearChildren();
+	if (MemberSlotContainer) MemberSlotContainer->ClearChildren();
 	SubWidgets.Empty();
 
-	if (!ExpSlotClass) return;
+	if (!ExpSlotClass)
+	{
+		LR_ERROR(TEXT("ExpSlotClass가 할당되지 않았음."));
+		return;
+	}
 
 	// 파티 멤버 슬롯 생성 및 경험치 분배 로직
 	TArray<FName> PartyIDs = SaveSys->GetAllPartyCharactersIDs();
@@ -90,11 +91,38 @@ void ULRExpPanelWidget::SetupExpPanel()
 		{
 			SlotWidget->SetSlotInfo(CharID, OldLevel, OldExp, GainedExp);
 
-			SlotContainer->AddChildToVerticalBox(SlotWidget);
+			if (i == 0)
+			{
+				if (LeaderSlotContainer)
+				{
+					UVerticalBoxSlot* LeaderSlot = LeaderSlotContainer->AddChildToVerticalBox(SlotWidget);
+					if (LeaderSlot)
+					{
+						LeaderSlot->SetVerticalAlignment(VAlign_Center);
+					}
+				}
+			}
+			else
+			{
+				if (MemberSlotContainer)
+				{
+					UVerticalBoxSlot* MemberSlot = MemberSlotContainer->AddChildToVerticalBox(SlotWidget);
+					if (MemberSlot)
+					{
+						MemberSlot->SetVerticalAlignment(VAlign_Center);
+
+						// 영역 안에서 꽉 채우게 분배하고 싶다면
+						// MemberSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+					}
+				}
+			}
+
 			SubWidgets.Add(SlotWidget);
 		}
 
-		// 애니메이션 세팅이 끝났으니, 이제 실제로 DB에 경험치 저장
-		CollectionSys->AddCharacterExp(CharID, GainedExp);
+		if (bSaveExpToDB)
+		{
+			CollectionSys->AddCharacterExp(CharID, GainedExp);
+		}
 	}
 }

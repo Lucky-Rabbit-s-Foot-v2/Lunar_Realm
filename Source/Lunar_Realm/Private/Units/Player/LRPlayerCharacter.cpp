@@ -34,12 +34,12 @@
 
 #include "AIController.h" 
 #include "Subsystems/SaveGameSubsystem.h"
+#include "Subsystems/GameDataSubsystem.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Engine/StaticMesh.h"
 
 #include "Data/LRDataStructs.h"
-#include "Subsystems/GameDataSubsystem.h"
-
+#include "Core/Stage/LRStageGameMode.h"
 
 
 
@@ -402,6 +402,11 @@ void ALRPlayerCharacter::Die()
 	bIsDead = true;
 
 	LR_INFO(TEXT("플레이어 사망"));
+
+	if (ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(UGameplayStatics::GetGameMode(this)))
+	{
+		StageGM->AddPlayerDeathCount();
+	}
 
 	PlayDeathSound();
 

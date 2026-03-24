@@ -52,14 +52,6 @@ void ULRBaseWidget::InitializeUI()
 void ULRBaseWidget::DeinitializeUI()
 {
 	// 자식 클래스에서 오버라이드하여 정리 로직 구현
-	for (auto& SubWidget : SubWidgets)
-	{
-		if (SubWidget)
-		{
-			SubWidget->DeinitializeUI();
-		}
-	}
-	SubWidgets.Empty();
 }
 
 void ULRBaseWidget::RegisterSubWidgets()
