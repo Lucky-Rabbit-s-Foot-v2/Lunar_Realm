@@ -183,11 +183,6 @@ void ALREnemyCharacter::PlayAttackSound(int32 SkillIndex)
 		return;
 	}
 
-	// TEST
-	TArray<FName> AllEnemyIDs = DataSys->GetAllEnemyIDs();
-	LR_WARN(TEXT("[PlayAttackSound] 등록된 Enemy 수: %d / 조회 요청 ID: %s"),
-		AllEnemyIDs.Num(), *CurrentEnemyID.ToString());
-
 	const FEnemySoundData& SoundData = DataSys->GetEnemySoundData(CurrentEnemyID);
 
 	if (!SoundData.AttackSounds.IsValidIndex(SkillIndex))
