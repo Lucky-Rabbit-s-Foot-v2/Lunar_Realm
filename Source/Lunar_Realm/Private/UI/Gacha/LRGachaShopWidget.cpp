@@ -141,7 +141,6 @@ void ULRGachaShopWidget::NativeConstruct()
 		}
 	}
 
-	StartShopBGM();
 	RefreshRateTexts();
 }
 
