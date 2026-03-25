@@ -54,4 +54,7 @@ public:
 
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "UI Routing")
 	TSubclassOf<ULRBaseWidget> DamageWidgetClass;
+
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "UI Routing")
+	TSubclassOf<ULRBaseWidget> TouchWidgetClass;
 };
