@@ -9,6 +9,8 @@
 
 #include "Subsystems/UIManagerSubsystem.h"
 
+#include "Kismet/GameplayStatics.h"
+
 
 ALROutGameController::ALROutGameController()
 	: ALRControllerBase()
@@ -22,6 +24,11 @@ void ALROutGameController::OpenFirstWidget()
 	UIManager->ClearUIHistory();
 
 	UIManager->OpenUIByID(EUIID::LOBBY);
+
+	if (LobbyGachaBGMSound)
+	{
+		UGameplayStatics::PlaySound2D(this, LobbyGachaBGMSound, 1.0f);
+	}
 }
 
 void ALROutGameController::SetSelectedCharacterID(FName InID)
