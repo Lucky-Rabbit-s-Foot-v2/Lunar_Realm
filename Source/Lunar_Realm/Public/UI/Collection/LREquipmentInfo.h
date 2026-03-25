@@ -22,7 +22,7 @@ public:
 	virtual void RegisterSubWidgets() override;
 
 	UFUNCTION(BlueprintCallable)
-	void SetEquipIDCall(FName InID);
+	void SetEquipIDCall(ESelectedType InType, FName InID);
 
 	void SetEquipID(const FName& InID);
 

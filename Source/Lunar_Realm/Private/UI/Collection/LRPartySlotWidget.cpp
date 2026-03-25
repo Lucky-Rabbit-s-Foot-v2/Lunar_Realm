@@ -52,7 +52,7 @@ void ULRPartySlotWidget::OnSlotButtonClicked()
 {
 	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
-		ID = PC->GetSelectedCharacterID();
+		ID = PC->GetSelectedID();
 	} 
 
 	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())

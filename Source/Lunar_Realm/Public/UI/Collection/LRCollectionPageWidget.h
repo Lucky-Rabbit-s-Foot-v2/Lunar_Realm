@@ -26,10 +26,14 @@ protected:
 	virtual void BindToController(class ALRControllerBase* Controller) override;
 
 	UFUNCTION()
-	void SetCharacterID(FName InID);
+	void SetCharacterID(ESelectedType InType, FName InID);
 	UFUNCTION()
-	void SetEquipmentID(FName InID);
+	void SetEquipmentID(ESelectedType InType, FName InID);
 
+private:
+	void SwitchWidgetByType(ESelectedType InType);
+
+protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UWidgetSwitcher> Switcher;
 

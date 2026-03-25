@@ -16,8 +16,16 @@
  // (260219) PJB 수정. HUD 제거, 소스 코드 이관.
  //=============================================================================
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSelectedCharacterChanged, FName, NewCharacterID);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSelectedEquipmentChanged, FName, NewEquipmentID);
+UENUM(BlueprintType)
+enum class ESelectedType : uint8
+{
+	CHARACTER = 0,
+	EQUIPMENT,
+	NONE,
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSelectedCharacter, ESelectedType, SelectedType, FName, NewCharacterID);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSelectedEquipment, ESelectedType, SelectedType, FName, NewEquipmentID);
 
 UCLASS()
 class LUNAR_REALM_API ALROutGameController : public ALRControllerBase
@@ -35,13 +43,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetSelectedEquipmentID(FName InID);
 
-	FName GetSelectedCharacterID() { return SelectedCharacterID; }
+	UFUNCTION(BlueprintCallable)
+	void SetSelectedIDNone();
+
+	ESelectedType GetSelectedType() { return SelectedType; }
+	FName GetSelectedID() { return SelectedID; }
 
 	UPROPERTY(BlueprintAssignable)
-	FOnSelectedCharacterChanged OnSelectedCharacterChangedDel;
+	FOnSelectedCharacter OnSelectedCharacterDel;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnSelectedEquipmentChanged OnSelectedEquipmentChangedDel;
+	FOnSelectedEquipment OnSelectedEquipmentDel;
 
 
 	// 콘솔 명령어로 캐릭터나 장비가 활률대로 나오는지 확인하는 함수
@@ -52,9 +64,6 @@ public:
 	TSubclassOf<class ULRGachaShopWidget> GachaShopWidgetClass;
 
 protected:
-	UPROPERTY(VisibleAnywhere, Category = "LR|UI Party")
-	FName SelectedCharacterID = NAME_None;
-
-	UPROPERTY(VisibleAnywhere, Category = "LR|UI Party")
-	FName SelectedEquipmentID = NAME_None;
+	ESelectedType SelectedType = ESelectedType::NONE;
+	FName SelectedID = NAME_None;
 };

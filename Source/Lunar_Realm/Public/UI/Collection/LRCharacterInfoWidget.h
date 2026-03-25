@@ -22,7 +22,7 @@ public:
 	virtual void RegisterSubWidgets() override;
 
 	UFUNCTION(BlueprintCallable)
-	void SetCharacterIDCall(FName InID);
+	void SetCharacterIDCall(ESelectedType InType, FName InID);
 
 	void SetCharacterID(const FName& InID);
 

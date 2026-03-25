@@ -26,14 +26,22 @@ void ALROutGameController::OpenFirstWidget()
 
 void ALROutGameController::SetSelectedCharacterID(FName InID)
 {
-	SelectedCharacterID = InID;
-	OnSelectedCharacterChangedDel.Broadcast(SelectedCharacterID);
+	SelectedID = InID;
+	SelectedType = ESelectedType::CHARACTER;
+	OnSelectedCharacterDel.Broadcast(SelectedType, SelectedID);
 }
 
 void ALROutGameController::SetSelectedEquipmentID(FName InID)
 {
-	SelectedEquipmentID = InID;
-	OnSelectedEquipmentChangedDel.Broadcast(SelectedEquipmentID);
+	SelectedID = InID;
+	SelectedType = ESelectedType::EQUIPMENT;
+	OnSelectedEquipmentDel.Broadcast(SelectedType, SelectedID);
+}
+
+void ALROutGameController::SetSelectedIDNone()
+{
+	SelectedID = NAME_None;
+	SelectedType = ESelectedType::NONE;
 }
 
 void ALROutGameController::GachaSim(const FString& BannerIdStr, int32 TotalPulls, int32 Seed)
