@@ -89,4 +89,8 @@ public:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Stage")
 	FName StageTag;
+
+	// (260324) KHS 추가. StatusBarSlot에서 아이콘 표시에 사용. BP에서 직접 할당.
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Visual")
+	TObjectPtr<UTexture2D> CoreIcon;
 };
