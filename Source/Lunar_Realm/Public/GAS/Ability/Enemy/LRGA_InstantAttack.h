@@ -46,9 +46,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|MeleeEffect")
 	TSoftObjectPtr<UNiagaraSystem> AttackVFX;
 
-	UPROPERTY(EditDefaultsOnly, Category = "LR|MeleeEffect")
-	TSoftObjectPtr<USoundBase> AttackSFX;
-
 private:
 	TObjectPtr<UAnimMontage> ActiveMontage = nullptr;
 

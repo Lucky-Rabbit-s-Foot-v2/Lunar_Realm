@@ -5,10 +5,16 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Animation/AnimMontage.h"
+
 #include "BehaviorTree/BehaviorTree.h"
+
 #include "Engine/GameInstance.h"
+
 #include "GAS/Tags/LRGameplayTags.h"
+
 #include "Subsystems/GameDataSubsystem.h"
+
+#include "Units/Enemy/LREnemyCharacter.h"
 #include "Units/LRCharacter.h"
 
 
@@ -89,6 +95,12 @@ FGameplayTag ALREnemyAIController::TryAttackTargetByPhase(AActor* Target, int32 
 	EventData.Instigator = OwnerCharacter;
 	EventData.Target = Target;
 	EventData.OptionalObject = SelectedMontage;
+
+	if (ALREnemyCharacter* EnemyChar = Cast<ALREnemyCharacter>(MyPawn))
+	{
+		int32 SelectedSkillIndex = (SelectedTag == CachedSkillTags[NormalIdx]) ? NormalIdx : SpecialIdx;
+		EnemyChar->PlayAttackSound(SelectedSkillIndex);
+	}
 
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerCharacter, SelectedTag, EventData);
 

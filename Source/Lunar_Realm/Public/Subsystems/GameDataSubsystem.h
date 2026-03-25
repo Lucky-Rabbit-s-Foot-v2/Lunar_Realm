@@ -256,6 +256,8 @@ private:
 	UPROPERTY()
 	UDataTable* LoadedEnemyStaticData;
 	UPROPERTY()
+	UDataTable* LoadedEnemySoundData;
+	UPROPERTY()
 	UDataTable* LoadedStageStaticData;
 	UPROPERTY()
 	UDataTable* LoadedChapterStaticData;
