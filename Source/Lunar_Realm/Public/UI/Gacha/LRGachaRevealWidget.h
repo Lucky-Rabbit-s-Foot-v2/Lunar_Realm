@@ -232,6 +232,7 @@ protected:
 
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual FReply NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
 	/** 모든 캐릭터 리빌 사운드 공통 딜레이(초) */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Gacha|Reveal|Sound")
@@ -351,6 +352,7 @@ private:
 	// ───────────────── 스와이프 입력 상태 ─────────────────
 
 	bool bIsPointerDown = false;
+	bool bHasTriggeredSwipeDuringDrag = false;
 	FVector2D PointerDownPosition = FVector2D::ZeroVector;
 	float SwipeMinDistance = 30.f;
 
