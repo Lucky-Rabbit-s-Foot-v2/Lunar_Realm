@@ -470,6 +470,55 @@ void ULRGachaRevealWidget::OnClickSkip()
 //  마우스/터치 입력 처리(탭/스와이프)
 // ─────────────────────────────────────────────────────────────────────────────
 
+FReply ULRGachaRevealWidget::NativeOnMouseMove(
+	const FGeometry& InGeometry,
+	const FPointerEvent& InMouseEvent)
+{
+	if (bTransitionPlaying)
+	{
+		return FReply::Handled();
+	}
+
+	if (!bIsPointerDown)
+	{
+		return Super::NativeOnMouseMove(InGeometry, InMouseEvent);
+	}
+
+	// 개별 리빌/최종 결과창 중에는 스와이프 막음
+	if (bPresentationVisible || (bAllRevealed && bResultOverlayShown))
+	{
+		return FReply::Handled();
+	}
+
+	if (!OrbSceneActor)
+	{
+		return FReply::Handled();
+	}
+
+	// 이번 터치에서 이미 한 번 스와이프했다면 추가 이동 금지
+	if (bHasTriggeredSwipeDuringDrag)
+	{
+		return FReply::Handled();
+	}
+
+	const FVector2D CurrentPos = InMouseEvent.GetScreenSpacePosition();
+	const FVector2D Delta = CurrentPos - PointerDownPosition;
+
+	const float AbsX = FMath::Abs(Delta.X);
+	const float AbsY = FMath::Abs(Delta.Y);
+
+	// 좌우 드래그가 기준 이상이면 마우스를 떼지 않아도 즉시 1회만 스와이프 처리
+	if (AbsX > SwipeMinDistance && AbsX > AbsY)
+	{
+		OrbSceneActor->OnSwipeInput(-Delta.X);
+
+		// 이번 입력에서는 더 이상 추가 스와이프 금지
+		bHasTriggeredSwipeDuringDrag = true;
+	}
+
+	return FReply::Handled();
+}
+
 FReply ULRGachaRevealWidget::NativeOnMouseButtonDown(
 	const FGeometry& InGeometry,
 	const FPointerEvent& InMouseEvent)
@@ -480,6 +529,7 @@ FReply ULRGachaRevealWidget::NativeOnMouseButtonDown(
 	}
 
 	bIsPointerDown = true;
+	bHasTriggeredSwipeDuringDrag = false;
 	PointerDownPosition = InMouseEvent.GetScreenSpacePosition();
 
 	return FReply::Handled();
@@ -524,17 +574,20 @@ FReply ULRGachaRevealWidget::NativeOnMouseButtonUp(
 		return FReply::Handled();
 	}
 
-	// ── [3] 아직 리빌 중: 스와이프/탭 처리 ─────────────────────────
+	// ── [3] 드래그 중 이미 스와이프가 발생했다면 MouseUp에서는 추가 처리 안 함 ──
+	if (bHasTriggeredSwipeDuringDrag)
+	{
+		bHasTriggeredSwipeDuringDrag = false;
+		return FReply::Handled();
+	}
+
+	// ── [4] 짧은 클릭만 탭으로 처리 ────────────────────────────────
 	if (OrbSceneActor)
 	{
 		const float AbsX = FMath::Abs(Delta.X);
 		const float AbsY = FMath::Abs(Delta.Y);
 
-		if (AbsX > SwipeMinDistance && AbsX > AbsY)
-		{
-			OrbSceneActor->OnSwipeInput(-Delta.X);
-		}
-		else
+		if (AbsX <= SwipeMinDistance && AbsY <= SwipeMinDistance)
 		{
 			OrbSceneActor->OnTapCenterOrb();
 		}
