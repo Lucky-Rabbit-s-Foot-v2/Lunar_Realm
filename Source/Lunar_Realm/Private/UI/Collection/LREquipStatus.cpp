@@ -106,13 +106,13 @@ void ULREquipStatus::UpdateType()
 void ULREquipStatus::UpdateATK()
 {
 	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
-	float EquipmentATKBonus = GameDataSubsystem->GetCharacterFinalStat(ID, ELRStatusType::ATK, EquipmentInstance.CurrentLevel);
+	float EquipmentATKBonus = GameDataSubsystem->GetEquipmentStatBonus(ID, ELRStatusType::ATK, EquipmentInstance.CurrentLevel);
 	ATK->SetText(FText::AsNumber(EquipmentATKBonus));
 }
 
 void ULREquipStatus::UpdateDEF()
 {
 	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
-	float EquipmentDEFBonus = GameDataSubsystem->GetCharacterFinalStat(ID, ELRStatusType::DEF, EquipmentInstance.CurrentLevel);
+	float EquipmentDEFBonus = GameDataSubsystem->GetEquipmentStatBonus(ID, ELRStatusType::DEF, EquipmentInstance.CurrentLevel);
 	DEF->SetText(FText::AsNumber(EquipmentDEFBonus));
 }
