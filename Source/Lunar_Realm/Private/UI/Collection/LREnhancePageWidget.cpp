@@ -18,6 +18,7 @@ void ULREnhancePageWidget::RegisterSubWidgets()
 	Super::RegisterSubWidgets();
 
 	SubWidgets.Add(CharacterEnhance);
+	SubWidgets.Add(EquipEnhance);
 	SubWidgets.Add(Collection);
 }
 
@@ -51,11 +52,15 @@ void ULREnhancePageWidget::SetMainID(FName InID)
 void ULREnhancePageWidget::SetCharacterID(const FName& InID)
 {
 	SetCurrentTypeIndex(0);
+
+	CharacterEnhance->SetCharacterID(InID);
 	SetMainID(InID);
 }
 
 void ULREnhancePageWidget::SetEquipID(const FName& InID)
 {
 	SetCurrentTypeIndex(1);
+
+	EquipEnhance->SetEquipID(InID);
 	SetMainID(InID);
 }

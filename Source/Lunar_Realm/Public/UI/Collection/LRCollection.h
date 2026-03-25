@@ -33,6 +33,8 @@ public:
 	UFUNCTION()
 	void OnBtnEquipClicked();
 
+	void SetButtonEnable(int32 Index);
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UWidgetSwitcher> Switcher_Collection;
@@ -48,5 +50,4 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRButtonWidget> Btn_Equip;
-
 };

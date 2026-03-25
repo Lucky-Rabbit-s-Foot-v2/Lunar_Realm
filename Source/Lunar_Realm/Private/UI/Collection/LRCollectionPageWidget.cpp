@@ -11,6 +11,9 @@
 #include "UI/Collection/LRCharacterInfoWidget.h"
 #include "UI/Collection/LREquipmentInfo.h"
 
+#include "Engine/GameInstance.h"
+#include "Subsystems/SaveGameSubsystem.h"
+
 void ULRCollectionPageWidget::RegisterSubWidgets()
 {
 	Super::RegisterSubWidgets();
@@ -18,6 +21,29 @@ void ULRCollectionPageWidget::RegisterSubWidgets()
 	SubWidgets.Add(EquipmentInfo);
 	SubWidgets.Add(CharacterInfo);
 	SubWidgets.Add(Collection);
+}
+
+void ULRCollectionPageWidget::InitializeUI()
+{
+	Super::InitializeUI();
+
+	if (ID.IsNone())
+	{
+		USaveGameSubsystem* SaveGameSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+		if (!SaveGameSubsystem)
+		{
+			return;
+		}
+		
+		FName LeaderID = SaveGameSubsystem->GetLeaderCharacterID();
+		SetIDByType(ESelectedType::CHARACTER, LeaderID);
+		
+		ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer());
+		if (PC)
+		{
+			PC->SetSelectedCharacterID(LeaderID);
+		}
+	}
 }
 
 void ULRCollectionPageWidget::BindToController(ALRControllerBase* Controller)

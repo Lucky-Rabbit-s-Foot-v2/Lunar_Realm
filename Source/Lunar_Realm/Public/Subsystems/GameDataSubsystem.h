@@ -107,6 +107,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Skills")
 	TSoftObjectPtr<UTexture2D> GetSkillIcon(FName InSkillID) const;
 	
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Skills")
+	FText GetSkillDescription(FName SkillID) const;
+
+
 	// ========================================
 	// GA 데이터 조회
 	// ========================================

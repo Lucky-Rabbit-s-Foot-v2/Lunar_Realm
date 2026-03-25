@@ -14,7 +14,7 @@ void ULRCollection::InitializeUI()
 {
 	Super::InitializeUI();
 
-	if (Switcher_Collection) Switcher_Collection->SetActiveWidgetIndex(0);
+	OnBtnCharacterClicked();
 }
 
 void ULRCollection::BindProperties()
@@ -49,7 +49,10 @@ void ULRCollection::OnBtnCharacterClicked()
 	if (Switcher_Collection)
 	{
 		CharacterCollection->RefreshUI();
-		Switcher_Collection->SetActiveWidgetIndex(0);
+
+		int32 Index = 0;
+		SetButtonEnable(Index);
+		Switcher_Collection->SetActiveWidgetIndex(Index);
 	}
 }
 
@@ -58,6 +61,29 @@ void ULRCollection::OnBtnEquipClicked()
 	if (Switcher_Collection)
 	{
 		EquipCollection->RefreshUI();
-		Switcher_Collection->SetActiveWidgetIndex(1);
+
+		int32 Index = 1;
+		SetButtonEnable(Index);
+		Switcher_Collection->SetActiveWidgetIndex(Index);
+	}
+}
+
+void ULRCollection::SetButtonEnable(int32 Index)
+{
+	if (Index == 0)
+	{
+		Btn_Character->SetIsEnabled(false);
+		Btn_Character->SetColorAndOpacity(FLinearColor::Gray);
+
+		Btn_Equip->SetIsEnabled(true);
+		Btn_Equip->SetColorAndOpacity(FLinearColor::White);
+	}
+	else
+	{
+		Btn_Character->SetIsEnabled(true);
+		Btn_Character->SetColorAndOpacity(FLinearColor::White);
+
+		Btn_Equip->SetIsEnabled(false);
+		Btn_Equip->SetColorAndOpacity(FLinearColor::Gray);
 	}
 }

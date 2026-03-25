@@ -23,6 +23,8 @@ class LUNAR_REALM_API ULRCollectionPageWidget : public ULRPageWidget
 protected:
 	virtual void RegisterSubWidgets() override;
 	
+	virtual void InitializeUI() override;
+
 	virtual void BindToController(class ALRControllerBase* Controller) override;
 
 	UFUNCTION()
@@ -43,4 +45,7 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRCollection> Collection;
+
+private:
+	FName ID = NAME_None;
 };
