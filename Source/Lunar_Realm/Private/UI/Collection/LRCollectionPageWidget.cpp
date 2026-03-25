@@ -28,21 +28,22 @@ void ULRCollectionPageWidget::BindToController(ALRControllerBase* Controller)
 
 	if (PC)
 	{
-		PC->OnSelectedCharacterDel.AddUniqueDynamic(this, &ULRCollectionPageWidget::SetCharacterID);
-		PC->OnSelectedEquipmentDel.AddUniqueDynamic(this, &ULRCollectionPageWidget::SetEquipmentID);
+		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULRCollectionPageWidget::SetIDByType);
 	}
 }
 
-void ULRCollectionPageWidget::SetCharacterID(ESelectedType InType, FName InID)
+void ULRCollectionPageWidget::SetIDByType(ESelectedType InType, FName InID)
 {
 	SwitchWidgetByType(InType);
-	CharacterInfo->SetCharacterID(InID);
-}
 
-void ULRCollectionPageWidget::SetEquipmentID(ESelectedType InType, FName InID)
-{
-	SwitchWidgetByType(InType);
-	EquipmentInfo->SetEquipID(InID);
+	if (InType == ESelectedType::CHARACTER)
+	{
+		CharacterInfo->SetCharacterID(InID);
+	}
+	else if (InType == ESelectedType::EQUIPMENT)
+	{
+		EquipmentInfo->SetEquipID(InID);
+	}
 }
 
 void ULRCollectionPageWidget::SwitchWidgetByType(ESelectedType InType)

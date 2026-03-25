@@ -32,7 +32,7 @@ void ULREquipmentInfo::NativeConstruct()
 
 	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
-		PC->OnSelectedCharacterDel.AddUniqueDynamic(this, &ULREquipmentInfo::SetEquipIDCall);
+		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULREquipmentInfo::SetEquipIDCall);
 	}
 }
 
@@ -80,6 +80,11 @@ void ULREquipmentInfo::RegisterSubWidgets()
 
 void ULREquipmentInfo::SetEquipIDCall(ESelectedType InType, FName InID)
 {
+	if (InType != ESelectedType::EQUIPMENT)
+	{
+		return;
+	}
+
 	SetEquipID(InID);
 }
 

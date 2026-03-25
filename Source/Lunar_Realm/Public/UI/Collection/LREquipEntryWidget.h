@@ -22,7 +22,14 @@ public:
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
+	virtual void BindToController(class ALRControllerBase* Controller) override;
+
 	virtual void RefreshData() override;
+
+	UFUNCTION()
+	void IsSelectedTile(ESelectedType SelectedType, FName SelectedID);
+
+	void SetSelected(bool bSelected);
 
 	UFUNCTION()
 	void OnTileClicked();
@@ -33,4 +40,10 @@ public:
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Selected;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> Img_Selected;
+
+private:
+	bool bIsSelected = false;
 };

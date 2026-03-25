@@ -26,9 +26,6 @@ void ULREquipCollection::RefreshUI()
 
 	TArray<FName> AllEquipmentIDs = GameDataSubsystem->GetAllEquipmentIDs();
 
-	LR_ERROR(TEXT("ULREquipCollection::RefreshUI - AllEquipmentIDs.Num(): %d"), AllEquipmentIDs.Num());
-
-
 	for (const FName& EquipmentID : AllEquipmentIDs)
 	{
 		if (CollectionSubsystem->HasEquipment(EquipmentID))

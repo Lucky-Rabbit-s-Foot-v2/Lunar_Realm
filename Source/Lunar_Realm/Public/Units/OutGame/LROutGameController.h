@@ -24,8 +24,7 @@ enum class ESelectedType : uint8
 	NONE,
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSelectedCharacter, ESelectedType, SelectedType, FName, NewCharacterID);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSelectedEquipment, ESelectedType, SelectedType, FName, NewEquipmentID);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSelectedChanged, ESelectedType, SelectedType, FName, NewCharacterID);
 
 UCLASS()
 class LUNAR_REALM_API ALROutGameController : public ALRControllerBase
@@ -46,15 +45,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetSelectedIDNone();
 
+	FName GetSelectedCharacterID();
+	FName GetSelectedEquipmentID();
+
 	ESelectedType GetSelectedType() { return SelectedType; }
 	FName GetSelectedID() { return SelectedID; }
 
 	UPROPERTY(BlueprintAssignable)
-	FOnSelectedCharacter OnSelectedCharacterDel;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnSelectedEquipment OnSelectedEquipmentDel;
-
+	FOnSelectedChanged OnSelectedChangedDel;
 
 	// 콘솔 명령어로 캐릭터나 장비가 활률대로 나오는지 확인하는 함수
 	UFUNCTION(Exec)

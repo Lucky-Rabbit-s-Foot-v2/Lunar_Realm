@@ -17,6 +17,8 @@ void ULREquipEntryWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	SetSelected(false);
+
 	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
 		OnEquipTileClickedDel.AddUniqueDynamic(PC, &ALROutGameController::SetSelectedEquipmentID);
@@ -37,21 +39,57 @@ void ULREquipEntryWidget::UnbindProperties()
 	Super::UnbindProperties();
 }
 
+void ULREquipEntryWidget::BindToController(ALRControllerBase* Controller)
+{
+	Super::BindToController(Controller);
+	
+	ALROutGameController* PC = Cast<ALROutGameController>(Controller);
+	if (PC)
+	{
+		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULREquipEntryWidget::IsSelectedTile);
+	}
+}
+
 void ULREquipEntryWidget::RefreshData()
 {
 	Super::RefreshData();
 
-	if (TileData->IsLocked())
+	Btn_Selected->SetIsEnabled(!TileData->IsLocked());
+
+	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
-		Btn_Selected->SetIsEnabled(false);
+		FName SelectedID = PC->GetSelectedEquipmentID();
+		bool bIsSelectedNow = (SelectedID == TileData->GetID()) && (SelectedID != NAME_None);
+		SetSelected(bIsSelectedNow);
 	}
-	else
+}
+
+void ULREquipEntryWidget::IsSelectedTile(ESelectedType SelectedType, FName SelectedID)
+{
+	if (SelectedType != ESelectedType::EQUIPMENT)
 	{
-		Btn_Selected->SetIsEnabled(true);
+		SetSelected(false);
+		return;
 	}
+	SetSelected(TileData->GetID() == SelectedID);
 }
 
 void ULREquipEntryWidget::OnTileClicked()
 {
+	SetSelected(true);
+
 	OnEquipTileClickedDel.Broadcast(TileData->GetID());
+}
+
+void ULREquipEntryWidget::SetSelected(bool bSelected)
+{
+	bIsSelected = bSelected;
+	if (bIsSelected)
+	{
+		Img_Selected->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		Img_Selected->SetVisibility(ESlateVisibility::Hidden);
+	}
 }

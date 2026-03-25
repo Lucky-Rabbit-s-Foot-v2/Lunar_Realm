@@ -31,7 +31,7 @@ void ULRCharacterInfoWidget::NativeConstruct()
 
 	if(ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
-		PC->OnSelectedCharacterDel.AddUniqueDynamic(this, &ULRCharacterInfoWidget::SetCharacterIDCall);
+		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULRCharacterInfoWidget::SetCharacterIDCall);
 	}
 }
 
@@ -79,6 +79,11 @@ void ULRCharacterInfoWidget::RegisterSubWidgets()
 
 void ULRCharacterInfoWidget::SetCharacterIDCall(ESelectedType InType, FName InID)
 {
+	if (InType != ESelectedType::CHARACTER)
+	{
+		return;
+	}
+
 	SetCharacterID(InID);
 }
 

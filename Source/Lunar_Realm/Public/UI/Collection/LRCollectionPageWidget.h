@@ -26,9 +26,7 @@ protected:
 	virtual void BindToController(class ALRControllerBase* Controller) override;
 
 	UFUNCTION()
-	void SetCharacterID(ESelectedType InType, FName InID);
-	UFUNCTION()
-	void SetEquipmentID(ESelectedType InType, FName InID);
+	void SetIDByType(ESelectedType InType, FName InID);
 
 private:
 	void SwitchWidgetByType(ESelectedType InType);
@@ -45,6 +43,4 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRCollection> Collection;
-
-	FName ID = NAME_None;
 };

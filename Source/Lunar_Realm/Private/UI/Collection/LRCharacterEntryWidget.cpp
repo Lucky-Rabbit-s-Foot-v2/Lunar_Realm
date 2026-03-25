@@ -17,6 +17,8 @@ void ULRCharacterEntryWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	SetSelected(false);
+
 	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
 		OnTileClickedDel.AddUniqueDynamic(PC, &ALROutGameController::SetSelectedCharacterID);
@@ -37,23 +39,59 @@ void ULRCharacterEntryWidget::UnbindProperties()
 	Super::UnbindProperties();
 }
 
+void ULRCharacterEntryWidget::BindToController(ALRControllerBase* Controller)
+{
+	Super::BindToController(Controller);
+	
+	ALROutGameController* PC = Cast<ALROutGameController>(Controller);
+	if (PC)
+	{
+		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULRCharacterEntryWidget::IsSelectedTile);
+	}
+}
+
 void ULRCharacterEntryWidget::RefreshData()
 {
 	Super::RefreshData();
 
 	Img_Frame->SetBrushFromTexture(TileData->GetFrame());
 
-	if (TileData->IsLocked())
+	Btn_Selected->SetIsEnabled(!TileData->IsLocked());
+	
+	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
-		Btn_Selected->SetIsEnabled(false);
+		FName SelectedID = PC->GetSelectedCharacterID();
+		bool bIsSelectedNow = (SelectedID == TileData->GetID()) && (SelectedID != NAME_None);
+		SetSelected(bIsSelectedNow);
 	}
-	else
+}
+
+void ULRCharacterEntryWidget::IsSelectedTile(ESelectedType SelectedType, FName SelectedID)
+{
+	if (SelectedType != ESelectedType::CHARACTER)
 	{
-		Btn_Selected->SetIsEnabled(true);
+		SetSelected(false);
+		return;
 	}
+	SetSelected(TileData->GetID() == SelectedID);
 }
 
 void ULRCharacterEntryWidget::OnTileClicked()
 {
+	SetSelected(true);
+
 	OnTileClickedDel.Broadcast(TileData->GetID());
+}
+
+void ULRCharacterEntryWidget::SetSelected(bool bSelected)
+{
+	bIsSelected = bSelected;
+	if (bIsSelected)
+	{
+		Img_Selected->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		Img_Selected->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
