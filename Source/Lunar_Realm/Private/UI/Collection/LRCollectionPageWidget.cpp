@@ -61,14 +61,20 @@ void ULRCollectionPageWidget::BindToController(ALRControllerBase* Controller)
 void ULRCollectionPageWidget::SetIDByType(ESelectedType InType, FName InID)
 {
 	SwitchWidgetByType(InType);
+	ID = InID;
 
-	if (InType == ESelectedType::CHARACTER)
+	switch (InType)
 	{
+	case ESelectedType::CHARACTER:
 		CharacterInfo->SetCharacterID(InID);
-	}
-	else if (InType == ESelectedType::EQUIPMENT)
-	{
+		break;
+
+	case ESelectedType::EQUIPMENT:
 		EquipmentInfo->SetEquipID(InID);
+		break;
+
+	default:
+		break;
 	}
 }
 

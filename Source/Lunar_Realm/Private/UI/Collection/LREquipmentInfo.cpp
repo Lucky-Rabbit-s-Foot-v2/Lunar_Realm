@@ -107,7 +107,7 @@ void ULREquipmentInfo::OnEnhanceButtonClicked()
 
 		if (ULREnhancePageWidget* EnhanceWidget = Cast<ULREnhancePageWidget>(Widget))
 		{
-			EnhanceWidget->SetEquipID(EquipID);
+			EnhanceWidget->SetIDByType(ESelectedType::EQUIPMENT, EquipID);
 		}
 	}
 }

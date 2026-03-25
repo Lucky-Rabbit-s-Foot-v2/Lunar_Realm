@@ -35,7 +35,16 @@ void ULREnhanceButtonWidget::RefreshUI()
 	}
 	else if(CurrentTypeIndex == 1)
 	{
-		FEquipmentInstance EquipmentData = CollectionSub->GetEquipmentInstancesByKey(ID)[0];
+		TArray<FEquipmentInstance> EquipmentInstances = CollectionSub->GetEquipmentInstancesByKey(ID);
+		if (EquipmentInstances.Num() == 0)
+		{
+			EnhanceExp = 0;
+			EnhanceCost = 0;
+			Txt_Cost->SetText(FText::AsNumber(EnhanceCost));
+			return;
+		}
+
+		FEquipmentInstance EquipmentData = EquipmentInstances[0];
 		CalculateExp(EquipmentData.CurrentLevel, EquipmentData.CurrentExp, MaxLevel);
 	}
 	Txt_Cost->SetText(FText::AsNumber(EnhanceCost));

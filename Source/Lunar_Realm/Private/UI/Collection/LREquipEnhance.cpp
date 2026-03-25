@@ -55,8 +55,8 @@ void ULREquipEnhance::SetEquipID(const FName& InID)
 
 	EquipCard->SetEquipID(ID);
 	EquipStatus->SetEquipID(ID);
-	Enhance1->SetCharacterID(ID);
-	Enhance5->SetCharacterID(ID);
-	Enhance10->SetCharacterID(ID);
+	Enhance1->SetEquipID(ID);
+	Enhance5->SetEquipID(ID);
+	Enhance10->SetEquipID(ID);
 	RefreshUI();
 }

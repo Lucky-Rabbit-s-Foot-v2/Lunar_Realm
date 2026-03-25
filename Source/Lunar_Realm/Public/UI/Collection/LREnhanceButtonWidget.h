@@ -43,5 +43,6 @@ protected:
 	int32 EnhanceExp = 0;
 	int32 EnhanceCost = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Enhance")
 	int32 CurrentTypeIndex = 0;
 };

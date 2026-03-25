@@ -19,11 +19,13 @@ public:
 
 	virtual void InitializeUI() override;
 
-	void SetCurrentTypeIndex(int32 InIndex);
-	void SetMainID(FName InID);
+	virtual void BindToController(class ALRControllerBase* Controller) override;
 
-	void SetCharacterID(const FName& InID);
-	void SetEquipID(const FName& InID);
+	UFUNCTION()
+	void SetIDByType(ESelectedType InType, FName InID);
+
+private:
+	void SwitchWidgetByType(ESelectedType InType);
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -39,6 +41,4 @@ protected:
 	TObjectPtr<class ULRCollection> Collection;
 
 	FName ID = NAME_None;
-
-	int32 CurrentTypeIndex = 0; // 0: Character, 1: Equipment
 };

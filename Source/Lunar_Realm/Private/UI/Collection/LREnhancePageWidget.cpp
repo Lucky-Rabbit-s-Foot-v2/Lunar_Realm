@@ -13,6 +13,8 @@
 #include "UI/Collection/LRCharacterEnhanceWidget.h"
 #include "UI/Collection/LREquipEnhance.h"
 
+#include "Units/OutGame/LROutGameController.h"
+
 void ULREnhancePageWidget::RegisterSubWidgets()
 {
 	Super::RegisterSubWidgets();
@@ -31,36 +33,43 @@ void ULREnhancePageWidget::InitializeUI()
 		if (SaveGameSubsystem)
 		{
 			FName LeaderID = SaveGameSubsystem->GetLeaderCharacterID();
-			SetCharacterID(LeaderID);
+			SetIDByType(ESelectedType::CHARACTER, LeaderID);
 		}
 	}
 }
 
-void ULREnhancePageWidget::SetCurrentTypeIndex(int32 InIndex)
+void ULREnhancePageWidget::BindToController(ALRControllerBase* Controller)
 {
-	CurrentTypeIndex = InIndex;
-	Switcher->SetActiveWidgetIndex(CurrentTypeIndex);
+	Super::BindToController(Controller);
+
+	ALROutGameController* PC = Cast<ALROutGameController>(Controller);
+	if (PC)
+	{
+		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULREnhancePageWidget::SetIDByType);
+	}
 }
 
-void ULREnhancePageWidget::SetMainID(FName InID)
+void ULREnhancePageWidget::SetIDByType(ESelectedType InType, FName InID)
 {
+	SwitchWidgetByType(InType);
 	ID = InID;
 
-	RefreshUI();
+	switch (InType)
+	{
+	case ESelectedType::CHARACTER:
+		CharacterEnhance->SetCharacterID(InID);
+		break;
+
+	case ESelectedType::EQUIPMENT:
+		EquipEnhance->SetEquipID(InID);
+		break;
+	
+	default:
+		break;
+	}
 }
 
-void ULREnhancePageWidget::SetCharacterID(const FName& InID)
+void ULREnhancePageWidget::SwitchWidgetByType(ESelectedType InType)
 {
-	SetCurrentTypeIndex(0);
-
-	CharacterEnhance->SetCharacterID(InID);
-	SetMainID(InID);
-}
-
-void ULREnhancePageWidget::SetEquipID(const FName& InID)
-{
-	SetCurrentTypeIndex(1);
-
-	EquipEnhance->SetEquipID(InID);
-	SetMainID(InID);
+	Switcher->SetActiveWidgetIndex(static_cast<int32>(InType));
 }

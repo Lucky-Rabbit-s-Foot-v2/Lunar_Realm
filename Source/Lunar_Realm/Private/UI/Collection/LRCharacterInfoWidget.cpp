@@ -106,7 +106,7 @@ void ULRCharacterInfoWidget::OnEnhanceButtonClicked()
 		
 		if (ULREnhancePageWidget* EnhanceWidget = Cast<ULREnhancePageWidget>(Widget))
 		{
-			EnhanceWidget->SetCharacterID(CharacterID);
+			EnhanceWidget->SetIDByType(ESelectedType::CHARACTER, CharacterID);
 		}
 	}
 }
