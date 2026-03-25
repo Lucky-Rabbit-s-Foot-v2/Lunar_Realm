@@ -523,6 +523,18 @@ TSoftObjectPtr<UTexture2D> UGameDataSubsystem::GetSkillIcon(FName InSkillID) con
 	return nullptr;
 }
 
+TSoftObjectPtr<UTexture2D> UGameDataSubsystem::GetCharWholeBodyImage(FName InCharacterID) const
+{
+	const FCharacterStaticData& StaticData = GetCharacterStaticData(InCharacterID);
+
+	if (StaticData.DataID != NAME_None)
+	{
+		return StaticData.WholeBodyImage;
+	}
+
+	return nullptr;
+}
+
 // ========================================
 // GA 데이터 조회
 // ========================================
