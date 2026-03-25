@@ -11,7 +11,7 @@
 #include "Subsystems/GameDataSubsystem.h"
 #include "Subsystems/SaveGameSubsystem.h"
 #include "Units/OutGame/LRTransitionController.h"
-#include "Engine/LevelStreaming.h" // 스트리밍 레벨 체크용
+#include "Engine/LevelStreaming.h"
 #include "Engine/AssetManager.h"
 
 ALRTransitionGameMode::ALRTransitionGameMode()
@@ -80,28 +80,6 @@ void ALRTransitionGameMode::OnLevelPreloadCompleted()
 		LoadTime, // 1초 대기
 		false
 	);
-
-
-	//ALRTransitionController* Controller = Cast<ALRTransitionController>(UGameplayStatics::GetPlayerController(this, 0));
-	//if (Controller)
-	//{
-	//	Controller->FinishLoading();
-	//}
-	//else
-	//{
-	//	LR_WARN(TEXT("PlayerController is not of type ALRTransitionController in LRTransitionGameMode"));
-	//}
-
-	//FTimerHandle TimerHandle;
-	//GetWorld()->GetTimerManager().SetTimer(
-	//	TimerHandle,
-	//	[this]()
-	//	{
-	//		UGameplayStatics::OpenLevel(this, TargetLevelName);
-	//	},
-	//	PreloadDuration,
-	//	false
-	//);
 }
 
 void ALRTransitionGameMode::PreloadAssetsAsync()
@@ -114,6 +92,7 @@ void ALRTransitionGameMode::PreloadAssetsAsync()
 		USaveGameSubsystem* SaveSys = GI->GetSubsystem<USaveGameSubsystem>();
 		UGameDataSubsystem* DataSys = GI->GetSubsystem<UGameDataSubsystem>();
 
+		// GameDataSubsystem 데이터 불러오기(캐릭터, 스킬 등)
 		if (SaveSys && DataSys)
 		{
 			TArray<FName> AllPartyIDs = SaveSys->GetAllPartyCharactersIDs();
@@ -121,9 +100,7 @@ void ALRTransitionGameMode::PreloadAssetsAsync()
 			for (FName CharID : AllPartyIDs)
 			{
 				if (CharID.IsNone()) continue;
-
 				const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(CharID);
-
 				if (!CharData.CharacterMesh.IsNull())
 				{
 					AssetsToLoad.AddUnique(CharData.CharacterMesh.ToSoftObjectPath());
@@ -132,16 +109,12 @@ void ALRTransitionGameMode::PreloadAssetsAsync()
 				{
 					AssetsToLoad.AddUnique(CharData.AnimBlueprintClass.ToSoftObjectPath());
 				}
-
 				for (FName SkillID : CharData.SkillIDs)
 				{
 					if (SkillID.IsNone()) continue;
-
 					const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillID);
 					if (SkillData.ResourceID.IsNone()) continue;
-
 					const FSkillResourceData& ResourceData = DataSys->GetSkillResourceData(SkillData.ResourceID);
-
 					if (!ResourceData.SpawnVFX.IsNull())
 					{
 						AssetsToLoad.AddUnique(ResourceData.SpawnVFX.ToSoftObjectPath());
@@ -177,7 +150,7 @@ void ALRTransitionGameMode::PreloadAssetsAsync()
 	}
 	else
 	{
-		LR_WARN(TEXT("[로딩] 프리로드할 애셋이 없습니다. 바로 레벨 로딩 시작."));
+		LR_WARN(TEXT("[로딩] 프리로드할 애셋이 없음. 바로 레벨 로딩 시작."));
 		StartLevelStreaming();
 	}
 }
