@@ -8,6 +8,7 @@
 #include "UI/Core/LRDamageWidget.h"
 
 #include "UI/Core/LRBackgroundWidget.h"
+#include "UI/Common/LRTouchEffectWidget.h"
 
 #include "Subsystems/Settings/UIManagerSettings.h"
 
@@ -334,6 +335,45 @@ void UUIManagerSubsystem::ReturnDamageWidgetToPool(ULRDamageWidget* Widget)
 	{
 		Widget->DeactivateWidget();
 		DamageWidgetPool.Add(Widget);
+	}
+}
+
+void UUIManagerSubsystem::ShowTouchEffect(const FVector2D& InScreenPosition)
+{
+	ULRTouchEffectWidget* TouchUI = GetFreeTouchWidgetFromPool();
+	if (!TouchUI) return;
+
+	TouchUI->AddToViewport(9999);
+
+	TouchUI->SetPositionInViewport(InScreenPosition);
+
+	TouchUI->PlayRippleAnimation();
+}
+
+
+ULRTouchEffectWidget* UUIManagerSubsystem::GetFreeTouchWidgetFromPool()
+{
+	ULRTouchEffectWidget* Widget = nullptr;
+
+	if (TouchWidgetPool.Num() > 0)
+	{
+		Widget = TouchWidgetPool.Pop(); // 풀에 남은 게 있으면 하나 꺼냄
+	}
+	else
+	{
+		const UUIManagerSettings* Settings = GetDefault<UUIManagerSettings>();
+		if (Settings && Settings->TouchWidgetClass)
+		{
+			Widget = CreateWidget<ULRTouchEffectWidget>(GetWorld(), Settings->TouchWidgetClass);
+		}
+	}
+	return Widget;
+}
+void UUIManagerSubsystem::ReturnTouchWidgetToPool(ULRTouchEffectWidget* InWidget)
+{
+	if (InWidget)
+	{
+		TouchWidgetPool.Add(InWidget);
 	}
 }
 
