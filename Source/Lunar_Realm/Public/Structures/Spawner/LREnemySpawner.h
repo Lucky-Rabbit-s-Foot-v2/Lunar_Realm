@@ -11,6 +11,8 @@ class UBoxComponent;
 class ALREnemyCharacter;
 class ALREnemyBossCharacter;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBossSpawned, ALREnemyBossCharacter*, BossCharacter);
+
 /**
  * 에너미 스포너 클래스
  * - GameDataSubsystem 에서 받아온 키값들 멤버로 저장
@@ -31,9 +33,13 @@ class LUNAR_REALM_API ALREnemySpawner : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
+public:
 	// Sets default values for this actor's properties
 	ALREnemySpawner();
+
+	// 보스 스폰 완료 시 발화 (SpawnBoss 내부 InitializeByEnemyID 이후)
+	UPROPERTY(BlueprintAssignable, Category = "LR|Spawner|Boss")
+	FOnBossSpawned OnBossSpawned;
 
 protected:
 	// Called when the game starts or when spawned
@@ -49,9 +55,11 @@ protected:
 	//실제 스폰 타이머 시작 + 보스 스폰
 	void StartEnemySpawning();
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	FORCEINLINE FName GetStageIDToActivate() const { return StageIDToActivate; }
 
 	UFUNCTION(BlueprintCallable)
 	void SpawnEnemy();
