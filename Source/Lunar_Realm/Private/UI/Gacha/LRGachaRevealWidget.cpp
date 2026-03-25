@@ -1232,7 +1232,9 @@ void ULRGachaRevealWidget::RefreshDuplicateGoldTotalUI()
 	{
 		if (TextDuplicateGoldTotal)
 		{
-			TextDuplicateGoldTotal->SetText(FText::AsNumber(TotalDuplicateGold));
+			TextDuplicateGoldTotal->SetText(
+				FText::FromString(FString::Printf(TEXT("+ %d"), TotalDuplicateGold))
+			);
 		}
 
 		if (DuplicateGoldPanel)
