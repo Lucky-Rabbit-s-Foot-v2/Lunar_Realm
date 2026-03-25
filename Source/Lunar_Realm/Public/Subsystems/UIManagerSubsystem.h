@@ -148,6 +148,7 @@ public:
 	void DoUIHistory(class ULRBaseWidget* Widget);
 	void UndoUIHistory();
 	void ClearUIHistory();
+	ULRBaseWidget* GetTopUIInHistory() const;
 
     /** Popup UI가 하나라도 열려있는지 확인 */
     FORCEINLINE bool HasOpenTransientUI() const { return TransientUIStack.Num() > 0; }
