@@ -197,6 +197,9 @@ void UGameDataSubsystem::CacheAllData()
 	//에너미 데이터 캐싱
 	CacheDataTable<FEnemyStaticData, FName>(
 		LoadedEnemyStaticData, CachedEnemyStaticData, &FEnemyStaticData::DataID, TEXT("EnemyStaticData"));
+	// (260325) KWB 추가: 에너미 사운드 데이터 캐싱
+	CacheDataTable<FEnemySoundData, FName>(
+		LoadedEnemySoundData, CachedEnemySoundData, &FEnemySoundData::EnemyID, TEXT("EnemySoundData"));
 	//스테이지 데이터 캐싱
 	CacheDataTable<FStageStaticData, FName>(
 		LoadedStageStaticData, CachedStageStaticData, &FStageStaticData::DataID, TEXT("StageStaticData"));

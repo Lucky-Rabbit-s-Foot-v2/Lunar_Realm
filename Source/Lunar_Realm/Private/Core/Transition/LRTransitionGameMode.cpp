@@ -245,13 +245,13 @@ void ALRTransitionGameMode::PreloadAssetsAsync()
 					// --- FEnemySoundData에서 사운드 에셋 ---
 					const FEnemySoundData& SoundData = DataSys->GetEnemySoundData(EnemyID);
 
-					if (!SoundData.Skill1Sound.IsNull())
+					// TEST
+					for (const TSoftObjectPtr<USoundBase>& SoftSFX : SoundData.AttackSounds)
 					{
-						AssetsToLoad.AddUnique(SoundData.Skill1Sound.ToSoftObjectPath());
-					}
-					if (!SoundData.Skill2Sound.IsNull())
-					{
-						AssetsToLoad.AddUnique(SoundData.Skill2Sound.ToSoftObjectPath());
+						if (!SoftSFX.IsNull())
+						{
+							AssetsToLoad.AddUnique(SoftSFX.ToSoftObjectPath());
+						}
 					}
 					for (const TSoftObjectPtr<USoundBase>& SoftSFX : SoundData.HitSound)
 					{
