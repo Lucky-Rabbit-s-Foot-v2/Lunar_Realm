@@ -30,6 +30,7 @@
  // (260303) KWB 부모 클래스 TryAttackTarget() 함수 Override 구현 추가
  // (260312) KWB BT 설정을 위한 데이터 초기화 함수 추가
  // (260313) KWB 캐릭터, 멤버 탐지 범위를 공격 범위와 연동 및 안전용 오프셋 멤버 추가, TryAttackTarget 반환 타입 bool -> FGameplayTag 변경
+ // (260324) KWB 개별 공격 몽타주, 태그 사용에서 배열로 로직 변경, 보스 전용 페이즈 기반 공격 시도 함수 추가
  //============================================================================
 
 UCLASS()
@@ -42,6 +43,8 @@ public:
 
 	virtual FGameplayTag  TryAttackTarget(AActor* Target) override;
 
+	FGameplayTag TryAttackTargetByPhase(AActor* Target, int32 Phase);
+
 	void InitializeFromEnemyData(FName EnemyID);
 
 	virtual void OnPoolDeactivate_Implementation() override;
@@ -52,11 +55,8 @@ private:
 private:
 	static constexpr float DetectionRadiusOffset = 500.0f;
 
-	FGameplayTag CachedNormalSkillTag;
-	FGameplayTag CachedSpecialSkillTag;
-
-	TObjectPtr<UAnimMontage> CachedNormalMontage = nullptr;
-	TObjectPtr<UAnimMontage> CachedSpecialMontage = nullptr;
+	TArray<TObjectPtr<UAnimMontage>> CachedAttackMontages;
+	TArray<FGameplayTag> CachedSkillTags;
 
 	bool bHasSpecialSkill = false;
 };

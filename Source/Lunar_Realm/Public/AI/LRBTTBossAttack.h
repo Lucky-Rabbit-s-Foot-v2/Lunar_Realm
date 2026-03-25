@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AI/LRBTTAttack.h"
+#include "Units/Enemy/LREnemyAIController.h"
 #include "LRBTTBossAttack.generated.h"
 
 /**
