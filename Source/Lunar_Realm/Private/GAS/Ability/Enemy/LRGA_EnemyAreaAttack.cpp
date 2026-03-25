@@ -121,6 +121,7 @@ void ULRGA_EnemyAreaAttack::ApplyAreaDamage()
 	// ── 범위 내 액터 수집 ──
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn));
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldDynamic));
 
 	TArray<AActor*> IgnoreActors;
 	IgnoreActors.Add(OwnerChar);
