@@ -106,6 +106,9 @@ public:
 	// 스킬 아이콘 텍스처 가져오기 (260320 BJM)
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Skills")
 	TSoftObjectPtr<UTexture2D> GetSkillIcon(FName InSkillID) const;
+
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Skills")
+	TSoftObjectPtr<UTexture2D> GetCharWholeBodyImage(FName InCharacterID) const;
 	
 	// ========================================
 	// GA 데이터 조회

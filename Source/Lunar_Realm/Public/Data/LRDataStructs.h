@@ -126,6 +126,11 @@ struct FCharacterStaticData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|UI")
 	TSoftObjectPtr<UTexture2D> GradeImage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|UI")
+	TSoftObjectPtr<UTexture2D> WholeBodyImage;
+
+
+
 };
 
 
@@ -789,10 +794,7 @@ struct FEnemyStaticData : public FTableRowBase
 	TSoftClassPtr<UAnimInstance> AnimBlueprintClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
-	TSoftObjectPtr<UAnimMontage> AttackNormalMontage;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
-	TSoftObjectPtr<UAnimMontage> AttackSpecialMontage;
+	TArray<TSoftObjectPtr<UAnimMontage>> AttackMontages;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
 	TSoftObjectPtr<UAnimMontage> AttackedMontage;
