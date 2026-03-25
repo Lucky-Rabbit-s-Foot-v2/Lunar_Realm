@@ -104,13 +104,13 @@ void ULRGameplayAbilityBase::SpawnProjectiles(TSubclassOf<ALRProjectile> Project
         FVector SpawnLocation;
     	USkeletalMeshComponent* Mesh = CachedInstigator->GetMesh();
     	
-    	if (Mesh && Mesh->DoesSocketExist(SpawnData.SocketName))
+    	if (!SpawnData.SocketName.IsNone() && Mesh && Mesh->DoesSocketExist(SpawnData.SocketName))                      
     	{
-    		SpawnLocation = Mesh->GetSocketLocation(SpawnData.SocketName);
-    	}
+    		SpawnLocation = Mesh->GetSocketLocation(SpawnData.SocketName);                                              
+    	}   
     	else
     	{
-    		LR_WARN(TEXT("[SpawnProjectiles] SocketName '%s' 없음 → 전방 200cm 폴백"),  *SpawnData.SocketName.ToString());
+    		LR_WARN(TEXT("[SpawnProjectiles] SocketName '%s' 없거나, 본에 소켓이 없음. → 전방 200cm 폴백"),  *SpawnData.SocketName.ToString());
     		SpawnLocation = CachedInstigator->GetActorLocation() + CachedInstigator->GetActorForwardVector() * 200.f;
     	}
     	
