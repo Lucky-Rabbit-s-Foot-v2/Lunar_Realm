@@ -12,6 +12,7 @@
 #include "Projectiles/LRProjectile.h"
 #include "Subsystems/GameDataSubsystem.h"
 #include "Units/LRCharacter.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "AbilitySystemComponent.h"
 
 ULRGameplayAbilityBase::ULRGameplayAbilityBase()
@@ -99,9 +100,20 @@ void ULRGameplayAbilityBase::SpawnProjectiles(TSubclassOf<ALRProjectile> Project
 
     for (int32 i = 0; i < Count; i++)
     {
-        // 스폰 위치 — SocketName 유효하지 않으면 전방 200cm
-        FVector SpawnLocation = CachedInstigator->GetActorLocation()
-            + CachedInstigator->GetActorForwardVector() * 200.f;
+        // 스폰 위치 — SocketName 유효하면 소켓 위치, 아니면 전방 200cm
+        FVector SpawnLocation;
+    	USkeletalMeshComponent* Mesh = CachedInstigator->GetMesh();
+    	
+    	if (Mesh && Mesh->DoesSocketExist(SpawnData.SocketName))
+    	{
+    		SpawnLocation = Mesh->GetSocketLocation(SpawnData.SocketName);
+    	}
+    	else
+    	{
+    		LR_WARN(TEXT("[SpawnProjectiles] SocketName '%s' 없음 → 전방 200cm 폴백"),  *SpawnData.SocketName.ToString());
+    		SpawnLocation = CachedInstigator->GetActorLocation() + CachedInstigator->GetActorForwardVector() * 200.f;
+    	}
+    	
         FRotator SpawnRotation = CachedInstigator->GetActorRotation();
 
         // SpawnPattern별 방향 계산
@@ -169,9 +181,28 @@ void ULRGameplayAbilityBase::SpawnProjectiles(TSubclassOf<ALRProjectile> Project
 
     for (int32 i = 0; i < Count; i++)
     {
-        // 스폰 위치 — SocketName 유효하지 않으면 전방 200cm
-        FVector SpawnLocation = CachedInstigator->GetActorLocation()
-            + CachedInstigator->GetActorForwardVector() * 200.f;
+        // 스폰 위치 — SocketName 유효하면 소켓 위치, 아니면 전방 200cm
+        FVector SpawnLocation;
+        if (!SpawnData.SocketName.IsNone())
+        {
+            USkeletalMeshComponent* Mesh = CachedInstigator->GetMesh();
+            if (Mesh && Mesh->DoesSocketExist(SpawnData.SocketName))
+            {
+                SpawnLocation = Mesh->GetSocketLocation(SpawnData.SocketName);
+            }
+            else
+            {
+                LR_WARN(TEXT("[SpawnProjectiles] SocketName '%s' 없음 → 전방 200cm 폴백"),
+                    *SpawnData.SocketName.ToString());
+                SpawnLocation = CachedInstigator->GetActorLocation()
+                    + CachedInstigator->GetActorForwardVector() * 200.f;
+            }
+        }
+        else
+        {
+            SpawnLocation = CachedInstigator->GetActorLocation()
+                + CachedInstigator->GetActorForwardVector() * 200.f;
+        }
         FRotator SpawnRotation = BaseRotation;
 
         // SpawnPattern별 방향 계산
