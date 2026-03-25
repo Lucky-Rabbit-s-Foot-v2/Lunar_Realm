@@ -195,7 +195,7 @@ void UUIManagerSubsystem::UndoUIHistory()
 {
 	if (ULRBaseWidget* CurrentWidget = UIHistoryStack.Num() > 1 ? UIHistoryStack.Pop() : nullptr)
 	{
-		CloseUIInternal(CurrentWidget);
+		CloseUI(CurrentWidget);
 	}
 	if (ULRBaseWidget* PreviousWidget = UIHistoryStack.Num() > 0 ? UIHistoryStack.Last() : nullptr)
 	{

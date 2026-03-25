@@ -13,78 +13,59 @@
 
 #include "UI/Collection/LRPartySlotWidget.h"
 
+#include "UI/Core/LRButtonWidget.h"
+
 void ULRPartySlotsWidget::InitializeUI()
 {
 	Super::InitializeUI();
 
-	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
-	{
-		TArray<FName> PartyCharactersIDs = SaveGameSubsystem->GetAllPartyCharactersIDs();
-		for (int32 SlotIdx = 0; SlotIdx < 5; SlotIdx++)
-		{
-			if (SubWidgets.IsValidIndex(SlotIdx) && PartyCharactersIDs.IsValidIndex(SlotIdx))
-			{
-				if (ULRPartySlotWidget* CurrentSlot = Cast<ULRPartySlotWidget>(SubWidgets[SlotIdx]))
-				{
-					CurrentSlot->SetCharacterID(PartyCharactersIDs[SlotIdx]);
-				}
-			}
-		}
-	}
+	Slot0->SetSlotIndex(0);
+	Slot1->SetSlotIndex(1);
+	Slot2->SetSlotIndex(2);
+	Slot3->SetSlotIndex(3);
+	Slot4->SetSlotIndex(4);
 }
 
 void ULRPartySlotsWidget::BindProperties()
 {
 	Super::BindProperties();
+	
+	Btn_Mount->OnLRButtonClickedDel.AddUniqueDynamic(this, &ULRPartySlotsWidget::OnPartyMountClicked);
+	Btn_Swap->OnLRButtonClickedDel.AddUniqueDynamic(this, &ULRPartySlotsWidget::OnPartySwapClicked);
+	Btn_Clear->OnLRButtonClickedDel.AddUniqueDynamic(this, &ULRPartySlotsWidget::OnPartyClearClicked);
 }
 
 void ULRPartySlotsWidget::UnbindProperties()
 {
-	Slot_Main->OnPartySlotChangedDel.Clear();
-	Slot_1->OnPartySlotChangedDel.Clear();
-	Slot_2->OnPartySlotChangedDel.Clear();
-	Slot_3->OnPartySlotChangedDel.Clear();
-	Slot_4->OnPartySlotChangedDel.Clear();
-
+	Btn_Mount->OnLRButtonClickedDel.RemoveDynamic(this, &ULRPartySlotsWidget::OnPartyMountClicked);
+	Btn_Swap->OnLRButtonClickedDel.RemoveDynamic(this, &ULRPartySlotsWidget::OnPartySwapClicked);
+	Btn_Clear->OnLRButtonClickedDel.RemoveDynamic(this, &ULRPartySlotsWidget::OnPartyClearClicked);
+	
 	Super::UnbindProperties();
-}
-
-void ULRPartySlotsWidget::BindSubWidgets()
-{
-	Super::BindSubWidgets();
-
-	Slot_Main->OnPartySlotChangedDel.AddDynamic(this, &ULRPartySlotsWidget::RefreshPartySlots);
-	Slot_1->OnPartySlotChangedDel.AddDynamic(this, &ULRPartySlotsWidget::RefreshPartySlots);
-	Slot_2->OnPartySlotChangedDel.AddDynamic(this, &ULRPartySlotsWidget::RefreshPartySlots);
-	Slot_3->OnPartySlotChangedDel.AddDynamic(this, &ULRPartySlotsWidget::RefreshPartySlots);
-	Slot_4->OnPartySlotChangedDel.AddDynamic(this, &ULRPartySlotsWidget::RefreshPartySlots);
 }
 
 void ULRPartySlotsWidget::RegisterSubWidgets()
 {
 	Super::RegisterSubWidgets();
 
-	SubWidgets.Add(Slot_Main);
-	SubWidgets.Add(Slot_1);
-	SubWidgets.Add(Slot_2);
-	SubWidgets.Add(Slot_3);
-	SubWidgets.Add(Slot_4);
+	SubWidgets.Add(Slot0);
+	SubWidgets.Add(Slot1);
+	SubWidgets.Add(Slot2);
+	SubWidgets.Add(Slot3);
+	SubWidgets.Add(Slot4);
 }
 
-void ULRPartySlotsWidget::RefreshPartySlots()
+void ULRPartySlotsWidget::OnPartyMountClicked()
 {
-	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
-	TArray<FName> PartyCharactersIDs = SaveGameSubsystem->GetAllPartyCharactersIDs();
+	ButtonType = ESelectedButtonType::MOUNT;
+}
 
-	for (int32 SlotIdx = 0; SlotIdx < 5; SlotIdx++)
-	{
-		if (SubWidgets.IsValidIndex(SlotIdx))
-		{
-			if (ULRPartySlotWidget* CurrentSlot = Cast<ULRPartySlotWidget>(SubWidgets[SlotIdx]))
-			{
-				CurrentSlot->SetCharacterID(PartyCharactersIDs.IsValidIndex(SlotIdx) ? PartyCharactersIDs[SlotIdx] : NAME_None);
-				CurrentSlot->RefreshUI();
-			}
-		}
-	}
+void ULRPartySlotsWidget::OnPartySwapClicked()
+{
+	ButtonType = ESelectedButtonType::SWAP;
+}
+
+void ULRPartySlotsWidget::OnPartyClearClicked()
+{
+	ButtonType = ESelectedButtonType::CLEAR;
 }

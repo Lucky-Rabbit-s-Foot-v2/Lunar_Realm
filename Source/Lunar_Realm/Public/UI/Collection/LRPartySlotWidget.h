@@ -10,7 +10,6 @@
  * 
  */
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPartySlotChanged);
 
 UCLASS()
 class LUNAR_REALM_API ULRPartySlotWidget : public ULRBaseWidget
@@ -18,36 +17,17 @@ class LUNAR_REALM_API ULRPartySlotWidget : public ULRBaseWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void BindProperties() override;
-	virtual void UnbindProperties() override;
+	virtual void RegisterSubWidgets() override;
 
-	virtual void RefreshUI() override;
-
-	UFUNCTION()
-	void OnSlotButtonClicked();
-
-	void SetCharacterID(FName InID) { ID = InID; }
-	
-	UPROPERTY(BlueprintAssignable, Category = "LR|UI|Events")
-	FOnPartySlotChanged OnPartySlotChangedDel;
+	void SetSlotIndex(int32 InIndex);
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> Btn_Slot;
+	TObjectPtr<class ULRPartyCharacterSlot> CharacterSlot;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Slot;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Grade;
-
+	TObjectPtr<class ULRPartyEquipmentSlot> EquipmentSlot;
 
 	UPROPERTY(EditAnywhere, Category = "LR|UI Party")
 	int32 SlotIndex = 0;
-
-	UPROPERTY(EditAnywhere, Category = "LR|UI|Empty")
-	TObjectPtr<class UTexture2D> EmptySlotTexture;
-
-private:
-	FName ID;
 };

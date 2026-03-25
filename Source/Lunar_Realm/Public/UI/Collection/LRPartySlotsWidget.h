@@ -9,6 +9,16 @@
 /**
  * 
  */
+
+UENUM(BlueprintType)
+enum class ESelectedButtonType : uint8
+{
+	NONE,
+	MOUNT,
+	SWAP,
+	CLEAR
+};
+
 UCLASS()
 class LUNAR_REALM_API ULRPartySlotsWidget : public ULRBaseWidget
 {
@@ -16,32 +26,51 @@ class LUNAR_REALM_API ULRPartySlotsWidget : public ULRBaseWidget
 	
 public:
 	virtual void InitializeUI() override;
-	
+
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
-	virtual void BindSubWidgets() override;
 	virtual void RegisterSubWidgets() override;
 
+
 	UFUNCTION()
-	void RefreshPartySlots();
+	void OnPartyMountClicked();
+
+	UFUNCTION()
+	void OnPartySwapClicked();
+
+	UFUNCTION()
+	void OnPartyClearClicked();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UImage> Img_Current;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRPartySlotWidget> Slot_Main;
+	TObjectPtr<class ULRPartySlotWidget> Slot0;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRPartySlotWidget> Slot_1;
+	TObjectPtr<class ULRPartySlotWidget> Slot1;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRPartySlotWidget> Slot_2;
+	TObjectPtr<class ULRPartySlotWidget> Slot2;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRPartySlotWidget> Slot_3;
+	TObjectPtr<class ULRPartySlotWidget> Slot3;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRPartySlotWidget> Slot_4;
+	TObjectPtr<class ULRPartySlotWidget> Slot4;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRButtonWidget> Btn_Mount;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRButtonWidget> Btn_Swap;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRButtonWidget> Btn_Clear;
+
+private:
+	FName SelectedID = NAME_None;
+	ESelectedButtonType ButtonType = ESelectedButtonType::NONE;
 };
