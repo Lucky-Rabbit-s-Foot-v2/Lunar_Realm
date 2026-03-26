@@ -16,6 +16,7 @@
 // (260223) KWB 쿨다운 기능 추가
 // (260312) KWB OnAbilityActivated()의 "TargetActor" 값 저장 방식 변경 (Controller -> GameplayAbilityBase)
 // (260313) KWB 중복 로직 제거 (DT를 통해 AttackRange 값 결정 및 BTTask에서 검사)
+// (260326) KWB VFX Transform 조절용 필드 추가
 //=============================================================================
 
 UCLASS()
@@ -45,6 +46,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|MeleeEffect")
 	TSoftObjectPtr<UNiagaraSystem> AttackVFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|MeleeEffect")
+	FVector VFXLocationOffset = FVector(100.f, 0.f, 0.f);
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|MeleeEffect")
+	FRotator VFXRotationOffset = FRotator::ZeroRotator;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|MeleeEffect")
+	FVector VFXScale = FVector(1.f);
 
 private:
 	TObjectPtr<UAnimMontage> ActiveMontage = nullptr;
