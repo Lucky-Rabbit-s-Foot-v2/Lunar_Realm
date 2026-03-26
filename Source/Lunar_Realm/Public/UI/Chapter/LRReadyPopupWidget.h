@@ -28,6 +28,8 @@ public:
 	
 	virtual void RegisterSubWidgets() override;
 
+	virtual void OpenUI() override;
+
 	virtual void SetStageID(FName InStageID);
 	
 
@@ -41,6 +43,10 @@ public:
 	void OnCloseButtonClicked();
 
 protected:
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	class UWidgetAnimation* Anim_Falling;
+
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRPartyLineupWidget> PartyLineup;
 

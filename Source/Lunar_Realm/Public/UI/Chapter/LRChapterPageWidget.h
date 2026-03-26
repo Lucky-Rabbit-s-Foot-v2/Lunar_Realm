@@ -38,4 +38,29 @@ protected:
 
 	UPROPERTY()
 	TArray<TObjectPtr<ULRChapterWidget>> ChapterWidgets;
+
+protected:
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	class UWidgetAnimation* Anim_FadeOut;
+
+	FTimerHandle TransitionTimer;
+
+public:
+	void PlayFadeOutAndOpenStage(FName InChapterID);
+
+	void PlayFadeInAnimation();
+
+protected:
+	virtual void OpenUI() override; 
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	class UWidgetAnimation* Anim_FadeIn;
+
+private:
+	void LoadBackgroundAndOpenStage(FName InChapterID);
+
+	void OpenStageWidget(FName InChapterID);
+
+	bool bIsReturningFromStage = false;
+	bool bIsTransitioning = false;
 };

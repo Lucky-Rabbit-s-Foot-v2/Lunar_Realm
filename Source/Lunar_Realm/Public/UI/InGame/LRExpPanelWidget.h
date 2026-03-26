@@ -41,4 +41,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|UI")
 	bool bSaveExpToDB = false;
 
+
+
 };

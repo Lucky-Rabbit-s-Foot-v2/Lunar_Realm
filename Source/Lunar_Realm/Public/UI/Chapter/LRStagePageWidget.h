@@ -25,6 +25,8 @@ public:
 
 	virtual void RegisterSubWidgets() override;
 
+	virtual void OpenUI() override;
+
 	UFUNCTION(BlueprintCallable)
 	void SetChapterID(FName InChapterID);
 
@@ -50,7 +52,7 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRStageWidget> Stage4;
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<class ULRStageWidget> Stage5;
 
 	UPROPERTY(meta = (BindWidget))
@@ -58,4 +60,25 @@ protected:
 
 private:
 	FName CurrentChapterID;
+
+	FTimerHandle ChapterChangeTimer;
+
+	void UpdatePaths(const TArray<FName>& InStageIDs);
+
+protected:
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	class UWidgetAnimation* Anim_FadeIn;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	class UWidgetAnimation* Anim_FadeOut;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<class UImage> Img_Path1To2;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<class UImage> Img_Path2To3;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<class UImage> Img_Path3To4;
+
 };

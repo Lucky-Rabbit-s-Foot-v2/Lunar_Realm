@@ -39,6 +39,11 @@ protected:
 
 	void StartLevelStreaming();
 
+private:
+private:
+	void GatherCharacterAssets(class USaveGameSubsystem* InSaveSys, class UGameDataSubsystem* InDataSys, TArray<FSoftObjectPath>& OutAssetsToLoad);
+	void GatherEnemyAssets(class UGameInstance* InGI, class UGameDataSubsystem* InDataSys, TArray<FSoftObjectPath>& OutAssetsToLoad);
+
 protected:
 	UPROPERTY(EditAnywhere, Category = "LR|Loading|Preload")
 	float PreloadDuration = 3.f;
