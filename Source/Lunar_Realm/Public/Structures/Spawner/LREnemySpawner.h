@@ -27,6 +27,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBossSpawned, ALREnemyBossCharacte
  // (260317) KWB SpawnManger 통한 데이터 초기화로 리팩토링 / 용이한 테스트 위해 잠시 원복
  // (260318) KWB 보스 스폰 로직 추가 및 불필요 멤버 삭제, 예외 처리 로직 변경(보스 스테이지면 에너미 데이터 null 허용)
  // (260322) KWB LRStageGameMode 통해서 스포너 시작 로직으로 수정
+ // (260326) KWB 뷰포트에 표시된 스포너 크기와 실제 스폰 범위 다른 문제 수정
  //============================================================================
 UCLASS()
 class LUNAR_REALM_API ALREnemySpawner : public AActor
@@ -88,7 +89,7 @@ protected:
 
 	// TEST: 사전 생성 오브젝트 풀 - 추후 개수 변경 필요 (50 ~ 100)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
-	int32 PrewarmCount = 70;
+	int32 PrewarmCount = 60;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner", meta = (ClampMin = "0.1"))
 	float WaitTime = 0.0f;
