@@ -1,1 +1,3 @@
-﻿---,EnemyID,AttackSounds,HitSound,FootstepSounds,DeathSound,IntroVoice
+---,EnemyID,AttackSounds,HitSound,FootstepSounds,DeathSound,IntroVoice
+1,"ENEMY_NORMAL_SLIME_01","(""/Engine/EngineSounds/1kSineTonePing.1kSineTonePing"",""/Engine/VREditor/Sounds/VR_ungrab.VR_ungrab"")","","","None","None"
+2,"ENEMY_BOSS_BEARKING_01","(""/Game/SFX/Enemy/Boss/Boss_BearKing_Attack1.Boss_BearKing_Attack1"",""/Game/SFX/Enemy/Boss/Boss_BearKing_Attack3.Boss_BearKing_Attack3"",""/Engine/VREditor/Sounds/UI/Camera_Shutter.Camera_Shutter"",""/Engine/EditorSounds/Notifications/CompileFailed.CompileFailed"",""/Game/SFX/Enemy/Boss/Boss_BearKing_Attack2.Boss_BearKing_Attack2"",""/Game/SFX/Enemy/Boss/Boss_BearKing_Special_01.Boss_BearKing_Special_01"")","","","None","None"
