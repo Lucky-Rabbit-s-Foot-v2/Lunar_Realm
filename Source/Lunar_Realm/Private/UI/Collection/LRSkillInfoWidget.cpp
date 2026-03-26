@@ -21,10 +21,9 @@ void ULRSkillInfoWidget::RefreshUI()
 		UTexture2D* SkillIcon = GameDataSubsystem->GetSkillIcon(ID).LoadSynchronous();
 		Icon->SetBrushFromTexture(SkillIcon ? SkillIcon : DefaultIcon);
 
-		//FText SkillDescription = GameDataSubsystem->GetSkillDescription(ID);
-		//Description->SetText(!SkillDescription.IsEmpty() ? SkillDescription : DefaultDescription);
+		FText SkillDescription = GameDataSubsystem->GetSkillDescription(ID);
+		Description->SetText(!SkillDescription.IsEmpty() ? SkillDescription : DefaultDescription);
 	}
-
 }
 
 void ULRSkillInfoWidget::SetSkillID(const FName& InID)

@@ -97,8 +97,9 @@ void ULRStageWidget::RefreshOnChanged()
 	RefreshUI();
 }
 
-void ULRStageWidget::SetStageID(FName InStageID)
+void ULRStageWidget::SetStageID(FName InStageID, FName InChapterID)
 {
 	StageID = InStageID;
+	ChapterID = InChapterID;
 	RefreshUI();
 }

@@ -5,6 +5,7 @@
 
 #include "UI/Chapter/LRPartyLineupWidget.h"
 #include "UI/Chapter/LRStageInfoWidget.h"
+#include "UI/Chapter/LRStagePageWidget.h"
 
 #include "UI/Core/LRButtonWidget.h"
 
@@ -14,6 +15,16 @@
 
 #include "Subsystems/Settings/UIManagerSettings.h"
 #include "Subsystems/UIManagerSubsystem.h"
+
+void ULRReadyPopupWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
+	{
+		OnCloseUIRequestedDel.AddUniqueDynamic(UIManager, &UUIManagerSubsystem::CloseUI);
+	}
+}
 
 void ULRReadyPopupWidget::BindProperties()
 {
@@ -25,14 +36,13 @@ void ULRReadyPopupWidget::BindProperties()
 	if (Btn_Entrance) Btn_Entrance->OnLRButtonClickedDel.AddUniqueDynamic(this, &ULRReadyPopupWidget::OnEntranceButtonClicked);
 	if (Btn_Close) Btn_Close->OnLRButtonClickedDel.AddUniqueDynamic(this, &ULRReadyPopupWidget::OnCloseRequested);
 
-	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
-	{
-		OnCloseUIRequestedDel.AddDynamic(UIManager, &UUIManagerSubsystem::CloseUI);
-	}
+	LR_SCREEN_INFO(TEXT("ULRReadyPopupWidget::BindProperties - Properties bound and delegates set up."));
 }
 
 void ULRReadyPopupWidget::UnbindProperties()
 {
+	LR_SCREEN_INFO(TEXT("ULRReadyPopupWidget::UnbindProperties - Unbinding properties and clearing delegates."));
+
 	OnCloseUIRequestedDel.Clear();
 
 	if (Btn_EmptyPoint) Btn_EmptyPoint->OnClicked.Clear();
@@ -90,5 +100,9 @@ void ULRReadyPopupWidget::OnEntranceButtonClicked()
 
 void ULRReadyPopupWidget::OnCloseButtonClicked()
 {
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	ULRStagePageWidget* Widget = Cast<ULRStagePageWidget>(UIManager->OpenUIByID(EUIID::STAGE));
+	Widget->SetChapterID(ChapterID);
+
 	OnCloseUIRequestedDel.Broadcast(this);
 }

@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRPageWidget.h"
+#include "Data/LRDataStructs.h"
+#include "Data/LREnumType.h"
 #include "LRCollectionPageWidget.generated.h"
 
 
@@ -22,10 +24,30 @@ class LUNAR_REALM_API ULRCollectionPageWidget : public ULRPageWidget
 	
 protected:
 	virtual void RegisterSubWidgets() override;
+	
+	virtual void InitializeUI() override;
+
+	virtual void BindToController(class ALRControllerBase* Controller) override;
+
+	UFUNCTION()
+	void SetIDByType(const FSelectedInfo& InInfo);
+
+private:
+	void SwitchWidgetByType(ECollectionType InType);
+
+protected:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UWidgetSwitcher> Switcher;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRBaseWidget> CharacterInfo;
+	TObjectPtr<class ULREquipmentInfo> EquipmentInfo;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRCharacterInfoWidget> CharacterInfo;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRCollection> Collection;
+
+private:
+	FName ID = NAME_None;
 };

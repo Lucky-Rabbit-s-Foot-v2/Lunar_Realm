@@ -25,9 +25,10 @@ void ULREquipCollection::RefreshUI()
 	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
 
 	TArray<FName> AllEquipmentIDs = GameDataSubsystem->GetAllEquipmentIDs();
+
 	for (const FName& EquipmentID : AllEquipmentIDs)
 	{
-		if(CollectionSubsystem->HasEquipment(EquipmentID))
+		if (CollectionSubsystem->HasEquipment(EquipmentID))
 		{
 			AddItemToTileView(GameDataSubsystem, EquipmentID, false);
 		}

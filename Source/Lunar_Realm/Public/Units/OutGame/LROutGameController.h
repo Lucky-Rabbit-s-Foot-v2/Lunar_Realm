@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Units/LRControllerBase.h"
+#include "Data/LREnumType.h"
+#include "Data/LRDataStructs.h"
 #include "Sound/SoundBase.h"
 #include "LROutGameController.generated.h"
 
@@ -18,7 +20,8 @@
  // (260325) PYI 로비(아웃게임 전체적용) BGM 추가
  //=============================================================================
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSelectedCharacterChanged, FName, NewCharacterID);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSelectedChanged, const FSelectedInfo&, InSelectedInfo);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSlotSelected, bool, InIsSelected);
 
 UCLASS()
 class LUNAR_REALM_API ALROutGameController : public ALRControllerBase
@@ -33,10 +36,37 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetSelectedCharacterID(FName InID);
 
-	FName GetSelectedCharacterID() { return SelectedCharacterID; }
+	UFUNCTION(BlueprintCallable)
+	void SetSelectedEquipmentID(FName InID);
+
+	FName GetSelectedCharacterID();
+	FName GetSelectedEquipmentID();
+
+	const FSelectedInfo& GetSelectedInfo() const { return SelectedInfo; }
+	void SetSelectedInfo(const FSelectedInfo& InInfo) { SelectedInfo = InInfo; }
+	void ResetSelectedInfo() { 
+		SelectedInfo = FSelectedInfo(); 
+		OnSlotSelectedDel.Broadcast(false);
+		OnSelectedChangedDel.Broadcast(SelectedInfo);
+	}
 
 	UPROPERTY(BlueprintAssignable)
-	FOnSelectedCharacterChanged OnSelectedCharacterChangedDel;
+	FOnSelectedChanged OnSelectedChangedDel;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnSlotSelected OnSlotSelectedDel;
+
+	UFUNCTION()
+	void RequestUpdateSelectedInfo(const FSelectedInfo& InInfo);
+
+	bool IsSlotSelected(const FSelectedInfo& InInfo);
+	bool IsTaskSelected(const FSelectedInfo& InInfo);
+	bool IsCellSelected(const FSelectedInfo& InInfo);
+
+	void HandleMountAction(const FSelectedInfo& Target, const FSelectedInfo& Source);
+	void HandleSwapAction(int32 Slot1, int32 Slot2);
+
+	void OpenEnhancePage();
 
 	// 콘솔 명령어로 캐릭터나 장비가 활률대로 나오는지 확인하는 함수
 	UFUNCTION(Exec)
@@ -46,9 +76,8 @@ public:
 	TSubclassOf<class ULRGachaShopWidget> GachaShopWidgetClass;
 
 protected:
-	UPROPERTY(VisibleAnywhere, Category = "LR|UI Party")
-	FName SelectedCharacterID = NAME_None;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Sound")
 	TObjectPtr<USoundBase> LobbyGachaBGMSound;
+
+	FSelectedInfo SelectedInfo;
 };

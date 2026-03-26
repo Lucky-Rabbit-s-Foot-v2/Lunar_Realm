@@ -177,7 +177,11 @@ void ULRSummonSlotWidget::UpdateButtonState()
 
 void ULRSummonSlotWidget::SetSlotVisuals(const FCharacterStaticData* Data)
 {
-	if (!Data) return;
+	if (!Data)
+	{
+		Img_Icon->SetBrushFromTexture(DefaultIcon);
+		return;
+	}
 
 	SummonCost = Data->SummonCost;
 	TotalCooldown = Data->SummonCooldown; 
@@ -186,6 +190,10 @@ void ULRSummonSlotWidget::SetSlotVisuals(const FCharacterStaticData* Data)
 	if (Img_Icon && !Data->CharacterTexture.IsNull())
 	{
 		Img_Icon->SetBrushFromTexture(Data->CharacterTexture.LoadSynchronous());
+	}
+	else
+	{
+		Img_Icon->SetBrushFromTexture(DefaultIcon);
 	}
 
 	// 코스트 텍스트 적용

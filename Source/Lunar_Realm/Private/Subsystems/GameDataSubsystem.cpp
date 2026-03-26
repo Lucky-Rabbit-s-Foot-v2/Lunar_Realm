@@ -528,6 +528,12 @@ TSoftObjectPtr<UTexture2D> UGameDataSubsystem::GetSkillIcon(FName InSkillID) con
 	return nullptr;
 }
 
+FText UGameDataSubsystem::GetSkillDescription(FName SkillID) const
+{
+	const FSkillStaticData& SkillData = GetSkillStaticData(SkillID);
+	return SkillData.Description;
+}
+
 TSoftObjectPtr<UTexture2D> UGameDataSubsystem::GetCharWholeBodyImage(FName InCharacterID) const
 {
 	const FCharacterStaticData& StaticData = GetCharacterStaticData(InCharacterID);

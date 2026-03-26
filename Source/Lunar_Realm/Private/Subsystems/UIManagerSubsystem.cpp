@@ -196,7 +196,7 @@ void UUIManagerSubsystem::UndoUIHistory()
 {
 	if (ULRBaseWidget* CurrentWidget = UIHistoryStack.Num() > 1 ? UIHistoryStack.Pop() : nullptr)
 	{
-		CurrentWidget->CloseUI();
+		CloseUI(CurrentWidget);
 	}
 	if (ULRBaseWidget* PreviousWidget = UIHistoryStack.Num() > 0 ? UIHistoryStack.Last() : nullptr)
 	{
@@ -209,6 +209,11 @@ void UUIManagerSubsystem::ClearUIHistory()
 {
 	UIHistoryStack.Empty();
 	OnHistoryChangedDel.Broadcast();
+}
+
+ULRBaseWidget* UUIManagerSubsystem::GetTopUIInHistory() const
+{
+	return UIHistoryStack.Num() > 0 ? UIHistoryStack.Last() : nullptr;
 }
 
 ULRBaseWidget* UUIManagerSubsystem::OpenUIByID(EUIID UIID)

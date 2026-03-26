@@ -54,7 +54,9 @@ void ULRSettingPopupWidget::UnbindProperties()
 
 void ULRSettingPopupWidget::OnCloseButtonClicked()
 {
-	OnCloseUIRequestedDel.Broadcast(this);
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	UIManager->UndoUIHistory();
+	//OnCloseUIRequestedDel.Broadcast(this);
 }
 
 void ULRSettingPopupWidget::OnSaveButtonClicked()

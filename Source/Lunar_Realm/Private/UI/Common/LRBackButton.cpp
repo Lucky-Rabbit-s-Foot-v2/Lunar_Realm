@@ -13,13 +13,14 @@ void ULRBackButton::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	UUIManagerSubsystem* UIManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->OnHistoryChangedDel.AddUniqueDynamic(this, &ULRBackButton::SetVisibilityByUIHistory);
+	SetVisibility(ESlateVisibility::Hidden);
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	//UIManager->OnHistoryChangedDel.AddUniqueDynamic(this, &ULRBackButton::SetVisibilityByUIHistory);
 }
 
 void ULRBackButton::NativeDestruct()
 {
-	UUIManagerSubsystem* UIManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	UIManager->OnHistoryChangedDel.RemoveAll(this);
 
 	Super::NativeDestruct();
@@ -27,13 +28,13 @@ void ULRBackButton::NativeDestruct()
 
 void ULRBackButton::OnButtonClicked()
 {
-	UUIManagerSubsystem* UIManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	UIManager->UndoUIHistory();
 }
 
 void ULRBackButton::SetVisibilityByUIHistory()
 {
-	UUIManagerSubsystem* UIManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	if (UIManager)
 	{
 		if (UIManager->GetUIHistoryStackSize() > 1)

@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRPageWidget.h"
+#include "Data/LREnumType.h"
+#include "Data/LRDataStructs.h"
 #include "LREnhancePageWidget.generated.h"
 
 /**
@@ -19,14 +21,26 @@ public:
 
 	virtual void InitializeUI() override;
 
-	void SetCharacterID(FName InID);
+	virtual void BindToController(class ALRControllerBase* Controller) override;
+
+	UFUNCTION()
+	void SetIDByType(const FSelectedInfo& InInfo);
+
+private:
+	void SwitchWidgetByType(ECollectionType InType);
 
 protected:
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UWidgetSwitcher> Switcher;
+
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRCharacterEnhanceWidget> CharacterEnhance;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULREquipEnhance> EquipEnhance;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRCollection> Collection;
 
-	FName CharacterID = FName();
+	FName ID = NAME_None;
 };
