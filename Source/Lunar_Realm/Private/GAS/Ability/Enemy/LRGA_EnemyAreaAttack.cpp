@@ -163,7 +163,14 @@ void ULRGA_EnemyAreaAttack::ApplyAreaDamage()
 	{
 		if (UNiagaraSystem* LoadedVFX = AreaAttackVFX.LoadSynchronous())
 		{
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), LoadedVFX, StrikeCenter);
+			OwnerChar = GetCharacterFromActorInfo(*CurrentActorInfo);
+			if (OwnerChar)
+			{
+				FVector  SpawnLoc = OwnerChar->GetActorTransform().TransformPosition(VFXLocationOffset);
+				FRotator SpawnRot = OwnerChar->GetActorRotation() + VFXRotationOffset;
+
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), LoadedVFX, SpawnLoc, SpawnRot, VFXScale);
+			}
 		}
 	}
 }

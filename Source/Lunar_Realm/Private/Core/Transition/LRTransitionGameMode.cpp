@@ -86,200 +86,36 @@ void ALRTransitionGameMode::OnLevelPreloadCompleted()
 void ALRTransitionGameMode::PreloadAssetsAsync()
 {
 	TArray<FSoftObjectPath> AssetsToLoad;
-
 	UGameInstance* GI = GetGameInstance();
+
 	if (GI)
 	{
 		USaveGameSubsystem* SaveSys = GI->GetSubsystem<USaveGameSubsystem>();
 		UGameDataSubsystem* DataSys = GI->GetSubsystem<UGameDataSubsystem>();
 
-		// GameDataSubsystem 데이터 불러오기(캐릭터, 스킬 등)
 		if (SaveSys && DataSys)
 		{
-			TArray<FName> AllPartyIDs = SaveSys->GetAllPartyCharactersIDs();
+			GatherCharacterAssets(SaveSys, DataSys, AssetsToLoad);
 
-			for (FName CharID : AllPartyIDs)
+			const UMapSettings* MapSettings = GetDefault<UMapSettings>();
+			FName StageMapName = NAME_None;
+
+			if (MapSettings)
 			{
-				if (CharID.IsNone()) continue;
-				const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(CharID);
-				if (!CharData.CharacterMesh.IsNull())
+				if (const TSoftObjectPtr<UWorld>* StageMapPtr = MapSettings->LevelMap.Find(ELevelName::STAGE))
 				{
-					AssetsToLoad.AddUnique(CharData.CharacterMesh.ToSoftObjectPath());
-				}
-				if (!CharData.AnimBlueprintClass.IsNull())
-				{
-					AssetsToLoad.AddUnique(CharData.AnimBlueprintClass.ToSoftObjectPath());
-				}
-				for (FName SkillID : CharData.SkillIDs)
-				{
-					if (SkillID.IsNone()) continue;
-					const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillID);
-					if (SkillData.ResourceID.IsNone()) continue;
-					const FSkillResourceData& ResourceData = DataSys->GetSkillResourceData(SkillData.ResourceID);
-					if (!ResourceData.SpawnVFX.IsNull())
-					{
-						AssetsToLoad.AddUnique(ResourceData.SpawnVFX.ToSoftObjectPath());
-					}
-					if (!ResourceData.SpawnSFX.IsNull())
-					{
-						AssetsToLoad.AddUnique(ResourceData.SpawnSFX.ToSoftObjectPath());
-					}
-					if (!ResourceData.TrailVFX.IsNull())
-					{
-						AssetsToLoad.AddUnique(ResourceData.TrailVFX.ToSoftObjectPath());
-					}
-					if (!ResourceData.ImpactVFX.IsNull())
-					{
-						AssetsToLoad.AddUnique(ResourceData.ImpactVFX.ToSoftObjectPath());
-					}
-					if (!ResourceData.ImpactSFX.IsNull())
-					{
-						AssetsToLoad.AddUnique(ResourceData.ImpactSFX.ToSoftObjectPath());
-					}
+					StageMapName = FName(StageMapPtr->GetLongPackageFName());
 				}
 			}
 
-			// (260325) KWB 추가: Enemy 에셋 프리로드
-			UStageManagerSubsystem* StageMgr = GI->GetSubsystem<UStageManagerSubsystem>();
-			if (StageMgr)
+			if (TargetLevelName == StageMapName)
 			{
-				// 이번 스테이지에 등장할 에너미 ID를 수집
-				TArray<FName> EnemyIDsToLoad;
-
-				const FStageStaticData* StageData = StageMgr->GetCurrentStateData();
-				if (StageData)
-				{
-					for (const FName& EnemyID : StageData->SpawnEnemyIDs)
-					{
-						EnemyIDsToLoad.AddUnique(EnemyID);
-					}
-
-					if (!StageData->BossEnemyID.IsNone())
-					{
-						EnemyIDsToLoad.AddUnique(StageData->BossEnemyID);
-					}
-				}
-
-				if (EnemyIDsToLoad.IsEmpty())
-				{
-					LR_WARN(TEXT("[TransitionGameMode - Enemy] : 스테이지에 등장할 에너미가 없습니다."));
-				}
-
-				// 각 에너미 ID별로 에셋 수집
-				for (const FName& EnemyID : EnemyIDsToLoad)
-				{
-					if (EnemyID.IsNone()) continue;
-
-					// --- FEnemyStaticData에서 비주얼/애니메이션 에셋 ---
-					const FEnemyStaticData& EnemyData = DataSys->GetEnemyStaticData(EnemyID);
-
-					if (!EnemyData.EnemyMesh.IsNull())
-					{
-						AssetsToLoad.AddUnique(EnemyData.EnemyMesh.ToSoftObjectPath());
-					}
-					if (!EnemyData.CharacterTexture.IsNull())
-					{
-						AssetsToLoad.AddUnique(EnemyData.CharacterTexture.ToSoftObjectPath());
-					}
-					if (!EnemyData.AnimBlueprintClass.IsNull())
-					{
-						AssetsToLoad.AddUnique(EnemyData.AnimBlueprintClass.ToSoftObjectPath());
-					}
-					for (const TSoftObjectPtr<UAnimMontage>& SoftMontage : EnemyData.AttackMontages)
-					{
-						if (!SoftMontage.IsNull())
-						{
-							AssetsToLoad.AddUnique(SoftMontage.ToSoftObjectPath());
-						}
-					}
-					if (!EnemyData.AttackedMontage.IsNull())
-					{
-						AssetsToLoad.AddUnique(EnemyData.AttackedMontage.ToSoftObjectPath());
-					}
-					if (!EnemyData.DeathMontage.IsNull())
-					{
-						AssetsToLoad.AddUnique(EnemyData.DeathMontage.ToSoftObjectPath());
-					}
-
-					// Aura VFX (엘리트/보스용)
-					for (const TSoftObjectPtr<UNiagaraSystem>& SoftVFX : EnemyData.AuraVFXList)
-					{
-						if (!SoftVFX.IsNull())
-						{
-							AssetsToLoad.AddUnique(SoftVFX.ToSoftObjectPath());
-						}
-					}
-
-					// --- 에너미 스킬 → FSkillResourceData VFX/SFX ---
-					for (const FName& SkillID : EnemyData.SkillIDs)
-					{
-						if (SkillID.IsNone()) continue;
-
-						const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillID);
-						if (SkillData.ResourceID.IsNone()) continue;
-
-						const FSkillResourceData& ResourceData = DataSys->GetSkillResourceData(SkillData.ResourceID);
-
-						if (!ResourceData.SpawnVFX.IsNull())
-						{
-							AssetsToLoad.AddUnique(ResourceData.SpawnVFX.ToSoftObjectPath());
-						}
-						if (!ResourceData.SpawnSFX.IsNull())
-						{
-							AssetsToLoad.AddUnique(ResourceData.SpawnSFX.ToSoftObjectPath());
-						}
-						if (!ResourceData.TrailVFX.IsNull())
-						{
-							AssetsToLoad.AddUnique(ResourceData.TrailVFX.ToSoftObjectPath());
-						}
-						if (!ResourceData.ImpactVFX.IsNull())
-						{
-							AssetsToLoad.AddUnique(ResourceData.ImpactVFX.ToSoftObjectPath());
-						}
-						if (!ResourceData.ImpactSFX.IsNull())
-						{
-							AssetsToLoad.AddUnique(ResourceData.ImpactSFX.ToSoftObjectPath());
-						}
-					}
-
-					// --- FEnemySoundData에서 사운드 에셋 ---
-					const FEnemySoundData& SoundData = DataSys->GetEnemySoundData(EnemyID);
-
-					// TEST
-					for (const TSoftObjectPtr<USoundBase>& SoftSFX : SoundData.AttackSounds)
-					{
-						if (!SoftSFX.IsNull())
-						{
-							AssetsToLoad.AddUnique(SoftSFX.ToSoftObjectPath());
-						}
-					}
-					for (const TSoftObjectPtr<USoundBase>& SoftSFX : SoundData.HitSound)
-					{
-						if (!SoftSFX.IsNull())
-						{
-							AssetsToLoad.AddUnique(SoftSFX.ToSoftObjectPath());
-						}
-					}
-					for (const TSoftObjectPtr<USoundBase>& SoftSFX : SoundData.FootstepSounds)
-					{
-						if (!SoftSFX.IsNull())
-						{
-							AssetsToLoad.AddUnique(SoftSFX.ToSoftObjectPath());
-						}
-					}
-					if (!SoundData.DeathSound.IsNull())
-					{
-						AssetsToLoad.AddUnique(SoundData.DeathSound.ToSoftObjectPath());
-					}
-					if (!SoundData.IntroVoice.IsNull())
-					{
-						AssetsToLoad.AddUnique(SoundData.IntroVoice.ToSoftObjectPath());
-					}
-				}
+				GatherEnemyAssets(GI, DataSys, AssetsToLoad);
 			}
 		}
 	}
 
+	// 수집된 에셋 로딩 시작
 	if (AssetsToLoad.Num() > 0)
 	{
 		LR_INFO(TEXT("[로딩] 비동기 프리로드 시작 총 %d개의 애셋 대기 중"), AssetsToLoad.Num());
@@ -306,4 +142,126 @@ void ALRTransitionGameMode::StartLevelStreaming()
 	LatentInfo.UUID = FMath::Rand();
 
 	UGameplayStatics::LoadStreamLevel(this, TargetLevelName, false, false, LatentInfo);
+}
+
+void ALRTransitionGameMode::GatherCharacterAssets(USaveGameSubsystem* InSaveSys, UGameDataSubsystem* InDataSys, TArray<FSoftObjectPath>& OutAssetsToLoad)
+{
+	TArray<FName> AllPartyIDs = InSaveSys->GetAllPartyCharactersIDs();
+
+	for (FName CharID : AllPartyIDs)
+	{
+		if (CharID.IsNone()) continue;
+
+		const FCharacterStaticData& CharData = InDataSys->GetCharacterStaticData(CharID);
+		if (!CharData.CharacterMesh.IsNull())
+		{
+			OutAssetsToLoad.AddUnique(CharData.CharacterMesh.ToSoftObjectPath());
+		}
+		if (!CharData.AnimBlueprintClass.IsNull())
+		{
+			OutAssetsToLoad.AddUnique(CharData.AnimBlueprintClass.ToSoftObjectPath());
+		}
+
+		for (FName SkillID : CharData.SkillIDs)
+		{
+			if (SkillID.IsNone()) continue;
+
+			const FSkillStaticData& SkillData = InDataSys->GetSkillStaticData(SkillID);
+			if (SkillData.ResourceID.IsNone()) continue;
+
+			const FSkillResourceData& ResourceData = InDataSys->GetSkillResourceData(SkillData.ResourceID);
+
+			if (!ResourceData.SpawnVFX.IsNull())	OutAssetsToLoad.AddUnique(ResourceData.SpawnVFX.ToSoftObjectPath());
+			if (!ResourceData.SpawnSFX.IsNull())	OutAssetsToLoad.AddUnique(ResourceData.SpawnSFX.ToSoftObjectPath());
+			if (!ResourceData.TrailVFX.IsNull())	OutAssetsToLoad.AddUnique(ResourceData.TrailVFX.ToSoftObjectPath());
+			if (!ResourceData.ImpactVFX.IsNull())	OutAssetsToLoad.AddUnique(ResourceData.ImpactVFX.ToSoftObjectPath());
+			if (!ResourceData.ImpactSFX.IsNull())	OutAssetsToLoad.AddUnique(ResourceData.ImpactSFX.ToSoftObjectPath());
+		}
+	}
+}
+
+void ALRTransitionGameMode::GatherEnemyAssets(UGameInstance* InGI, UGameDataSubsystem* InDataSys, TArray<FSoftObjectPath>& OutAssetsToLoad)
+{
+	UStageManagerSubsystem* StageMgr = InGI->GetSubsystem<UStageManagerSubsystem>();
+	if (!StageMgr) return;
+
+	TArray<FName> EnemyIDsToLoad;
+	const FStageStaticData* StageData = StageMgr->GetCurrentStateData();
+
+	if (StageData)
+	{
+		for (const FName& EnemyID : StageData->SpawnEnemyIDs)
+		{
+			EnemyIDsToLoad.AddUnique(EnemyID);
+		}
+		if (!StageData->BossEnemyID.IsNone())
+		{
+			EnemyIDsToLoad.AddUnique(StageData->BossEnemyID);
+		}
+	}
+
+	if (EnemyIDsToLoad.IsEmpty())
+	{
+		LR_WARN(TEXT("[TransitionGameMode - Enemy] : 스테이지에 등장할 에너미가 없습니다."));
+		return;
+	}
+
+	for (const FName& EnemyID : EnemyIDsToLoad)
+	{
+		if (EnemyID.IsNone()) continue;
+
+		// 비주얼/애니메이션 에셋
+		const FEnemyStaticData& EnemyData = InDataSys->GetEnemyStaticData(EnemyID);
+		if (!EnemyData.EnemyMesh.IsNull())			OutAssetsToLoad.AddUnique(EnemyData.EnemyMesh.ToSoftObjectPath());
+		if (!EnemyData.CharacterTexture.IsNull())	OutAssetsToLoad.AddUnique(EnemyData.CharacterTexture.ToSoftObjectPath());
+		if (!EnemyData.AnimBlueprintClass.IsNull()) OutAssetsToLoad.AddUnique(EnemyData.AnimBlueprintClass.ToSoftObjectPath());
+		if (!EnemyData.AttackedMontage.IsNull())	OutAssetsToLoad.AddUnique(EnemyData.AttackedMontage.ToSoftObjectPath());
+		if (!EnemyData.DeathMontage.IsNull())		OutAssetsToLoad.AddUnique(EnemyData.DeathMontage.ToSoftObjectPath());
+
+		for (const TSoftObjectPtr<UAnimMontage>& SoftMontage : EnemyData.AttackMontages)
+		{
+			if (!SoftMontage.IsNull()) OutAssetsToLoad.AddUnique(SoftMontage.ToSoftObjectPath());
+		}
+		for (const TSoftObjectPtr<UNiagaraSystem>& SoftVFX : EnemyData.AuraVFXList)
+		{
+			if (!SoftVFX.IsNull()) OutAssetsToLoad.AddUnique(SoftVFX.ToSoftObjectPath());
+		}
+
+		// 스킬 리소스 에셋
+		for (const FName& SkillID : EnemyData.SkillIDs)
+		{
+			if (SkillID.IsNone()) continue;
+
+			const FSkillStaticData& SkillData = InDataSys->GetSkillStaticData(SkillID);
+			if (SkillData.ResourceID.IsNone()) continue;
+
+			const FSkillResourceData& ResourceData = InDataSys->GetSkillResourceData(SkillData.ResourceID);
+
+			if (!ResourceData.SpawnVFX.IsNull())	OutAssetsToLoad.AddUnique(ResourceData.SpawnVFX.ToSoftObjectPath());
+			if (!ResourceData.SpawnSFX.IsNull())	OutAssetsToLoad.AddUnique(ResourceData.SpawnSFX.ToSoftObjectPath());
+			if (!ResourceData.TrailVFX.IsNull())	OutAssetsToLoad.AddUnique(ResourceData.TrailVFX.ToSoftObjectPath());
+			if (!ResourceData.ImpactVFX.IsNull())	OutAssetsToLoad.AddUnique(ResourceData.ImpactVFX.ToSoftObjectPath());
+			if (!ResourceData.ImpactSFX.IsNull())	OutAssetsToLoad.AddUnique(ResourceData.ImpactSFX.ToSoftObjectPath());
+		}
+
+		// 사운드 에셋
+		const FEnemySoundData& SoundData = InDataSys->GetEnemySoundData(EnemyID);
+
+		if (!SoundData.DeathSound.IsNull())  OutAssetsToLoad.AddUnique(SoundData.DeathSound.ToSoftObjectPath());
+		if (!SoundData.IntroVoice.IsNull())  OutAssetsToLoad.AddUnique(SoundData.IntroVoice.ToSoftObjectPath());
+
+
+		for (const TSoftObjectPtr<USoundBase>& SoftSFX : SoundData.AttackSounds)
+		{
+			if (!SoftSFX.IsNull()) OutAssetsToLoad.AddUnique(SoftSFX.ToSoftObjectPath());
+		}
+		for (const TSoftObjectPtr<USoundBase>& SoftSFX : SoundData.HitSound)
+		{
+			if (!SoftSFX.IsNull()) OutAssetsToLoad.AddUnique(SoftSFX.ToSoftObjectPath());
+		}
+		for (const TSoftObjectPtr<USoundBase>& SoftSFX : SoundData.FootstepSounds)
+		{
+			if (!SoftSFX.IsNull()) OutAssetsToLoad.AddUnique(SoftSFX.ToSoftObjectPath());
+		}
+	}
 }

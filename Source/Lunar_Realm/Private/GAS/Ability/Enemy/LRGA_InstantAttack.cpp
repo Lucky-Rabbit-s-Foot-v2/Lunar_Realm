@@ -170,9 +170,10 @@ void ULRGA_InstantAttack::OnMontageNotifyBegin(FName NotifyName, const FBranchin
 			OwnerChar = GetCharacterFromActorInfo(*CurrentActorInfo);
 			if (OwnerChar)
 			{
-				FVector SpawnLoc = OwnerChar->GetActorLocation() + OwnerChar->GetActorForwardVector() * 100.f;
-				UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-					GetWorld(), LoadedVFX, SpawnLoc);
+				FVector  SpawnLoc = OwnerChar->GetActorTransform().TransformPosition(VFXLocationOffset);
+				FRotator SpawnRot = OwnerChar->GetActorRotation() + VFXRotationOffset;
+
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), LoadedVFX, SpawnLoc, SpawnRot, VFXScale);
 			}
 		}
 	}

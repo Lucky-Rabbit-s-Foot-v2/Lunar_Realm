@@ -68,6 +68,14 @@ void ULRReadyPopupWidget::RegisterSubWidgets()
 	SubWidgets.Add(StageInfo);
 }
 
+void ULRReadyPopupWidget::OpenUI()
+{
+	if (Anim_Falling)
+	{
+		PlayAnimation(Anim_Falling);
+	}
+}
+
 void ULRReadyPopupWidget::SetStageID(FName InStageID)
 {
 	StageID = InStageID;

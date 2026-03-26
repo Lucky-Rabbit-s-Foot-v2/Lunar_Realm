@@ -21,7 +21,7 @@ ALREnemyBossCharacter::ALREnemyBossCharacter()
 	
 	// TODO : 추후 Radius를 넓히고(멤버가 덜 바짝 붙는 용도), projectile 발사하는 스킬의 생성 트랜스폼을 수정하던지, 발사 각도를 수정하던지 스킬 먼저 만들고 수정
 	// TEST : 값 테스트
-	GetCapsuleComponent()->SetCapsuleSize(160.f, 200.f); // SetCapsuleSize(float InRadius, float InHalfHeight)
+	GetCapsuleComponent()->SetCapsuleSize(350.f, 200.f); // SetCapsuleSize(float InRadius, float InHalfHeight)
 
 	UnitTag = LRTags::Team_Enemy_Character_Boss;
 
