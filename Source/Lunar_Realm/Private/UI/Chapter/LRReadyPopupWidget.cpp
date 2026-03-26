@@ -71,9 +71,11 @@ void ULRReadyPopupWidget::RegisterSubWidgets()
 
 void ULRReadyPopupWidget::OpenUI()
 {
+	Super::OpenUI();
+
 	if (Anim_Falling)
 	{
-		//PlayAnimation(Anim_Falling);
+		PlayAnimation(Anim_Falling);
 	}
 }
 
@@ -89,8 +91,7 @@ void ULRReadyPopupWidget::OnPartyButtonClicked()
 	{
 		UIManager->OpenUIByID(EUIID::PARTY);
 	}
-	LR_SCREEN_INFO(TEXT("ReadyPopupWidget: Party Button Clicked, StageID: %s"), *StageID.ToString());
-	OnCloseUIRequestedDel.Broadcast(this);
+	RemoveFromParent();
 }
 
 void ULRReadyPopupWidget::OnEntranceButtonClicked()
@@ -99,12 +100,5 @@ void ULRReadyPopupWidget::OnEntranceButtonClicked()
 	{
 		GI->OpenNextStage(StageID);
 	}
-	LR_SCREEN_INFO(TEXT("ReadyPopupWidget: Entrance Button Clicked, StageID: %s"), *StageID.ToString());
-	OnCloseUIRequestedDel.Broadcast(this);
-}
-
-void ULRReadyPopupWidget::OnCloseButtonClicked()
-{
-	LR_SCREEN_INFO(TEXT("ReadyPopupWidget: Close Button Clicked"));
-	OnCloseUIRequestedDel.Broadcast(this);
+	RemoveFromParent();
 }

@@ -42,9 +42,6 @@ public:
 	UFUNCTION()
 	void OnEntranceButtonClicked();
 
-	UFUNCTION()
-	void OnCloseButtonClicked();
-
 protected:
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
