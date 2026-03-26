@@ -34,7 +34,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|UI")
 	void RefreshOnChanged();
 
-	void SetStageID(FName InStageID);
+	void SetStageID(FName InStageID, FName InChapterID);
 
 private:
 	UFUNCTION(BlueprintCallable, Category = "LR|UI")
@@ -73,4 +73,5 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Chapter")
 	FName StageID;
+	FName ChapterID;
 };

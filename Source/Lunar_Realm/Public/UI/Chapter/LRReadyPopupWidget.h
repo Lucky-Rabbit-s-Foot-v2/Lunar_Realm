@@ -21,6 +21,8 @@ class LUNAR_REALM_API ULRReadyPopupWidget : public ULRPopupWidget
 	GENERATED_BODY()
 	
 public:
+	virtual void NativeConstruct() override;
+
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
@@ -60,5 +62,6 @@ protected:
 	TObjectPtr<class ULRButtonWidget> Btn_Close;
 
 private:
+	FName ChapterID;
 	FName StageID;
 };

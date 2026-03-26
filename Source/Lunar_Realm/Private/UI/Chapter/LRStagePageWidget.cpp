@@ -68,7 +68,7 @@ void ULRStagePageWidget::SetStageData(const TArray<FName>& StageIDs)
 	{
 		if (ULRStageWidget* StageWidget = Cast<ULRStageWidget>(SubWidgets[i]))
 		{
-			StageWidget->SetStageID(StageIDs[i]);
+			StageWidget->SetStageID(StageIDs[i], CurrentChapterID);
 		}
 	}
 }
