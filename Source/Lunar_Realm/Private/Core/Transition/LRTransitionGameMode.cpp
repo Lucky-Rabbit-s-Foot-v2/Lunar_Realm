@@ -97,6 +97,8 @@ void ALRTransitionGameMode::PreloadAssetsAsync()
 		{
 			GatherCharacterAssets(SaveSys, DataSys, AssetsToLoad);
 
+			GatherChapterAndStageAssets(DataSys, AssetsToLoad);
+
 			const UMapSettings* MapSettings = GetDefault<UMapSettings>();
 			FName StageMapName = NAME_None;
 
@@ -264,4 +266,26 @@ void ALRTransitionGameMode::GatherEnemyAssets(UGameInstance* InGI, UGameDataSubs
 			if (!SoftSFX.IsNull()) OutAssetsToLoad.AddUnique(SoftSFX.ToSoftObjectPath());
 		}
 	}
+}
+
+void ALRTransitionGameMode::GatherChapterAndStageAssets(UGameDataSubsystem* InDataSys, TArray<FSoftObjectPath>& OutAssetsToLoad)
+{
+	TArray<FName> ChapterIDs = { TEXT("LAKE"), TEXT("OCEAN"), TEXT("DESERT") };
+
+	for (FName ChapterID : ChapterIDs)
+	{
+		const FChapterStaticData& ChapterData = InDataSys->GetChapterStaticData(ChapterID);
+
+		if (!ChapterData.ChapterThumbnail.IsNull())
+		{
+			OutAssetsToLoad.AddUnique(ChapterData.ChapterThumbnail.ToSoftObjectPath());
+		}
+
+		if (!ChapterData.ChapterBackground.IsNull())
+		{
+			OutAssetsToLoad.AddUnique(ChapterData.ChapterBackground.ToSoftObjectPath());
+		}
+	}
+
+	LR_INFO(TEXT("[로딩] 챕터 및 스테이지 UI 에셋 수집 완료"));
 }
