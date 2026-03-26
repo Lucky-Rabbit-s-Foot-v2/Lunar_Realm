@@ -104,7 +104,6 @@ void ALREnemySpawner::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-/* TEST: 실제 빌드 시 사용 */
 bool ALREnemySpawner::InitializeFromStageData()
 {
 	UGameInstance* GI = GetGameInstance();
@@ -195,10 +194,16 @@ FTransform ALREnemySpawner::MakeRandomSpawnTransform() const
 		return GetActorTransform();
 	}
 
-	const FVector Origin = SpawnAreaBox->GetComponentLocation();
-	const FVector Extent = SpawnAreaBox->GetScaledBoxExtent();
-	const FVector RandomLocation = UKismetMathLibrary::RandomPointInBoundingBox(Origin, Extent);
-	return FTransform(GetActorRotation(), RandomLocation, FVector::OneVector);
+	const FVector Extent = SpawnAreaBox->GetUnscaledBoxExtent();
+
+	const FVector LocalRandomPoint(
+		FMath::FRandRange(-Extent.X, Extent.X),
+		FMath::FRandRange(-Extent.Y, Extent.Y),
+		FMath::FRandRange(-Extent.Z, Extent.Z));
+
+	const FVector WorldLocation = SpawnAreaBox->GetComponentTransform().TransformPosition(LocalRandomPoint);
+
+	return FTransform(GetActorRotation(), WorldLocation, FVector::OneVector);
 }
 
 void ALREnemySpawner::ActivateSpawner()
@@ -234,9 +239,6 @@ void ALREnemySpawner::ActivateSpawner()
 
 void ALREnemySpawner::DeactivateSpawner()
 {
-	// TEST : 빌드 직전에 지우기
-	LR_WARN(TEXT("EnemySpawner(%s): Deactivating (stage [%s] no longer active)"), *GetName(), *StageIDToActivate.ToString());
-
 	bIsActivated = false;
 	GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
 
