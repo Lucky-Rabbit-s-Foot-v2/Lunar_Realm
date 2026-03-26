@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRBaseWidget.h"
+#include "Data/LRDataStructs.h"
+#include "Data/LREnumType.h"
 #include "LRLobbyFigureWidget.generated.h"
 
 
