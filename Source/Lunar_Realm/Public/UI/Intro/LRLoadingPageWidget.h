@@ -28,8 +28,11 @@ public:
 	/** 로딩 완료 시 호출되는 함수 */
 	void FinishLoading();
 
+	//(260325) BJM 추가
+	void SetLoadingProgress(float InProgress);
 private:
 	void UpdateLoadingAnimation();
+
 
 protected:
 	UPROPERTY(meta = (BindWidget))

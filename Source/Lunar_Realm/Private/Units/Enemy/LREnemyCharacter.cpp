@@ -19,6 +19,8 @@
 #include "GAS/Tags/LRGameplayTags.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "Kismet/GameplayStatics.h"
+
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
@@ -169,6 +171,33 @@ void ALREnemyCharacter::InitializeByEnemyID(FName EnemyID)
 	else
 	{
 		LR_WARN(TEXT("[%s] : No valid BT in DataTable"), *EnemyID.ToString());
+	}
+}
+
+void ALREnemyCharacter::PlayAttackSound(int32 SkillIndex)
+{
+	UGameInstance* GI = GetGameInstance();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+	if (!DataSys)
+	{
+		return;
+	}
+
+	const FEnemySoundData& SoundData = DataSys->GetEnemySoundData(CurrentEnemyID);
+
+	if (!SoundData.AttackSounds.IsValidIndex(SkillIndex))
+	{
+		return;
+	}
+
+	if (SoundData.AttackSounds[SkillIndex].IsNull())
+	{
+		return;
+	}
+
+	if (USoundBase* LoadedSFX = SoundData.AttackSounds[SkillIndex].LoadSynchronous())
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, LoadedSFX, GetActorLocation());
 	}
 }
 

@@ -176,20 +176,6 @@ void ULRGA_InstantAttack::OnMontageNotifyBegin(FName NotifyName, const FBranchin
 			}
 		}
 	}
-
-	// SFX 재생
-	if (!AttackSFX.IsNull())
-	{
-		if (USoundBase* LoadedSFX = AttackSFX.LoadSynchronous())
-		{
-			OwnerChar = GetCharacterFromActorInfo(*CurrentActorInfo);
-			if (OwnerChar)
-			{
-				UGameplayStatics::PlaySoundAtLocation(
-					this, LoadedSFX, OwnerChar->GetActorLocation());
-			}
-		}
-	}
 }
 
 void ULRGA_InstantAttack::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)

@@ -1,2 +1,1 @@
----,EnemyID,Skill1Sound,Skill2Sound,HitSound,FootstepSounds,DeathSound,IntroVoice
-1,ENEMY_NORMAL_SLIME_01,/Engine/VREditor/Sounds/UI/Camera_Shutter.Camera_Shutter,/Engine/VREditor/Sounds/UI/Click_on_Button.Click_on_Button,"(""/Engine/VREditor/Sounds/UI/Drop_Item_From_ContentBrowser.Drop_Item_From_ContentBrowser"")","(""/Engine/VREditor/Sounds/UI/Dockable_Window_Drop.Dockable_Window_Drop"")",/Engine/EditorSounds/Notifications/CompileFailed.CompileFailed,None
+﻿---,EnemyID,AttackSounds,HitSound,FootstepSounds,DeathSound,IntroVoice

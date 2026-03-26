@@ -66,32 +66,18 @@ void ULRLoadingPageWidget::UpdateLoadingAnimation()
 		float CurrentWobbleAngle = FMath::Sin(AnimationTime * WobbleFrequency) * WobbleAngle;
 		Img_Icon->SetRenderTransformAngle(CurrentWobbleAngle);
 	}
+}
 
-
-
+void ULRLoadingPageWidget::SetLoadingProgress(float InProgress)
+{
+	Progress = FMath::Clamp(InProgress, 0.0f, 1.0f);
 	if (Bar_Loading)
 	{
-		float RemainingTime = TotalDuration - ElapsedTime;
-		float RandomFactor = FMath::FRandRange(0.8f, 1.2f);
-		float Increment = (RandomFactor * 0.01f) / TotalDuration;
-
-		Progress += Increment;
-		ElapsedTime += 0.01f;
-
-		if (ElapsedTime >= TotalDuration)
-		{
-			FinishLoading();
-		}
-
 		Bar_Loading->SetPercent(Progress);
 	}
 }
 
 void ULRLoadingPageWidget::FinishLoading()
 {
-	Progress = 1.f;
-	if (Bar_Loading)
-	{
-		Bar_Loading->SetPercent(Progress);
-	}
+	SetLoadingProgress(1.0f);
 }

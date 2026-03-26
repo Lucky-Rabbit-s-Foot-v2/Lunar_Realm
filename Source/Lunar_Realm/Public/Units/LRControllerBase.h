@@ -32,4 +32,10 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	virtual void OpenFirstWidget();
+
+protected:
+	virtual void SetupInputComponent() override;
+
+private:
+	void OnTouchBegan(ETouchIndex::Type FingerIndex, FVector Location);
 };

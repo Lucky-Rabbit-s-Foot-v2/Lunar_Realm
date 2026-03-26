@@ -3,8 +3,12 @@
 
 #include "AI/LRBTTBossAttack.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/PrimitiveComponent.h"
 #include "System/LoggingSystem.h"
+#include "Units/Enemy/LREnemyAIController.h"
 #include "Units/LRAIController.h"
 
 ULRBTTBossAttack::ULRBTTBossAttack()
@@ -14,6 +18,21 @@ ULRBTTBossAttack::ULRBTTBossAttack()
 
 EBTNodeResult::Type ULRBTTBossAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	// ── 부모 ExecuteTask의 전반부 로직 재현 (타겟 획득, 사거리 체크, 회전) ──
+	ALREnemyAIController* EnemyAICtrl = Cast<ALREnemyAIController>(OwnerComp.GetAIOwner());
+	if (!EnemyAICtrl)
+	{
+		LR_WARN(TEXT("[%s] : No Valid EnemyAIController"), *GetName());
+		return EBTNodeResult::Failed;
+	}
+
+	APawn* MyPawn = EnemyAICtrl->GetPawn();
+	if (!MyPawn)
+	{
+		LR_WARN(TEXT("[%s] : No Valid Owner Pawn!"), *GetName());
+		return EBTNodeResult::Failed;
+	}
+
 	UBlackboardComponent* BB = OwnerComp.GetBlackboardComponent();
 	if (!BB)
 	{
@@ -21,12 +40,55 @@ EBTNodeResult::Type ULRBTTBossAttack::ExecuteTask(UBehaviorTreeComponent& OwnerC
 		return EBTNodeResult::Failed;
 	}
 
+	AActor* TargetActor = Cast<AActor>(BB->GetValueAsObject(TargetKey.SelectedKeyName));
+	if (!TargetActor)
+	{
+		LR_WARN(TEXT("[%s] : No Valid Target Actor!"), *GetName());
+		return EBTNodeResult::Failed;
+	}
+
+	// 사거리 체크
+	FVector MyLoc = MyPawn->GetActorLocation();
+	float EnemyRadius = 0.f;
+	if (UCapsuleComponent* CapsuleComp = MyPawn->FindComponentByClass<UCapsuleComponent>())
+	{
+		EnemyRadius = CapsuleComp->GetScaledCapsuleRadius();
+	}
+
+	FVector TargetClosestLoc = TargetActor->GetActorLocation();
+	if (UPrimitiveComponent* TargetCollision = Cast<UPrimitiveComponent>(TargetActor->GetRootComponent()))
+	{
+		TargetCollision->GetClosestPointOnCollision(MyLoc, TargetClosestLoc);
+	}
+
+	const float DistToTarget = FMath::Max(0.f, FVector::Dist(MyLoc, TargetClosestLoc) - EnemyRadius);
+	const float CurrentAttackRange = EnemyAICtrl->GetAttackRange();
+
+	if (DistToTarget > CurrentAttackRange + 10.f)
+	{
+		return EBTNodeResult::Failed;
+	}
+
+	// 타겟 방향으로 회전
+	FVector LookDir = (TargetActor->GetActorLocation() - MyPawn->GetActorLocation()).GetSafeNormal();
+	LookDir.Z = 0.0f;
+	if (!LookDir.IsNearlyZero())
+	{
+		MyPawn->SetActorRotation(LookDir.Rotation());
+	}
+
+	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(MyPawn);
+	if (!ASC)
+	{
+		LR_WARN(TEXT("[%s] : No Valid ASC!"), *GetName());
+		return EBTNodeResult::Failed;
+	}
+
+	// 보스 전용: Phase 기반 공격
 	const int32 CurrentPhase = BB->GetValueAsInt(LRBBKeys::CurrentPhase);
 
-	// TODO: CurrentPhase에 따라 TryAttackTarget에 스킬 인덱스 전달
-	// 스킬 시스템 리팩토링(TryAttackTarget → TryAttackTargetBySkillIndex) 이후 구현 -> 일반 에너미 스킬 사용 부분 수정 후 추가 수정 필요
-	// LR_INFO(TEXT("[BossAttack] 현재 페이즈: %d"), CurrentPhase);
-
-	// 현재는 기본 공격 로직 사용
-	return Super::ExecuteTask(OwnerComp, NodeMemory);
+	// 델리게이트 먼저 등록 -> 페이즈 기반 공격 발동-> 결과 체크
+	PrepareAttackDelegates(OwnerComp, NodeMemory, ASC);
+	FGameplayTag AttackTag = EnemyAICtrl->TryAttackTargetByPhase(TargetActor, CurrentPhase);
+	return EvaluateAttackResult(NodeMemory, AttackTag);
 }

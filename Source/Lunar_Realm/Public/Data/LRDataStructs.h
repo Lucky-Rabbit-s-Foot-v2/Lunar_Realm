@@ -126,6 +126,11 @@ struct FCharacterStaticData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|UI")
 	TSoftObjectPtr<UTexture2D> GradeImage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|UI")
+	TSoftObjectPtr<UTexture2D> WholeBodyImage;
+
+
+
 };
 
 
@@ -789,10 +794,7 @@ struct FEnemyStaticData : public FTableRowBase
 	TSoftClassPtr<UAnimInstance> AnimBlueprintClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
-	TSoftObjectPtr<UAnimMontage> AttackNormalMontage;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
-	TSoftObjectPtr<UAnimMontage> AttackSpecialMontage;
+	TArray<TSoftObjectPtr<UAnimMontage>> AttackMontages;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
 	TSoftObjectPtr<UAnimMontage> AttackedMontage;
@@ -1270,12 +1272,13 @@ struct FStageClearedData
 // =============================================================================
 /** * FEnemySoundData 구성 요소
  * - 에너미 전용 사운드 데이터 (소리 및 고유 효과음)
- * - 스킬1,스킬2 사운드, 피격 사운드, 발걸음 사운드, 사망 사운드
+ * - 공격 사운드(배열), 피격 사운드, 발걸음 사운드, 사망 사운드
  */
  // =============================================================================
 
 //=============================================================================
 // (260322) KWB 제작.
+// (260325) KWB "개별 스킬 사운드 => 사운드 배열" 구조 변경
 // =============================================================================
 
 USTRUCT(BlueprintType)
@@ -1286,13 +1289,9 @@ struct FEnemySoundData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Basic")
 	FName EnemyID;
 
-	// 스킬 1
+	// 공격 사운드 (인덱스 = AttackMontages / SkillIDs와 1:1 대응)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Skill")
-	TSoftObjectPtr<USoundBase> Skill1Sound;
-
-	// 스킬 2
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Skill")
-	TSoftObjectPtr<USoundBase> Skill2Sound;
+	TArray<TSoftObjectPtr<USoundBase>> AttackSounds;
 
 	// 피격음
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Effect")

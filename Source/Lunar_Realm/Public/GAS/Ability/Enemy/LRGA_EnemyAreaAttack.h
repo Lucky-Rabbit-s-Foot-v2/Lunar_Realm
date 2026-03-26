@@ -57,10 +57,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|AreaEffect")
 	TSoftObjectPtr<UNiagaraSystem> AreaAttackVFX;
 
-	// 범위 공격 발동 SFX (없으면 스킵)
-	UPROPERTY(EditDefaultsOnly, Category = "LR|AreaEffect")
-	TSoftObjectPtr<USoundBase> AreaAttackSFX;
-
 private:
 	TObjectPtr<UAnimMontage> ActiveMontage = nullptr;
 	bool bDamageApplied = false;

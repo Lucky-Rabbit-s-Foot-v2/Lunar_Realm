@@ -216,6 +216,22 @@ private:
 
 	UPROPERTY()
 	TArray<TObjectPtr<ULRDamageWidget>> DamageWidgetPool;
+
+//=============================================================================
+// Touch UI
+//=============================================================================
+
+public:
+	void ShowTouchEffect(const FVector2D& InScreenPosition);
+	
+	void ReturnTouchWidgetToPool(class ULRTouchEffectWidget* InWidget);
+
+private:
+	class ULRTouchEffectWidget* GetFreeTouchWidgetFromPool();
+
+	UPROPERTY()
+	TArray<class ULRTouchEffectWidget*> TouchWidgetPool;
+
 };
 
 

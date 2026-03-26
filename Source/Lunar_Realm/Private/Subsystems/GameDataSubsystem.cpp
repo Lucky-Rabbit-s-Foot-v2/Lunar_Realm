@@ -57,6 +57,7 @@ void UGameDataSubsystem::Deinitialize()
 	CachedSkillHitAreaData.Empty();
     CachedBuffEffectData.Empty();   
 	CachedEnemyStaticData.Empty();
+	CachedEnemySoundData.Empty();
 	CachedStageStaticData.Empty();
 	CachedChapterStaticData.Empty();
 	CachedCurrencyStaticData.Empty();
@@ -125,6 +126,7 @@ void UGameDataSubsystem::LoadDataTables()
 	LoadedCharacterStaticData	 = Config->CharacterStaticDataTable.LoadSynchronous();	//캐릭터 데이터
 	LoadedCharacterSoundData	 = Config->CharacterSoundDataTable.LoadSynchronous();	//캐릭터 사운드 데이터
 	LoadedEnemyStaticData		 = Config->EnemyStaticDataTable.LoadSynchronous();		//적 데이터
+	LoadedEnemySoundData = Config->EnemySoundDataTable.LoadSynchronous();				//적 사운드 데이터
 	LoadedEquipmentStaticData	 = Config->EquipmentStaticDataTable.LoadSynchronous();	//장비 데이터
 	LoadedEquipmentStatBonus	 = Config->EquipmentStatBonusTable.LoadSynchronous();	//장비 보너스
 	LoadedSetEffectBonus		 = Config->EquipmentSetEffectTable.LoadSynchronous();	//세트장비 효과
@@ -197,6 +199,9 @@ void UGameDataSubsystem::CacheAllData()
 	//에너미 데이터 캐싱
 	CacheDataTable<FEnemyStaticData, FName>(
 		LoadedEnemyStaticData, CachedEnemyStaticData, &FEnemyStaticData::DataID, TEXT("EnemyStaticData"));
+	// (260325) KWB 추가: 에너미 사운드 데이터 캐싱
+	CacheDataTable<FEnemySoundData, FName>(
+		LoadedEnemySoundData, CachedEnemySoundData, &FEnemySoundData::EnemyID, TEXT("EnemySoundData"));
 	//스테이지 데이터 캐싱
 	CacheDataTable<FStageStaticData, FName>(
 		LoadedStageStaticData, CachedStageStaticData, &FStageStaticData::DataID, TEXT("StageStaticData"));
@@ -527,6 +532,18 @@ FText UGameDataSubsystem::GetSkillDescription(FName SkillID) const
 {
 	const FSkillStaticData& SkillData = GetSkillStaticData(SkillID);
 	return SkillData.Description;
+}
+
+TSoftObjectPtr<UTexture2D> UGameDataSubsystem::GetCharWholeBodyImage(FName InCharacterID) const
+{
+	const FCharacterStaticData& StaticData = GetCharacterStaticData(InCharacterID);
+
+	if (StaticData.DataID != NAME_None)
+	{
+		return StaticData.WholeBodyImage;
+	}
+
+	return nullptr;
 }
 
 // ========================================

@@ -1,6 +1,4 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-// TEMP
 #pragma once
 
 #include "CoreMinimal.h"
@@ -48,11 +46,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|MeleeEffect")
 	TSoftObjectPtr<UNiagaraSystem> AttackVFX;
 
-	UPROPERTY(EditDefaultsOnly, Category = "LR|MeleeEffect")
-	TSoftObjectPtr<USoundBase> AttackSFX;
-
 private:
 	TObjectPtr<UAnimMontage> ActiveMontage = nullptr;
+
 	bool bDamageApplied = false;
 
 	// 에디터의 AnimMontage에 설정해야 하는 Notify 이름

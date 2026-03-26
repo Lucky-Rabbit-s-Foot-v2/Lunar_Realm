@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Units/LRControllerBase.h"
+#include "Sound/SoundBase.h"
 #include "LROutGameController.generated.h"
 
 /**
@@ -14,6 +15,7 @@
  // (260210) BJM 제작. 아웃게임 컨트롤러 제작
  // (260213) PJB UI 관련 기능 추가
  // (260219) PJB 수정. HUD 제거, 소스 코드 이관.
+ // (260325) PYI 로비(아웃게임 전체적용) BGM 추가
  //=============================================================================
 
 UENUM(BlueprintType)
@@ -64,4 +66,10 @@ public:
 protected:
 	ESelectedType SelectedType = ESelectedType::NONE;
 	FName SelectedID = NAME_None;
+
+	UPROPERTY(VisibleAnywhere, Category = "LR|UI Party")
+	FName SelectedCharacterID = NAME_None;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Sound")
+	TObjectPtr<USoundBase> LobbyGachaBGMSound;
 };

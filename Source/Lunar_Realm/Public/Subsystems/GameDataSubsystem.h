@@ -32,6 +32,7 @@
 // (260318) BJM 캐릭터 사운드 데이터 처리 핸들러 추가.
 // (260320) BJM 스킬 아이콘 데이터 헬퍼함수 추가
 // (260322) KWB 에너미 사운드 데이터 처리 핸들러 추가.
+// (260322) KWB 누락된 에너미 사운드 관련 멤버 추가.
 // =============================================================================
 
 UCLASS()
@@ -106,6 +107,9 @@ public:
 	// 스킬 아이콘 텍스처 가져오기 (260320 BJM)
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Skills")
 	TSoftObjectPtr<UTexture2D> GetSkillIcon(FName InSkillID) const;
+
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Skills")
+	TSoftObjectPtr<UTexture2D> GetCharWholeBodyImage(FName InCharacterID) const;
 	
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Skills")
 	FText GetSkillDescription(FName SkillID) const;
@@ -256,6 +260,8 @@ private:
 	UDataTable* LoadedStatusEffectData;
 	UPROPERTY()
 	UDataTable* LoadedEnemyStaticData;
+	UPROPERTY()
+	UDataTable* LoadedEnemySoundData;
 	UPROPERTY()
 	UDataTable* LoadedStageStaticData;
 	UPROPERTY()
