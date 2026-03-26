@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Units/LRControllerBase.h"
+#include "Data/LREnumType.h"
+#include "Data/LRDataStructs.h"
 #include "Sound/SoundBase.h"
 #include "LROutGameController.generated.h"
 
@@ -18,15 +20,7 @@
  // (260325) PYI 로비(아웃게임 전체적용) BGM 추가
  //=============================================================================
 
-UENUM(BlueprintType)
-enum class ESelectedType : uint8
-{
-	CHARACTER = 0,
-	EQUIPMENT,
-	NONE,
-};
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSelectedChanged, ESelectedType, SelectedType, FName, NewCharacterID);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSelectedChanged, const FSelectedInfo&, InSelectedInfo);
 
 UCLASS()
 class LUNAR_REALM_API ALROutGameController : public ALRControllerBase
@@ -44,17 +38,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetSelectedEquipmentID(FName InID);
 
-	UFUNCTION(BlueprintCallable)
-	void SetSelectedIDNone();
-
 	FName GetSelectedCharacterID();
 	FName GetSelectedEquipmentID();
 
-	ESelectedType GetSelectedType() { return SelectedType; }
-	FName GetSelectedID() { return SelectedID; }
+	const FSelectedInfo& GetSelectedInfo() const { return SelectedInfo; }
+	void SetSelectedInfo(const FSelectedInfo& InInfo) { SelectedInfo = InInfo; }
+	void ResetSelectedInfo() { SelectedInfo = FSelectedInfo(); }
 
 	UPROPERTY(BlueprintAssignable)
 	FOnSelectedChanged OnSelectedChangedDel;
+
+	UFUNCTION()
+	void RequestUpdateSelectedInfo(const FSelectedInfo& InInfo);
 
 	// 콘솔 명령어로 캐릭터나 장비가 활률대로 나오는지 확인하는 함수
 	UFUNCTION(Exec)
@@ -64,12 +59,8 @@ public:
 	TSubclassOf<class ULRGachaShopWidget> GachaShopWidgetClass;
 
 protected:
-	ESelectedType SelectedType = ESelectedType::NONE;
-	FName SelectedID = NAME_None;
-
-	UPROPERTY(VisibleAnywhere, Category = "LR|UI Party")
-	FName SelectedCharacterID = NAME_None;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Sound")
 	TObjectPtr<USoundBase> LobbyGachaBGMSound;
+
+	FSelectedInfo SelectedInfo;
 };

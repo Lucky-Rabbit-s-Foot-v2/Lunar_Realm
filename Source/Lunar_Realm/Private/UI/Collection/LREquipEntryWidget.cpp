@@ -64,14 +64,14 @@ void ULREquipEntryWidget::RefreshData()
 	}
 }
 
-void ULREquipEntryWidget::IsSelectedTile(ESelectedType SelectedType, FName SelectedID)
+void ULREquipEntryWidget::IsSelectedTile(const FSelectedInfo& InInfo)
 {
-	if (SelectedType != ESelectedType::EQUIPMENT)
+	if (InInfo.Type != ECollectionType::EQUIPMENT)
 	{
 		SetSelected(false);
 		return;
 	}
-	SetSelected(TileData->GetID() == SelectedID);
+	SetSelected(TileData->GetID() == InInfo.ID);
 }
 
 void ULREquipEntryWidget::OnTileClicked()

@@ -3,6 +3,8 @@
 
 #include "UI/Collection/LRCharacterInfoWidget.h"
 
+#include "Data/LREnumType.h"
+
 #include "Engine/GameInstance.h"
 #include "Engine/Texture2D.h"
 
@@ -77,14 +79,14 @@ void ULRCharacterInfoWidget::RegisterSubWidgets()
 	SubWidgets.Add(CharacterStatus);
 }
 
-void ULRCharacterInfoWidget::SetCharacterIDCall(ESelectedType InType, FName InID)
+void ULRCharacterInfoWidget::SetCharacterIDCall(const FSelectedInfo& InInfo)
 {
-	if (InType != ESelectedType::CHARACTER)
+	if (InInfo.Type != ECollectionType::CHARACTER)
 	{
 		return;
 	}
 
-	SetCharacterID(InID);
+	SetCharacterID(InInfo.ID);
 }
 
 void ULRCharacterInfoWidget::SetCharacterID(const FName& InID)
@@ -106,7 +108,8 @@ void ULRCharacterInfoWidget::OnEnhanceButtonClicked()
 		
 		if (ULREnhancePageWidget* EnhanceWidget = Cast<ULREnhancePageWidget>(Widget))
 		{
-			EnhanceWidget->SetIDByType(ESelectedType::CHARACTER, CharacterID);
+			FSelectedInfo SelectedInfo(ECollectionType::CHARACTER, CharacterID);
+			EnhanceWidget->SetIDByType(SelectedInfo);
 		}
 	}
 }

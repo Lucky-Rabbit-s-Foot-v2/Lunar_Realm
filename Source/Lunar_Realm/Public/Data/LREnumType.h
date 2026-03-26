@@ -271,3 +271,20 @@ enum class EStatusType : uint8
 	BUFF    UMETA(DisplayName = "버프"),
 	DEBUFF  UMETA(DisplayName = "디버프")
 };
+
+UENUM(BlueprintType)
+enum class ECollectionType : uint8
+{
+	NONE = 255,
+	CHARACTER = 0,
+	EQUIPMENT = 1,
+};
+
+UENUM(BlueprintType)
+enum class EPartyTaskType : uint8
+{
+	NONE = 255,
+	MOUNT = 0,
+	SWAP = 1,
+	RELEASE = 2,
+};

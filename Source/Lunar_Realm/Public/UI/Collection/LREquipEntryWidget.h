@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LREntryWidget.h"
+#include "Data/LRDataStructs.h"
+#include "Data/LREnumType.h"
 #include "LREquipEntryWidget.generated.h"
 
 /**
@@ -27,7 +29,7 @@ public:
 	virtual void RefreshData() override;
 
 	UFUNCTION()
-	void IsSelectedTile(ESelectedType SelectedType, FName SelectedID);
+	void IsSelectedTile(const FSelectedInfo& InInfo);
 
 	void SetSelected(bool bSelected);
 

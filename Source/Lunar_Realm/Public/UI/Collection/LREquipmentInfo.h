@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRBaseWidget.h"
+#include "Data/LRDataStructs.h"
+#include "Data/LREnumType.h"
 #include "LREquipmentInfo.generated.h"
 
 /**
@@ -22,7 +24,7 @@ public:
 	virtual void RegisterSubWidgets() override;
 
 	UFUNCTION(BlueprintCallable)
-	void SetEquipIDCall(ESelectedType InType, FName InID);
+	void SetEquipIDCall(const FSelectedInfo& InInfo);
 
 	void SetEquipID(const FName& InID);
 

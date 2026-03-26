@@ -32,14 +32,14 @@ void ULRPartySlotsWidget::BindProperties()
 	
 	Btn_Mount->OnLRButtonClickedDel.AddUniqueDynamic(this, &ULRPartySlotsWidget::OnPartyMountClicked);
 	Btn_Swap->OnLRButtonClickedDel.AddUniqueDynamic(this, &ULRPartySlotsWidget::OnPartySwapClicked);
-	Btn_Clear->OnLRButtonClickedDel.AddUniqueDynamic(this, &ULRPartySlotsWidget::OnPartyClearClicked);
+	Btn_Release->OnLRButtonClickedDel.AddUniqueDynamic(this, &ULRPartySlotsWidget::OnPartyReleaseClicked);
 }
 
 void ULRPartySlotsWidget::UnbindProperties()
 {
 	Btn_Mount->OnLRButtonClickedDel.RemoveDynamic(this, &ULRPartySlotsWidget::OnPartyMountClicked);
 	Btn_Swap->OnLRButtonClickedDel.RemoveDynamic(this, &ULRPartySlotsWidget::OnPartySwapClicked);
-	Btn_Clear->OnLRButtonClickedDel.RemoveDynamic(this, &ULRPartySlotsWidget::OnPartyClearClicked);
+	Btn_Release->OnLRButtonClickedDel.RemoveDynamic(this, &ULRPartySlotsWidget::OnPartyReleaseClicked);
 	
 	Super::UnbindProperties();
 }
@@ -65,7 +65,7 @@ void ULRPartySlotsWidget::OnPartySwapClicked()
 	ButtonType = ESelectedButtonType::SWAP;
 }
 
-void ULRPartySlotsWidget::OnPartyClearClicked()
+void ULRPartySlotsWidget::OnPartyReleaseClicked()
 {
 	ButtonType = ESelectedButtonType::CLEAR;
 }

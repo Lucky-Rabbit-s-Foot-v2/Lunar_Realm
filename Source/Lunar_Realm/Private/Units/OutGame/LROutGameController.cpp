@@ -33,32 +33,32 @@ void ALROutGameController::OpenFirstWidget()
 
 void ALROutGameController::SetSelectedCharacterID(FName InID)
 {
-	SelectedID = InID;
-	SelectedType = ESelectedType::CHARACTER;
-	OnSelectedChangedDel.Broadcast(SelectedType, SelectedID);
+	SelectedInfo.ID = InID;
+	SelectedInfo.Type = ECollectionType::CHARACTER;
+	OnSelectedChangedDel.Broadcast(SelectedInfo);
 }
 
 void ALROutGameController::SetSelectedEquipmentID(FName InID)
 {
-	SelectedID = InID;
-	SelectedType = ESelectedType::EQUIPMENT;
-	OnSelectedChangedDel.Broadcast(SelectedType, SelectedID);
-}
-
-void ALROutGameController::SetSelectedIDNone()
-{
-	SelectedID = NAME_None;
-	SelectedType = ESelectedType::NONE;
+	SelectedInfo.ID = InID;
+	SelectedInfo.Type = ECollectionType::EQUIPMENT;
+	OnSelectedChangedDel.Broadcast(SelectedInfo);
 }
 
 FName ALROutGameController::GetSelectedCharacterID()
 {
-	return SelectedType == ESelectedType::CHARACTER ? SelectedID : NAME_None;
+	return SelectedInfo.Type == ECollectionType::CHARACTER ? SelectedInfo.ID : NAME_None;
 }
 
 FName ALROutGameController::GetSelectedEquipmentID()
 {
-	return SelectedType == ESelectedType::EQUIPMENT ? SelectedID : NAME_None;
+	return SelectedInfo.Type == ECollectionType::EQUIPMENT ? SelectedInfo.ID : NAME_None;
+}
+
+void ALROutGameController::RequestUpdateSelectedInfo(const FSelectedInfo& InInfo)
+{
+	SelectedInfo = InInfo;
+	OnSelectedChangedDel.Broadcast(SelectedInfo);
 }
 
 void ALROutGameController::GachaSim(const FString& BannerIdStr, int32 TotalPulls, int32 Seed)
@@ -79,9 +79,4 @@ void ALROutGameController::GachaSim(const FString& BannerIdStr, int32 TotalPulls
 
 	// 2) 천장 ON
 	Gacha->Debug_SimulateBanner(BannerID, TotalPulls, Seed, WithPity, true, true);
-
-	// 로그
-	UE_LOG(LogTemp, Warning, TEXT("[GachaSimCompare] Banner=%s Seed=%d Pulls=%d"), *BannerID.ToString(), Seed, TotalPulls);
-	UE_LOG(LogTemp, Warning, TEXT("  NoPity  : %s"), *NoPity.ToString());
-	UE_LOG(LogTemp, Warning, TEXT("  WithPity: %s"), *WithPity.ToString());
 }

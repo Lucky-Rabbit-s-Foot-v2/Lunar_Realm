@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRPageWidget.h"
+#include "Data/LREnumType.h"
+#include "Data/LRDataStructs.h"
 #include "LREnhancePageWidget.generated.h"
 
 /**
@@ -22,10 +24,10 @@ public:
 	virtual void BindToController(class ALRControllerBase* Controller) override;
 
 	UFUNCTION()
-	void SetIDByType(ESelectedType InType, FName InID);
+	void SetIDByType(const FSelectedInfo& InInfo);
 
 private:
-	void SwitchWidgetByType(ESelectedType InType);
+	void SwitchWidgetByType(ECollectionType InType);
 
 protected:
 	UPROPERTY(meta = (BindWidget))

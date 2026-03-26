@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRBaseWidget.h"
+#include "Data/LRDataStructs.h"
 #include "LRCharacterInfoWidget.generated.h"
 
 /**
@@ -22,7 +23,7 @@ public:
 	virtual void RegisterSubWidgets() override;
 
 	UFUNCTION(BlueprintCallable)
-	void SetCharacterIDCall(ESelectedType InType, FName InID);
+	void SetCharacterIDCall(const FSelectedInfo& InInfo);
 
 	void SetCharacterID(const FName& InID);
 

@@ -36,7 +36,8 @@ void ULRCollectionPageWidget::InitializeUI()
 		}
 		
 		FName LeaderID = SaveGameSubsystem->GetLeaderCharacterID();
-		SetIDByType(ESelectedType::CHARACTER, LeaderID);
+		FSelectedInfo SelectedInfo(ECollectionType::CHARACTER, LeaderID);
+		SetIDByType(SelectedInfo);
 		
 		ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer());
 		if (PC)
@@ -58,19 +59,19 @@ void ULRCollectionPageWidget::BindToController(ALRControllerBase* Controller)
 	}
 }
 
-void ULRCollectionPageWidget::SetIDByType(ESelectedType InType, FName InID)
+void ULRCollectionPageWidget::SetIDByType(const FSelectedInfo& InInfo)
 {
-	SwitchWidgetByType(InType);
-	ID = InID;
+	SwitchWidgetByType(InInfo.Type);
+	ID = InInfo.ID;
 
-	switch (InType)
+	switch (InInfo.Type)
 	{
-	case ESelectedType::CHARACTER:
-		CharacterInfo->SetCharacterID(InID);
+	case ECollectionType::CHARACTER:
+		CharacterInfo->SetCharacterID(InInfo.ID);
 		break;
 
-	case ESelectedType::EQUIPMENT:
-		EquipmentInfo->SetEquipID(InID);
+	case ECollectionType::EQUIPMENT:
+		EquipmentInfo->SetEquipID(InInfo.ID);
 		break;
 
 	default:
@@ -78,7 +79,7 @@ void ULRCollectionPageWidget::SetIDByType(ESelectedType InType, FName InID)
 	}
 }
 
-void ULRCollectionPageWidget::SwitchWidgetByType(ESelectedType InType)
+void ULRCollectionPageWidget::SwitchWidgetByType(ECollectionType InType)
 {
 	Switcher->SetActiveWidgetIndex(static_cast<int32>(InType));
 }

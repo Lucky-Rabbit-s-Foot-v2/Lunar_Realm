@@ -33,7 +33,8 @@ void ULREnhancePageWidget::InitializeUI()
 		if (SaveGameSubsystem)
 		{
 			FName LeaderID = SaveGameSubsystem->GetLeaderCharacterID();
-			SetIDByType(ESelectedType::CHARACTER, LeaderID);
+			FSelectedInfo SelectedInfo(ECollectionType::CHARACTER, LeaderID);
+			SetIDByType(SelectedInfo);
 		}
 	}
 }
@@ -49,19 +50,19 @@ void ULREnhancePageWidget::BindToController(ALRControllerBase* Controller)
 	}
 }
 
-void ULREnhancePageWidget::SetIDByType(ESelectedType InType, FName InID)
+void ULREnhancePageWidget::SetIDByType(const FSelectedInfo& InInfo)
 {
-	SwitchWidgetByType(InType);
-	ID = InID;
+	SwitchWidgetByType(InInfo.Type);
+	ID = InInfo.ID;
 
-	switch (InType)
+	switch (InInfo.Type)
 	{
-	case ESelectedType::CHARACTER:
-		CharacterEnhance->SetCharacterID(InID);
+	case ECollectionType::CHARACTER:
+		CharacterEnhance->SetCharacterID(InInfo.ID);
 		break;
 
-	case ESelectedType::EQUIPMENT:
-		EquipEnhance->SetEquipID(InID);
+	case ECollectionType::EQUIPMENT:
+		EquipEnhance->SetEquipID(InInfo.ID);
 		break;
 	
 	default:
@@ -69,7 +70,7 @@ void ULREnhancePageWidget::SetIDByType(ESelectedType InType, FName InID)
 	}
 }
 
-void ULREnhancePageWidget::SwitchWidgetByType(ESelectedType InType)
+void ULREnhancePageWidget::SwitchWidgetByType(ECollectionType InType)
 {
 	Switcher->SetActiveWidgetIndex(static_cast<int32>(InType));
 }

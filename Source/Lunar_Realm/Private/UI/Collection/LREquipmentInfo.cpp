@@ -78,14 +78,14 @@ void ULREquipmentInfo::RegisterSubWidgets()
 	SubWidgets.Add(EquipmentStatus);
 }
 
-void ULREquipmentInfo::SetEquipIDCall(ESelectedType InType, FName InID)
+void ULREquipmentInfo::SetEquipIDCall(const FSelectedInfo& InInfo)
 {
-	if (InType != ESelectedType::EQUIPMENT)
+	if (InInfo.Type != ECollectionType::EQUIPMENT)
 	{
 		return;
 	}
 
-	SetEquipID(InID);
+	SetEquipID(InInfo.ID);
 }
 
 void ULREquipmentInfo::SetEquipID(const FName& InID)
@@ -107,7 +107,8 @@ void ULREquipmentInfo::OnEnhanceButtonClicked()
 
 		if (ULREnhancePageWidget* EnhanceWidget = Cast<ULREnhancePageWidget>(Widget))
 		{
-			EnhanceWidget->SetIDByType(ESelectedType::EQUIPMENT, EquipID);
+			FSelectedInfo SelectedInfo(ECollectionType::EQUIPMENT, EquipID);
+			EnhanceWidget->SetIDByType(SelectedInfo);
 		}
 	}
 }

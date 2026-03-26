@@ -40,7 +40,7 @@ public:
 	void OnPartySwapClicked();
 
 	UFUNCTION()
-	void OnPartyClearClicked();
+	void OnPartyReleaseClicked();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -68,7 +68,7 @@ protected:
 	TObjectPtr<class ULRButtonWidget> Btn_Swap;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRButtonWidget> Btn_Clear;
+	TObjectPtr<class ULRButtonWidget> Btn_Release;
 
 private:
 	FName SelectedID = NAME_None;

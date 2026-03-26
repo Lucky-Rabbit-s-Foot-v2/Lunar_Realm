@@ -6,8 +6,6 @@
 #include "Components/Button.h"
 #include "Components/Image.h"
 
-#include "Data/LRDataStructs.h"
-
 #include "Engine/GameInstance.h"
 #include "Subsystems/GameDataSubsystem.h"
 
@@ -66,14 +64,14 @@ void ULRCharacterEntryWidget::RefreshData()
 	}
 }
 
-void ULRCharacterEntryWidget::IsSelectedTile(ESelectedType SelectedType, FName SelectedID)
+void ULRCharacterEntryWidget::IsSelectedTile(const FSelectedInfo& InInfo)
 {
-	if (SelectedType != ESelectedType::CHARACTER)
+	if (InInfo.Type != ECollectionType::CHARACTER)
 	{
 		SetSelected(false);
 		return;
 	}
-	SetSelected(TileData->GetID() == SelectedID);
+	SetSelected(TileData->GetID() == InInfo.ID);
 }
 
 void ULRCharacterEntryWidget::OnTileClicked()
