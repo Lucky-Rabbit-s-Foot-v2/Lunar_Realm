@@ -12,6 +12,7 @@
 #include "Subsystems/GameDataSubsystem.h"
 
 #include "UI/Chapter/LRStagePageWidget.h"
+#include "UI/Chapter/LRChapterPageWidget.h"
 
 void ULRChapterWidget::BindProperties()
 {
@@ -46,9 +47,26 @@ void ULRChapterWidget::SetChapterID(FName InChapterID)
 
 void ULRChapterWidget::OnOpenButtonClicked()
 {
-	const UUIManagerSettings* UIManagerSettings = GetDefault<UUIManagerSettings>();
-	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 
-	ULRStagePageWidget* StagePage = Cast<ULRStagePageWidget>(UIManager->OpenUIByID(EUIID::STAGE));
-	StagePage->SetChapterID(ChapterID);
+	if (ULRChapterPageWidget* ParentPage = GetTypedOuter<ULRChapterPageWidget>())
+	{
+		ParentPage->PlayFadeOutAndOpenStage(ChapterID);
+	}
+	else
+	{
+		if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
+		{
+			if (ULRStagePageWidget* StagePage = Cast<ULRStagePageWidget>(UIManager->OpenUIByID(EUIID::STAGE)))
+			{
+				StagePage->SetChapterID(ChapterID);
+			}
+		}
+	}
+
+	//const UUIManagerSettings* UIManagerSettings = GetDefault<UUIManagerSettings>();
+	//UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+
+	//ULRStagePageWidget* StagePage = Cast<ULRStagePageWidget>(UIManager->OpenUIByID(EUIID::STAGE));
+	//StagePage->SetChapterID(ChapterID);
+
 }

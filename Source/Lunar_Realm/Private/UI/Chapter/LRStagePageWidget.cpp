@@ -8,6 +8,7 @@
 #include "Components/ComboBoxString.h"
 
 #include "UI/Chapter/LRStageWidget.h"
+#include "UI/Chapter/LRChapterPageWidget.h"
 
 #include "Units/LRControllerBase.h"
 
@@ -18,6 +19,7 @@
 
 #include "TimerManager.h"
 #include "Animation/WidgetAnimation.h"
+#include "Engine/AssetManager.h"
 
 void ULRStagePageWidget::InitializeUI()
 {
@@ -52,7 +54,9 @@ void ULRStagePageWidget::OpenUI()
 {
 	Super::OpenUI();
 
+
 	PlayAnimation(Anim_FadeIn);
+
 }
 
 void ULRStagePageWidget::SetChapterID(FName InID)
@@ -65,7 +69,15 @@ void ULRStagePageWidget::SetChapterID(FName InID)
 
 	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
 	const FChapterStaticData& ChapterData = GameDataSubsystem->GetChapterStaticData(CurrentChapterID);
-	Img_BG->SetBrushFromTexture(ChapterData.ChapterBackground.LoadSynchronous());
+	//Img_BG->SetBrushFromTexture(ChapterData.ChapterBackground.LoadSynchronous());
+	if (UTexture2D* LoadedBG = ChapterData.ChapterBackground.Get())
+	{
+		Img_BG->SetBrushFromTexture(LoadedBG);
+	}
+	else
+	{
+		Img_BG->SetBrushFromTexture(ChapterData.ChapterBackground.LoadSynchronous());
+	}
 
 	TArray<FName> StageIDs = GameDataSubsystem->GetAllStageIDsByChapterID(CurrentChapterID);
 	SetStageData(StageIDs);
@@ -97,18 +109,27 @@ void ULRStagePageWidget::OnChapterSelectionChanged(FString SelectedItem, ESelect
 	{
 		PlayAnimation(Anim_FadeOut);
 
-		float FadeOutTime = Anim_FadeOut->GetEndTime(); + 0.15f;
+		float FadeOutTime = Anim_FadeOut->GetEndTime();
 
 		GetWorld()->GetTimerManager().SetTimer(
 			ChapterChangeTimer,
 			[this, SelectedItem]()
 			{
-				SetChapterID(FName(SelectedItem));
+				UGameDataSubsystem* DataSys = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+				const FChapterStaticData& ChapterData = DataSys->GetChapterStaticData(FName(SelectedItem));
 
-				if (Anim_FadeIn)
-				{
-					PlayAnimation(Anim_FadeIn);
-				}
+				FSoftObjectPath BgPath = ChapterData.ChapterBackground.ToSoftObjectPath();
+
+				UAssetManager::GetStreamableManager().RequestAsyncLoad(BgPath, FStreamableDelegate::CreateLambda([this, SelectedItem]()
+					{
+
+						SetChapterID(FName(SelectedItem));
+
+						if (Anim_FadeIn)
+						{
+							PlayAnimation(Anim_FadeIn);
+						}
+					}));
 			},
 			FadeOutTime,
 			false
