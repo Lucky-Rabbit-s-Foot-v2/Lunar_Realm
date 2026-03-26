@@ -38,16 +38,14 @@ void ALROutGameController::OpenFirstWidget()
 
 void ALROutGameController::SetSelectedCharacterID(FName InID)
 {
-	SelectedInfo.ID = InID;
-	SelectedInfo.Type = ECollectionType::CHARACTER;
-	OnSelectedChangedDel.Broadcast(SelectedInfo);
+	FSelectedInfo NewInfo(ECollectionType::CHARACTER, InID);
+	RequestUpdateSelectedInfo(NewInfo);
 }
 
 void ALROutGameController::SetSelectedEquipmentID(FName InID)
 {
-	SelectedInfo.ID = InID;
-	SelectedInfo.Type = ECollectionType::EQUIPMENT;
-	OnSelectedChangedDel.Broadcast(SelectedInfo);
+	FSelectedInfo NewInfo(ECollectionType::EQUIPMENT, InID);
+	RequestUpdateSelectedInfo(NewInfo);
 }
 
 FName ALROutGameController::GetSelectedCharacterID()
@@ -66,15 +64,16 @@ void ALROutGameController::RequestUpdateSelectedInfo(const FSelectedInfo& InInfo
 	{
 		if (IsSlotSelected(SelectedInfo))
 		{
-			LR_WARN(TEXT("Both source and target are slots. Performing swap action."));
 			HandleSwapAction(SelectedInfo.SlotIndex, InInfo.SlotIndex);
 			ResetSelectedInfo();
-			OnSlotSelectedDel.Broadcast(false);
+		}
+		else if (IsCellSelected(SelectedInfo))
+		{
+			HandleMountAction(InInfo, SelectedInfo);
+			ResetSelectedInfo();
 		}
 		else
 		{
-			LR_WARN(TEXT("Slot selected. Performing mount action."));
-			ResetSelectedInfo();
 			SelectedInfo = InInfo;
 			OnSlotSelectedDel.Broadcast(true);
 		}
@@ -86,14 +85,11 @@ void ALROutGameController::RequestUpdateSelectedInfo(const FSelectedInfo& InInfo
 
 		if (IsSlotSelected(SelectedInfo)) 
 		{
-			LR_WARN(TEXT("Cell selected while a slot is already selected. Performing mount action."));
-			HandleMountAction(InInfo, SelectedInfo);
+			HandleMountAction(SelectedInfo, InInfo);
 			ResetSelectedInfo();
 		}
 		else
 		{
-			LR_WARN(TEXT("Cell selected. Updating selected info."));
-			ResetSelectedInfo();
 			SelectedInfo = InInfo;
 		}
 		OnSelectedChangedDel.Broadcast(SelectedInfo);
@@ -124,9 +120,9 @@ void ALROutGameController::HandleMountAction(const FSelectedInfo& Target, const 
 	for (int32 i = 0; i < 5; ++i)
 	{
 		FName CharacterID = SaveGameSubsystem->GetPartyCharacterID(i);
-		if(CharacterID == Source.ID)
+		if (CharacterID == Source.ID)
 		{
-			HandleSwapAction(i, Source.SlotIndex);
+			HandleSwapAction(i, Target.SlotIndex);
 			return;
 		}
 	}
@@ -155,9 +151,16 @@ void ALROutGameController::OpenEnhancePage()
 		}
 		if (ULREnhancePageWidget* EnhanceWidget = Cast<ULREnhancePageWidget>(Widget))
 		{
+			FSelectedInfo NewInfo(SelectedInfo.Type, SelectedInfo.ID);
 			EnhanceWidget->SetIDByType(SelectedInfo);
 		}
 	}
+}
+
+void ALROutGameController::OnPartyPageClosed()
+{
+	//ResetSelectedInfo();
+	OnSlotSelectedDel.Broadcast(false);
 }
 
 void ALROutGameController::GachaSim(const FString& BannerIdStr, int32 TotalPulls, int32 Seed)

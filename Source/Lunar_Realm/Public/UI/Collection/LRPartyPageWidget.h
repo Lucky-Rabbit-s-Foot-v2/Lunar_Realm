@@ -15,13 +15,23 @@
  // (260303) PJB 제작.
  //============================================================================
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPartyPageClosed);
+
 UCLASS()
 class LUNAR_REALM_API ULRPartyPageWidget : public ULRPageWidget
 {
 	GENERATED_BODY()
 	
 protected:
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+
 	virtual void RegisterSubWidgets() override;
+
+	virtual void CloseUI() override;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPartyPageClosed OnPartyPageClosedDel;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRPartySlotsWidget> PartySlot;

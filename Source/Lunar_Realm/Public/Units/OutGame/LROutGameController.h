@@ -68,6 +68,9 @@ public:
 
 	void OpenEnhancePage();
 
+	UFUNCTION()
+	void OnPartyPageClosed();
+
 	// 콘솔 명령어로 캐릭터나 장비가 활률대로 나오는지 확인하는 함수
 	UFUNCTION(Exec)
 	void GachaSim(const FString& BannerIdStr, int32 TotalPulls = 100000, int32 Seed = 12345);
