@@ -22,6 +22,7 @@ class LUNAR_REALM_API ULRReadyPopupWidget : public ULRPopupWidget
 	
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
