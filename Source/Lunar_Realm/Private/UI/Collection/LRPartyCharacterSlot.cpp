@@ -26,8 +26,6 @@ void ULRPartyCharacterSlot::RefreshUI()
 {
 	Super::RefreshUI();
 
-	LR_SCREEN_INFO(TEXT("Refreshing Party Character Slot: %s"), *ID.ToString());
-
 	if (ID.IsNone())
 	{
 		Img_Grade->SetVisibility(ESlateVisibility::Hidden);
@@ -76,6 +74,11 @@ void ULRPartyCharacterSlot::SetCharacterID(FName InID)
 
 void ULRPartyCharacterSlot::RefreshUIByController(const FSelectedInfo& InInfo)
 {
+	if (InInfo.Type != ECollectionType::CHARACTER)
+	{
+		return;
+	}
+
 	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
 	SetCharacterID(SaveGameSubsystem->GetPartyCharacterID(SlotIndex));
 }

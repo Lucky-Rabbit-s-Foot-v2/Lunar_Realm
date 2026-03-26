@@ -76,6 +76,7 @@ void ALROutGameController::RequestUpdateSelectedInfo(const FSelectedInfo& InInfo
 		{
 			SelectedInfo = InInfo;
 			OnSlotSelectedDel.Broadcast(true);
+			OnSelectedChangedDel.Broadcast(SelectedInfo);
 		}
 	}
 
@@ -126,6 +127,21 @@ void ALROutGameController::HandleMountAction(const FSelectedInfo& Target, const 
 			return;
 		}
 	}
+
+	if (Source.Type == ECollectionType::CHARACTER)
+	{
+		SaveGameSubsystem->SetPartySlot(Target.SlotIndex, Source.ID);
+	}
+	else
+	{
+		UCollectionSubsystem* CollectionSubsystem = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
+		TArray<FEquipmentInstance> EquipmentInstances = CollectionSubsystem->GetEquipmentInstancesByKey(Source.ID);
+		if (EquipmentInstances.Num() > 0)
+		{
+			SaveGameSubsystem->SetLeaderEquipmentSlot(Target.SlotIndex, EquipmentInstances[0].InstanceID);
+		}
+	}
+
 
 	SaveGameSubsystem->SetPartySlot(Target.SlotIndex, Source.ID);
 }
