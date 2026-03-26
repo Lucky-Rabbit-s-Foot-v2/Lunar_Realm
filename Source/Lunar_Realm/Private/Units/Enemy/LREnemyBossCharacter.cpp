@@ -11,6 +11,7 @@
 #include "GAS/Attributes/LREnemyAttributeSet.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Navigation/CrowdFollowingComponent.h"
 #include "System/LoggingSystem.h"
 #include "Units/LRAIController.h"
 
@@ -19,9 +20,12 @@ ALREnemyBossCharacter::ALREnemyBossCharacter()
 	AIControllerClass = ALREnemyAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	
-	// TODO : 추후 Radius를 넓히고(멤버가 덜 바짝 붙는 용도), projectile 발사하는 스킬의 생성 트랜스폼을 수정하던지, 발사 각도를 수정하던지 스킬 먼저 만들고 수정
-	// TEST : 값 테스트
+	// 보스 캡슐 사이즈 조절용
 	GetCapsuleComponent()->SetCapsuleSize(350.f, 200.f); // SetCapsuleSize(float InRadius, float InHalfHeight)
+
+	// 겹쳐서 날아가는 것 방지
+	GetCharacterMovement()->Mass = 10000.f;
+	GetCharacterMovement()->bEnablePhysicsInteraction = false;
 
 	UnitTag = LRTags::Team_Enemy_Character_Boss;
 
@@ -66,6 +70,15 @@ void ALREnemyBossCharacter::RegisterMontageNotifyDelegate()
 void ALREnemyBossCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// 보스는 DetourCrowd로 다른 에너미 안피하게 설정
+	if (ALRAIController* AICtrl = Cast<ALRAIController>(GetController()))
+	{
+		if (UCrowdFollowingComponent* CrowdComp = Cast<UCrowdFollowingComponent>(AICtrl->GetPathFollowingComponent()))
+		{
+			CrowdComp->SetCrowdSimulationState(ECrowdSimulationState::ObstacleOnly);
+		}
+	}
 
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
 	if (!ASC)
