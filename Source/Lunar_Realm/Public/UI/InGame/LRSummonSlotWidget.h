@@ -51,6 +51,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> Txt_Cost;
 
+	UPROPERTY(EditAnywhere, Category = "LR|UI")
+	TObjectPtr<class UTexture2D> DefaultIcon;
+
 protected:
 	int32 SlotIndex = -1;
 	FName UnitID;

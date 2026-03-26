@@ -141,7 +141,7 @@ void USaveGameSubsystem::SetLeaderEquipmentSlot(int32 Slots, FGuid EquipmentIDs)
 		return;
 	}
 	
-	if (Slots < 0 || Slots >= 3)
+	if (Slots < 0 || Slots >= 5)
 	{
 		LR_ERROR(TEXT("Invalid SlotIndex : %d"), Slots);
 		return;

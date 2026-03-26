@@ -12,79 +12,98 @@
 #include "Subsystems/SaveGameSubsystem.h"
 
 #include "UI/Collection/LRPartySlotWidget.h"
+#include "UI/Collection/LREnhancePageWidget.h"
+
+#include "UI/Core/LRButtonWidget.h"
+
+#include "Units/OutGame/LROutGameController.h"
 
 void ULRPartySlotsWidget::InitializeUI()
 {
 	Super::InitializeUI();
 
-	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
-	{
-		TArray<FName> PartyCharactersIDs = SaveGameSubsystem->GetAllPartyCharactersIDs();
-		for (int32 SlotIdx = 0; SlotIdx < 5; SlotIdx++)
-		{
-			if (SubWidgets.IsValidIndex(SlotIdx) && PartyCharactersIDs.IsValidIndex(SlotIdx))
-			{
-				if (ULRPartySlotWidget* CurrentSlot = Cast<ULRPartySlotWidget>(SubWidgets[SlotIdx]))
-				{
-					CurrentSlot->SetCharacterID(PartyCharactersIDs[SlotIdx]);
-				}
-			}
-		}
-	}
+	Slot0->SetSlotIndex(0);
+	Slot1->SetSlotIndex(1);
+	Slot2->SetSlotIndex(2);
+	Slot3->SetSlotIndex(3);
+	Slot4->SetSlotIndex(4);
+
+	SetEnableButtons(false);
 }
 
 void ULRPartySlotsWidget::BindProperties()
 {
 	Super::BindProperties();
+	
+	Btn_Enhance->OnLRButtonClickedDel.AddUniqueDynamic(this, &ULRPartySlotsWidget::OnPartyEnhanceClicked);
+	Btn_Release->OnLRButtonClickedDel.AddUniqueDynamic(this, &ULRPartySlotsWidget::OnPartyReleaseClicked);
 }
 
 void ULRPartySlotsWidget::UnbindProperties()
 {
-	Slot_Main->OnPartySlotChangedDel.Clear();
-	Slot_1->OnPartySlotChangedDel.Clear();
-	Slot_2->OnPartySlotChangedDel.Clear();
-	Slot_3->OnPartySlotChangedDel.Clear();
-	Slot_4->OnPartySlotChangedDel.Clear();
-
+	Btn_Enhance->OnLRButtonClickedDel.RemoveDynamic(this, &ULRPartySlotsWidget::OnPartyEnhanceClicked);
+	Btn_Release->OnLRButtonClickedDel.RemoveDynamic(this, &ULRPartySlotsWidget::OnPartyReleaseClicked);
+	
 	Super::UnbindProperties();
 }
 
-void ULRPartySlotsWidget::BindSubWidgets()
+void ULRPartySlotsWidget::BindToController(ALRControllerBase* Controller)
 {
-	Super::BindSubWidgets();
+	Super::BindToController(Controller);
 
-	Slot_Main->OnPartySlotChangedDel.AddDynamic(this, &ULRPartySlotsWidget::RefreshPartySlots);
-	Slot_1->OnPartySlotChangedDel.AddDynamic(this, &ULRPartySlotsWidget::RefreshPartySlots);
-	Slot_2->OnPartySlotChangedDel.AddDynamic(this, &ULRPartySlotsWidget::RefreshPartySlots);
-	Slot_3->OnPartySlotChangedDel.AddDynamic(this, &ULRPartySlotsWidget::RefreshPartySlots);
-	Slot_4->OnPartySlotChangedDel.AddDynamic(this, &ULRPartySlotsWidget::RefreshPartySlots);
+	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
+	{
+		PC->OnSlotSelectedDel.AddUniqueDynamic(this, &ULRPartySlotsWidget::SetEnableButtons);
+	}
 }
 
 void ULRPartySlotsWidget::RegisterSubWidgets()
 {
 	Super::RegisterSubWidgets();
 
-	SubWidgets.Add(Slot_Main);
-	SubWidgets.Add(Slot_1);
-	SubWidgets.Add(Slot_2);
-	SubWidgets.Add(Slot_3);
-	SubWidgets.Add(Slot_4);
+	SubWidgets.Add(Slot0);
+	SubWidgets.Add(Slot1);
+	SubWidgets.Add(Slot2);
+	SubWidgets.Add(Slot3);
+	SubWidgets.Add(Slot4);
 }
 
-void ULRPartySlotsWidget::RefreshPartySlots()
+void ULRPartySlotsWidget::OnPartyEnhanceClicked()
 {
-	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
-	TArray<FName> PartyCharactersIDs = SaveGameSubsystem->GetAllPartyCharactersIDs();
-
-	for (int32 SlotIdx = 0; SlotIdx < 5; SlotIdx++)
+	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
-		if (SubWidgets.IsValidIndex(SlotIdx))
-		{
-			if (ULRPartySlotWidget* CurrentSlot = Cast<ULRPartySlotWidget>(SubWidgets[SlotIdx]))
-			{
-				CurrentSlot->SetCharacterID(PartyCharactersIDs.IsValidIndex(SlotIdx) ? PartyCharactersIDs[SlotIdx] : NAME_None);
-				CurrentSlot->RefreshUI();
-			}
-		}
+		PC->OpenEnhancePage();
 	}
+}
+
+void ULRPartySlotsWidget::OnPartyReleaseClicked()
+{
+	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
+	{
+		const FSelectedInfo& SelectedInfo = PC->GetSelectedInfo();
+
+		ECollectionType Type = SelectedInfo.Type;
+		int32 SlotIndex = SelectedInfo.SlotIndex;
+		
+		USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+
+		if (Type == ECollectionType::EQUIPMENT)
+		{
+			SaveGameSubsystem->SetLeaderEquipmentSlot(SlotIndex, FGuid());
+		}
+		if (Type == ECollectionType::CHARACTER)
+		{
+			SaveGameSubsystem->SetPartySlot(SlotIndex, NAME_None);
+		}
+		PC->ResetSelectedInfo();
+	}
+}
+
+void ULRPartySlotsWidget::SetEnableButtons(bool bIsEnable)
+{
+	Btn_Enhance->SetIsEnabled(bIsEnable);
+	Btn_Enhance->SetRenderOpacity(bIsEnable ? 1.0f : 0.3f);
+
+	Btn_Release->SetIsEnabled(bIsEnable);
+	Btn_Release->SetRenderOpacity(bIsEnable ? 1.0f : 0.3f);
 }

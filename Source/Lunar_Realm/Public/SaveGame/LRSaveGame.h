@@ -100,7 +100,7 @@ private:
 	TArray<FGuid> SelectedEquipmentIDs; // 리더 장비 3개 [무기, 헬멧, 갑옷]
     
 	const int PARTY_SLOT_SIZE = 5;
-	const int EQUIPMENT_SLOT_SIZE = 3;
+	const int EQUIPMENT_SLOT_SIZE = 5;
 	
 	// ========================================
 	// 스테이지 정보

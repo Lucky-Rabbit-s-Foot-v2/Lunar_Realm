@@ -3,6 +3,8 @@
 
 #include "UI/Collection/LRCharacterInfoWidget.h"
 
+#include "Data/LREnumType.h"
+
 #include "Engine/GameInstance.h"
 #include "Engine/Texture2D.h"
 
@@ -23,6 +25,7 @@
 
 #include "UI/Common/LRCharacterCard.h"
 #include "UI/Collection/LRSkillInfoWidget.h"
+#include "UI/Collection/LRCharacterStatusWidget.h"
 
 void ULRCharacterInfoWidget::NativeConstruct()
 {
@@ -30,7 +33,7 @@ void ULRCharacterInfoWidget::NativeConstruct()
 
 	if(ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
-		PC->OnSelectedCharacterChangedDel.AddUniqueDynamic(this, &ULRCharacterInfoWidget::SetCharacterIDCall);
+		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULRCharacterInfoWidget::SetCharacterIDCall);
 	}
 }
 
@@ -76,9 +79,14 @@ void ULRCharacterInfoWidget::RegisterSubWidgets()
 	SubWidgets.Add(CharacterStatus);
 }
 
-void ULRCharacterInfoWidget::SetCharacterIDCall(FName InID)
+void ULRCharacterInfoWidget::SetCharacterIDCall(const FSelectedInfo& InInfo)
 {
-	SetCharacterID(InID);
+	if (InInfo.Type != ECollectionType::CHARACTER)
+	{
+		return;
+	}
+
+	SetCharacterID(InInfo.ID);
 }
 
 void ULRCharacterInfoWidget::SetCharacterID(const FName& InID)
@@ -100,7 +108,8 @@ void ULRCharacterInfoWidget::OnEnhanceButtonClicked()
 		
 		if (ULREnhancePageWidget* EnhanceWidget = Cast<ULREnhancePageWidget>(Widget))
 		{
-			EnhanceWidget->SetCharacterID(CharacterID);
+			FSelectedInfo SelectedInfo(ECollectionType::CHARACTER, CharacterID);
+			EnhanceWidget->SetIDByType(SelectedInfo);
 		}
 	}
 }

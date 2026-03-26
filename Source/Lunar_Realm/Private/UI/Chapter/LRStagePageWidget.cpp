@@ -47,7 +47,6 @@ void ULRStagePageWidget::RegisterSubWidgets()
 	SubWidgets.Add(Stage2);
 	SubWidgets.Add(Stage3);
 	SubWidgets.Add(Stage4);
-	SubWidgets.Add(Stage5);
 }
 
 void ULRStagePageWidget::OpenUI()
@@ -91,7 +90,7 @@ void ULRStagePageWidget::SetStageData(const TArray<FName>& StageIDs)
 	{
 		if (ULRStageWidget* StageWidget = Cast<ULRStageWidget>(SubWidgets[i]))
 		{
-			StageWidget->SetStageID(StageIDs[i]);
+			StageWidget->SetStageID(StageIDs[i], CurrentChapterID);
 		}
 	}
 

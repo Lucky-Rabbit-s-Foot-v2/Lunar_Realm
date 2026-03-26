@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LREntryWidget.h"
+#include "Data/LRDataStructs.h"
+#include "Data/LREnumType.h"
 #include "LRCharacterEntryWidget.generated.h"
 
 
@@ -28,7 +30,14 @@ public:
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
+	virtual void BindToController(class ALRControllerBase* Controller) override;
+
 	virtual void RefreshData() override;
+
+	UFUNCTION()
+	void IsSelectedTile(const FSelectedInfo& InInfo);
+
+	void SetSelected(bool bSelected);
 
 	UFUNCTION()
 	void OnTileClicked();
@@ -40,4 +49,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Selected;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> Img_Selected;
+
+private:
+	bool bIsSelected = false;
 };

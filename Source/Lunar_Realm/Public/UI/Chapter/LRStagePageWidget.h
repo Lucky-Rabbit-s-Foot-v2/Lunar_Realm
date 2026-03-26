@@ -52,9 +52,6 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRStageWidget> Stage4;
 
-	UPROPERTY(meta = (BindWidgetOptional))
-	TObjectPtr<class ULRStageWidget> Stage5;
-
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UComboBoxString> ComboBox;
 

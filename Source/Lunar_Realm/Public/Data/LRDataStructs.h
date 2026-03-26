@@ -1309,3 +1309,21 @@ struct FEnemySoundData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Voice")
 	TSoftObjectPtr<USoundBase> IntroVoice;
 };
+
+
+USTRUCT(BlueprintType)
+struct FSelectedInfo
+{
+	GENERATED_BODY()
+
+	ECollectionType Type = ECollectionType::NONE;
+	FName ID = NAME_None;
+	int32 SlotIndex = -1;
+	EPartyTaskType Task = EPartyTaskType::NONE;
+
+	FSelectedInfo() = default;
+	FSelectedInfo(ECollectionType InType, FName InID, int32 InSlotIndex = -1, EPartyTaskType InTask = EPartyTaskType::NONE)
+		: Type(InType), ID(InID), SlotIndex(InSlotIndex), Task(InTask)
+	{
+	}
+};

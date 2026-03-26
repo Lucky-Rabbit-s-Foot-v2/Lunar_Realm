@@ -57,6 +57,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|AreaEffect")
 	TSoftObjectPtr<UNiagaraSystem> AreaAttackVFX;
 
+	UPROPERTY(EditDefaultsOnly, Category = "LR|AreaEffect")
+	FVector VFXLocationOffset = FVector(100.f, 0.f, 0.f);
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|AreaEffect")
+	FRotator VFXRotationOffset = FRotator::ZeroRotator;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|AreaEffect")
+	FVector VFXScale = FVector(1.f);
+
 private:
 	TObjectPtr<UAnimMontage> ActiveMontage = nullptr;
 	bool bDamageApplied = false;
