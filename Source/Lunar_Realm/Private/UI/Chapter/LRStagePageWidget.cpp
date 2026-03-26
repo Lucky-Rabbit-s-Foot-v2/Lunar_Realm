@@ -47,7 +47,6 @@ void ULRStagePageWidget::RegisterSubWidgets()
 	SubWidgets.Add(Stage2);
 	SubWidgets.Add(Stage3);
 	SubWidgets.Add(Stage4);
-	SubWidgets.Add(Stage5);
 }
 
 void ULRStagePageWidget::OpenUI()
