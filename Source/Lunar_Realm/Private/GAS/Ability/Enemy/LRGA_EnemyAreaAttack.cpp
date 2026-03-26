@@ -158,19 +158,12 @@ void ULRGA_EnemyAreaAttack::ApplyAreaDamage()
 		}
 	}
 
-	// ── VFX / SFX ──
+	// VFX
 	if (!AreaAttackVFX.IsNull())
 	{
 		if (UNiagaraSystem* LoadedVFX = AreaAttackVFX.LoadSynchronous())
 		{
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), LoadedVFX, StrikeCenter);
-		}
-	}
-	if (!AreaAttackSFX.IsNull())
-	{
-		if (USoundBase* LoadedSFX = AreaAttackSFX.LoadSynchronous())
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, LoadedSFX, StrikeCenter);
 		}
 	}
 }

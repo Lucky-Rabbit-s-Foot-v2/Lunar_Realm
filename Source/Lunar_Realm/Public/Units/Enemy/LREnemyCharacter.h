@@ -58,6 +58,11 @@ public:
 
 	void PlayAttackedMontage();
 
+	FName GetCurrentEnemyID() const { return CurrentEnemyID; }
+
+	// 스킬 인덱스에 대응하는 공격 사운드 재생 (AIController에서 호출)
+	void PlayAttackSound(int32 SkillIndex);
+
 protected:
 	virtual void BeginPlay() override;
 
