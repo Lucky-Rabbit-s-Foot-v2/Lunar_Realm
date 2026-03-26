@@ -4,13 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRButtonWidget.h"
+#include "Data/LRDataStructs.h"
+#include "Data/LREnumType.h"
 #include "LRPartyEquipmentSlot.generated.h"
 
 /**
  * 
  */
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEquipmentSlotChanged, int32, InIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEquipmentSlotChanged, const FSelectedInfo&, InInfo);
 
 UCLASS()
 class LUNAR_REALM_API ULRPartyEquipmentSlot : public ULRButtonWidget
@@ -23,6 +25,12 @@ public:
 	virtual void OnButtonClicked() override;
 
 	virtual void RefreshUI() override;
+
+	virtual void BindToController(class ALRControllerBase* Controller) override;
+
+
+	UFUNCTION()
+	void RefreshUIByController(const FSelectedInfo& InInfo);
 
 	void SetSlotIndex(int32 InIndex);
 	void SetEquipID(FName InID);

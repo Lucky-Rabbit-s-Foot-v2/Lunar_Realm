@@ -10,15 +10,6 @@
  * 
  */
 
-UENUM(BlueprintType)
-enum class ESelectedButtonType : uint8
-{
-	NONE,
-	MOUNT,
-	SWAP,
-	CLEAR
-};
-
 UCLASS()
 class LUNAR_REALM_API ULRPartySlotsWidget : public ULRBaseWidget
 {
@@ -30,17 +21,18 @@ public:
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
+	virtual void BindToController(class ALRControllerBase* Controller) override;
+
 	virtual void RegisterSubWidgets() override;
 
-
 	UFUNCTION()
-	void OnPartyMountClicked();
-
-	UFUNCTION()
-	void OnPartySwapClicked();
+	void OnPartyEnhanceClicked();
 
 	UFUNCTION()
 	void OnPartyReleaseClicked();
+
+	UFUNCTION()
+	void SetEnableButtons(bool bIsEnable);
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -62,15 +54,9 @@ protected:
 	TObjectPtr<class ULRPartySlotWidget> Slot4;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRButtonWidget> Btn_Mount;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class ULRButtonWidget> Btn_Swap;
-
+	TObjectPtr<class ULRButtonWidget> Btn_Enhance;
+	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRButtonWidget> Btn_Release;
 
-private:
-	FName SelectedID = NAME_None;
-	ESelectedButtonType ButtonType = ESelectedButtonType::NONE;
 };

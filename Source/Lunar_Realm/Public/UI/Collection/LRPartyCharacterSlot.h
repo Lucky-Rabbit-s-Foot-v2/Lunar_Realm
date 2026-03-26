@@ -4,13 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRButtonWidget.h"
+#include "Data/LRDataStructs.h"
+#include "Data/LREnumType.h"
 #include "LRPartyCharacterSlot.generated.h"
 
 /**
  * 
  */
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCharacterSlotChanged, int32, InIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCharacterSlotChanged, const FSelectedInfo&, InInfo);
 
 UCLASS()
 class LUNAR_REALM_API ULRPartyCharacterSlot : public ULRButtonWidget
@@ -22,8 +24,13 @@ public:
 	
 	virtual void RefreshUI() override;
 
+	virtual void BindToController(class ALRControllerBase* Controller) override;
+
 	void SetSlotIndex(int32 InIndex);
 	void SetCharacterID(FName InID);
+
+	UFUNCTION()
+	void RefreshUIByController(const FSelectedInfo& InInfo);
 
 	UPROPERTY(BlueprintAssignable, Category = "LR|UI|Events")
 	FOnCharacterSlotChanged OnCharacterSlotChangedDel;

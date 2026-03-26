@@ -12,12 +12,15 @@
 #include "Subsystems/SaveGameSubsystem.h"
 #include "Subsystems/GameDataSubsystem.h"
 
+#include "Units/OutGame/LROutGameController.h"
+
 void ULRPartyCharacterSlot::OnButtonClicked()
 {
 	Super::OnButtonClicked();
-	OnCharacterSlotChangedDel.Broadcast(SlotIndex);
-}
 
+	FSelectedInfo SelectedInfo(ECollectionType::CHARACTER, ID, SlotIndex);
+	OnCharacterSlotChangedDel.Broadcast(SelectedInfo);
+}
 
 void ULRPartyCharacterSlot::RefreshUI()
 {
@@ -39,6 +42,17 @@ void ULRPartyCharacterSlot::RefreshUI()
 	}
 }
 
+void ULRPartyCharacterSlot::BindToController(ALRControllerBase* Controller)
+{
+	Super::BindToController(Controller);
+	ALROutGameController* PC = Cast<ALROutGameController>(Controller);
+	if (PC)
+	{
+		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULRPartyCharacterSlot::RefreshUIByController);
+		OnCharacterSlotChangedDel.AddUniqueDynamic(PC, &ALROutGameController::RequestUpdateSelectedInfo);
+	}
+}
+
 void ULRPartyCharacterSlot::SetSlotIndex(int32 InIndex)
 {
 	SlotIndex = InIndex;
@@ -53,5 +67,15 @@ void ULRPartyCharacterSlot::SetCharacterID(FName InID)
 {
 	ID = InID;
 
+	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+	SaveGameSubsystem->SetPartySlot(SlotIndex, ID);
 	RefreshUI();
+}
+
+void ULRPartyCharacterSlot::RefreshUIByController(const FSelectedInfo& InInfo)
+{
+	if (InInfo.Type == ECollectionType::CHARACTER && InInfo.SlotIndex == SlotIndex)
+	{
+		SetCharacterID(InInfo.ID);
+	}
 }
