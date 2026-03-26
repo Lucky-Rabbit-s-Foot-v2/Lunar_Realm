@@ -69,6 +69,9 @@ public:
 	void OpenEnhancePage();
 
 	UFUNCTION()
+	void OnPartyPageOpened();
+
+	UFUNCTION()
 	void OnPartyPageClosed();
 
 	// 콘솔 명령어로 캐릭터나 장비가 활률대로 나오는지 확인하는 함수

@@ -157,9 +157,15 @@ void ALROutGameController::OpenEnhancePage()
 	}
 }
 
+void ALROutGameController::OnPartyPageOpened()
+{
+	ResetSelectedInfo();
+}
+
 void ALROutGameController::OnPartyPageClosed()
 {
-	//ResetSelectedInfo();
+	SelectedInfo = FSelectedInfo(SelectedInfo.Type, SelectedInfo.ID);
+	OnSelectedChangedDel.Broadcast(SelectedInfo);
 	OnSlotSelectedDel.Broadcast(false);
 }
 

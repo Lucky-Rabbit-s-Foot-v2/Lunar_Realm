@@ -21,6 +21,7 @@ void ULRPartyPageWidget::NativeConstruct()
 	ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer());
 	if (PC)
 	{
+		OnPartyPageOpenedDel.AddUniqueDynamic(PC, &ALROutGameController::OnPartyPageOpened);
 		OnPartyPageClosedDel.AddUniqueDynamic(PC, &ALROutGameController::OnPartyPageClosed);
 	}
 }
@@ -38,6 +39,12 @@ void ULRPartyPageWidget::RegisterSubWidgets()
 
 	SubWidgets.Add(PartySlot);
 	SubWidgets.Add(Collection);
+}
+
+void ULRPartyPageWidget::OpenUI()
+{
+	Super::OpenUI();
+	OnPartyPageOpenedDel.Broadcast();
 }
 
 void ULRPartyPageWidget::CloseUI()

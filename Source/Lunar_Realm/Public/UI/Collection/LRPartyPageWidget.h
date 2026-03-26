@@ -15,6 +15,7 @@
  // (260303) PJB 제작.
  //============================================================================
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPartyPageOpened);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPartyPageClosed);
 
 UCLASS()
@@ -28,7 +29,11 @@ protected:
 
 	virtual void RegisterSubWidgets() override;
 
+	virtual void OpenUI() override;
 	virtual void CloseUI() override;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPartyPageOpened OnPartyPageOpenedDel;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnPartyPageClosed OnPartyPageClosedDel;
