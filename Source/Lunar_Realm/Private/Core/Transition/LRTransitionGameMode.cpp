@@ -110,143 +110,7 @@ void ALRTransitionGameMode::PreloadAssetsAsync()
 
 			if (TargetLevelName == StageMapName)
 			{
-//<<<<<<< HEAD
 				GatherEnemyAssets(GI, DataSys, AssetsToLoad);
-//=======
-//				// 이번 스테이지에 등장할 에너미 ID를 수집
-//				TArray<FName> EnemyIDsToLoad;
-//
-//				const FStageStaticData* StageData = StageMgr->GetCurrentStateData();
-//				if (StageData)
-//				{
-//					for (const FName& EnemyID : StageData->SpawnEnemyIDs)
-//					{
-//						EnemyIDsToLoad.AddUnique(EnemyID);
-//					}
-//
-//					if (!StageData->BossEnemyID.IsNone())
-//					{
-//						EnemyIDsToLoad.AddUnique(StageData->BossEnemyID);
-//					}
-//				}
-//
-//				if (EnemyIDsToLoad.IsEmpty())
-//				{
-//					LR_WARN(TEXT("[TransitionGameMode - Enemy] : 스테이지에 등장할 에너미가 없습니다."));
-//				}
-//
-//				// 각 에너미 ID별로 에셋 수집
-//				for (const FName& EnemyID : EnemyIDsToLoad)
-//				{
-//					if (EnemyID.IsNone()) continue;
-//
-//					// --- FEnemyStaticData에서 비주얼/애니메이션 에셋 ---
-//					const FEnemyStaticData& EnemyData = DataSys->GetEnemyStaticData(EnemyID);
-//
-//					if (!EnemyData.EnemyMesh.IsNull())
-//					{
-//						AssetsToLoad.AddUnique(EnemyData.EnemyMesh.ToSoftObjectPath());
-//					}
-//					if (!EnemyData.CharacterTexture.IsNull())
-//					{
-//						AssetsToLoad.AddUnique(EnemyData.CharacterTexture.ToSoftObjectPath());
-//					}
-//					if (!EnemyData.AnimBlueprintClass.IsNull())
-//					{
-//						AssetsToLoad.AddUnique(EnemyData.AnimBlueprintClass.ToSoftObjectPath());
-//					}
-//					for (const TSoftObjectPtr<UAnimMontage>& SoftMontage : EnemyData.AttackMontages)
-//					{
-//						if (!SoftMontage.IsNull())
-//						{
-//							AssetsToLoad.AddUnique(SoftMontage.ToSoftObjectPath());
-//						}
-//					}
-//					if (!EnemyData.AttackedMontage.IsNull())
-//					{
-//						AssetsToLoad.AddUnique(EnemyData.AttackedMontage.ToSoftObjectPath());
-//					}
-//					if (!EnemyData.DeathMontage.IsNull())
-//					{
-//						AssetsToLoad.AddUnique(EnemyData.DeathMontage.ToSoftObjectPath());
-//					}
-//
-//					// Aura VFX (엘리트/보스용)
-//					for (const TSoftObjectPtr<UNiagaraSystem>& SoftVFX : EnemyData.AuraVFXList)
-//					{
-//						if (!SoftVFX.IsNull())
-//						{
-//							AssetsToLoad.AddUnique(SoftVFX.ToSoftObjectPath());
-//						}
-//					}
-//
-//					// --- 에너미 스킬 → FSkillResourceData VFX/SFX ---
-//					for (const FName& SkillID : EnemyData.SkillIDs)
-//					{
-//						if (SkillID.IsNone()) continue;
-//
-//						const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillID);
-//						if (SkillData.ResourceID.IsNone()) continue;
-//
-//						const FSkillResourceData& ResourceData = DataSys->GetSkillResourceData(SkillData.ResourceID);
-//
-//						if (!ResourceData.SpawnVFX.IsNull())
-//						{
-//							AssetsToLoad.AddUnique(ResourceData.SpawnVFX.ToSoftObjectPath());
-//						}
-//						if (!ResourceData.SpawnSFX.IsNull())
-//						{
-//							AssetsToLoad.AddUnique(ResourceData.SpawnSFX.ToSoftObjectPath());
-//						}
-//						if (!ResourceData.TrailVFX.IsNull())
-//						{
-//							AssetsToLoad.AddUnique(ResourceData.TrailVFX.ToSoftObjectPath());
-//						}
-//						if (!ResourceData.ImpactVFX.IsNull())
-//						{
-//							AssetsToLoad.AddUnique(ResourceData.ImpactVFX.ToSoftObjectPath());
-//						}
-//						if (!ResourceData.ImpactSFX.IsNull())
-//						{
-//							AssetsToLoad.AddUnique(ResourceData.ImpactSFX.ToSoftObjectPath());
-//						}
-//					}
-//
-//					// --- FEnemySoundData에서 사운드 에셋 ---
-//					const FEnemySoundData& SoundData = DataSys->GetEnemySoundData(EnemyID);
-//
-//					// TEST
-//					for (const TSoftObjectPtr<USoundBase>& SoftSFX : SoundData.AttackSounds)
-//					{
-//						if (!SoftSFX.IsNull())
-//						{
-//							AssetsToLoad.AddUnique(SoftSFX.ToSoftObjectPath());
-//						}
-//					}
-//					for (const TSoftObjectPtr<USoundBase>& SoftSFX : SoundData.HitSound)
-//					{
-//						if (!SoftSFX.IsNull())
-//						{
-//							AssetsToLoad.AddUnique(SoftSFX.ToSoftObjectPath());
-//						}
-//					}
-//					for (const TSoftObjectPtr<USoundBase>& SoftSFX : SoundData.FootstepSounds)
-//					{
-//						if (!SoftSFX.IsNull())
-//						{
-//							AssetsToLoad.AddUnique(SoftSFX.ToSoftObjectPath());
-//						}
-//					}
-//					if (!SoundData.DeathSound.IsNull())
-//					{
-//						AssetsToLoad.AddUnique(SoundData.DeathSound.ToSoftObjectPath());
-//					}
-//					if (!SoundData.IntroVoice.IsNull())
-//					{
-//						AssetsToLoad.AddUnique(SoundData.IntroVoice.ToSoftObjectPath());
-//					}
-//				}
-//>>>>>>> develop
 			}
 		}
 	}
@@ -382,11 +246,15 @@ void ALRTransitionGameMode::GatherEnemyAssets(UGameInstance* InGI, UGameDataSubs
 
 		// 사운드 에셋
 		const FEnemySoundData& SoundData = InDataSys->GetEnemySoundData(EnemyID);
-		//if (!SoundData.Skill1Sound.IsNull()) OutAssetsToLoad.AddUnique(SoundData.Skill1Sound.ToSoftObjectPath());
-		//if (!SoundData.Skill2Sound.IsNull()) OutAssetsToLoad.AddUnique(SoundData.Skill2Sound.ToSoftObjectPath());
+
 		if (!SoundData.DeathSound.IsNull())  OutAssetsToLoad.AddUnique(SoundData.DeathSound.ToSoftObjectPath());
 		if (!SoundData.IntroVoice.IsNull())  OutAssetsToLoad.AddUnique(SoundData.IntroVoice.ToSoftObjectPath());
 
+
+		for (const TSoftObjectPtr<USoundBase>& SoftSFX : SoundData.AttackSounds)
+		{
+			if (!SoftSFX.IsNull()) OutAssetsToLoad.AddUnique(SoftSFX.ToSoftObjectPath());
+		}
 		for (const TSoftObjectPtr<USoundBase>& SoftSFX : SoundData.HitSound)
 		{
 			if (!SoftSFX.IsNull()) OutAssetsToLoad.AddUnique(SoftSFX.ToSoftObjectPath());
