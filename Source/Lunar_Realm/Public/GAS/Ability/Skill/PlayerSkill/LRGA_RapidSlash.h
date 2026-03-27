@@ -13,6 +13,8 @@
  //=============================================================================
  // (260317) BJM 제작. Writer 전용기 스킬 .
  //=============================================================================
+struct FSkillResourceData;
+
 UCLASS()
 class LUNAR_REALM_API ULRGA_RapidSlash : public ULRGameplayAbilityBase
 {
@@ -28,7 +30,7 @@ protected:
 
 	void StartNextStrike();
 	void PerformStrikeLogic();
-
+	void SpawnImpactVFX(AActor* InTargetActor, const FSkillResourceData& InResourceData);
 
 	UFUNCTION()
 	void OnStrikeMontageFinished();
