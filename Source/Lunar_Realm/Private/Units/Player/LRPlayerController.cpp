@@ -7,6 +7,7 @@
 #include "Units/Player/LRPlayerCharacter.h"
 
 #include "UI/InGame/LRInGamePersistentWidget.h"
+#include "UI/InGame/LRSkillCutInWidget.h"
 
 #include "Subsystems/Settings/UIManagerSettings.h"
 #include "Subsystems/UIManagerSubsystem.h"
@@ -19,6 +20,8 @@
 
 #include "Engine/PostProcessVolume.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/UserWidget.h"
+
 
 
 ALRPlayerController::ALRPlayerController()
@@ -233,6 +236,22 @@ void ALRPlayerController::UseSkill1()
 		ALRPlayerState* MyState = MyCharacter->GetPlayerState<ALRPlayerState>();
 		if (MyState)
 		{
+			FName CharID = MyState->GetCharacterID();
+
+			if (CharID == FName("Writer_UR") || CharID == FName("Muzzle_UR") || CharID == FName("Nurse_UR"))
+			{
+				if (SkillCutInWidgetClass)
+				{
+					ULRSkillCutInWidget* CutInWidget = CreateWidget<ULRSkillCutInWidget>(this, SkillCutInWidgetClass);
+					if (CutInWidget)
+					{
+						CutInWidget->InitCutIn(CharID);
+
+						CutInWidget->AddToViewport(100);
+						UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.01f);
+					}
+				}
+			}
 			MyState->ActivateSkill1();
 		}
 	}
@@ -249,6 +268,16 @@ void ALRPlayerController::UseSkill2()
 			MyState->ActivateSkill2();
 		}
 	}
+}
+
+void ALRPlayerController::EndSkillCutIn(UUserWidget* InCutInWidget)
+{
+	if (InCutInWidget)
+	{
+		InCutInWidget->RemoveFromParent();
+	}
+
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), CurrentGameSpeed);
 }
 
 UAbilitySystemComponent* ALRPlayerController::GetAbilitySystemComponent()

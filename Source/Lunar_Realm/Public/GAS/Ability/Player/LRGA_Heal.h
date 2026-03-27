@@ -31,4 +31,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
 	TSubclassOf<UGameplayEffect> HealEffectClass;
 
+protected:
+	virtual const FGameplayTagContainer* GetCooldownTags() const override;
 };

@@ -72,3 +72,15 @@ bool ULRGA_Heal::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 
 	return true;
 }
+
+const FGameplayTagContainer* ULRGA_Heal::GetCooldownTags() const
+{
+	static FGameplayTagContainer CooldownTags;
+
+	if (CooldownTags.IsEmpty())
+	{
+		CooldownTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Cooldown.Skill.Heal")));
+	}
+
+	return &CooldownTags;
+}

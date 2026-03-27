@@ -242,10 +242,29 @@ void ALRPlayerCharacter::UsePotion()
 			{
 				if (MainWidget->WBP_SkillPanel)
 				{
-					MainWidget->WBP_SkillPanel->StartPotionCooldown(5.0f);
+					FGameplayTag CooldownTag = FGameplayTag::RequestGameplayTag(FName("Cooldown.Skill.Heal"));
+					FGameplayEffectQuery Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(FGameplayTagContainer(CooldownTag));
+
+					TArray<float> Durations = ASC->GetActiveEffectsTimeRemaining(Query);
+
+					if (Durations.Num() > 0)
+					{
+						MainWidget->WBP_SkillPanel->StartPotionCooldown(Durations[0]);
+					}
 				}
 			}
 		}
+
+		//if (ALRPlayerController* PC = Cast<ALRPlayerController>(GetController()))
+		//{
+		//	if (ULRInGamePersistentWidget* MainWidget = PC->GetPlayerWidget())
+		//	{
+		//		if (MainWidget->WBP_SkillPanel)
+		//		{
+		//			MainWidget->WBP_SkillPanel->StartPotionCooldown(5.0f);
+		//		}
+		//	}
+		//}
 	}
 }
 
