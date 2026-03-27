@@ -53,6 +53,7 @@ void ULRPartySlotsWidget::BindToController(ALRControllerBase* Controller)
 
 	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
+		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULRPartySlotsWidget::SetCurrentImage);
 		PC->OnSlotSelectedDel.AddUniqueDynamic(this, &ULRPartySlotsWidget::SetEnableButtons);
 	}
 }
@@ -66,6 +67,19 @@ void ULRPartySlotsWidget::RegisterSubWidgets()
 	SubWidgets.Add(Slot2);
 	SubWidgets.Add(Slot3);
 	SubWidgets.Add(Slot4);
+}
+
+void ULRPartySlotsWidget::SetCurrentImage(const FSelectedInfo& InInfo)
+{
+	if(InInfo.ID.IsNone() || InInfo.Type != ECollectionType::CHARACTER)
+	{
+		Img_Current->SetBrushFromTexture(EmptySlotTexture);
+		return;
+	}
+	FName CurrentID = InInfo.ID;
+	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+	const FCharacterStaticData& StaticData = GameDataSubsystem->GetCharacterStaticData(CurrentID);
+	Img_Current->SetBrushFromTexture(StaticData.WholeBodyImage.LoadSynchronous());
 }
 
 void ULRPartySlotsWidget::OnPartyEnhanceClicked()

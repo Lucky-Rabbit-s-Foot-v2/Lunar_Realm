@@ -291,8 +291,6 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
 		return nullptr;
 	}
 
-	DoUIHistory(BaseWidget);
-
     // 이미 열려있으면 갱신 후 조기 종료
     if (Widget->IsOpen())
     {
@@ -338,6 +336,7 @@ T* UUIManagerSubsystem::OpenUI(TSubclassOf<T> TargetClassFactory)
 
 			PageWidget = BaseWidget;
 			TransientUIStack.Add(BaseWidget);
+			DoUIHistory(BaseWidget);
 
 			BaseWidget->OpenUI();
 

@@ -8,7 +8,16 @@
 ULRSaveGame::ULRSaveGame(const FObjectInitializer& InitializerModule)
 {
 	SelectedCharactersIDs.SetNum(PARTY_SLOT_SIZE);
+	for (int32 i = 0; i < PARTY_SLOT_SIZE; ++i)
+	{
+		SelectedCharactersIDs[i] = NAME_None;
+	}
+
 	SelectedEquipmentIDs.SetNum(EQUIPMENT_SLOT_SIZE);
+	for(int32 i = 0; i < EQUIPMENT_SLOT_SIZE; ++i)
+	{
+		SelectedEquipmentIDs[i] = FGuid();
+	}
 }
 
 

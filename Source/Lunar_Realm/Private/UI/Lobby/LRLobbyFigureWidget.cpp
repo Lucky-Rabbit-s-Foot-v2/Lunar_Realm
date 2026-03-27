@@ -13,6 +13,8 @@
 #include "Subsystems/UIManagerSubsystem.h"
 #include "Subsystems/GameDataSubsystem.h"
 
+#include "Units/OutGame/LROutGameController.h"
+
 void ULRLobbyFigureWidget::BindProperties()
 {
 	Super::BindProperties();
@@ -90,6 +92,16 @@ void ULRLobbyFigureWidget::SetFigure(FName CharacterID)
 void ULRLobbyFigureWidget::OnFigureClicked()
 {
 	// TODO: HUD 에서 도감으로 이동함.
+
+	ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer());
+	if (PC)
+	{
+		FSelectedInfo SelectedInfo(ECollectionType::CHARACTER, CurrentCharacterID);
+		PC->RequestUpdateSelectedInfo(SelectedInfo);
+		PC->OpenEnhancePage();
+	}
+
+
 	OnFigureClickedDel.Broadcast(CurrentCharacterID);
 }
 
