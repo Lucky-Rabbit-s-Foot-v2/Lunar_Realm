@@ -74,8 +74,11 @@ void ULRPartyCharacterSlot::SetCharacterID(FName InID)
 
 void ULRPartyCharacterSlot::RefreshUIByController(const FSelectedInfo& InInfo)
 {
-	if (InInfo.Type == ECollectionType::CHARACTER && InInfo.SlotIndex == SlotIndex)
+	if (InInfo.Type != ECollectionType::CHARACTER)
 	{
-		SetCharacterID(InInfo.ID);
+		return;
 	}
+
+	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+	SetCharacterID(SaveGameSubsystem->GetPartyCharacterID(SlotIndex));
 }

@@ -22,8 +22,6 @@ void ULRSettingPopupWidget::NativeConstruct()
 
 void ULRSettingPopupWidget::NativeDestruct()
 {
-	OnCloseUIRequestedDel.Clear();
-
 	Super::NativeDestruct();
 }
 
@@ -54,9 +52,7 @@ void ULRSettingPopupWidget::UnbindProperties()
 
 void ULRSettingPopupWidget::OnCloseButtonClicked()
 {
-	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	UIManager->UndoUIHistory();
-	//OnCloseUIRequestedDel.Broadcast(this);
+	OnCloseUIRequestedDel.Broadcast(this);
 }
 
 void ULRSettingPopupWidget::OnSaveButtonClicked()

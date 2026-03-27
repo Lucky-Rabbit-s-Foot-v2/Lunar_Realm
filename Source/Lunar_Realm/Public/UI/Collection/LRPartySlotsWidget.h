@@ -26,6 +26,9 @@ public:
 	virtual void RegisterSubWidgets() override;
 
 	UFUNCTION()
+	void SetCurrentImage(const FSelectedInfo& InInfo);
+
+	UFUNCTION()
 	void OnPartyEnhanceClicked();
 
 	UFUNCTION()
@@ -59,4 +62,6 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRButtonWidget> Btn_Release;
 
+	UPROPERTY(EditAnywhere, Category = "LR|UI Party")
+	TObjectPtr<class UTexture2D> EmptySlotTexture;
 };

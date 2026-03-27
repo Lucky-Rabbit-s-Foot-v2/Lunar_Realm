@@ -26,30 +26,31 @@ void ULRReadyPopupWidget::NativeConstruct()
 	}
 }
 
+void ULRReadyPopupWidget::NativeDestruct()
+{
+	OnCloseUIRequestedDel.Clear();
+
+	Super::NativeDestruct();
+}
+
 void ULRReadyPopupWidget::BindProperties()
 {
 	Super::BindProperties();
 
-	if (Btn_EmptyPoint) Btn_EmptyPoint->OnClicked.AddUniqueDynamic(this, &ULRReadyPopupWidget::OnCloseRequested);
+	Btn_EmptyPoint->OnClicked.AddUniqueDynamic(this, &ULRReadyPopupWidget::OnCloseRequested);
 
-	if (Btn_Party) Btn_Party->OnLRButtonClickedDel.AddUniqueDynamic(this, &ULRReadyPopupWidget::OnPartyButtonClicked);
-	if (Btn_Entrance) Btn_Entrance->OnLRButtonClickedDel.AddUniqueDynamic(this, &ULRReadyPopupWidget::OnEntranceButtonClicked);
-	if (Btn_Close) Btn_Close->OnLRButtonClickedDel.AddUniqueDynamic(this, &ULRReadyPopupWidget::OnCloseRequested);
-
-	LR_SCREEN_INFO(TEXT("ULRReadyPopupWidget::BindProperties - Properties bound and delegates set up."));
+	Btn_Party->OnLRButtonClickedDel.AddUniqueDynamic(this, &ULRReadyPopupWidget::OnPartyButtonClicked);
+	Btn_Entrance->OnLRButtonClickedDel.AddUniqueDynamic(this, &ULRReadyPopupWidget::OnEntranceButtonClicked);
+	Btn_Close->OnLRButtonClickedDel.AddUniqueDynamic(this, &ULRReadyPopupWidget::OnCloseRequested);
 }
 
 void ULRReadyPopupWidget::UnbindProperties()
 {
-	LR_SCREEN_INFO(TEXT("ULRReadyPopupWidget::UnbindProperties - Unbinding properties and clearing delegates."));
+	Btn_EmptyPoint->OnClicked.Clear();
 
-	OnCloseUIRequestedDel.Clear();
-
-	if (Btn_EmptyPoint) Btn_EmptyPoint->OnClicked.Clear();
-
-	if (Btn_Party) Btn_Party->OnLRButtonClickedDel.Clear();
-	if (Btn_Entrance) Btn_Entrance->OnLRButtonClickedDel.Clear();
-	if (Btn_Close) Btn_Close->OnLRButtonClickedDel.Clear();
+	Btn_Party->OnLRButtonClickedDel.Clear();
+	Btn_Entrance->OnLRButtonClickedDel.Clear();
+	Btn_Close->OnLRButtonClickedDel.Clear();
 
 	Super::UnbindProperties();
 }
@@ -70,6 +71,8 @@ void ULRReadyPopupWidget::RegisterSubWidgets()
 
 void ULRReadyPopupWidget::OpenUI()
 {
+	Super::OpenUI();
+
 	if (Anim_Falling)
 	{
 		PlayAnimation(Anim_Falling);
@@ -88,6 +91,7 @@ void ULRReadyPopupWidget::OnPartyButtonClicked()
 	{
 		UIManager->OpenUIByID(EUIID::PARTY);
 	}
+	RemoveFromParent();
 }
 
 void ULRReadyPopupWidget::OnEntranceButtonClicked()
@@ -96,13 +100,5 @@ void ULRReadyPopupWidget::OnEntranceButtonClicked()
 	{
 		GI->OpenNextStage(StageID);
 	}
-}
-
-void ULRReadyPopupWidget::OnCloseButtonClicked()
-{
-	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
-	ULRStagePageWidget* Widget = Cast<ULRStagePageWidget>(UIManager->OpenUIByID(EUIID::STAGE));
-	Widget->SetChapterID(ChapterID);
-
-	OnCloseUIRequestedDel.Broadcast(this);
+	RemoveFromParent();
 }

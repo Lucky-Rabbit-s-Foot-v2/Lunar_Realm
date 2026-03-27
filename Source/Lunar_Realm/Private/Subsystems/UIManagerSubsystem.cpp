@@ -96,8 +96,6 @@ void UUIManagerSubsystem::CloseUIInternal(ULRBaseWidget* Widget)
 				{
 					ULRBaseWidget* TopWidget = TransientUIStack.Pop();
 					TopWidget->CloseUI();
-
-					UIHistoryStack.Pop();
 				}
 			}
 			RefreshTopPopupUI();

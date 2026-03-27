@@ -37,7 +37,9 @@ void ULRChapterPageWidget::RegisterSubWidgets()
 void ULRChapterPageWidget::PlayFadeOutAndOpenStage(FName InChapterID)
 {
 	if (bIsTransitioning) return;
+
 	bIsTransitioning = true;
+	GetWorld()->GetTimerManager().ClearTimer(TransitionTimer);
 
 	if (!Anim_FadeOut)
 	{
@@ -72,6 +74,9 @@ void ULRChapterPageWidget::OpenUI()
 	Super::OpenUI();
 
 	bIsTransitioning = false;
+
+	if (Anim_FadeIn) StopAnimation(Anim_FadeIn);
+	if (Anim_FadeOut) StopAnimation(Anim_FadeOut);
 
 	if (bIsReturningFromStage)
 	{
