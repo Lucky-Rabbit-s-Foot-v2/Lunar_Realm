@@ -6,6 +6,11 @@
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "System/LoggingSystem.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "Camera/CameraShakeBase.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 
 
 // Sets default values
@@ -40,6 +45,18 @@ ALRCore::ALRCore()
 
 	// TEMP : 피격 or 접근 감지 훅
 	HitCollision->OnComponentBeginOverlap.AddDynamic(this, &ALRCore::OnHitCollisionBeginOverlap);
+
+	DustNiagaraComp = CreateDefaultSubobject<UNiagaraComponent>(TEXT("DustNiagaraComp"));
+	DustNiagaraComp->SetupAttachment(RootComponent);
+	DustNiagaraComp->bAutoActivate = false;
+	DustNiagaraComp->SetRelativeScale3D(FVector(2.0f, 2.0f, 2.0f));
+
+	DustNiagaraComp2 = CreateDefaultSubobject<UNiagaraComponent>(TEXT("DustNiagaraComp2"));
+	DustNiagaraComp2->SetupAttachment(RootComponent);
+	DustNiagaraComp2->bAutoActivate = false;
+	DustNiagaraComp2->SetRelativeScale3D(FVector(2.0f, 2.0f, 2.0f));
+
+
 }
 
 void ALRCore::BeginPlay()
@@ -80,6 +97,32 @@ void ALRCore::OnHitCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponen
 	LR_DEBUG(TEXT("Core Overlapped By: %s"), *OtherActor->GetName());
 }
 
+void ALRCore::UpdateCollapseSequence()
+{
+	if (!VisualMesh) return;
+
+	CollapseElapsedTime += 0.02f; 
+
+	if (CollapseElapsedTime >= 3.0f)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(CollapseUpdateTimerHandle);
+		VisualMesh->SetVisibility(false);
+		return;
+	}
+
+	float ShakeIntensity = FMath::Lerp(5.0f, 1.0f, CollapseElapsedTime / 3.0f);
+	FVector ShakeOffset(
+		FMath::RandRange(-ShakeIntensity, ShakeIntensity),
+		FMath::RandRange(-ShakeIntensity, ShakeIntensity),
+		FMath::RandRange(-ShakeIntensity, ShakeIntensity)
+	);
+
+	float SinkAmount = FMath::Lerp(0.0f, -300.0f, CollapseElapsedTime / 3.0f);
+	FVector SinkOffset(0.0f, 0.0f, SinkAmount);
+
+	VisualMesh->SetRelativeLocation(InitialMeshLocation + SinkOffset + ShakeOffset);
+}
+
 void ALRCore::OnHealthChanged(const FOnAttributeChangeData& InData)
 {
 	float NewHealth = InData.NewValue;
@@ -106,9 +149,40 @@ void ALRCore::OnCoreDestroyed()
 
 	if (VisualMesh)
 	{
-		VisualMesh->SetHiddenInGame(true);
+
+		InitialMeshLocation = VisualMesh->GetRelativeLocation();
+		CollapseElapsedTime = 0.0f;
+
+		if (DustNiagaraComp)
+		{
+			DustNiagaraComp->Activate(true);
+		}
+		if (DustNiagaraComp2)
+		{
+			DustNiagaraComp2->Activate(true);
+		}
+
+		GetWorld()->GetTimerManager().SetTimer(
+			CollapseUpdateTimerHandle,
+			this,
+			&ALRCore::UpdateCollapseSequence,
+			0.02f,
+			true
+		);
 	}
 
-	SetLifeSpan(2.0f);
+	if (ExplosionEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ExplosionEffect, GetActorLocation());
+	}
+	if (ExplosionSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ExplosionSound, GetActorLocation());
+	}
+	if (DestructionCameraShake)
+	{
+		UGameplayStatics::PlayWorldCameraShake(GetWorld(), DestructionCameraShake, GetActorLocation(), 0.0f, 2000.0f);
+	}
 
+	SetLifeSpan(5.0f);
 }

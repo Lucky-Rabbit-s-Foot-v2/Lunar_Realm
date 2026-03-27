@@ -45,11 +45,24 @@ void ALREnemyCore::OnCoreDestroyed()
 		PlayerChar->PlayVictoryVoice();
 	}
 
-	// TODO: GameMode에서 플레이어 승리 알림 호출
-	LR_WARN(TEXT("적 코어 파괴 플레이어 승리"));
-	
 	if (ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(UGameplayStatics::GetGameMode(this)))
 	{
-		StageGM->OnGameClear();
+		FTimerHandle GameOverTimerHandle;
+
+		TWeakObjectPtr<ALRStageGameMode> WeakGM = StageGM;
+
+		GetWorld()->GetTimerManager().SetTimer(
+			GameOverTimerHandle,
+			FTimerDelegate::CreateLambda([WeakGM]()
+				{
+					if (WeakGM.IsValid())
+					{
+						WeakGM->OnGameClear();
+					}
+				}),
+			5.0f,
+			false
+		);
 	}
+
 }

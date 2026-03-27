@@ -62,9 +62,25 @@ void ALRPlayerCore::OnCoreDestroyed()
 		PlayerChar->PlayDefeatVoice();
 	}
 
+	
 	if (ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(UGameplayStatics::GetGameMode(this)))
 	{
-		StageGM->OnGameOver();
+		FTimerHandle GameOverTimerHandle;
+
+		TWeakObjectPtr<ALRStageGameMode> WeakGM = StageGM;
+
+		GetWorld()->GetTimerManager().SetTimer(
+			GameOverTimerHandle,
+			FTimerDelegate::CreateLambda([WeakGM]()
+				{
+					if (WeakGM.IsValid())
+					{
+						WeakGM->OnGameOver();
+					}
+				}),
+			5.0f,
+			false 
+		);
 	}
 
 }
