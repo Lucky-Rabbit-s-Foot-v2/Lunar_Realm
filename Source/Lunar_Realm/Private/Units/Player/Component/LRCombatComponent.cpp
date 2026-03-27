@@ -734,7 +734,6 @@ bool ULRCombatComponent::CheckAndUseAutoHeal(ALRPlayerCharacter* InPlayerChar)
 
 	if (bShouldHeal)
 	{
-		// GA_Heal은 DT별도에 안들어가있어서 TryActivateAbilitiesByTag으로 바로 발동시킴
 		bool bSuccess = ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(HealSkillTag));
 
 		if (bSuccess)
@@ -745,12 +744,19 @@ bool ULRCombatComponent::CheckAndUseAutoHeal(ALRPlayerCharacter* InPlayerChar)
 				{
 					if (MainWidget->WBP_SkillPanel)
 					{
-						MainWidget->WBP_SkillPanel->StartPotionCooldown(5.0f);
+						FGameplayTag CooldownTag = FGameplayTag::RequestGameplayTag(FName("Cooldown.Skill.Heal"));
+						FGameplayEffectQuery Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(FGameplayTagContainer(CooldownTag));
+
+						TArray<float> Durations = ASC->GetActiveEffectsTimeRemaining(Query);
+
+						if (Durations.Num() > 0)
+						{
+							MainWidget->WBP_SkillPanel->StartPotionCooldown(Durations[0]);
+						}
 					}
 				}
 			}
 		}
-		// 30% 이하일 때만 true 반환하여 소환 멈춤
 		return bIsEmergency;
 	}
 
