@@ -10,7 +10,8 @@
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
 
-
+#include "GeometryCollection/GeometryCollectionComponent.h"
+#include "TimerManager.h"
 #include "LRCore.generated.h"
 
 class UBoxComponent;
@@ -93,4 +94,35 @@ public:
 	// (260324) KHS 추가. StatusBarSlot에서 아이콘 표시에 사용. BP에서 직접 할당.
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Visual")
 	TObjectPtr<UTexture2D> CoreIcon;
+
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Destruction")
+	class UStaticMesh* DestroyedMeshAsset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Destruction")
+	class UNiagaraSystem* ExplosionEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Destruction")
+	class USoundBase* ExplosionSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Destruction")
+	TSubclassOf<class UCameraShakeBase> DestructionCameraShake;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effects")
+	TObjectPtr<class UNiagaraComponent> DustNiagaraComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effects")
+	TObjectPtr<class UNiagaraComponent> DustNiagaraComp2;
+
+	FTimerHandle CollapseUpdateTimerHandle;
+
+	FVector InitialMeshLocation;
+
+	float CollapseElapsedTime;
+
+protected:
+
+	void UpdateCollapseSequence();
+
 };
