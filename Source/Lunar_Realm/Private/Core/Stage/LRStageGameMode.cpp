@@ -25,6 +25,7 @@
 #include "Components/AudioComponent.h"
 
 #include "UI/InGame/LRGameClearPopupWidget.h"
+#include "UI/InGame/LRReadyStartWidget.h"
 #include "Subsystems/PoolingSubsystem.h"
 
 #include "Units/Player/LRPlayerStart.h"
@@ -219,14 +220,6 @@ void ALRStageGameMode::BeginPlay()
 	Super::BeginPlay();
 
 	OnInitializeStage();
-
-	// 게임 시작 연출 시간
-	GetWorldTimerManager().SetTimer(
-		GameStartTimerHandle,
-		this,
-		&ALRStageGameMode::StartGame,
-		GameStartDelay,
-		false); // repeat = false
 }
 
 void ALRStageGameMode::OnInitializeStage()
@@ -237,13 +230,44 @@ void ALRStageGameMode::OnInitializeStage()
 
 	PlayerDeathCount = 0;
 
-	// TEST
-	// TODO: 추후 Ready~/Start!! UI 표시 로직 추가
-	LR_INFO(TEXT("[GameMode] 스테이지 초기화 완료!!! %.1f 초 뒤 본 게임 시작[시작 연출 삽입 필요!]"), GameStartDelay);
+	// Ready/Start UI 열기
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	if (!UIManager)
+	{
+		LR_ERROR(TEXT("[GameMode] UIManagerSubsystem not found"));
+		StartGame();
+		return;
+	}
+
+	ULRReadyStartWidget* ReadyStartWidget = Cast<ULRReadyStartWidget>(UIManager->OpenUIByID(EUIID::READYSTART));
+	if (ReadyStartWidget)
+	{
+		ReadyStartWidget->OnReadySequenceFinished.AddDynamic(this, &ALRStageGameMode::OnReadySequenceFinished);
+	}
+	else
+	{
+		LR_WARN(TEXT("[GameMode] ReadyStartWidget not found — starting game immediately"));
+		StartGame();
+		return;
+	}
+
+	StartGame();
+
+	// 입력 모드 금지
+	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+	{
+		PC->SetInputMode(FInputModeUIOnly());
+
+		// TEST
+		LR_INFO(TEXT("[GameMode] Input blocked — waiting for Ready/Start sequence"));
+	}
 }
 
 void ALRStageGameMode::StartGame()
 {
+	// TEST
+	LR_INFO(TEXT("[GameMode] Game Start! Broadcasting OnGameStarted delegate."));
+
 	OnGameStarted.Broadcast();
 }
 
@@ -277,6 +301,22 @@ void ALRStageGameMode::OnBGMFinished()
 
 		AudioComponent->bStopWhenOwnerDestroyed = true;
 	}
+}
+
+void ALRStageGameMode::OnReadySequenceFinished()
+{
+	// 입력 복원
+	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+	{
+		FInputModeGameAndUI InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		InputMode.SetHideCursorDuringCapture(false);
+		PC->SetInputMode(InputMode);
+		PC->SetShowMouseCursor(true);
+	}
+
+	// TEST
+	LR_INFO(TEXT("[GameMode] Ready/Start sequence finished — input restored"));
 }
 
 void ALRStageGameMode::CleanupUnusedCores()
