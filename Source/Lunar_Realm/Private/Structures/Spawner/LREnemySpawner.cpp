@@ -1,11 +1,14 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "Structures/Spawner/LREnemySpawner.h"
 
-
-#include "Structures/Spawner/LREnemySpawner.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Core/Stage/LRStageGameMode.h"
+#include "Core/LRGameInstance.h"
 #include "Engine/GameInstance.h"
+#include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Subsystems/GameDataSubsystem.h"
 #include "Subsystems/StageManagerSubsystem.h"
 #include "Subsystems/PoolingSubsystem.h"
 #include "System/LoggingSystem.h"
@@ -13,8 +16,6 @@
 #include "Units/Enemy/LREnemyBossCharacter.h"
 #include "Units/Enemy/LREnemyCharacter.h"
 #include "TimerManager.h"
-#include "Core/LRGameInstance.h" // TEST : 실제 빌드 전 삭제
-#include "Subsystems/GameDataSubsystem.h"
 
 // Sets default values
 ALREnemySpawner::ALREnemySpawner()
@@ -282,7 +283,31 @@ void ALREnemySpawner::SpawnBoss()
 		BossEnemy->SetCoreAttackOverlapRadius(NewRadius);
 	}
 
+	PlaySpawnVFX(BossEnemy);
+
 	OnBossSpawned.Broadcast(BossEnemy);
+}
+
+void ALREnemySpawner::PlaySpawnVFX(ACharacter* SpawnedCharacter)
+{
+	if (!SpawnVFX || !SpawnedCharacter)
+	{
+		return;
+	}
+
+	// 캡슐 바닥 위치 계산
+	const float HalfHeight = SpawnedCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	const FVector FootLocation = SpawnedCharacter->GetActorLocation() - FVector(0.0f, 0.0f, HalfHeight);
+
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+		GetWorld(),
+		SpawnVFX,
+		FootLocation,
+		SpawnedCharacter->GetActorRotation(),
+		FVector::OneVector,
+		true,
+		true
+	);
 }
 
 void ALREnemySpawner::SpawnEnemy()
@@ -323,6 +348,9 @@ void ALREnemySpawner::SpawnEnemy()
 
 		// 4. 데이터 초기화
 		NewEnemy->InitializeByEnemyID(TargetEnemyID);
+
+		// 5. 스폰 VFX 재생
+		PlaySpawnVFX(NewEnemy);
 	}
 }
 
