@@ -122,6 +122,7 @@ void UUIManagerSubsystem::CloseUIInternal(ULRBaseWidget* Widget)
 		}
 		default: // NONE, TOOLTIP, OVERLAY 등은 특별한 관리 없이 닫기만 하면 됨
 		{
+			Widget->CloseUI();
 			break;
 		}
 	}
