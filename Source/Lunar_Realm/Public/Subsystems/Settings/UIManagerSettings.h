@@ -13,6 +13,7 @@
  */
  //=============================================================================
  // (260225) PJB 제작. UIManagerSubsystem과 연동
+ // (260327) KWB LRReadyStartWidget을 위한 EUIID 추가
  //=============================================================================
 
 UENUM(BlueprintType)
@@ -39,6 +40,7 @@ enum class EUIID : uint8
 	STAGE,
 	READY,
 	ENHANCE,
+	READYSTART
 };
 
 UCLASS(Config = Game, defaultconfig, meta = (DisplayName = "UI Manager Settings"))
