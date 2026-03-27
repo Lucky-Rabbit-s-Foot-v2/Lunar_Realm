@@ -16,19 +16,33 @@
  //=============================================================================
 
 UCLASS()
-class LUNAR_REALM_API ULRGA_Heal : public ULRGameplayAbilityBase
+class LUNAR_REALM_API ULRGA_Heal : public UGameplayAbility
 {
 	GENERATED_BODY()
 	
 public:
 	ULRGA_Heal();
 
-	//260219 KHS 베이스GA동작방식 변경으로 상속함수 변경
-	virtual void OnAbilityActivated(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
-	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
-
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
-	TSubclassOf<UGameplayEffect> HealEffectClass;
+	virtual void ActivateAbility(const FGameplayAbilitySpecHandle InHandle, const FGameplayAbilityActorInfo* InActorInfo, const FGameplayAbilityActivationInfo InActivationInfo, const FGameplayEventData* InTriggerEventData) override;
 
+	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle InHandle, const FGameplayAbilityActorInfo* InActorInfo, const FGameplayTagContainer* InSourceTags, const FGameplayTagContainer* InTargetTags, OUT FGameplayTagContainer* OutOptionalRelevantTags) const override;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Ability")
+	TSubclassOf<class UGameplayEffect> HealEffectClass;
+
+//	//260219 KHS 베이스GA동작방식 변경으로 상속함수 변경
+//	virtual void OnAbilityActivated(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
+//	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+//
+//protected:
+//	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+//	TSubclassOf<UGameplayEffect> HealEffectClass;
+//
+//protected:
+//	virtual const FGameplayTagContainer* GetCooldownTags() const override;
+//
+//protected:
+//	virtual void ApplyCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
 };
