@@ -16,10 +16,13 @@
 // (260223) BJM 승패판정 로직 추가
 // (260226) PJB 일시정지, 승패판정 UI 연동 추가
 // (260322) KWB 게임 시작 알리는 델리게이트, 스테이지 초기화, 게임 시작 추가
+// (260327) KWB 타이머 기반 시작 로직 삭제, LRReadyStartWidget 기반 시작 로직으로 변경
+//			    LRReadyStartWidget 위젯 애니메이션 재생 중 터치, 키보드, 마우스 입력 방지 
 //=============================================================================
 
 class USoundBase;
 class UAudioComponent;
+class ULRReadyStartWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameStarted);
 
@@ -36,10 +39,15 @@ protected:
 
 	void OnInitializeStage();
 	
+	UFUNCTION()
 	void StartGame();
 
 	UFUNCTION()
 	void OnBGMFinished();
+
+	UFUNCTION()
+	void OnReadySequenceFinished();
+
 public:
 	// TODO: 게임 멈추는 로직 필요
 	UFUNCTION(BlueprintCallable, Category = "GameLogic")
@@ -74,12 +82,6 @@ private:
 
 private:
 	bool bIsGamePause = false;
-
-	FTimerHandle GameStartTimerHandle;
-
-	// TEST : UI 연출 처리 전 테스트용 타이머 초 (스포너 딜레이)
-	UPROPERTY(EditDefaultsOnly, Category = "GameLogic", meta = (ClampMin = "0.0"))
-	float GameStartDelay = 5.0f;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "BGM")

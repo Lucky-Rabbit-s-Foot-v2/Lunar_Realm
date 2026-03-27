@@ -13,6 +13,9 @@
  // (260320) BJM 제작. Nurse전용기 스킬 .
  //=============================================================================
 class ALRAoEActor;
+struct FSkillResourceData;
+struct FSkillEffectData;
+struct FSkillStaticData;
 
 UCLASS()
 class LUNAR_REALM_API ULRGA_BloodPool : public ULRGameplayAbilityBase
@@ -36,5 +39,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "LR|Skill")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 
+protected:
+	void SpawnSinglePool(FVector InSpawnLocation, const FSkillEffectData& InEffectData, const FSkillStaticData& InSkillData);
 
 };

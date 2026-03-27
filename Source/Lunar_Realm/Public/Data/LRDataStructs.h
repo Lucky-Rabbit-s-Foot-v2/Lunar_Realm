@@ -129,6 +129,9 @@ struct FCharacterStaticData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|UI")
 	TSoftObjectPtr<UTexture2D> WholeBodyImage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	TSoftObjectPtr<UTexture2D> CutInImage;
+
 
 
 };

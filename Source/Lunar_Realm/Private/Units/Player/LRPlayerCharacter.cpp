@@ -37,6 +37,7 @@
 #include "Subsystems/GameDataSubsystem.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Engine/StaticMesh.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 #include "Data/LRDataStructs.h"
 #include "Core/Stage/LRStageGameMode.h"
@@ -214,11 +215,15 @@ void ALRPlayerCharacter::UsePotion()
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
 	if (!ASC) return;
 
-	FGameplayTag HealSkillTag = FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Heal"));
+	FGameplayEventData EventData;
+	EventData.Instigator = this;
+	EventData.Target = nullptr;
 
-	bool bSuccess = ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(HealSkillTag));
+	FGameplayTag TriggerTag = FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Heal"));
 
-	if (bSuccess)
+	int32 TriggeredCount = ASC->HandleGameplayEvent(TriggerTag, &EventData);
+
+	if (TriggeredCount > 0)
 	{
 		// 회복 사운드 재생
 		ALRPlayerState* PS = GetPlayerState<ALRPlayerState>();
@@ -242,11 +247,78 @@ void ALRPlayerCharacter::UsePotion()
 			{
 				if (MainWidget->WBP_SkillPanel)
 				{
-					MainWidget->WBP_SkillPanel->StartPotionCooldown(5.0f);
+					FGameplayTag CooldownTag = FGameplayTag::RequestGameplayTag(FName("Cooldown.Skill.Heal"));
+					FGameplayEffectQuery Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(FGameplayTagContainer(CooldownTag));
+
+					TArray<float> Durations = ASC->GetActiveEffectsTimeRemaining(Query);
+
+					if (Durations.Num() > 0)
+					{
+						MainWidget->WBP_SkillPanel->StartPotionCooldown(Durations[0]);
+					}
 				}
 			}
 		}
 	}
+
+
+
+
+	//FGameplayTag HealSkillTag = FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Heal"));
+
+	//bool bSuccess = ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(HealSkillTag));
+
+	//if (bSuccess)
+	//{
+	//	// 회복 사운드 재생
+	//	ALRPlayerState* PS = GetPlayerState<ALRPlayerState>();
+	//	UGameDataSubsystem* DataSys = GetWorld()->GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+
+	//	if (PS && DataSys)
+	//	{
+	//		const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(PS->GetCharacterID());
+	//		FName CharName = FName(*CharData.CharacterName);
+	//		const FCharacterSoundData& SoundData = DataSys->GetCharacterSoundData(CharName);
+
+	//		if (USoundBase* HealVoice = SoundData.HealVoice.LoadSynchronous())
+	//		{
+	//			UGameplayStatics::PlaySoundAtLocation(this, HealVoice, GetActorLocation());
+	//		}
+	//	}
+
+	//	if (ALRPlayerController* PC = Cast<ALRPlayerController>(GetController()))
+	//	{
+	//		if (ULRInGamePersistentWidget* MainWidget = PC->GetPlayerWidget())
+	//		{
+	//			if (MainWidget->WBP_SkillPanel)
+	//			{
+	//				FGameplayTag CooldownTag = FGameplayTag::RequestGameplayTag(FName("Cooldown.Skill.Heal"));
+	//				FGameplayEffectQuery Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(FGameplayTagContainer(CooldownTag));
+
+	//				TArray<float> Durations = ASC->GetActiveEffectsTimeRemaining(Query);
+
+	//				if (Durations.Num() > 0)
+	//				{
+	//					MainWidget->WBP_SkillPanel->StartPotionCooldown(Durations[0]);
+	//				}
+	//			}
+	//		}
+	//	}
+
+
+
+
+		//if (ALRPlayerController* PC = Cast<ALRPlayerController>(GetController()))
+		//{
+		//	if (ULRInGamePersistentWidget* MainWidget = PC->GetPlayerWidget())
+		//	{
+		//		if (MainWidget->WBP_SkillPanel)
+		//		{
+		//			MainWidget->WBP_SkillPanel->StartPotionCooldown(5.0f);
+		//		}
+		//	}
+		//}
+	
 }
 
 void ALRPlayerCharacter::Move(const FInputActionValue& Value)

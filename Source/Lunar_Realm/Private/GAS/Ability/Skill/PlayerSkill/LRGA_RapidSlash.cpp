@@ -105,6 +105,16 @@ void ULRGA_RapidSlash::PerformStrikeLogic()
 		StrikeCenter = OwnerChar->GetActorLocation() + (OwnerChar->GetActorForwardVector() * 300.0f);
 	}
 
+	// 적을 때리기 전에 ResourceData를 미리 가져오기
+	UGameInstance* GI = GetWorld()->GetGameInstance();
+	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
+	const FSkillResourceData* ResourceDataPtr = nullptr;
+
+	if (DataSys && CachedResourceID != NAME_None)
+	{
+		ResourceDataPtr = &DataSys->GetSkillResourceData(CachedResourceID);
+	}
+
 	FGameplayTag HostileTag = GetHostileTeamTag();
 
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
@@ -134,31 +144,43 @@ void ULRGA_RapidSlash::PerformStrikeLogic()
 			{
 				GetOwnerASC()->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 			}
+
+			// 데미지를 입혔을 때, ImpactVFX 함수 호출
+			if (ResourceDataPtr)
+			{
+				SpawnImpactVFX(HitActor, *ResourceDataPtr);
+			}
 		}
 	}
 
-	UGameInstance* GI = GetWorld()->GetGameInstance();
-	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
-
-	if (DataSys && CachedResourceID != NAME_None)
+	// 스폰 이펙트 로직
+	if (ResourceDataPtr)
 	{
-		const FSkillResourceData& ResourceData = DataSys->GetSkillResourceData(CachedResourceID);
-
 		FRotator RandomRot = FRotator::ZeroRotator;
 		RandomRot.Yaw = FMath::RandRange(0.0f, 360.0f);
 		RandomRot.Roll = FMath::RandRange(-80.0f, 80.0f);
 		RandomRot.Pitch = FMath::RandRange(-45.0f, 45.0f);
 
-		if (UNiagaraSystem* LoadedVFX = ResourceData.SpawnVFX.LoadSynchronous())
+		if (UNiagaraSystem* LoadedVFX = ResourceDataPtr->SpawnVFX.LoadSynchronous())
 		{
-			FVector Scale(2.0f, 2.0f, 2.0f);
+			FVector Scale(4.0f, 4.0f, 4.0f);
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), LoadedVFX, StrikeCenter, RandomRot, Scale);
 		}
 
-		if (USoundBase* LoadedSFX = ResourceData.SpawnSFX.LoadSynchronous())
+		if (USoundBase* LoadedSFX = ResourceDataPtr->SpawnSFX.LoadSynchronous())
 		{
 			UGameplayStatics::PlaySoundAtLocation(this, LoadedSFX, StrikeCenter);
 		}
+	}
+}
+
+void ULRGA_RapidSlash::SpawnImpactVFX(AActor* InTargetActor, const FSkillResourceData& InResourceData)
+{
+	if (!InTargetActor) return;
+
+	if (UNiagaraSystem* LoadedVFX = InResourceData.ImpactVFX.LoadSynchronous())
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), LoadedVFX, InTargetActor->GetActorLocation());
 	}
 }
 
