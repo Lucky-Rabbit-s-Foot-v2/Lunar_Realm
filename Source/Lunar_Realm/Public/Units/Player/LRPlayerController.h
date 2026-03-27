@@ -40,7 +40,14 @@ public:
 	UFUNCTION()
 	void UseSkill2();
 
+	UFUNCTION(BlueprintCallable, Category = "LR|UI")
+	void EndSkillCutIn(class UUserWidget* InCutInWidget);
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|UI")
+	TSubclassOf<class UUserWidget> SkillCutInWidgetClass;
+
+public:
 	class UAbilitySystemComponent* GetAbilitySystemComponent();
 
 	UFUNCTION(BlueprintCallable)
