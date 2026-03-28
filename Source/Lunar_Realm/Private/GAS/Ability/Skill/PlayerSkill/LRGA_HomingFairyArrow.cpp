@@ -105,6 +105,7 @@ void ULRGA_HomingFairyArrow::SpawnDistributedArrows(TSubclassOf<ALRProjectile> I
 			SpawnRotation.Yaw += Yaw;
 		}
 
+
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = const_cast<ALRCharacter*>(CachedInstigator.Get());
 		SpawnParams.Instigator = const_cast<ALRCharacter*>(CachedInstigator.Get());

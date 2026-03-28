@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Data/LRDataStructs.h"
+#include "GameFramework/Character.h"
+#include "NiagaraSystem.h"
 #include "LREnemySpawner.generated.h"
 
 class UBoxComponent;
@@ -28,6 +30,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBossSpawned, ALREnemyBossCharacte
  // (260318) KWB 보스 스폰 로직 추가 및 불필요 멤버 삭제, 예외 처리 로직 변경(보스 스테이지면 에너미 데이터 null 허용)
  // (260322) KWB LRStageGameMode 통해서 스포너 시작 로직으로 수정
  // (260326) KWB 뷰포트에 표시된 스포너 크기와 실제 스폰 범위 다른 문제 수정
+ // (260327) KWB 에너미 등장 시 VFX 재생 기능 추가
  //============================================================================
 UCLASS()
 class LUNAR_REALM_API ALREnemySpawner : public AActor
@@ -80,6 +83,8 @@ protected:
 
 	void SpawnBoss();
 
+	void PlaySpawnVFX(ACharacter* SpawnedCharacter);
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
 	TSubclassOf<ALREnemyCharacter> EnemyClass;
@@ -126,6 +131,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
 	bool bIsActivated = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner|VFX")
+	TObjectPtr<UNiagaraSystem> SpawnVFX;
 
 	FTimerHandle SpawnTimerHandle;
 
