@@ -46,9 +46,11 @@ void ULRCharacterCollection::AddItemToTileView(UGameDataSubsystem* GameDataSubsy
 {
 	const FCharacterStaticData& CharacterData = GameDataSubsystem->GetCharacterStaticData(LockedCharactersID);
 	ULRTileData* TileDataObject = NewObject<ULRTileData>(this);
-	TileDataObject->SetID(CharacterData.DataID);
-	TileDataObject->SetIcon(CharacterData.CharacterTexture.LoadSynchronous());
-	TileDataObject->SetFrame(CharacterData.PortraitFrame.LoadSynchronous());
-	TileDataObject->SetIsLocked(bIsLocked);
+
+	TileDataObject->ID = CharacterData.DataID;
+	TileDataObject->Icon = CharacterData.CharacterTexture.LoadSynchronous();
+	TileDataObject->Frame = CharacterData.PortraitFrame.LoadSynchronous();
+	TileDataObject->bIsLocked = bIsLocked;
+
 	CharacterTileView->AddItem(TileDataObject);
 }

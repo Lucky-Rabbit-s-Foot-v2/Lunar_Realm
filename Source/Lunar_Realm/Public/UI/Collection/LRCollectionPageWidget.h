@@ -25,12 +25,12 @@ class LUNAR_REALM_API ULRCollectionPageWidget : public ULRPageWidget
 protected:
 	virtual void RegisterSubWidgets() override;
 	
-	virtual void InitializeUI() override;
+	virtual void OpenUI() override;
 
 	virtual void BindToController(class ALRControllerBase* Controller) override;
 
 	UFUNCTION()
-	void SetIDByType(const FSelectedInfo& InInfo);
+	void SetIDAndType(FName InID, ECollectionType InType);
 
 private:
 	void SwitchWidgetByType(ECollectionType InType);
@@ -50,4 +50,5 @@ protected:
 
 private:
 	FName ID = NAME_None;
+	ECollectionType Type = ECollectionType::NONE;
 };

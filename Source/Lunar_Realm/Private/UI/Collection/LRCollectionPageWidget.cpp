@@ -23,27 +23,48 @@ void ULRCollectionPageWidget::RegisterSubWidgets()
 	SubWidgets.Add(Collection);
 }
 
-void ULRCollectionPageWidget::InitializeUI()
+void ULRCollectionPageWidget::OpenUI()
 {
-	Super::InitializeUI();
+	Super::OpenUI();
 
+	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
+	{
+		ID = PC->GetSelectedID();
+		Type = PC->GetSelectedType();
+	}
+	
 	if (ID.IsNone())
 	{
-		USaveGameSubsystem* SaveGameSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
-		if (!SaveGameSubsystem)
+		if (USaveGameSubsystem* SaveGameSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
 		{
-			return;
+
+			ID = SaveGameSubsystem->GetLeaderCharacterID();
+			Type = ECollectionType::CHARACTER;
 		}
-		
-		FName LeaderID = SaveGameSubsystem->GetLeaderCharacterID();
-		FSelectedInfo SelectedInfo(ECollectionType::CHARACTER, LeaderID);
-		SetIDByType(SelectedInfo);
-		
-		ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer());
-		if (PC)
-		{
-			PC->SetSelectedCharacterID(LeaderID);
-		}
+	}
+
+	SetIDAndType(ID, Type);
+}
+
+void ULRCollectionPageWidget::SetIDAndType(FName InID, ECollectionType InType)
+{
+	ID = InID;
+	Type = InType;
+
+	SwitchWidgetByType(Type);
+	
+	switch (Type)
+	{
+	case ECollectionType::CHARACTER:
+		CharacterInfo->SetCharacterID(ID);
+		break;
+
+	case ECollectionType::EQUIPMENT:
+		EquipmentInfo->SetEquipID(ID);
+		break;
+
+	default:
+		break;
 	}
 }
 
@@ -55,27 +76,7 @@ void ULRCollectionPageWidget::BindToController(ALRControllerBase* Controller)
 
 	if (PC)
 	{
-		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULRCollectionPageWidget::SetIDByType);
-	}
-}
-
-void ULRCollectionPageWidget::SetIDByType(const FSelectedInfo& InInfo)
-{
-	SwitchWidgetByType(InInfo.Type);
-	ID = InInfo.ID;
-
-	switch (InInfo.Type)
-	{
-	case ECollectionType::CHARACTER:
-		CharacterInfo->SetCharacterID(InInfo.ID);
-		break;
-
-	case ECollectionType::EQUIPMENT:
-		EquipmentInfo->SetEquipID(InInfo.ID);
-		break;
-
-	default:
-		break;
+		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULRCollectionPageWidget::SetIDAndType);
 	}
 }
 
