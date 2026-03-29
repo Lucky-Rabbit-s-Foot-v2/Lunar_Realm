@@ -45,23 +45,27 @@ void ALROutGameController::OpenFirstWidget()
 
 void ALROutGameController::OnSelectedEntryWidget(ULREntryWidget* InWidget)
 {
-	ResetSelectedWidgetData();
-
 	// 만약 이미지가 뜨지 않길 원한다면 여기서 SelectedID와 SelectedType을 초기화
 	SelectedID = InWidget->GetTileData()->ID;
 	SelectedType = InWidget->GetTileData()->Type;
 
 	if (ULRSlotWidget* CurrentSlotWidget = Cast<ULRSlotWidget>(SelectedWidget.Get()))
 	{
+		ResetWidgetEffect(SelectedWidget.Get());
+		ResetWidgetEffect(InWidget);
+
 		HandleMountAction(
 			CurrentSlotWidget->GetSlotIndex(), 
 			InWidget->GetTileData()->Type,
 			InWidget->GetTileData()->ID
 		);
+
 		SelectedWidget = nullptr;
 	}
 	else
 	{
+		ResetWidgetEffect(SelectedWidget.Get());
+		
 		SelectedWidget = InWidget;
 	}	
 
@@ -70,19 +74,24 @@ void ALROutGameController::OnSelectedEntryWidget(ULREntryWidget* InWidget)
 
 void ALROutGameController::OnSelectedSlotWidget(ULRSlotWidget* InWidget)
 {
-	ResetSelectedWidgetData();
-
 	// 만약 이미지가 뜨지 않길 원한다면 여기서 SelectedID와 SelectedType을 초기화
 	SelectedID = InWidget->GetID();
 	SelectedType = InWidget->GetType();
 
-	if(ULRSlotWidget* CurrentSlotWidget = Cast<ULRSlotWidget>(SelectedWidget.Get()))
+	if (ULRSlotWidget* CurrentSlotWidget = Cast<ULRSlotWidget>(SelectedWidget.Get()))
 	{
+		ResetWidgetEffect(SelectedWidget.Get());
+		ResetWidgetEffect(InWidget);
+
 		HandleSwapAction(CurrentSlotWidget->GetSlotIndex(), InWidget->GetSlotIndex(), InWidget->GetType());
+
 		SelectedWidget = nullptr;
 	}
 	else if (ULREntryWidget* CurrentEntryWidget = Cast<ULREntryWidget>(SelectedWidget.Get()))
 	{
+		ResetWidgetEffect(SelectedWidget.Get());
+		ResetWidgetEffect(InWidget);
+
 		HandleMountAction(
 			InWidget->GetSlotIndex(), 
 			CurrentEntryWidget->GetTileData()->Type,
@@ -92,6 +101,8 @@ void ALROutGameController::OnSelectedSlotWidget(ULRSlotWidget* InWidget)
 	}
 	else
 	{
+		ResetWidgetEffect(SelectedWidget.Get());
+
 		SelectedWidget = InWidget;
 	}
 	
@@ -201,20 +212,18 @@ void ALROutGameController::SetIDAndType(FName InID, ECollectionType InType)
 
 void ALROutGameController::ResetSelectedData()
 {
-	ResetSelectedWidgetData();
-
 	SelectedID = NAME_None;
 	SelectedType = ECollectionType::NONE;
 }
 
-void ALROutGameController::ResetSelectedWidgetData()
+void ALROutGameController::ResetWidgetEffect(ULRBaseWidget* Widget)
 {
-	if (ULREntryWidget* EntryWidget = Cast<ULREntryWidget>(SelectedWidget.Get()))
+	if (ULREntryWidget* EntryWidget = Cast<ULREntryWidget>(Widget))
 	{
 		EntryWidget->SetSelected(false);
 	}
 
-	if (ULRSlotWidget* SlotWidget = Cast<ULRSlotWidget>(SelectedWidget.Get()))
+	if (ULRSlotWidget* SlotWidget = Cast<ULRSlotWidget>(Widget))
 	{
 		SlotWidget->SetSelected(false);
 	}

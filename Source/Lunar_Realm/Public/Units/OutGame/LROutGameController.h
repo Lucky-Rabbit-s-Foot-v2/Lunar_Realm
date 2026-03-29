@@ -52,7 +52,7 @@ public:
 	UFUNCTION()
 	void SetIDAndType(FName InID, ECollectionType InType);
 	void ResetSelectedData();
-	void ResetSelectedWidgetData();
+	void ResetWidgetEffect(ULRBaseWidget* Widget);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnSelectedChanged OnSelectedChangedDel;
