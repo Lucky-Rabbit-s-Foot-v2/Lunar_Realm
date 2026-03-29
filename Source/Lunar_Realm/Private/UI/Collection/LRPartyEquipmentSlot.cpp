@@ -15,48 +15,12 @@
 
 #include "Units/OutGame/LROutGameController.h"
 
-void ULRPartyEquipmentSlot::OnButtonClicked()
-{
-	Super::OnButtonClicked();
-	
-	FSelectedInfo SelectedInfo(ECollectionType::EQUIPMENT, ID, SlotIndex);
-	OnEquipmentSlotChangedDel.Broadcast(SelectedInfo);
-}
-
-void ULRPartyEquipmentSlot::RefreshUI()
-{
-	Super::RefreshUI();
-
-	if (ID.IsNone())
-	{
-		Img_Grade->SetVisibility(ESlateVisibility::Hidden);
-		Image->SetBrushFromTexture(EmptySlotTexture);
-		return;
-	}
-	if (UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>())
-	{
-		const FEquipmentStaticData& StaticData = GameDataSubsystem->GetEquipmentStaticData(ID);
-		Img_Grade->SetVisibility(ESlateVisibility::Visible);
-		//Img_Grade->SetBrushFromTexture(StaticData.GradeImage.LoadSynchronous());
-		Image->SetBrushFromTexture(StaticData.EquipmentTexture.LoadSynchronous());
-	}
-}
-
-void ULRPartyEquipmentSlot::BindToController(ALRControllerBase* Controller)
-{
-	Super::BindToController(Controller);
-	
-	ALROutGameController* PC = Cast<ALROutGameController>(Controller);
-	if (PC)
-	{
-		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULRPartyEquipmentSlot::RefreshUIByController);
-		OnEquipmentSlotChangedDel.AddUniqueDynamic(PC, &ALROutGameController::RequestUpdateSelectedInfo);
-	}
-}
-
 void ULRPartyEquipmentSlot::SetSlotIndex(int32 InIndex)
 {
-	SlotIndex = InIndex;
+	Super::SetSlotIndex(InIndex);
+
+	Type = ECollectionType::EQUIPMENT;
+
 	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
 	UCollectionSubsystem* CollectionSubsystem = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
 
@@ -67,12 +31,12 @@ void ULRPartyEquipmentSlot::SetSlotIndex(int32 InIndex)
 	}
 
 	FEquipmentInstance EquipmentInstances = CollectionSubsystem->GetEquipmentInstance(EquipmentGuid);
-	SetEquipID(EquipmentInstances.EquipmentID);
+	SetID(EquipmentInstances.EquipmentID);
 }
 
-void ULRPartyEquipmentSlot::SetEquipID(FName InID)
+void ULRPartyEquipmentSlot::SetID(FName InID)
 {
-	ID = InID;
+	Super::SetID(InID);
 
 	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
 	UCollectionSubsystem* CollectionSubsystem = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
@@ -83,13 +47,28 @@ void ULRPartyEquipmentSlot::SetEquipID(FName InID)
 	{
 		SaveGameSubsystem->SetLeaderEquipmentSlot(SlotIndex, EquipmentInstances[0].InstanceID);
 	}
-	RefreshUI();
 }
 
-void ULRPartyEquipmentSlot::RefreshUIByController(const FSelectedInfo& InInfo)
+void ULRPartyEquipmentSlot::SetGradeImage()
 {
-	if (InInfo.Type == ECollectionType::EQUIPMENT && InInfo.SlotIndex == SlotIndex)
+	Super::SetGradeImage();
+
+	if (UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>())
 	{
-		SetEquipID(InInfo.ID);
+		const FEquipmentStaticData& StaticData = GameDataSubsystem->GetEquipmentStaticData(ID);
+		
+		Img_Grade->SetVisibility(ESlateVisibility::Hidden);
+		//Img_Grade->SetBrushFromTexture(StaticData.GradeTexture.LoadSynchronous());
+	}
+}
+
+void ULRPartyEquipmentSlot::SetIconImage()
+{
+	Super::SetIconImage();
+
+	if (UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>())
+	{
+		const FEquipmentStaticData& StaticData = GameDataSubsystem->GetEquipmentStaticData(ID);
+		Image->SetBrushFromTexture(StaticData.EquipmentTexture.LoadSynchronous());
 	}
 }

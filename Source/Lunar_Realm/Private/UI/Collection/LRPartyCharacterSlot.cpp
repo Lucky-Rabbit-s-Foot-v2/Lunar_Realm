@@ -14,71 +14,46 @@
 
 #include "Units/OutGame/LROutGameController.h"
 
-void ULRPartyCharacterSlot::OnButtonClicked()
-{
-	Super::OnButtonClicked();
 
-	FSelectedInfo SelectedInfo(ECollectionType::CHARACTER, ID, SlotIndex);
-	OnCharacterSlotChangedDel.Broadcast(SelectedInfo);
+void ULRPartyCharacterSlot::SetSlotIndex(int32 InIndex)
+{
+	Super::SetSlotIndex(InIndex);
+
+	Type = ECollectionType::CHARACTER;
+
+	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
+	{
+		SetID(SaveGameSubsystem->GetPartyCharacterID(SlotIndex));
+	}
 }
 
-void ULRPartyCharacterSlot::RefreshUI()
+void ULRPartyCharacterSlot::SetID(FName InID)
 {
-	Super::RefreshUI();
+	Super::SetID(InID);
 
-	if (ID.IsNone())
-	{
-		Img_Grade->SetVisibility(ESlateVisibility::Hidden);
-		Image->SetBrushFromTexture(EmptySlotTexture);
-		return;
-	}
+	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+	SaveGameSubsystem->SetPartySlot(SlotIndex, InID);
+}
+
+void ULRPartyCharacterSlot::SetGradeImage()
+{
+	Super::SetGradeImage();
 
 	if (UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>())
 	{
 		const FCharacterStaticData& StaticData = GameDataSubsystem->GetCharacterStaticData(ID);
-		Img_Grade->SetVisibility(ESlateVisibility::Visible);
 		Img_Grade->SetBrushFromTexture(StaticData.GradeImage.LoadSynchronous());
+		Img_Grade->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void ULRPartyCharacterSlot::SetIconImage()
+{
+	Super::SetIconImage();
+
+	if (UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>())
+	{
+		const FCharacterStaticData& StaticData = GameDataSubsystem->GetCharacterStaticData(ID);
 		Image->SetBrushFromTexture(StaticData.PortraitIcon.LoadSynchronous());
 	}
-}
-
-void ULRPartyCharacterSlot::BindToController(ALRControllerBase* Controller)
-{
-	Super::BindToController(Controller);
-	ALROutGameController* PC = Cast<ALROutGameController>(Controller);
-	if (PC)
-	{
-		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULRPartyCharacterSlot::RefreshUIByController);
-		OnCharacterSlotChangedDel.AddUniqueDynamic(PC, &ALROutGameController::RequestUpdateSelectedInfo);
-	}
-}
-
-void ULRPartyCharacterSlot::SetSlotIndex(int32 InIndex)
-{
-	SlotIndex = InIndex;
-
-	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
-	{
-		SetCharacterID(SaveGameSubsystem->GetPartyCharacterID(SlotIndex));
-	}
-}
-
-void ULRPartyCharacterSlot::SetCharacterID(FName InID)
-{
-	ID = InID;
-
-	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
-	SaveGameSubsystem->SetPartySlot(SlotIndex, ID);
-	RefreshUI();
-}
-
-void ULRPartyCharacterSlot::RefreshUIByController(const FSelectedInfo& InInfo)
-{
-	if (InInfo.Type != ECollectionType::CHARACTER)
-	{
-		return;
-	}
-
-	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
-	SetCharacterID(SaveGameSubsystem->GetPartyCharacterID(SlotIndex));
 }
