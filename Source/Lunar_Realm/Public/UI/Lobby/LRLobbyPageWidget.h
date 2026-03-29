@@ -20,20 +20,9 @@ class LUNAR_REALM_API ULRLobbyPageWidget : public ULRPageWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void InitializeUI() override;
+	virtual void OpenUI() override;
 
 	virtual void RegisterSubWidgets() override;
-
-	UFUNCTION(BlueprintCallable)
-	void OpenFigureInfo(int32 SlotIndex, const FVector2D& InPos);
-
-	UFUNCTION(BlueprintCallable)
-	void CloseFigureInfo();
-
-
-	/** 타이머로 업데이트 */
-	UFUNCTION()
-	void UpdateFigureInfoPosition();
 
 protected:
 	UPROPERTY(meta = (BindWidget))

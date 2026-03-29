@@ -47,6 +47,12 @@ void ULRLobbyFigureWidget::UnbindProperties()
 	Super::UnbindProperties();
 }
 
+void ULRLobbyFigureWidget::RegisterSubWidgets()
+{
+	Super::RegisterSubWidgets();
+	SubWidgets.Add(FigureInfoWidget);
+}
+
 void ULRLobbyFigureWidget::RefreshUI()
 {
 	Super::RefreshUI();
@@ -111,6 +117,7 @@ void ULRLobbyFigureWidget::SetSlotIndex(int32 InSlotIndex)
 {
 	SlotIndex = InSlotIndex;
 	FigureInfoWidget->SetSlotIndex(InSlotIndex);
+
 	RefreshUI();
 }
 
@@ -119,8 +126,6 @@ void ULRLobbyFigureWidget::OnFigureClicked()
 	ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer());
 	if (PC)
 	{
-		FSelectedInfo SelectedInfo(ECollectionType::CHARACTER, CurrentCharacterID);
-		PC->RequestUpdateSelectedInfo(SelectedInfo);
 		PC->OpenEnhancePage();
 	}
 	
