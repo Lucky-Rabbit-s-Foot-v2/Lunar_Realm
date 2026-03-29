@@ -43,7 +43,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnSelectedSlotToggled(bool bIsSelected);
 
-	void HandleMountAction(int32 InTargetIndex, ECollectionType InTargetType, FName InID);
+	void HandleMountAction(int32 InTargetIndex, ECollectionType InType, FName InID);
 	void HandleSwapAction(int32 Slot1, int32 Slot2, ECollectionType InType);
 
 	void OpenEnhancePage();

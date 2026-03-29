@@ -24,11 +24,13 @@ public:
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
+	virtual void InitializeUI() override;
 	virtual void RefreshUI() override;
 
 	virtual void BindToController(class ALRControllerBase* Controller) override;
 
 	virtual void SetSlotIndex(int32 InIndex);
+	virtual void SetIDAuto();
 	virtual void SetID(FName InID);
 	virtual void SetGradeImage();
 	virtual void SetIconImage();

@@ -73,11 +73,18 @@ void ULRPartySlotsWidget::RegisterSubWidgets()
 	SubWidgets.Add(Slot4);
 }
 
+void ULRPartySlotsWidget::RefreshUI()
+{
+	Super::RefreshUI();
+	RefreshCurrentImage();
+}
+
 void ULRPartySlotsWidget::SetIDAndType(FName InID, ECollectionType InType)
 {
 	ID = InID;
 	Type = InType;
-	RefreshCurrentImage();
+
+	RefreshUI();
 }
 
 void ULRPartySlotsWidget::RefreshCurrentImage()

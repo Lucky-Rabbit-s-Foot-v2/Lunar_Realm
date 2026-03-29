@@ -27,6 +27,8 @@ public:
 
 	virtual void RegisterSubWidgets() override;
 
+	virtual void RefreshUI() override;
+
 	UFUNCTION()
 	void OnPartyEnhanceClicked();
 

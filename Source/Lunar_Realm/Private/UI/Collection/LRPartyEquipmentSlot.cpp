@@ -15,6 +15,31 @@
 
 #include "Units/OutGame/LROutGameController.h"
 
+void ULRPartyEquipmentSlot::NativeConstruct()
+{
+	Super::NativeConstruct();
+	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
+	{
+		SaveGameSubsystem->OnSaveGameSavedDel.AddUniqueDynamic(this, &ULRPartyEquipmentSlot::RefreshUICaller);
+	}
+}
+
+void ULRPartyEquipmentSlot::RefreshUI()
+{
+	Super::RefreshUI();
+
+	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+	FGuid EquipmentGuid = SaveGameSubsystem->GetLeaderEquipmentID(SlotIndex);
+
+	UCollectionSubsystem* CollectionSubsystem = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
+	const FEquipmentInstance& Instances = CollectionSubsystem->GetEquipmentInstance(EquipmentGuid);
+	FName EquipmentID = Instances.EquipmentID;
+
+	ID = EquipmentID;
+	SetGradeImage();
+	SetIconImage();
+}
+
 void ULRPartyEquipmentSlot::SetSlotIndex(int32 InIndex)
 {
 	Super::SetSlotIndex(InIndex);
@@ -34,6 +59,17 @@ void ULRPartyEquipmentSlot::SetSlotIndex(int32 InIndex)
 	SetID(EquipmentInstances.EquipmentID);
 }
 
+void ULRPartyEquipmentSlot::RefreshUICaller()
+{
+	RefreshUI();
+}
+
+void ULRPartyEquipmentSlot::SetIDAuto()
+{
+	Super::SetIDAuto();
+	SetSlotIndex(SlotIndex);
+}
+
 void ULRPartyEquipmentSlot::SetID(FName InID)
 {
 	Super::SetID(InID);
@@ -47,6 +83,8 @@ void ULRPartyEquipmentSlot::SetID(FName InID)
 	{
 		SaveGameSubsystem->SetLeaderEquipmentSlot(SlotIndex, EquipmentInstances[0].InstanceID);
 	}
+
+	RefreshUI();
 }
 
 void ULRPartyEquipmentSlot::SetGradeImage()

@@ -20,6 +20,8 @@
 
 #include "UI/Collection/LRCharacterEntryWidget.h"
 #include "UI/Collection/LREquipEntryWidget.h"
+#include "UI/Collection/LRPartyCharacterSlot.h"
+#include "UI/Collection/LRPartyEquipmentSlot.h"
 
 #include "UI/Core/LREntryWidget.h"
 #include "UI/Core/LRSlotWidget.h"
@@ -84,7 +86,7 @@ void ALROutGameController::OnSelectedSlotWidget(ULRSlotWidget* InWidget)
 		ResetWidgetEffect(InWidget);
 
 		HandleSwapAction(CurrentSlotWidget->GetSlotIndex(), InWidget->GetSlotIndex(), InWidget->GetType());
-
+		
 		SelectedWidget = nullptr;
 	}
 	else if (ULREntryWidget* CurrentEntryWidget = Cast<ULREntryWidget>(SelectedWidget.Get()))
@@ -97,6 +99,7 @@ void ALROutGameController::OnSelectedSlotWidget(ULRSlotWidget* InWidget)
 			CurrentEntryWidget->GetTileData()->Type,
 			CurrentEntryWidget->GetTileData()->ID
 		);
+
 		SelectedWidget = nullptr;
 	}
 	else
@@ -111,14 +114,15 @@ void ALROutGameController::OnSelectedSlotWidget(ULRSlotWidget* InWidget)
 
 void ALROutGameController::OnSelectedSlotToggled(bool bIsSelected)
 {
+	LR_SCREEN_INFO(TEXT("Slot Toggled: %s"), bIsSelected ? TEXT("Selected") : TEXT("Deselected"));
 	OnButtonVisibleDel.Broadcast(bIsSelected);
 }
 
-void ALROutGameController::HandleMountAction(int32 InTargetIndex, ECollectionType InTargetType, FName InID)
+void ALROutGameController::HandleMountAction(int32 InTargetIndex, ECollectionType InType, FName InID)
 {
 	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
 	
-	if (InTargetType == ECollectionType::CHARACTER)
+	if (InType == ECollectionType::CHARACTER)
 	{
 		for (int32 i = 0; i < 5; ++i)
 		{
@@ -131,7 +135,7 @@ void ALROutGameController::HandleMountAction(int32 InTargetIndex, ECollectionTyp
 		}
 		SaveGameSubsystem->SetPartySlot(InTargetIndex, InID);
 	}
-	else if (InTargetType == ECollectionType::EQUIPMENT)
+	else if (InType == ECollectionType::EQUIPMENT)
 	{
 		UCollectionSubsystem* CollectionSubsystem = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
 

@@ -15,7 +15,6 @@
 
 #include "Units/OutGame/LROutGameController.h"
 
-
 void ULRSlotWidget::BindProperties()
 {
 	Super::BindProperties();
@@ -31,13 +30,18 @@ void ULRSlotWidget::UnbindProperties()
 	Super::UnbindProperties();
 }
 
+void ULRSlotWidget::InitializeUI()
+{
+	Super::InitializeUI();
+	SetSelected(false);
+}
+
 void ULRSlotWidget::RefreshUI()
 {
 	Super::RefreshUI();
 
 	SetGradeImage();
 	SetIconImage();
-	SetSelected(bIsSelected);
 }
 
 void ULRSlotWidget::BindToController(ALRControllerBase* Controller)
@@ -55,6 +59,13 @@ void ULRSlotWidget::BindToController(ALRControllerBase* Controller)
 void ULRSlotWidget::SetSlotIndex(int32 InIndex)
 {
 	SlotIndex = InIndex;
+
+	RefreshUI();
+}
+
+void ULRSlotWidget::SetIDAuto()
+{
+	SetSlotIndex(SlotIndex);
 }
 
 void ULRSlotWidget::SetID(FName InID)

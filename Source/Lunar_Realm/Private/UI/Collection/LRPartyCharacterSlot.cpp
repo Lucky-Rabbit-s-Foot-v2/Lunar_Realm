@@ -14,6 +14,26 @@
 
 #include "Units/OutGame/LROutGameController.h"
 
+void ULRPartyCharacterSlot::NativeConstruct()
+{
+	Super::NativeConstruct();
+	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
+	{
+		SaveGameSubsystem->OnSaveGameSavedDel.AddUniqueDynamic(this, &ULRPartyCharacterSlot::RefreshUICaller);
+	}
+}
+
+void ULRPartyCharacterSlot::RefreshUI()
+{
+	Super::RefreshUI();
+
+	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+	FName CharacterID = SaveGameSubsystem->GetPartyCharacterID(SlotIndex);
+	ID = CharacterID;
+
+	SetGradeImage();
+	SetIconImage();
+}
 
 void ULRPartyCharacterSlot::SetSlotIndex(int32 InIndex)
 {
@@ -27,12 +47,26 @@ void ULRPartyCharacterSlot::SetSlotIndex(int32 InIndex)
 	}
 }
 
+void ULRPartyCharacterSlot::RefreshUICaller()
+{
+	RefreshUI();
+}
+
+void ULRPartyCharacterSlot::SetIDAuto()
+{
+	Super::SetIDAuto();
+
+	SetSlotIndex(SlotIndex);
+}
+
 void ULRPartyCharacterSlot::SetID(FName InID)
 {
 	Super::SetID(InID);
 
 	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
 	SaveGameSubsystem->SetPartySlot(SlotIndex, InID);
+
+	RefreshUI();
 }
 
 void ULRPartyCharacterSlot::SetGradeImage()
