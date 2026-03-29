@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "GAS/Ability/Skill/LRGA_Debuff_Poison.h"
@@ -27,7 +27,7 @@ void ULRGA_Debuff_Poison::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 {
     LR_INFO(TEXT("OnAbilityActivated 진입"));
 
-    if (!CachedInstigator)
+    if (!CachedInstigator.IsValid())
     {
         LR_WARN(TEXT("CachedInstigator 없음"));
         EndAbility(Handle, ActorInfo, ActivationInfo, true, true);

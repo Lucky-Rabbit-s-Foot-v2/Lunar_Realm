@@ -32,7 +32,7 @@ void ULRGA_BloodPool::OnAbilityActivated(const FGameplayAbilitySpecHandle InHand
 {
 	LR_INFO(TEXT("[BloodPool/Anubis] 스킬 발동 시작!"));
 		
-	if (!CachedInstigator)
+	if (!CachedInstigator.IsValid())
 	{
 		LR_WARN(TEXT("에러: CachedInstigator가 없습니다!"));
 		EndAbility(InHandle, InActorInfo, InActivationInfo, true, true);
@@ -56,7 +56,7 @@ void ULRGA_BloodPool::OnHitEventReceived(FGameplayEventData InPayload)
 {
 	UGameInstance* GI = GetWorld()->GetGameInstance();
 	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
-	if (!DataSys || !CachedInstigator) return;
+	if (!DataSys || !CachedInstigator.IsValid()) return;
 
 	const FSkillEffectData& EffectData = DataSys->GetSkillEffectData(SkillEffectID);
 	const FSkillStaticData& SkillData = DataSys->GetSkillStaticData(SkillID);

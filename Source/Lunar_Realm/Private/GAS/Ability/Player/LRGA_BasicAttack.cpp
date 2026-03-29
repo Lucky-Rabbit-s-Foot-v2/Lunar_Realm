@@ -113,14 +113,14 @@ void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
 
 
 	// 타겟 정보
-	const AActor* TargetActor = CachedTarget;
+	const AActor* TargetActor = CachedTarget.Get();;
 	if (!TargetActor)
 	{
 		LR_ERROR(TEXT("[GA_Attack] 실패: CachedTarget이 NULL임"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
-	if (!CachedTarget)
+	if (!CachedTarget.Get())
 	{
 		LR_ERROR(TEXT("[GA_Attack] CachedTarget이 NULL입니다! 캐스팅 실패!"));
 	}
@@ -167,7 +167,7 @@ void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
 
 void ULRGA_BasicAttack::OnHitEventReceived(FGameplayEventData InPayload)
 {
-	const AActor* TargetActor = CachedTarget;
+	const AActor* TargetActor = CachedTarget.Get();
 	if (!TargetActor) return;
 
 	UGameInstance* GI = GetWorld()->GetGameInstance();

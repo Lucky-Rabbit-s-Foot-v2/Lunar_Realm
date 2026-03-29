@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "GAS/Ability/Skill/LRGA_InstantHeal.h"
@@ -28,7 +28,7 @@ void ULRGA_InstantHeal::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
     LR_INFO(TEXT("OnAbilityActivated 진입"));
 
     // Heal은 Self 대상이므로 CachedInstigator 필수
-    if (!CachedInstigator)
+    if (!CachedInstigator.IsValid())
     {
         LR_WARN(TEXT("CachedInstigator 없음"));
         EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
@@ -36,7 +36,7 @@ void ULRGA_InstantHeal::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
     }
 
     // 사망 상태 체크 — 죽은 캐릭터에게 힐 적용 방지
-	const AActor* HealTarget = CachedTarget ? CachedTarget.Get() : Cast<AActor>(CachedInstigator.Get());
+	const AActor* HealTarget = CachedInstigator.IsValid() ? CachedTarget.Get() : Cast<AActor>(CachedInstigator.Get());
 
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(const_cast<AActor*>(HealTarget));
 	if (!TargetASC)

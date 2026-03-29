@@ -35,7 +35,7 @@ void ULRGA_ArmySkill::OnAbilityActivated(const FGameplayAbilitySpecHandle InHand
 {
 	LR_INFO(TEXT("[LRGA_Army] 스킬 발동!"));
 
-	if (!CachedInstigator || !StrikeMontage || !DamageEffectClass)
+	if (!CachedInstigator.IsValid() || !StrikeMontage || !DamageEffectClass)
 	{
 		LR_WARN(TEXT("[LRGA_Army] 필수 데이터(Montage 또는 GE)가 누락되었습니다."));
 		EndAbility(InHandle, InActorInfo, InActivationInfo, true, true);

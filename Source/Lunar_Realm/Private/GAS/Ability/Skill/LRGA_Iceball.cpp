@@ -28,7 +28,7 @@ void ULRGA_Iceball::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
 {
 	LR_INFO(TEXT("[ULRGA_Iceball] OnAbilityActivated 진입!"));
 
-	if (!CachedInstigator || !ProjectileClass || !DamageEffectClass)
+	if (!CachedInstigator.IsValid() || !ProjectileClass || !DamageEffectClass)
 	{
 		LR_WARN(TEXT("필수 데이터 누락"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
