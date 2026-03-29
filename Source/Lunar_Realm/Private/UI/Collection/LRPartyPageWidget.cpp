@@ -36,12 +36,30 @@ void ULRPartyPageWidget::NativeDestruct()
 	Super::NativeDestruct();
 }
 
+void ULRPartyPageWidget::BindToController(ALRControllerBase* Controller)
+{
+	Super::BindToController(Controller);
+
+	ALROutGameController* PC = Cast<ALROutGameController>(Controller);
+	if (PC)
+	{
+		OnPartyPageOpenedDel.AddUniqueDynamic(PC, &ALROutGameController::ResetSelectedWidget);
+	}
+}
+
 void ULRPartyPageWidget::RegisterSubWidgets()
 {
 	Super::RegisterSubWidgets();
 
 	SubWidgets.Add(PartySlot);
 	SubWidgets.Add(Collection);
+}
+
+void ULRPartyPageWidget::OpenUI()
+{
+	Super::OpenUI();
+
+	OnPartyPageOpenedDel.Broadcast();
 }
 
 void ULRPartyPageWidget::RefreshUICaller()

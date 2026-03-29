@@ -114,7 +114,6 @@ void ALROutGameController::OnSelectedSlotWidget(ULRSlotWidget* InWidget)
 
 void ALROutGameController::OnSelectedSlotToggled(bool bIsSelected)
 {
-	LR_SCREEN_INFO(TEXT("Slot Toggled: %s"), bIsSelected ? TEXT("Selected") : TEXT("Deselected"));
 	OnButtonVisibleDel.Broadcast(bIsSelected);
 }
 
@@ -189,7 +188,7 @@ void ALROutGameController::OpenEnhancePage()
 		}
 		if (ULREnhancePageWidget* EnhanceWidget = Cast<ULREnhancePageWidget>(Widget))
 		{
-			SelectedWidget = nullptr;
+			ResetSelectedWidget();
 			EnhanceWidget->SetIDAndType(SelectedID, SelectedType);
 		}
 	}
@@ -231,6 +230,16 @@ void ALROutGameController::ResetWidgetEffect(ULRBaseWidget* Widget)
 	{
 		SlotWidget->SetSelected(false);
 	}
+}
+
+void ALROutGameController::ResetSelectedWidget()
+{
+	if (SelectedWidget.IsValid())
+	{
+		ResetWidgetEffect(SelectedWidget.Get());
+		SelectedWidget = nullptr;
+	}
+	OnButtonVisibleDel.Broadcast(false);
 }
 
 void ALROutGameController::GachaSim(const FString& BannerIdStr, int32 TotalPulls, int32 Seed)

@@ -54,6 +54,9 @@ public:
 	void ResetSelectedData();
 	void ResetWidgetEffect(ULRBaseWidget* Widget);
 
+	UFUNCTION()
+	void ResetSelectedWidget();
+
 	UPROPERTY(BlueprintAssignable)
 	FOnSelectedChanged OnSelectedChangedDel;
 
