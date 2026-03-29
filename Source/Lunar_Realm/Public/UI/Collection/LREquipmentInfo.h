@@ -23,12 +23,12 @@ public:
 	virtual void BindSubWidgets() override;
 	virtual void RegisterSubWidgets() override;
 
-	UFUNCTION(BlueprintCallable)
-	void SetEquipIDCall(const FSelectedInfo& InInfo);
+	UFUNCTION()
+	void SetIDAndType(FName InID, ECollectionType InType);
 
 	void SetEquipID(const FName& InID);
 
-	FName GetEquipID() const { return EquipID; }
+	FName GetEquipID() const { return ID; }
 
 	UFUNCTION(BlueprintCallable)
 	void OnEnhanceButtonClicked();
@@ -50,5 +50,5 @@ protected:
 	class UTexture2D* DefaultImage;
 
 private:
-	FName EquipID;
+	FName ID;
 };
