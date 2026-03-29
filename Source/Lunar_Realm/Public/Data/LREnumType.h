@@ -279,13 +279,3 @@ enum class ECollectionType : uint8
 	CHARACTER = 0,
 	EQUIPMENT,
 };
-
-UENUM(BlueprintType)
-enum class EPartyTaskType : uint8
-{
-	NONE = 255,
-	MOUNT= 0,
-	SWAP,
-	RELEASE,
-	ENHANCE,
-};
