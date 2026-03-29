@@ -49,6 +49,8 @@ public:
 	void OpenEnhancePage();
 	void ReleasePartySlot();
 
+	UFUNCTION()
+	void SetIDAndType(FName InID, ECollectionType InType);
 	void ResetSelectedData();
 	void ResetSelectedWidgetData();
 

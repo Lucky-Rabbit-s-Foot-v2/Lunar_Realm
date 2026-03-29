@@ -202,6 +202,13 @@ void ALROutGameController::ReleasePartySlot()
 	}
 }
 
+void ALROutGameController::SetIDAndType(FName InID, ECollectionType InType)
+{
+	SelectedID = InID;
+	SelectedType = InType;
+	OnSelectedChangedDel.Broadcast(SelectedID, SelectedType);
+}
+
 void ALROutGameController::ResetSelectedData()
 {
 	ResetSelectedWidgetData();

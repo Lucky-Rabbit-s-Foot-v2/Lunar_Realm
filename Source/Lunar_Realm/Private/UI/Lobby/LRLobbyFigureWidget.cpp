@@ -20,6 +20,7 @@
 
 #include "UI/Lobby/LRLobbyPageWidget.h"
 #include "UI/Lobby/LRLobbyFigureInfoWidget.h"
+#include "UI/Collection/LREnhancePageWidget.h"
 #include "Units/OutGame/LROutGameController.h"
 
 #include "Animation/WidgetAnimation.h"
@@ -126,10 +127,9 @@ void ULRLobbyFigureWidget::OnFigureClicked()
 	ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer());
 	if (PC)
 	{
+		PC->SetIDAndType(CurrentCharacterID, ECollectionType::CHARACTER);
 		PC->OpenEnhancePage();
 	}
-	
-	OnFigureClickedDel.Broadcast(SlotIndex);
 }
 
 void ULRLobbyFigureWidget::OnFigureLongPressed()
