@@ -53,6 +53,12 @@ void ULRPartyEquipmentSlot::SetGradeImage()
 {
 	Super::SetGradeImage();
 
+	if (ID.IsNone())
+	{
+		Img_Grade->SetVisibility(ESlateVisibility::Hidden);
+		return;
+	}
+
 	if (UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>())
 	{
 		const FEquipmentStaticData& StaticData = GameDataSubsystem->GetEquipmentStaticData(ID);
@@ -65,6 +71,12 @@ void ULRPartyEquipmentSlot::SetGradeImage()
 void ULRPartyEquipmentSlot::SetIconImage()
 {
 	Super::SetIconImage();
+
+	if (ID.IsNone())
+	{
+		Image->SetBrushFromTexture(EmptySlotTexture);
+		return;
+	}
 
 	if (UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>())
 	{

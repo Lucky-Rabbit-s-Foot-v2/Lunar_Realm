@@ -39,6 +39,11 @@ void ULRPartyCharacterSlot::SetGradeImage()
 {
 	Super::SetGradeImage();
 
+	if (ID.IsNone())
+	{
+		Img_Grade->SetVisibility(ESlateVisibility::Hidden);
+		return;
+	}
 	if (UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>())
 	{
 		const FCharacterStaticData& StaticData = GameDataSubsystem->GetCharacterStaticData(ID);
@@ -51,6 +56,11 @@ void ULRPartyCharacterSlot::SetIconImage()
 {
 	Super::SetIconImage();
 
+	if (ID.IsNone())
+	{
+		Image->SetBrushFromTexture(EmptySlotTexture);
+		return;
+	}
 	if (UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>())
 	{
 		const FCharacterStaticData& StaticData = GameDataSubsystem->GetCharacterStaticData(ID);

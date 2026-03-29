@@ -188,17 +188,7 @@ void ALROutGameController::ReleasePartySlot()
 
 		SelectedSlot->SetID(NAME_None);
 		SelectedSlot->SetSelected(false);
-
-		ECollectionType Type = SelectedSlot->GetType();
-		switch (Type)
-		{
-		case ECollectionType::CHARACTER:
-			SaveGameSubsystem->SetPartySlot(SelectedSlot->GetSlotIndex(), NAME_None);
-			break;
-		case ECollectionType::EQUIPMENT:
-			SaveGameSubsystem->SetLeaderEquipmentSlot(SelectedSlot->GetSlotIndex(), FGuid());
-			break;
-		}
+		SelectedSlot->RefreshUI();
 	}
 }
 
