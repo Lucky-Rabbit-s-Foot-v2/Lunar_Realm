@@ -33,7 +33,7 @@ void ULRGA_Fireball::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
 	LR_INFO(TEXT("[ULRGA_Fireball] OnAbilityActivated 진입!"));
 	
 	// 유효성 검사
-	if (!CachedInstigator || !ProjectileClass || !DamageEffectClass)
+	if (!CachedInstigator.IsValid() || !ProjectileClass || !DamageEffectClass)
 	{
 		LR_WARN(TEXT("필수 데이터 누락"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);

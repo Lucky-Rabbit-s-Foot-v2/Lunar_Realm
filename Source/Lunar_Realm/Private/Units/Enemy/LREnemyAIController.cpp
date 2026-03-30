@@ -31,6 +31,12 @@ FGameplayTag ALREnemyAIController::TryAttackTarget(AActor* Target)
 }
 FGameplayTag ALREnemyAIController::TryAttackTargetByPhase(AActor* Target, int32 Phase)
 {
+	// 파괴/풀복귀된 액터의 댕글링 포인터 방어
+	if (!IsValid(Target))
+	{
+		return FGameplayTag();
+	}
+
 	if (!Target)
 	{
 		return FGameplayTag();

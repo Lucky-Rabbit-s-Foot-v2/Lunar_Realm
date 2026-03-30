@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "GAS/Ability/Skill/LRGA_DurationalHeal.h"
@@ -26,14 +26,14 @@ void ULRGA_DurationalHeal::OnAbilityActivated(const FGameplayAbilitySpecHandle H
 {
 	LR_INFO(TEXT("OnAbilityActivated 진입"));
 
-	if (!CachedInstigator)
+	if (!CachedInstigator.IsValid())
 	{
 		LR_WARN(TEXT("CachedInstigator 없음"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
-	const AActor* HealTarget = CachedTarget ? CachedTarget.Get() : Cast<AActor>(CachedInstigator.Get());
+	const AActor* HealTarget = CachedInstigator.IsValid() ? CachedTarget.Get() : Cast<AActor>(CachedInstigator.Get());
 
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(const_cast<AActor*>(HealTarget));
 	

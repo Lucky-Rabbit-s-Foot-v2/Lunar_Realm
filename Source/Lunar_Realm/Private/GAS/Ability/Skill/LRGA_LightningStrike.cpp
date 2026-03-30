@@ -32,7 +32,7 @@ void ULRGA_LightningStrike::OnAbilityActivated(const FGameplayAbilitySpecHandle 
 	LR_INFO(TEXT("[ULRGA_LightningStrike] OnAbilityActivated 진입!"));
 	
 	// 유효성 검사
-	if (!CachedInstigator)
+	if (!CachedInstigator.IsValid())
 	{
 		LR_WARN(TEXT("필수 데이터 누락"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);

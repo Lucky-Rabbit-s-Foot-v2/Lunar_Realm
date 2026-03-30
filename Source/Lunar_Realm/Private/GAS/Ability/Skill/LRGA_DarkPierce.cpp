@@ -31,7 +31,7 @@ void ULRGA_DarkPierce::OnAbilityActivated(const FGameplayAbilitySpecHandle Handl
 {
 	LR_INFO(TEXT("[ULRGA_Pierce] OnAbilityActivated 진입!"));
 
-	if (!CachedInstigator || !ProjectileClass || !DamageEffectClass)
+	if (!CachedInstigator.IsValid() || !ProjectileClass || !DamageEffectClass)
 	{
 		LR_WARN(TEXT("필수 데이터 누락"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);

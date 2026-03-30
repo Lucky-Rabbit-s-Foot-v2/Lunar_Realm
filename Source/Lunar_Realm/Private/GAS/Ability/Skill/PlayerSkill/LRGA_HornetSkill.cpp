@@ -41,7 +41,7 @@ void ULRGA_HornetSkill::OnAbilityActivated(const FGameplayAbilitySpecHandle InHa
 {
 	LR_INFO(TEXT("[LRGA_HornetSkill] 에너지파 발사"));
 
-	if (!CachedInstigator || !DamageEffectClass)
+	if (!CachedInstigator.IsValid() || !DamageEffectClass)
 	{
 		EndAbility(InHandle, InActorInfo, InActivationInfo, true, true);
 		return;
@@ -95,7 +95,7 @@ void ULRGA_HornetSkill::OnAbilityActivated(const FGameplayAbilitySpecHandle InHa
 
 void ULRGA_HornetSkill::TickDamage()
 {
-	if (!CachedInstigator) return;
+	if (!CachedInstigator.IsValid()) return;
 
 	FVector StartLoc = CachedInstigator->GetActorLocation();
 	FVector ForwardDir = CachedInstigator->GetActorForwardVector();
