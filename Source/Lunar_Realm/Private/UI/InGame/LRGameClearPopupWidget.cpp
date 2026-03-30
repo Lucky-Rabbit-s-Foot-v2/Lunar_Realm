@@ -128,12 +128,12 @@ void ULRGameClearPopupWidget::ShowExpPanel()
 	if (LeaderExpPanel)
 	{
 		LeaderExpPanel->SetVisibility(ESlateVisibility::Visible);
-		LeaderExpPanel->SetupExpPanel();
+		LeaderExpPanel->SetupExpPanel(true, 1);
 	}
 
 	if (MemberExpPanel)
 	{
 		MemberExpPanel->SetVisibility(ESlateVisibility::Visible);
-		MemberExpPanel->SetupExpPanel();
+		MemberExpPanel->SetupExpPanel(true, 2);
 	}
 }

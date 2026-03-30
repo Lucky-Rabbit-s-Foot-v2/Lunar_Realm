@@ -10,6 +10,8 @@
 #include "Subsystems/UIManagerSubsystem.h"
 
 #include "UI/Core/LRButtonWidget.h"
+#include "UI/InGame/LRStarBoxWidget.h"
+#include "UI/InGame/LRExpPanelWidget.h"
 
 void ULRGameOverPopupWidget::BindProperties()
 {
@@ -58,5 +60,33 @@ void ULRGameOverPopupWidget::InitializeUI()
 	{
 		PlayAnimation(Fail);
 	}
+	if (LeaderExpPanel) LeaderExpPanel->SetVisibility(ESlateVisibility::Collapsed);
+	if (MemberExpPanel) MemberExpPanel->SetVisibility(ESlateVisibility::Collapsed);
 
+}
+
+void ULRGameOverPopupWidget::OnAnimationFinished_Implementation(const UWidgetAnimation* Animation)
+{
+	Super::OnAnimationFinished_Implementation(Animation);
+
+	if (Animation == Fail)
+	{
+		LR_INFO(TEXT("Fail 애니메이션 종료! 패배 보상(20%%) 경험치 패널 표시 명령"));
+		ShowExpPanel2();
+	}
+}
+
+void ULRGameOverPopupWidget::ShowExpPanel2()
+{
+	if (LeaderExpPanel)
+	{
+		LeaderExpPanel->SetVisibility(ESlateVisibility::Visible);
+		LeaderExpPanel->SetupExpPanel(false, 1);
+	}
+
+	if (MemberExpPanel)
+	{
+		MemberExpPanel->SetVisibility(ESlateVisibility::Visible);
+		MemberExpPanel->SetupExpPanel(false, 1);
+	}
 }
