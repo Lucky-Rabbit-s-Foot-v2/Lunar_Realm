@@ -51,11 +51,11 @@ void ULRGA_EnemyAreaAttack::OnAbilityActivated(
 	}
 
 	UAnimMontage* MontageToPlay = Cast<UAnimMontage>(const_cast<UObject*>(CachedOptionalObject.Get()));
+
 	if (!MontageToPlay)
 	{
-		LR_WARN(TEXT("[EnemyAreaAttack] 몽타주 없음 — 즉시 범위 데미지 적용"));
-		ApplyAreaDamage();
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		LR_WARN(TEXT("[EnemyAreaAttack] 몽타주 없음"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
