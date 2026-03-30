@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRBaseWidget.h"
+#include "Data/LREnumType.h"
+#include "Data/LRDataStructs.h"
 #include "LRPartySlotsWidget.generated.h"
 
 /**
@@ -25,8 +27,7 @@ public:
 
 	virtual void RegisterSubWidgets() override;
 
-	UFUNCTION()
-	void SetCurrentImage(const FSelectedInfo& InInfo);
+	virtual void RefreshUI() override;
 
 	UFUNCTION()
 	void OnPartyEnhanceClicked();
@@ -36,6 +37,11 @@ public:
 
 	UFUNCTION()
 	void SetEnableButtons(bool bIsEnable);
+
+	UFUNCTION()
+	void SetIDAndType(FName InID, ECollectionType InType);
+
+	void RefreshCurrentImage();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -64,4 +70,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "LR|UI Party")
 	TObjectPtr<class UTexture2D> EmptySlotTexture;
+
+	FName ID;
+	ECollectionType Type = ECollectionType::NONE;
 };

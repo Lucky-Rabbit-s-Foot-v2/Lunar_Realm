@@ -8,29 +8,43 @@
 #include "Engine/GameInstance.h"
 #include "Subsystems/Settings/UIManagerSettings.h"
 #include "Subsystems/UIManagerSubsystem.h"
+#include "Subsystems/SaveGameSubsystem.h"
 
 #include "UI/Collection/LRPartySlotsWidget.h"
 #include "UI/Collection/LRCollection.h"
 
 #include "Units/OutGame/LROutGameController.h"
 
+
 void ULRPartyPageWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer());
-	if (PC)
+	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
 	{
-		OnPartyPageOpenedDel.AddUniqueDynamic(PC, &ALROutGameController::OnPartyPageOpened);
-		OnPartyPageClosedDel.AddUniqueDynamic(PC, &ALROutGameController::OnPartyPageClosed);
+		SaveGameSubsystem->OnSaveGameSavedDel.AddUniqueDynamic(this, &ULRPartyPageWidget::RefreshUICaller);
 	}
 }
 
 void ULRPartyPageWidget::NativeDestruct()
 {
-	OnPartyPageClosedDel.Clear();
+	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
+	{
+		SaveGameSubsystem->OnSaveGameSavedDel.RemoveDynamic(this, &ULRPartyPageWidget::RefreshUICaller);
+	}
 
 	Super::NativeDestruct();
+}
+
+void ULRPartyPageWidget::BindToController(ALRControllerBase* Controller)
+{
+	Super::BindToController(Controller);
+
+	ALROutGameController* PC = Cast<ALROutGameController>(Controller);
+	if (PC)
+	{
+		OnPartyPageOpenedDel.AddUniqueDynamic(PC, &ALROutGameController::ResetSelectedWidget);
+	}
 }
 
 void ULRPartyPageWidget::RegisterSubWidgets()
@@ -44,12 +58,16 @@ void ULRPartyPageWidget::RegisterSubWidgets()
 void ULRPartyPageWidget::OpenUI()
 {
 	Super::OpenUI();
+
 	OnPartyPageOpenedDel.Broadcast();
 }
 
-void ULRPartyPageWidget::CloseUI()
+void ULRPartyPageWidget::RefreshUICaller()
 {
-	Super::CloseUI();
+	RefreshUI();
+}
 
-	OnPartyPageClosedDel.Broadcast();
+void ULRPartyPageWidget::SetIDAndType(FName InID, ECollectionType InType)
+{
+	PartySlot->SetIDAndType(InID, InType);
 }

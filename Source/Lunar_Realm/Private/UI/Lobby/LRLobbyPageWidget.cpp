@@ -5,22 +5,28 @@
 
 #include "Engine/GameInstance.h"
 #include "Subsystems/SaveGameSubsystem.h"
+#include "Subsystems/UIManagerSubsystem.h"
 
 #include "UI/Lobby/LRLobbyFigureWidget.h"
+#include "UI/Lobby/LRLobbyFigureInfoWidget.h"
+
 #include "UI/Lobby/LRPageSelectorWidget.h"
 
-void ULRLobbyPageWidget::RefreshUI()
-{
-	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
-	TArray<FName> PartyCharactersIDs = SaveGameSubsystem->GetAllPartyCharactersIDs();
+#include "TimerManager.h"
 
-	MainCharacter->SetFigure(PartyCharactersIDs.IsValidIndex(0) ? PartyCharactersIDs[0] : NAME_None);
-	Member1->SetFigure(PartyCharactersIDs.IsValidIndex(1) ? PartyCharactersIDs[1] : NAME_None);
-	Member2->SetFigure(PartyCharactersIDs.IsValidIndex(2) ? PartyCharactersIDs[2] : NAME_None);
-	Member3->SetFigure(PartyCharactersIDs.IsValidIndex(3) ? PartyCharactersIDs[3] : NAME_None);
-	Member4->SetFigure(PartyCharactersIDs.IsValidIndex(4) ? PartyCharactersIDs[4] : NAME_None);
-	
-	Super::RefreshUI();
+#include "Units/OutGame/LROutGameController.h"
+
+
+void ULRLobbyPageWidget::OpenUI()
+{
+	Super::OpenUI();
+
+	MainCharacter->SetSlotIndex(0);
+	Member1->SetSlotIndex(1);
+	Member2->SetSlotIndex(2);
+	Member3->SetSlotIndex(3);
+	Member4->SetSlotIndex(4);
+
 }
 
 void ULRLobbyPageWidget::RegisterSubWidgets()

@@ -16,7 +16,6 @@
  //============================================================================
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPartyPageOpened);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPartyPageClosed);
 
 UCLASS()
 class LUNAR_REALM_API ULRPartyPageWidget : public ULRPageWidget
@@ -27,16 +26,20 @@ protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
+	virtual void BindToController(class ALRControllerBase* Controller) override;
+
 	virtual void RegisterSubWidgets() override;
 
 	virtual void OpenUI() override;
-	virtual void CloseUI() override;
+
+	UFUNCTION()
+	void RefreshUICaller();
+
+	UFUNCTION()
+	void SetIDAndType(FName InID, ECollectionType InType);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnPartyPageOpened OnPartyPageOpenedDel;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnPartyPageClosed OnPartyPageClosedDel;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRPartySlotsWidget> PartySlot;

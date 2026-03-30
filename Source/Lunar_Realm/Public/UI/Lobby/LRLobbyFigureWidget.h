@@ -18,9 +18,7 @@
  // (260212) PJB 주의사항 : Unhover 전에 Hover 이벤트가 발생할 수 있음. 
  //=============================================================================
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFigureClicked, FName, CharacterID);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFigureLongPressed, FName, CharacterID);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFigureLongReleased);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFigureClicked, int32, InSlotIndex);
 
 UCLASS()
 class LUNAR_REALM_API ULRLobbyFigureWidget : public ULRBaseWidget
@@ -31,15 +29,13 @@ public:
 	virtual void BindProperties() override;
 	virtual void UnbindProperties() override;
 
+	virtual void RegisterSubWidgets() override;
+
 	virtual void RefreshUI() override;
 
 	UPROPERTY(BlueprintAssignable, Category = "LR|UI|Events")
 	FOnFigureClicked OnFigureClickedDel;
-	UPROPERTY(BlueprintAssignable, Category = "LR|UI|Events")
-	FOnFigureLongPressed OnFigureLongPressedDel;
-	UPROPERTY(BlueprintAssignable, Category = "LR|UI|Events")
-	FOnFigureLongReleased OnFigureLongReleasedDel;
-
+	
 	UFUNCTION()
 	void OnFigurePressed();
 
@@ -47,6 +43,10 @@ public:
 	void OnFigureReleased();
 
 	void SetFigure(FName CharacterID);
+	void SetSlotIndex(int32 InSlotIndex);
+
+	void OpenInfoWidget();
+	void CloseInfoWidget();
 
 private:
 	void OnFigureClicked();
@@ -59,14 +59,23 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> Btn_Figure;
 
-	UPROPERTY(EditAnywhere, Category = "LR|UI")
-	TSubclassOf<class ULRLobbyFigureInfoWidget> FigureInfoWidgetClass;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class ULRLobbyFigureInfoWidget> FigureInfoWidget;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<class UWidgetAnimation> Anim_Hover;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<class UWidgetAnimation> Anim_HoverMain;
 
 	UPROPERTY(EditAnywhere, Category = "LR|UI")
 	TObjectPtr<class UTexture2D> EmptySlotTexture;
 
 private:
 	FTimerHandle LongPressTimerHandle;
-	FName CurrentCharacterID;
+	FName CurrentCharacterID = NAME_None;
+	int32 SlotIndex = -1;
 	bool bIsLongPressTriggered = false;
+
+	FVector2D InfoPosition;
 };

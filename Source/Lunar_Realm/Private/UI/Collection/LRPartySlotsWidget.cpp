@@ -10,8 +10,12 @@
 
 #include "Subsystems/GameDataSubsystem.h"
 #include "Subsystems/SaveGameSubsystem.h"
+#include "Subsystems/CollectionSubsystem.h"
 
 #include "UI/Collection/LRPartySlotWidget.h"
+#include "UI/Collection/LRPartyCharacterSlot.h"
+#include "UI/Collection/LRPartyEquipmentSlot.h"
+
 #include "UI/Collection/LREnhancePageWidget.h"
 
 #include "UI/Core/LRButtonWidget.h"
@@ -53,8 +57,8 @@ void ULRPartySlotsWidget::BindToController(ALRControllerBase* Controller)
 
 	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
-		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULRPartySlotsWidget::SetCurrentImage);
-		PC->OnSlotSelectedDel.AddUniqueDynamic(this, &ULRPartySlotsWidget::SetEnableButtons);
+		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULRPartySlotsWidget::SetIDAndType);
+		PC->OnButtonVisibleDel.AddUniqueDynamic(this, &ULRPartySlotsWidget::SetEnableButtons);
 	}
 }
 
@@ -69,17 +73,50 @@ void ULRPartySlotsWidget::RegisterSubWidgets()
 	SubWidgets.Add(Slot4);
 }
 
-void ULRPartySlotsWidget::SetCurrentImage(const FSelectedInfo& InInfo)
+void ULRPartySlotsWidget::RefreshUI()
 {
-	if(InInfo.ID.IsNone() || InInfo.Type != ECollectionType::CHARACTER)
+	Super::RefreshUI();
+	RefreshCurrentImage();
+}
+
+void ULRPartySlotsWidget::SetIDAndType(FName InID, ECollectionType InType)
+{
+	ID = InID;
+	Type = InType;
+
+	RefreshUI();
+}
+
+void ULRPartySlotsWidget::RefreshCurrentImage()
+{
+	if (ID.IsNone())
 	{
 		Img_Current->SetBrushFromTexture(EmptySlotTexture);
 		return;
 	}
-	FName CurrentID = InInfo.ID;
-	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
-	const FCharacterStaticData& StaticData = GameDataSubsystem->GetCharacterStaticData(CurrentID);
-	Img_Current->SetBrushFromTexture(StaticData.WholeBodyImage.LoadSynchronous());
+
+	switch (Type)
+	{
+		case ECollectionType::CHARACTER:
+		{
+			UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+			const FCharacterStaticData& StaticData = GameDataSubsystem->GetCharacterStaticData(ID);
+			Img_Current->SetBrushFromTexture(StaticData.WholeBodyImage.LoadSynchronous());
+			break;
+		}
+		
+		case ECollectionType::EQUIPMENT:
+		{
+			UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
+			const FEquipmentStaticData& StaticData = GameDataSubsystem->GetEquipmentStaticData(ID);
+			Img_Current->SetBrushFromTexture(StaticData.EquipmentTexture.LoadSynchronous());
+			break;
+		}
+
+		default:
+			Img_Current->SetBrushFromTexture(EmptySlotTexture);
+			break;
+	}
 }
 
 void ULRPartySlotsWidget::OnPartyEnhanceClicked()
@@ -87,6 +124,8 @@ void ULRPartySlotsWidget::OnPartyEnhanceClicked()
 	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
 		PC->OpenEnhancePage();
+
+		SetEnableButtons(false);
 	}
 }
 
@@ -94,22 +133,9 @@ void ULRPartySlotsWidget::OnPartyReleaseClicked()
 {
 	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
-		const FSelectedInfo& SelectedInfo = PC->GetSelectedInfo();
+		PC->ReleasePartySlot();
 
-		ECollectionType Type = SelectedInfo.Type;
-		int32 SlotIndex = SelectedInfo.SlotIndex;
-		
-		USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
-
-		if (Type == ECollectionType::EQUIPMENT)
-		{
-			SaveGameSubsystem->SetLeaderEquipmentSlot(SlotIndex, FGuid());
-		}
-		if (Type == ECollectionType::CHARACTER)
-		{
-			SaveGameSubsystem->SetPartySlot(SlotIndex, NAME_None);
-		}
-		PC->ResetSelectedInfo();
+		SetEnableButtons(false);
 	}
 }
 

@@ -48,8 +48,8 @@ void ULREquipCollection::AddItemToTileView(UGameDataSubsystem* GameDataSubsystem
 	const FEquipmentStaticData& EquipmentData = GameDataSubsystem->GetEquipmentStaticData(LockedEquipID);
 	
 	ULRTileData* TileDataObject = NewObject<ULRTileData>(this);
-	TileDataObject->SetID(EquipmentData.DataID);
-	TileDataObject->SetIcon(EquipmentData.EquipmentTexture.LoadSynchronous());
-	TileDataObject->SetIsLocked(bIsLocked);
+	TileDataObject->ID = EquipmentData.DataID;
+	TileDataObject->Icon = EquipmentData.EquipmentTexture.LoadSynchronous();
+	TileDataObject->bIsLocked = bIsLocked;
 	EquipTileView->AddItem(TileDataObject);
 }

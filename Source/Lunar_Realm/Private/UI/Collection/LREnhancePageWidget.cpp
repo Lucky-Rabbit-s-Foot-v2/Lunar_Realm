@@ -24,19 +24,27 @@ void ULREnhancePageWidget::RegisterSubWidgets()
 	SubWidgets.Add(Collection);
 }
 
-void ULREnhancePageWidget::InitializeUI()
+void ULREnhancePageWidget::OpenUI()
 {
-	Super::InitializeUI();
+	Super::OpenUI();
+
+	if(ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
+	{
+		ID = PC->GetSelectedID();
+		Type = PC->GetSelectedType();
+	}
+
 	if (ID.IsNone())
 	{
 		USaveGameSubsystem* SaveGameSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
 		if (SaveGameSubsystem)
 		{
-			FName LeaderID = SaveGameSubsystem->GetLeaderCharacterID();
-			FSelectedInfo SelectedInfo(ECollectionType::CHARACTER, LeaderID);
-			SetIDByType(SelectedInfo);
+			ID = SaveGameSubsystem->GetLeaderCharacterID();
+			Type = ECollectionType::CHARACTER;
 		}
 	}
+
+	SetIDAndType(ID, Type);
 }
 
 void ULREnhancePageWidget::BindToController(ALRControllerBase* Controller)
@@ -46,23 +54,25 @@ void ULREnhancePageWidget::BindToController(ALRControllerBase* Controller)
 	ALROutGameController* PC = Cast<ALROutGameController>(Controller);
 	if (PC)
 	{
-		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULREnhancePageWidget::SetIDByType);
+		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULREnhancePageWidget::SetIDAndType);
 	}
 }
 
-void ULREnhancePageWidget::SetIDByType(const FSelectedInfo& InInfo)
+void ULREnhancePageWidget::SetIDAndType(FName InID, ECollectionType InType)
 {
-	SwitchWidgetByType(InInfo.Type);
-	ID = InInfo.ID;
+	ID = InID;
+	Type = InType;
 
-	switch (InInfo.Type)
+	SwitchWidgetByType(Type);
+
+	switch (Type)
 	{
 	case ECollectionType::CHARACTER:
-		CharacterEnhance->SetCharacterID(InInfo.ID);
+		CharacterEnhance->SetCharacterID(ID);
 		break;
 
 	case ECollectionType::EQUIPMENT:
-		EquipEnhance->SetEquipID(InInfo.ID);
+		EquipEnhance->SetEquipID(ID);
 		break;
 	
 	default:

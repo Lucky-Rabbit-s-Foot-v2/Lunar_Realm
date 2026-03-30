@@ -32,7 +32,8 @@ void ULREquipmentInfo::NativeConstruct()
 
 	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
-		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULREquipmentInfo::SetEquipIDCall);
+		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULREquipmentInfo::SetIDAndType);
+		ID = PC->GetSelectedID();
 	}
 }
 
@@ -43,20 +44,20 @@ void ULREquipmentInfo::RefreshUI()
 	FName SkillID = NAME_None;
 	if (USaveGameSubsystem* SaveGameSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
 	{
-		if (EquipID.IsNone())
+		if (ID.IsNone())
 		{
-			EquipID = SaveGameSubsystem->GetLeaderCharacterID();
+			ID = SaveGameSubsystem->GetLeaderCharacterID();
 		}
 
 		if (UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>())
 		{
-			const FEquipmentStaticData& EquipmentStaticData = GameDataSubsystem->GetEquipmentStaticData(EquipID);
+			const FEquipmentStaticData& EquipmentStaticData = GameDataSubsystem->GetEquipmentStaticData(ID);
 			SkillID = EquipmentStaticData.SkillIDs.IsValidIndex(0) ? EquipmentStaticData.SkillIDs[0] : NAME_None;
 		}
 	}
 	SkillInfo->SetSkillID(SkillID);
-	EquipmentCard->SetEquipID(EquipID);
-	EquipmentStatus->SetEquipID(EquipID);
+	EquipmentCard->SetEquipID(ID);
+	EquipmentStatus->SetEquipID(ID);
 }
 
 void ULREquipmentInfo::BindSubWidgets()
@@ -78,19 +79,17 @@ void ULREquipmentInfo::RegisterSubWidgets()
 	SubWidgets.Add(EquipmentStatus);
 }
 
-void ULREquipmentInfo::SetEquipIDCall(const FSelectedInfo& InInfo)
+void ULREquipmentInfo::SetIDAndType(FName InID, ECollectionType InType)
 {
-	if (InInfo.Type != ECollectionType::EQUIPMENT)
+	if (InType == ECollectionType::EQUIPMENT)
 	{
-		return;
+		SetEquipID(InID);
 	}
-
-	SetEquipID(InInfo.ID);
 }
 
 void ULREquipmentInfo::SetEquipID(const FName& InID)
 {
-	EquipID = InID;
+	ID = InID;
 	RefreshUI();
 }
 
@@ -107,8 +106,7 @@ void ULREquipmentInfo::OnEnhanceButtonClicked()
 
 		if (ULREnhancePageWidget* EnhanceWidget = Cast<ULREnhancePageWidget>(Widget))
 		{
-			FSelectedInfo SelectedInfo(ECollectionType::EQUIPMENT, EquipID);
-			EnhanceWidget->SetIDByType(SelectedInfo);
+			EnhanceWidget->SetIDAndType(ID, ECollectionType::EQUIPMENT);
 		}
 	}
 }

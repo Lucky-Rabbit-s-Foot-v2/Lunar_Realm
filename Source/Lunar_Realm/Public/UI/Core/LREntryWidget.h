@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/Core/LRBaseWidget.h"
+#include "Data/LREnumType.h"
 #include "Blueprint/IUserObjectListEntry.h"
 #include "LREntryWidget.generated.h"
 
@@ -16,37 +17,31 @@
  // (260303) PJB 제작.
  //============================================================================
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTileClicked, ULREntryWidget*, InWidget);
+
 UCLASS(BlueprintType)
 class LUNAR_REALM_API ULRTileData : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	void SetID(const FName& InID) { ID = InID; }
-	void SetIcon(UTexture2D* InIcon) { Icon = InIcon; }
-	void SetFrame(UTexture2D* InFrame) { Frame = InFrame; }
-	void SetIsLocked(bool bInIsLocked) { bIsLocked = bInIsLocked; }
-
-	UFUNCTION(BlueprintCallable, Category = "LR|Tile Data")
-	FName GetID() const { return ID; }
-
-	UFUNCTION(BlueprintCallable, Category = "LR|Tile Data")
-	UTexture2D* GetIcon() const { return Icon; }
-
-	UFUNCTION(BlueprintCallable, Category = "LR|Tile Data")
-	UTexture2D* GetFrame() const { return Frame; }
-
-	bool IsLocked() { return bIsLocked; }
-
-private:
+	ULRTileData() = default;
+	ULRTileData(const FName& InID, ECollectionType InType, UTexture2D* InIcon, UTexture2D* InFrame, bool bInIsLocked = true)
+		: ID(InID), Type(InType), Icon(InIcon), Frame(InFrame), bIsLocked(bInIsLocked) 
+	{
+	}
+	
 	UPROPERTY()
-	FName ID;
+	FName ID = NAME_None;
 
 	UPROPERTY()
-	TObjectPtr<class UTexture2D> Icon;
+	ECollectionType Type = ECollectionType::NONE;
 
 	UPROPERTY()
-	TObjectPtr<class UTexture2D> Frame;
+	TObjectPtr<class UTexture2D> Icon = nullptr;
+
+	UPROPERTY()
+	TObjectPtr<class UTexture2D> Frame = nullptr;
 
 	UPROPERTY()
 	bool bIsLocked = true;
@@ -60,7 +55,23 @@ class LUNAR_REALM_API ULREntryWidget : public ULRBaseWidget, public IUserObjectL
 public:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 
+	virtual void NativeConstruct() override;
+	virtual void BindProperties() override;
+	virtual void UnbindProperties() override;
+
 	virtual void RefreshData();
+
+	ULRTileData* GetTileData() const { return TileData; }
+
+	virtual void SetSelected(bool bSelected);
+
+	virtual void SetType(ECollectionType InType);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnTileClicked OnTileClickedDel;
+
+	UFUNCTION()
+	virtual void OnTileClicked();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -75,6 +86,14 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UImage> Img_Black;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UButton> Btn_Selected;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> Img_Selected;
+
 	UPROPERTY()
 	TObjectPtr<ULRTileData> TileData;
+
+	bool bIsSelected = false;
 };

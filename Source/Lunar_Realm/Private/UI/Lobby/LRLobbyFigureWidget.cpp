@@ -7,13 +7,23 @@
 #include "Engine/Texture2D.h"
 #include "TimerManager.h"
 
+#include "Blueprint/SlateBlueprintLibrary.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "Components/CanvasPanelSlot.h"
+
 #include "Components/Button.h"
 #include "Components/Image.h"
 
 #include "Subsystems/UIManagerSubsystem.h"
 #include "Subsystems/GameDataSubsystem.h"
+#include "Subsystems/SaveGameSubsystem.h"
 
+#include "UI/Lobby/LRLobbyPageWidget.h"
+#include "UI/Lobby/LRLobbyFigureInfoWidget.h"
+#include "UI/Collection/LREnhancePageWidget.h"
 #include "Units/OutGame/LROutGameController.h"
+
+#include "Animation/WidgetAnimation.h"
 
 void ULRLobbyFigureWidget::BindProperties()
 {
@@ -31,17 +41,32 @@ void ULRLobbyFigureWidget::UnbindProperties()
 
 	if (Btn_Figure)
 	{
-		Btn_Figure->OnClicked.Clear();
-		Btn_Figure->OnHovered.Clear();
-		Btn_Figure->OnUnhovered.Clear();
+		Btn_Figure->OnPressed.Clear();
+		Btn_Figure->OnReleased.Clear();
 	}
 
 	Super::UnbindProperties();
 }
 
+void ULRLobbyFigureWidget::RegisterSubWidgets()
+{
+	Super::RegisterSubWidgets();
+	SubWidgets.Add(FigureInfoWidget);
+}
+
 void ULRLobbyFigureWidget::RefreshUI()
 {
 	Super::RefreshUI();
+	
+	if (SlotIndex < 0)
+	{
+		Img_Figure->SetBrushFromTexture(EmptySlotTexture);
+		return;
+	}
+
+	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+	FName CharacterID = SaveGameSubsystem->GetPartyCharacterID(SlotIndex);
+	SetFigure(CharacterID);
 
 	if (CurrentCharacterID.IsNone())
 	{
@@ -89,33 +114,74 @@ void ULRLobbyFigureWidget::SetFigure(FName CharacterID)
 	CurrentCharacterID = CharacterID;
 }
 
+void ULRLobbyFigureWidget::SetSlotIndex(int32 InSlotIndex)
+{
+	SlotIndex = InSlotIndex;
+	FigureInfoWidget->SetSlotIndex(InSlotIndex);
+
+	RefreshUI();
+}
+
 void ULRLobbyFigureWidget::OnFigureClicked()
 {
-	// TODO: HUD 에서 도감으로 이동함.
-
 	ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer());
 	if (PC)
 	{
-		FSelectedInfo SelectedInfo(ECollectionType::CHARACTER, CurrentCharacterID);
-		PC->RequestUpdateSelectedInfo(SelectedInfo);
+		PC->SetIDAndType(CurrentCharacterID, ECollectionType::CHARACTER);
 		PC->OpenEnhancePage();
 	}
-
-
-	OnFigureClickedDel.Broadcast(CurrentCharacterID);
 }
 
 void ULRLobbyFigureWidget::OnFigureLongPressed()
 {
-	// TODO: 마우스 포인터를 관리하는 주체에서 피규어 정보 위젯 표시
 	bIsLongPressTriggered = true;
 
-	OnFigureLongPressedDel.Broadcast(CurrentCharacterID);
+	OpenInfoWidget();
 }
 
 void ULRLobbyFigureWidget::OnFigureLongReleased()
 {
-	// TODO: 피규어 정보 위젯 숨김
-	OnFigureLongReleasedDel.Broadcast();
+	CloseInfoWidget();
+}
 
+void ULRLobbyFigureWidget::OpenInfoWidget()
+{
+	if (SlotIndex == 0)
+	{
+		if (Anim_HoverMain)
+		{
+			float CurrentTime = IsAnimationPlaying(Anim_HoverMain) ? GetAnimationCurrentTime(Anim_HoverMain) : 0.f;
+			PlayAnimation(Anim_HoverMain, CurrentTime, 1, EUMGSequencePlayMode::Forward, 1.f);
+		}
+	}
+	else
+	{
+		if (Anim_Hover)
+		{
+			float CurrentTime = IsAnimationPlaying(Anim_Hover) ? GetAnimationCurrentTime(Anim_Hover) : 0.f;
+			PlayAnimation(Anim_Hover, CurrentTime, 1, EUMGSequencePlayMode::Forward, 1.f);
+		}
+	}
+}
+
+void ULRLobbyFigureWidget::CloseInfoWidget()
+{
+	if (SlotIndex == 0)
+	{
+		if (Anim_HoverMain)
+		{
+			float CurrentTime = IsAnimationPlaying(Anim_HoverMain) ? GetAnimationCurrentTime(Anim_HoverMain) : Anim_HoverMain->GetEndTime();
+			PlayAnimation(Anim_HoverMain, 0.f, 1, EUMGSequencePlayMode::Reverse, 1.f);
+			SetAnimationCurrentTime(Anim_HoverMain, CurrentTime);
+		}
+	}
+	else
+	{
+		if (Anim_Hover)
+		{
+			float CurrentTime = IsAnimationPlaying(Anim_Hover) ? GetAnimationCurrentTime(Anim_Hover) : Anim_Hover->GetEndTime();
+			PlayAnimation(Anim_Hover, 0.f, 1, EUMGSequencePlayMode::Reverse, 1.f);
+			SetAnimationCurrentTime(Anim_Hover, CurrentTime);
+		}
+	}
 }

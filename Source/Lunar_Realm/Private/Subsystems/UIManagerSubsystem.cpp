@@ -122,6 +122,7 @@ void UUIManagerSubsystem::CloseUIInternal(ULRBaseWidget* Widget)
 		}
 		default: // NONE, TOOLTIP, OVERLAY 등은 특별한 관리 없이 닫기만 하면 됨
 		{
+			Widget->CloseUI();
 			break;
 		}
 	}
@@ -288,25 +289,30 @@ void UUIManagerSubsystem::ShowDamageText(float Damage, FVector HitLocation, FLin
 	ULRDamageWidget* DamageUI = GetFreeDamageWidgetFromPool();
     if (!DamageUI) return;
 
-	DamageUI->ActivateWidget();
+	const float RandomOffsetRange = 80.f;
+	float RandomX = FMath::RandRange(-RandomOffsetRange, RandomOffsetRange);
+	float RandomY = FMath::RandRange(-RandomOffsetRange, RandomOffsetRange);
+	float RandomZ = FMath::RandRange(-RandomOffsetRange, RandomOffsetRange);
+	FVector RandomizedLocation = HitLocation + FVector(RandomX, RandomY, RandomZ);
 
+	DamageUI->ActivateWidget();
 	DamageUI->SetDamageColor(InColor);
 
     APlayerController* PC = GetWorld()->GetFirstPlayerController();
     FVector2D ScreenPosition;
     
     // 3D 월드 좌표(HitLocation)를 2D 스크린 좌표(ScreenPosition)로 전환
-    if (UGameplayStatics::ProjectWorldToScreen(PC, HitLocation, ScreenPosition))
+    if (UGameplayStatics::ProjectWorldToScreen(PC, RandomizedLocation, ScreenPosition))
     {
 		DamageUI->SetPositionInViewport(ScreenPosition);
 
 		//==================START:스케일링 로직====================
         FVector CameraLocation = PC->PlayerCameraManager->GetCameraLocation();
-        float Distance = FVector::Distance(CameraLocation, HitLocation);
+        float Distance = FVector::Distance(CameraLocation, RandomizedLocation);
 
         // 거리에 따른 스케일(비율) 매핑
         FVector2D InRange(500.0f, 3000.0f);		// 거리 : 500 ~ 3000 
-        FVector2D OutRange(1.0f, 0.4f);			// 스케일 : 1.0f ~ 0.4f 
+        FVector2D OutRange(1.2f, 0.4f);			// 스케일 : 1.0f ~ 0.4f 
         float DynamicScale = FMath::GetMappedRangeValueClamped(InRange, OutRange, Distance);
 
         // 렌더 스케일 적용

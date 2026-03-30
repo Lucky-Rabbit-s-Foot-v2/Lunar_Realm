@@ -14,71 +14,90 @@
 
 #include "Units/OutGame/LROutGameController.h"
 
-void ULRPartyCharacterSlot::OnButtonClicked()
+void ULRPartyCharacterSlot::NativeConstruct()
 {
-	Super::OnButtonClicked();
-
-	FSelectedInfo SelectedInfo(ECollectionType::CHARACTER, ID, SlotIndex);
-	OnCharacterSlotChangedDel.Broadcast(SelectedInfo);
+	Super::NativeConstruct();
+	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
+	{
+		SaveGameSubsystem->OnSaveGameSavedDel.AddUniqueDynamic(this, &ULRPartyCharacterSlot::RefreshUICaller);
+	}
 }
 
 void ULRPartyCharacterSlot::RefreshUI()
 {
 	Super::RefreshUI();
 
-	if (ID.IsNone())
-	{
-		Img_Grade->SetVisibility(ESlateVisibility::Hidden);
-		Image->SetBrushFromTexture(EmptySlotTexture);
-		return;
-	}
+	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+	FName CharacterID = SaveGameSubsystem->GetPartyCharacterID(SlotIndex);
+	ID = CharacterID;
 
-	if (UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>())
-	{
-		const FCharacterStaticData& StaticData = GameDataSubsystem->GetCharacterStaticData(ID);
-		Img_Grade->SetVisibility(ESlateVisibility::Visible);
-		Img_Grade->SetBrushFromTexture(StaticData.GradeImage.LoadSynchronous());
-		Image->SetBrushFromTexture(StaticData.PortraitIcon.LoadSynchronous());
-	}
-}
-
-void ULRPartyCharacterSlot::BindToController(ALRControllerBase* Controller)
-{
-	Super::BindToController(Controller);
-	ALROutGameController* PC = Cast<ALROutGameController>(Controller);
-	if (PC)
-	{
-		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULRPartyCharacterSlot::RefreshUIByController);
-		OnCharacterSlotChangedDel.AddUniqueDynamic(PC, &ALROutGameController::RequestUpdateSelectedInfo);
-	}
+	SetGradeImage();
+	SetIconImage();
 }
 
 void ULRPartyCharacterSlot::SetSlotIndex(int32 InIndex)
 {
-	SlotIndex = InIndex;
+	Super::SetSlotIndex(InIndex);
+
+	Type = ECollectionType::CHARACTER;
 
 	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
 	{
-		SetCharacterID(SaveGameSubsystem->GetPartyCharacterID(SlotIndex));
+		SetID(SaveGameSubsystem->GetPartyCharacterID(SlotIndex));
 	}
 }
 
-void ULRPartyCharacterSlot::SetCharacterID(FName InID)
+void ULRPartyCharacterSlot::RefreshUICaller()
 {
-	ID = InID;
-
-	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
-	SaveGameSubsystem->SetPartySlot(SlotIndex, ID);
 	RefreshUI();
 }
 
-void ULRPartyCharacterSlot::RefreshUIByController(const FSelectedInfo& InInfo)
+void ULRPartyCharacterSlot::SetIDAuto()
 {
-	if (InInfo.Type != ECollectionType::CHARACTER)
-	{
-		return;
-	}
+	Super::SetIDAuto();
+
+	SetSlotIndex(SlotIndex);
+}
+
+void ULRPartyCharacterSlot::SetID(FName InID)
+{
+	Super::SetID(InID);
 
 	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
-	SetCharacterID(SaveGameSubsystem->GetPartyCharacterID(SlotIndex));
+	SaveGameSubsystem->SetPartySlot(SlotIndex, InID);
+
+	RefreshUI();
+}
+
+void ULRPartyCharacterSlot::SetGradeImage()
+{
+	Super::SetGradeImage();
+
+	if (ID.IsNone())
+	{
+		Img_Grade->SetVisibility(ESlateVisibility::Hidden);
+		return;
+	}
+	if (UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>())
+	{
+		const FCharacterStaticData& StaticData = GameDataSubsystem->GetCharacterStaticData(ID);
+		Img_Grade->SetBrushFromTexture(StaticData.GradeImage.LoadSynchronous());
+		Img_Grade->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void ULRPartyCharacterSlot::SetIconImage()
+{
+	Super::SetIconImage();
+
+	if (ID.IsNone())
+	{
+		Image->SetBrushFromTexture(EmptySlotTexture);
+		return;
+	}
+	if (UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>())
+	{
+		const FCharacterStaticData& StaticData = GameDataSubsystem->GetCharacterStaticData(ID);
+		Image->SetBrushFromTexture(StaticData.PortraitIcon.LoadSynchronous());
+	}
 }

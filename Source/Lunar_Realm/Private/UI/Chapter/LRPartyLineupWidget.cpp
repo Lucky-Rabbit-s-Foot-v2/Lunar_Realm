@@ -14,62 +14,65 @@
 #include "Subsystems/GameDataSubsystem.h"
 #include "Subsystems/CollectionSubsystem.h"
 
+#include "UI/Chapter/LRReadySlot.h"
+
 void ULRPartyLineupWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
-	MemberImages.Empty();
-	MemberImages.Add(Img_Main);
-	MemberImages.Add(Img_Member1);
-	MemberImages.Add(Img_Member2);
-	MemberImages.Add(Img_Member3);
-	MemberImages.Add(Img_Member4);
-
-	EquipImages.Empty();
-	EquipImages.Add(Img_Equip1);
-	EquipImages.Add(Img_Equip2);
-	EquipImages.Add(Img_Equip3);
+	MemberSlots.Empty();
+	MemberSlots.Add(Main);
+	MemberSlots.Add(Member1);
+	MemberSlots.Add(Member2);
+	MemberSlots.Add(Member3);
+	MemberSlots.Add(Member4);
 }
 
 void ULRPartyLineupWidget::RefreshUI()
 {
 	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
 	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
-	
+	UCollectionSubsystem* CollectionSubsystem = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
+
 	TArray<FName> PartyCharacterIDs = SaveGameSubsystem->GetAllPartyCharactersIDs();
-	for (int32 i = 0; i < MemberImages.Num(); i++)
+	for (int32 i = 0; i < MemberSlots.Num(); i++)
 	{
 		FName CharacterID = PartyCharacterIDs.IsValidIndex(i) ? PartyCharacterIDs[i] : NAME_None;
 
-		if(CharacterID.IsNone())
+		UTexture2D* Portrait = nullptr;
+		UTexture2D* Grade = nullptr;
+		UTexture2D* Equip = nullptr;
+
+		if (CharacterID.IsNone())
 		{
-			MemberImages[i]->SetBrushFromTexture(EmptySlotTexture);
+			Portrait = EmptySlotTexture;
+			Grade = nullptr;
 		}
 		else
 		{
-			MemberImages[i]->SetBrushFromTexture(GameDataSubsystem->GetCharacterStaticData(PartyCharacterIDs[i]).PortraitIcon.LoadSynchronous());
+			Portrait = GameDataSubsystem->GetCharacterStaticData(CharacterID).PortraitIcon.LoadSynchronous();
+			Grade = GameDataSubsystem->GetCharacterStaticData(CharacterID).GradeImage.LoadSynchronous();
 		}
-	}
 
-	UCollectionSubsystem* CollectionSubsystem = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
-	for (int32 i = 0; i < EquipImages.Num(); i++)
-	{
 		FGuid Guid = SaveGameSubsystem->GetLeaderEquipmentID(i);
 		if (!Guid.IsValid())
 		{
-			EquipImages[i]->SetBrushFromTexture(EmptySlotTexture);
-			continue;
-		}
-
-		FEquipmentInstance EquipmentInstance = CollectionSubsystem->GetEquipmentInstance(Guid);
-		const FEquipmentStaticData& EquipmentData = GameDataSubsystem->GetEquipmentStaticData(EquipmentInstance.EquipmentID);
-		if (EquipmentData.DataID.IsNone())
-		{
-			EquipImages[i]->SetBrushFromTexture(EmptySlotTexture);
+			Equip = EmptySlotTexture;
 		}
 		else
 		{
-			EquipImages[i]->SetBrushFromTexture(EquipmentData.EquipmentTexture.LoadSynchronous());
+			FEquipmentInstance EquipmentInstance = CollectionSubsystem->GetEquipmentInstance(Guid);
+			const FEquipmentStaticData& EquipmentData = GameDataSubsystem->GetEquipmentStaticData(EquipmentInstance.EquipmentID);
+			if (EquipmentData.DataID.IsNone())
+			{
+				Equip = EmptySlotTexture;
+			}
+			else
+			{
+				Equip = EquipmentData.EquipmentTexture.LoadSynchronous();
+			}
 		}
-	}	
+
+		MemberSlots[i]->SetData(Portrait, Grade, Equip);
+	}
 }

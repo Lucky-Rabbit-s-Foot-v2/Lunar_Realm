@@ -20,7 +20,7 @@ class LUNAR_REALM_API ULRLobbyPageWidget : public ULRPageWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void RefreshUI() override;
+	virtual void OpenUI() override;
 
 	virtual void RegisterSubWidgets() override;
 
@@ -42,4 +42,11 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRPageSelectorWidget> PageSelector;
+
+	UPROPERTY(EditAnywhere, Category = "LR|UI")
+	TSubclassOf<class ULRLobbyFigureInfoWidget> FigureInfoWidgetClass;
+
+private:
+	class ULRLobbyFigureInfoWidget* FigureInfoInstance;
+	FTimerHandle FigureInfoTimer;
 };

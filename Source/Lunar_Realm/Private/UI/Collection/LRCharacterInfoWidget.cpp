@@ -31,10 +31,16 @@ void ULRCharacterInfoWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if(ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
+	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
-		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULRCharacterInfoWidget::SetCharacterIDCall);
-	}
+		PC->OnSelectedChangedDel.AddUniqueDynamic(this, &ULRCharacterInfoWidget::SetIDAndType);
+		SetCharacterID(PC->GetSelectedID());
+	}	
+}
+
+void ULRCharacterInfoWidget::SetIDAndType(FName InID, ECollectionType InType)
+{
+	SetCharacterID(InID);
 }
 
 void ULRCharacterInfoWidget::RefreshUI()
@@ -44,20 +50,20 @@ void ULRCharacterInfoWidget::RefreshUI()
 	FName SkillID = NAME_None;
 	if (USaveGameSubsystem* SaveGameSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
 	{
-		if (CharacterID.IsNone())
+		if (ID.IsNone())
 		{
-			CharacterID = SaveGameSubsystem->GetLeaderCharacterID();
+			ID = SaveGameSubsystem->GetLeaderCharacterID();
 		}
 		
 		if (UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>())
 		{
-			const FCharacterStaticData& CharacterStaticData = GameDataSubsystem->GetCharacterStaticData(CharacterID);
+			const FCharacterStaticData& CharacterStaticData = GameDataSubsystem->GetCharacterStaticData(ID);
 			SkillID = CharacterStaticData.SkillIDs.IsValidIndex(0) ? CharacterStaticData.SkillIDs[0] : NAME_None;
 		}
 	}
 	SkillInfo->SetSkillID(SkillID);
-	CharacterCard->SetCharacterID(CharacterID);
-	CharacterStatus->SetCharacterID(CharacterID);
+	CharacterCard->SetCharacterID(ID);
+	CharacterStatus->SetCharacterID(ID);
 }
 
 void ULRCharacterInfoWidget::BindSubWidgets()
@@ -79,19 +85,10 @@ void ULRCharacterInfoWidget::RegisterSubWidgets()
 	SubWidgets.Add(CharacterStatus);
 }
 
-void ULRCharacterInfoWidget::SetCharacterIDCall(const FSelectedInfo& InInfo)
-{
-	if (InInfo.Type != ECollectionType::CHARACTER)
-	{
-		return;
-	}
-
-	SetCharacterID(InInfo.ID);
-}
 
 void ULRCharacterInfoWidget::SetCharacterID(const FName& InID)
 {
-	CharacterID = InID;
+	ID = InID;
 	RefreshUI();
 }
 
@@ -108,8 +105,7 @@ void ULRCharacterInfoWidget::OnEnhanceButtonClicked()
 		
 		if (ULREnhancePageWidget* EnhanceWidget = Cast<ULREnhancePageWidget>(Widget))
 		{
-			FSelectedInfo SelectedInfo(ECollectionType::CHARACTER, CharacterID);
-			EnhanceWidget->SetIDByType(SelectedInfo);
+			EnhanceWidget->SetIDAndType(ID, ECollectionType::CHARACTER);
 		}
 	}
 }

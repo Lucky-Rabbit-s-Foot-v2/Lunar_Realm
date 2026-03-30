@@ -26,35 +26,19 @@ public:
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Main;
-
+	TObjectPtr<class ULRReadySlot> Main;
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Member1;
-
+	TObjectPtr<class ULRReadySlot> Member1;
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Member2;
-
+	TObjectPtr<class ULRReadySlot> Member2;
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Member3;
-
+	TObjectPtr<class ULRReadySlot> Member3;
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Member4;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Equip1;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Equip2;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UImage> Img_Equip3;
+	TObjectPtr<class ULRReadySlot> Member4;
 
 	UPROPERTY(EditAnywhere, Category = "LR|UI|Empty")
 	TObjectPtr<class UTexture2D> EmptySlotTexture;
 
 	UPROPERTY()
-	TArray<class UImage*> MemberImages;
-
-	UPROPERTY()
-	TArray<class UImage*> EquipImages;
+	TArray<class ULRReadySlot*> MemberSlots;
 };

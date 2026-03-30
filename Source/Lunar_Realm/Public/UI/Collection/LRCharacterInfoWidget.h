@@ -22,12 +22,12 @@ public:
 	virtual void BindSubWidgets() override;
 	virtual void RegisterSubWidgets() override;
 
-	UFUNCTION(BlueprintCallable)
-	void SetCharacterIDCall(const FSelectedInfo& InInfo);
+	UFUNCTION()
+	void SetIDAndType(FName InID, ECollectionType InType);
 
 	void SetCharacterID(const FName& InID);
 
-	FName GetCharacterID() const { return CharacterID; }
+	FName GetCharacterID() const { return ID; }
 
 	UFUNCTION(BlueprintCallable)
 	void OnEnhanceButtonClicked();
@@ -49,5 +49,5 @@ protected:
 	class UTexture2D* DefaultImage;
 
 private:
-	FName CharacterID;
+	FName ID;
 };

@@ -20,8 +20,9 @@
  // (260325) PYI 로비(아웃게임 전체적용) BGM 추가
  //=============================================================================
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSelectedChanged, const FSelectedInfo&, InSelectedInfo);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSlotSelected, bool, InIsSelected);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSelectedChanged, FName, InID, ECollectionType, InType);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnButtonVisible, bool, InIsVisible);
+
 
 UCLASS()
 class LUNAR_REALM_API ALROutGameController : public ALRControllerBase
@@ -34,56 +35,54 @@ public:
 	virtual void OpenFirstWidget() override;
 
 	UFUNCTION(BlueprintCallable)
-	void SetSelectedCharacterID(FName InID);
+	void OnSelectedEntryWidget(class ULREntryWidget* InWidget);
 
 	UFUNCTION(BlueprintCallable)
-	void SetSelectedEquipmentID(FName InID);
+	void OnSelectedSlotWidget(class ULRSlotWidget* InWidget);
 
-	FName GetSelectedCharacterID();
-	FName GetSelectedEquipmentID();
+	UFUNCTION(BlueprintCallable)
+	void OnSelectedSlotToggled(bool bIsSelected);
 
-	const FSelectedInfo& GetSelectedInfo() const { return SelectedInfo; }
-	void SetSelectedInfo(const FSelectedInfo& InInfo) { SelectedInfo = InInfo; }
-	void ResetSelectedInfo() { 
-		SelectedInfo = FSelectedInfo(); 
-		OnSlotSelectedDel.Broadcast(false);
-		OnSelectedChangedDel.Broadcast(SelectedInfo);
-	}
+	void HandleMountAction(int32 InTargetIndex, ECollectionType InType, FName InID);
+	void HandleSwapAction(int32 Slot1, int32 Slot2, ECollectionType InType);
+
+	void OpenEnhancePage();
+	void ReleasePartySlot();
+
+	UFUNCTION()
+	void SetIDAndType(FName InID, ECollectionType InType);
+	void ResetSelectedData();
+	void ResetWidgetEffect(ULRBaseWidget* Widget);
+
+	UFUNCTION()
+	void ResetSelectedWidget();
 
 	UPROPERTY(BlueprintAssignable)
 	FOnSelectedChanged OnSelectedChangedDel;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnSlotSelected OnSlotSelectedDel;
+	FOnButtonVisible OnButtonVisibleDel;
 
-	UFUNCTION()
-	void RequestUpdateSelectedInfo(const FSelectedInfo& InInfo);
-
-	bool IsSlotSelected(const FSelectedInfo& InInfo);
-	bool IsTaskSelected(const FSelectedInfo& InInfo);
-	bool IsCellSelected(const FSelectedInfo& InInfo);
-
-	void HandleMountAction(const FSelectedInfo& Target, const FSelectedInfo& Source);
-	void HandleSwapAction(int32 Slot1, int32 Slot2);
-
-	void OpenEnhancePage();
-
-	UFUNCTION()
-	void OnPartyPageOpened();
-
-	UFUNCTION()
-	void OnPartyPageClosed();
-
-	// 콘솔 명령어로 캐릭터나 장비가 활률대로 나오는지 확인하는 함수
+	// 콘솔 명령어로 캐릭터나 장비가 확률대로 나오는지 확인하는 함수
 	UFUNCTION(Exec)
 	void GachaSim(const FString& BannerIdStr, int32 TotalPulls = 100000, int32 Seed = 12345);
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
 	TSubclassOf<class ULRGachaShopWidget> GachaShopWidgetClass;
 
+	FName GetSelectedID() { return SelectedID; }
+	ECollectionType GetSelectedType() { return SelectedType; }
+	ULRBaseWidget* GetSelectedWidget() { return SelectedWidget.Get(); }
+	int32 GetSelectedSlotIndex() { return SelectedSlotIndex; }
+
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Sound")
 	TObjectPtr<USoundBase> LobbyGachaBGMSound;
 
-	FSelectedInfo SelectedInfo;
+	TWeakObjectPtr<class ULRBaseWidget> SelectedWidget;
+	
+	FName SelectedID = NAME_None;
+	ECollectionType SelectedType = ECollectionType::NONE;
+	int32 SelectedSlotIndex = -1;
 };

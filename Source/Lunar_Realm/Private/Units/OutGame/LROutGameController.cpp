@@ -16,6 +16,15 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "UI/Collection/LREnhancePageWidget.h"
+#include "UI/Collection/LRCharacterCollection.h"
+
+#include "UI/Collection/LRCharacterEntryWidget.h"
+#include "UI/Collection/LREquipEntryWidget.h"
+#include "UI/Collection/LRPartyCharacterSlot.h"
+#include "UI/Collection/LRPartyEquipmentSlot.h"
+
+#include "UI/Core/LREntryWidget.h"
+#include "UI/Core/LRSlotWidget.h"
 
 ALROutGameController::ALROutGameController()
 	: ALRControllerBase()
@@ -36,123 +45,135 @@ void ALROutGameController::OpenFirstWidget()
 	}
 }
 
-void ALROutGameController::SetSelectedCharacterID(FName InID)
+void ALROutGameController::OnSelectedEntryWidget(ULREntryWidget* InWidget)
 {
-	FSelectedInfo NewInfo(ECollectionType::CHARACTER, InID);
-	RequestUpdateSelectedInfo(NewInfo);
-}
+	// 만약 이미지가 뜨지 않길 원한다면 여기서 SelectedID와 SelectedType을 초기화
+	SelectedID = InWidget->GetTileData()->ID;
+	SelectedType = InWidget->GetTileData()->Type;
 
-void ALROutGameController::SetSelectedEquipmentID(FName InID)
-{
-	FSelectedInfo NewInfo(ECollectionType::EQUIPMENT, InID);
-	RequestUpdateSelectedInfo(NewInfo);
-}
-
-FName ALROutGameController::GetSelectedCharacterID()
-{
-	return SelectedInfo.Type == ECollectionType::CHARACTER ? SelectedInfo.ID : NAME_None;
-}
-
-FName ALROutGameController::GetSelectedEquipmentID()
-{
-	return SelectedInfo.Type == ECollectionType::EQUIPMENT ? SelectedInfo.ID : NAME_None;
-}
-
-void ALROutGameController::RequestUpdateSelectedInfo(const FSelectedInfo& InInfo)
-{
-	if (IsSlotSelected(InInfo))
+	if (ULRSlotWidget* CurrentSlotWidget = Cast<ULRSlotWidget>(SelectedWidget.Get()))
 	{
-		if (IsSlotSelected(SelectedInfo))
-		{
-			HandleSwapAction(SelectedInfo.SlotIndex, InInfo.SlotIndex);
-			ResetSelectedInfo();
-		}
-		else if (IsCellSelected(SelectedInfo))
-		{
-			HandleMountAction(InInfo, SelectedInfo);
-			ResetSelectedInfo();
-		}
-		else
-		{
-			SelectedInfo = InInfo;
-			OnSlotSelectedDel.Broadcast(true);
-			OnSelectedChangedDel.Broadcast(SelectedInfo);
-		}
-	}
+		ResetWidgetEffect(SelectedWidget.Get());
+		ResetWidgetEffect(InWidget);
 
-	if (IsCellSelected(InInfo))
-	{
-		OnSlotSelectedDel.Broadcast(false);
+		HandleMountAction(
+			CurrentSlotWidget->GetSlotIndex(), 
+			InWidget->GetTileData()->Type,
+			InWidget->GetTileData()->ID
+		);
 
-		if (IsSlotSelected(SelectedInfo)) 
-		{
-			HandleMountAction(SelectedInfo, InInfo);
-			ResetSelectedInfo();
-		}
-		else
-		{
-			SelectedInfo = InInfo;
-		}
-		OnSelectedChangedDel.Broadcast(SelectedInfo);
-	}
-
-	return;
-}
-
-bool ALROutGameController::IsSlotSelected(const FSelectedInfo& InInfo)
-{
-	return InInfo.SlotIndex >= 0;
-}
-
-bool ALROutGameController::IsTaskSelected(const FSelectedInfo& InInfo)
-{
-	return InInfo.Task != EPartyTaskType::NONE;
-}
-
-bool ALROutGameController::IsCellSelected(const FSelectedInfo& InInfo)
-{
-	return InInfo.ID != NAME_None && InInfo.SlotIndex == -1;
-}
-
-void ALROutGameController::HandleMountAction(const FSelectedInfo& Target, const FSelectedInfo& Source)
-{
-	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
-	
-	for (int32 i = 0; i < 5; ++i)
-	{
-		FName CharacterID = SaveGameSubsystem->GetPartyCharacterID(i);
-		if (CharacterID == Source.ID)
-		{
-			HandleSwapAction(i, Target.SlotIndex);
-			return;
-		}
-	}
-
-	if (Source.Type == ECollectionType::CHARACTER)
-	{
-		SaveGameSubsystem->SetPartySlot(Target.SlotIndex, Source.ID);
+		SelectedWidget = nullptr;
 	}
 	else
 	{
-		UCollectionSubsystem* CollectionSubsystem = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
-		TArray<FEquipmentInstance> EquipmentInstances = CollectionSubsystem->GetEquipmentInstancesByKey(Source.ID);
-		if (EquipmentInstances.Num() > 0)
-		{
-			SaveGameSubsystem->SetLeaderEquipmentSlot(Target.SlotIndex, EquipmentInstances[0].InstanceID);
-		}
-	}
+		ResetWidgetEffect(SelectedWidget.Get());
+		
+		SelectedWidget = InWidget;
+	}	
 
-
-	SaveGameSubsystem->SetPartySlot(Target.SlotIndex, Source.ID);
+	OnSelectedChangedDel.Broadcast(SelectedID, SelectedType);
 }
 
-void ALROutGameController::HandleSwapAction(int32 Slot1, int32 Slot2)
+void ALROutGameController::OnSelectedSlotWidget(ULRSlotWidget* InWidget)
+{
+	// 만약 이미지가 뜨지 않길 원한다면 여기서 SelectedID와 SelectedType을 초기화
+	SelectedID = InWidget->GetID();
+	SelectedType = InWidget->GetType();
+
+	if (ULRSlotWidget* CurrentSlotWidget = Cast<ULRSlotWidget>(SelectedWidget.Get()))
+	{
+		ResetWidgetEffect(SelectedWidget.Get());
+		ResetWidgetEffect(InWidget);
+
+		HandleSwapAction(CurrentSlotWidget->GetSlotIndex(), InWidget->GetSlotIndex(), InWidget->GetType());
+		
+		SelectedWidget = nullptr;
+	}
+	else if (ULREntryWidget* CurrentEntryWidget = Cast<ULREntryWidget>(SelectedWidget.Get()))
+	{
+		ResetWidgetEffect(SelectedWidget.Get());
+		ResetWidgetEffect(InWidget);
+
+		HandleMountAction(
+			InWidget->GetSlotIndex(), 
+			CurrentEntryWidget->GetTileData()->Type,
+			CurrentEntryWidget->GetTileData()->ID
+		);
+
+		SelectedWidget = nullptr;
+	}
+	else
+	{
+		ResetWidgetEffect(SelectedWidget.Get());
+
+		SelectedWidget = InWidget;
+	}
+	
+	OnSelectedChangedDel.Broadcast(SelectedID, SelectedType);
+}
+
+void ALROutGameController::OnSelectedSlotToggled(bool bIsSelected)
+{
+	OnButtonVisibleDel.Broadcast(bIsSelected);
+}
+
+void ALROutGameController::HandleMountAction(int32 InTargetIndex, ECollectionType InType, FName InID)
 {
 	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
-	FName ID1 = SaveGameSubsystem->GetPartyCharacterID(Slot1);
-	FName ID2 = SaveGameSubsystem->GetPartyCharacterID(Slot2);
-	SaveGameSubsystem->SetPartySlot(Slot1, ID2);
-	SaveGameSubsystem->SetPartySlot(Slot2, ID1);
+	
+	if (InType == ECollectionType::CHARACTER)
+	{
+		for (int32 i = 0; i < 5; ++i)
+		{
+			FName CharacterID = SaveGameSubsystem->GetPartyCharacterID(i);
+			if (CharacterID == InID)
+			{
+				HandleSwapAction(i, InTargetIndex, ECollectionType::CHARACTER);
+				return;
+			}
+		}
+		SaveGameSubsystem->SetPartySlot(InTargetIndex, InID);
+	}
+	else if (InType == ECollectionType::EQUIPMENT)
+	{
+		UCollectionSubsystem* CollectionSubsystem = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
+
+		for (int32 i = 0; i < 5; ++i)
+		{
+			FGuid Guid = SaveGameSubsystem->GetLeaderEquipmentID(i);
+			if (InID == CollectionSubsystem->GetEquipmentInstance(Guid).EquipmentID)
+			{
+				HandleSwapAction(i, InTargetIndex, ECollectionType::EQUIPMENT);
+				return;
+			}
+		}
+
+		TArray<FEquipmentInstance> Instances = CollectionSubsystem->GetEquipmentInstancesByKey(InID);
+		if (Instances.Num() > 0)
+		{
+			SaveGameSubsystem->SetLeaderEquipmentSlot(InTargetIndex, Instances[0].InstanceID);
+		}
+	}
+}
+
+void ALROutGameController::HandleSwapAction(int32 Slot1, int32 Slot2, ECollectionType InType)
+{
+	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+
+	if(InType == ECollectionType::CHARACTER)
+	{
+		FName ID1 = SaveGameSubsystem->GetPartyCharacterID(Slot1);
+		FName ID2 = SaveGameSubsystem->GetPartyCharacterID(Slot2);
+		SaveGameSubsystem->SetPartySlot(Slot1, ID2);
+		SaveGameSubsystem->SetPartySlot(Slot2, ID1);
+	}
+	else if(InType == ECollectionType::EQUIPMENT)
+	{
+		FGuid Guid1 = SaveGameSubsystem->GetLeaderEquipmentID(Slot1);
+		FGuid Guid2 = SaveGameSubsystem->GetLeaderEquipmentID(Slot2);
+		SaveGameSubsystem->SetLeaderEquipmentSlot(Slot1, Guid2);
+		SaveGameSubsystem->SetLeaderEquipmentSlot(Slot2, Guid1);
+	}
 }
 
 void ALROutGameController::OpenEnhancePage()
@@ -167,22 +188,58 @@ void ALROutGameController::OpenEnhancePage()
 		}
 		if (ULREnhancePageWidget* EnhanceWidget = Cast<ULREnhancePageWidget>(Widget))
 		{
-			FSelectedInfo NewInfo(SelectedInfo.Type, SelectedInfo.ID);
-			EnhanceWidget->SetIDByType(SelectedInfo);
+			ResetSelectedWidget();
+			EnhanceWidget->SetIDAndType(SelectedID, SelectedType);
 		}
 	}
 }
 
-void ALROutGameController::OnPartyPageOpened()
+void ALROutGameController::ReleasePartySlot()
 {
-	ResetSelectedInfo();
+	if (ULRSlotWidget* SelectedSlot = Cast<ULRSlotWidget>(SelectedWidget.Get()))
+	{
+		USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+
+		SelectedSlot->SetID(NAME_None);
+		SelectedSlot->SetSelected(false);
+		SelectedSlot->RefreshUI();
+	}
 }
 
-void ALROutGameController::OnPartyPageClosed()
+void ALROutGameController::SetIDAndType(FName InID, ECollectionType InType)
 {
-	SelectedInfo = FSelectedInfo(SelectedInfo.Type, SelectedInfo.ID);
-	OnSelectedChangedDel.Broadcast(SelectedInfo);
-	OnSlotSelectedDel.Broadcast(false);
+	SelectedID = InID;
+	SelectedType = InType;
+	OnSelectedChangedDel.Broadcast(SelectedID, SelectedType);
+}
+
+void ALROutGameController::ResetSelectedData()
+{
+	SelectedID = NAME_None;
+	SelectedType = ECollectionType::NONE;
+}
+
+void ALROutGameController::ResetWidgetEffect(ULRBaseWidget* Widget)
+{
+	if (ULREntryWidget* EntryWidget = Cast<ULREntryWidget>(Widget))
+	{
+		EntryWidget->SetSelected(false);
+	}
+
+	if (ULRSlotWidget* SlotWidget = Cast<ULRSlotWidget>(Widget))
+	{
+		SlotWidget->SetSelected(false);
+	}
+}
+
+void ALROutGameController::ResetSelectedWidget()
+{
+	if (SelectedWidget.IsValid())
+	{
+		ResetWidgetEffect(SelectedWidget.Get());
+		SelectedWidget = nullptr;
+	}
+	OnButtonVisibleDel.Broadcast(false);
 }
 
 void ALROutGameController::GachaSim(const FString& BannerIdStr, int32 TotalPulls, int32 Seed)
