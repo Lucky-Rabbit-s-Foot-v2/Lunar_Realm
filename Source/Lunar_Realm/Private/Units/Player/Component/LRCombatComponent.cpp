@@ -676,22 +676,18 @@ void ULRCombatComponent::CreateRangeIndicator()
 	RangeMesh = NewObject<UStaticMeshComponent>(OwnerCharacter, TEXT("RangeMesh"));
 	RangeMesh->RegisterComponent();
 
-	// 발바닥 살짝 아래에 부착 (Z-Fighting 방지)
 	RangeMesh->AttachToComponent(OwnerCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	RangeMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -85.0f));
 
-	// 콜리전 끄기
 	RangeMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	RangeMesh->SetGenerateOverlapEvents(false);
 
-	// 기본 판때기(Plane) 메쉬 로드해서 끼워넣기
 	UStaticMesh* PlaneMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Plane.Plane"));
 	if (PlaneMesh)
 	{
 		RangeMesh->SetStaticMesh(PlaneMesh);
 	}
 
-	// 우리가 만든 머티리얼 씌우기
 	if (RangeMaterial)
 	{
 		UMaterialInstanceDynamic* DynamicMat = UMaterialInstanceDynamic::Create(RangeMaterial, this);
@@ -700,8 +696,6 @@ void ULRCombatComponent::CreateRangeIndicator()
 
 	UpdateRangeMeshSize(AttackRange);
 	RangeMesh->SetVisibility(true);
-	// 평소엔 안 보이게 숨김
-	//RangeMesh->SetVisibility(false);
 }
 
 bool ULRCombatComponent::CheckAndUseAutoHeal(ALRPlayerCharacter* InPlayerChar)

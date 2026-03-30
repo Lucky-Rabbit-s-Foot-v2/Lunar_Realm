@@ -110,14 +110,14 @@ void ALRCore::UpdateCollapseSequence()
 		return;
 	}
 
-	float ShakeIntensity = FMath::Lerp(5.0f, 1.0f, CollapseElapsedTime / 3.0f);
+	float ShakeIntensity = FMath::Lerp(5.0f, 1.0f, CollapseElapsedTime / 5.0f);
 	FVector ShakeOffset(
 		FMath::RandRange(-ShakeIntensity, ShakeIntensity),
 		FMath::RandRange(-ShakeIntensity, ShakeIntensity),
 		FMath::RandRange(-ShakeIntensity, ShakeIntensity)
 	);
 
-	float SinkAmount = FMath::Lerp(0.0f, -300.0f, CollapseElapsedTime / 3.0f);
+	float SinkAmount = FMath::Lerp(0.0f, -500.0f, CollapseElapsedTime / 5.0f);
 	FVector SinkOffset(0.0f, 0.0f, SinkAmount);
 
 	VisualMesh->SetRelativeLocation(InitialMeshLocation + SinkOffset + ShakeOffset);
