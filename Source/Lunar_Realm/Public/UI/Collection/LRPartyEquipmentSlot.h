@@ -21,7 +21,7 @@ public:
 	virtual void NativeConstruct() override;
 
 	UFUNCTION()
-	void RefreshUICaller();
+	void RefreshOnSaveGameChanged();
 
 	virtual void SetSlotIndex(int32 InIndex) override;
 	virtual void SetIDAuto() override;

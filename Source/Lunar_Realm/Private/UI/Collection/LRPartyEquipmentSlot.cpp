@@ -20,7 +20,7 @@ void ULRPartyEquipmentSlot::NativeConstruct()
 	Super::NativeConstruct();
 	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
 	{
-		SaveGameSubsystem->OnSaveGameSavedDel.AddUniqueDynamic(this, &ULRPartyEquipmentSlot::RefreshUICaller);
+		SaveGameSubsystem->OnSaveGameSavedDel.AddUniqueDynamic(this, &ULRPartyEquipmentSlot::RefreshOnSaveGameChanged);
 	}
 }
 
@@ -40,12 +40,15 @@ void ULRPartyEquipmentSlot::SetSlotIndex(int32 InIndex)
 	}
 
 	FEquipmentInstance EquipmentInstances = CollectionSubsystem->GetEquipmentInstance(EquipmentGuid);
-	SetID(EquipmentInstances.EquipmentID);
+	if (ID != EquipmentInstances.EquipmentID)
+	{
+		SetID(EquipmentInstances.EquipmentID);
+	}
 }
 
-void ULRPartyEquipmentSlot::RefreshUICaller()
+void ULRPartyEquipmentSlot::RefreshOnSaveGameChanged()
 {
-	RefreshUI();
+	SetSlotIndex(SlotIndex);
 }
 
 void ULRPartyEquipmentSlot::SetIDAuto()
@@ -62,7 +65,6 @@ void ULRPartyEquipmentSlot::SetID(FName InID)
 	UCollectionSubsystem* CollectionSubsystem = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
 
 	TArray<FEquipmentInstance> EquipmentInstances =	CollectionSubsystem->GetEquipmentInstancesByKey(ID);
-	
 	if (EquipmentInstances.Num() > 0)
 	{
 		SaveGameSubsystem->SetLeaderEquipmentSlot(SlotIndex, EquipmentInstances[0].InstanceID);

@@ -19,7 +19,7 @@ void ULRPartyCharacterSlot::NativeConstruct()
 	Super::NativeConstruct();
 	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
 	{
-		SaveGameSubsystem->OnSaveGameSavedDel.AddUniqueDynamic(this, &ULRPartyCharacterSlot::RefreshUICaller);
+		SaveGameSubsystem->OnSaveGameSavedDel.AddUniqueDynamic(this, &ULRPartyCharacterSlot::RefreshOnSaveGameChanged);
 	}
 }
 
@@ -31,13 +31,17 @@ void ULRPartyCharacterSlot::SetSlotIndex(int32 InIndex)
 
 	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
 	{
-		SetID(SaveGameSubsystem->GetPartyCharacterID(SlotIndex));
+		FName NewID = SaveGameSubsystem->GetPartyCharacterID(SlotIndex);
+		if (ID != NewID)
+		{
+			SetID(NewID);
+		}
 	}
 }
 
-void ULRPartyCharacterSlot::RefreshUICaller()
+void ULRPartyCharacterSlot::RefreshOnSaveGameChanged()
 {
-	RefreshUI();
+	SetSlotIndex(SlotIndex);
 }
 
 void ULRPartyCharacterSlot::SetIDAuto()
