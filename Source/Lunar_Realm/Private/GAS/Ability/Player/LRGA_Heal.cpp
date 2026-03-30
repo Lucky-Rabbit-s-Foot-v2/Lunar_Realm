@@ -22,7 +22,8 @@ ULRGA_Heal::ULRGA_Heal()
 
 	FGameplayTagContainer TempTags;
 	TempTags.AddTag(LRTags::Ability_Skill_Heal);
-	AbilityTags = TempTags;
+	SetAssetTags(TempTags);
+	//AbilityTags = TempTags;
 
 	ActivationBlockedTags.AddTag(LRTags::State_Dead);
 

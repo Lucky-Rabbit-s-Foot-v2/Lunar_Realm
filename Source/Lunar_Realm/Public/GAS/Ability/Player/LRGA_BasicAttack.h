@@ -61,4 +61,8 @@ protected:
 	//UPROPERTY(EditDefaultsOnly, Category = "LR|Basic Attack|Data")
 	//FName BasicAttackSkillEffectID;
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Effect")
+	class UNiagaraSystem* MeleeHitVFX;
+
 };

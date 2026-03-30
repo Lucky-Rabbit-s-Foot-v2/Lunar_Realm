@@ -20,6 +20,7 @@
 #include "Engine/GameInstance.h"
 #include "Animation/AnimMontage.h"
 #include "TimerManager.h"
+#include "NiagaraFunctionLibrary.h"
 
 ULRGA_BasicAttack::ULRGA_BasicAttack()
 {
@@ -192,6 +193,16 @@ void ULRGA_BasicAttack::OnHitEventReceived(FGameplayEventData InPayload)
 			{
 				TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 			}
+		}
+		if (MeleeHitVFX)
+		{
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+				GetWorld(),
+				MeleeHitVFX,
+				TargetActor->GetActorLocation() + 50.0f,
+				TargetActor->GetActorRotation(),
+				FVector(3.0f)
+			);
 		}
 	}
 	// 원거리 공격 (투사체 발사)
