@@ -20,10 +20,8 @@ class LUNAR_REALM_API ULRPartyCharacterSlot : public ULRSlotWidget
 public:	
 	virtual void NativeConstruct() override;
 
-	virtual void RefreshUI() override;
-
 	UFUNCTION()
-	void RefreshUICaller();
+	void RefreshOnSaveGameChanged();
 
 	virtual void SetSlotIndex(int32 InIndex) override;
 	virtual void SetIDAuto() override;

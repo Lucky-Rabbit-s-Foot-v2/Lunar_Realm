@@ -65,6 +65,12 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class ULRButtonWidget> Btn_Close;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UBorder> Border;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<class UWidgetAnimation> Anim_Warning;
+
 private:
 	FName ChapterID;
 	FName StageID;
