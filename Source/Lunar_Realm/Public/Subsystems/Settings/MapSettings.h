@@ -21,7 +21,8 @@ enum class ELevelName : uint8
 	TRANSITION		UMETA(DisplayName = "Transition"),
 	INTRO			UMETA(DisplayName = "Intro"),
 	LOBBY			UMETA(DisplayName = "Lobby"),
-	STAGE			UMETA(DisplayName = "Stage")
+	STAGE			UMETA(DisplayName = "Stage"),
+	GACHA			UMETA(DisplayName = "Gacha"),
 };
 
 UCLASS(Config = Game, defaultconfig, meta = (DisplayName = "Map Settings"))
