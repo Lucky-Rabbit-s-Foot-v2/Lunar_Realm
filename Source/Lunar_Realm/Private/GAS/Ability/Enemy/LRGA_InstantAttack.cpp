@@ -41,7 +41,7 @@ void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 	bDamageApplied = false;
 	ActiveMontage = nullptr;
 
-	const AActor* TargetActor = Cast<const AActor>(CachedTarget);
+	const AActor* TargetActor = CachedTarget.Get();
 	if (!TargetActor)
 	{
 		LR_WARN(TEXT("[InstantAttack] 타겟 없음"));
@@ -59,8 +59,7 @@ void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 	}
 
 	// EventData에서 전달된 몽타주 꺼내기
-	UAnimMontage* MontageToPlay =
-		Cast<UAnimMontage>(const_cast<UObject*>(CachedOptionalObject.Get()));
+	UAnimMontage* MontageToPlay = Cast<UAnimMontage>(const_cast<UObject*>(CachedOptionalObject.Get()));
 	if (!MontageToPlay)
 	{
 		LR_WARN(TEXT("[InstantAttack] 몽타주 없음 — 즉시 데미지 적용"));
@@ -135,7 +134,7 @@ void ULRGA_InstantAttack::OnMontageNotifyBegin(FName NotifyName, const FBranchin
 	}
 	bDamageApplied = true;
 
-	const AActor* TargetActor = Cast<const AActor>(CachedTarget);
+	const AActor* TargetActor = CachedTarget.Get();
 	if (!TargetActor || !CurrentActorInfo)
 	{
 		LR_WARN(TEXT("[InstantAttack] OnNotify: CachedTarget cast 실패 또는 CurrentActorInfo 없음"));

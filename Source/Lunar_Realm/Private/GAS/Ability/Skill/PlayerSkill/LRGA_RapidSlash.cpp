@@ -36,7 +36,7 @@ void ULRGA_RapidSlash::OnAbilityActivated(const FGameplayAbilitySpecHandle InHan
 {
 	LR_INFO(TEXT("[LRGA_RapidSlash] OnAbilityActivated 진입"));
 
-	if (!CachedInstigator || !RapidMontage || !DamageEffectClass)
+	if (!CachedInstigator.IsValid() || !RapidMontage || !DamageEffectClass)
 	{
 		EndAbility(InHandle, InActorInfo, InActivationInfo, true, true);
 		return;

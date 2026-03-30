@@ -31,7 +31,7 @@ ULRGA_HomingFairyArrow::ULRGA_HomingFairyArrow()
 
 void ULRGA_HomingFairyArrow::OnAbilityActivated(const FGameplayAbilitySpecHandle InHandle, const FGameplayAbilityActorInfo* InActorInfo, const FGameplayAbilityActivationInfo InActivationInfo)
 {
-	if (!CachedInstigator || !ProjectileClass || !DamageEffectClass)
+	if (!CachedInstigator.IsValid() || !ProjectileClass || !DamageEffectClass)
 	{
 		EndAbility(InHandle, InActorInfo, InActivationInfo, true, true);
 		return;

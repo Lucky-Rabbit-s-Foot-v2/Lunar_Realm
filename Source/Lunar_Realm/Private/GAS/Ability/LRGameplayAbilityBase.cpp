@@ -34,11 +34,25 @@ void ULRGameplayAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	if (TriggerEventData)
+	// (260329) 파괴된 오브젝트의 InternalIndex(-1)로 인한 어서션 방지
+	// raw pointer → TWeakObjectPtr 대입 전에 IsValidLowLevelFast()로 검증
+	// IsValidLowLevelFast()는 오브젝트의 InternalIndex >= 0 여부를 assert 없이 체크
+	const AActor* RawInstigator = TriggerEventData->Instigator.Get();
+	if (RawInstigator && RawInstigator->IsValidLowLevelFast())
 	{
-		CachedInstigator = Cast<ALRCharacter>(TriggerEventData->Instigator.Get());
-		CachedTarget = TriggerEventData->Target.Get();
-		CachedOptionalObject = TriggerEventData->OptionalObject;
+		CachedInstigator = Cast<ALRCharacter>(RawInstigator);
+	}
+
+	const AActor* RawTarget = TriggerEventData->Target.Get();
+	if (RawTarget && RawTarget->IsValidLowLevelFast())
+	{
+		CachedTarget = RawTarget;
+	}
+
+	const UObject* RawOptional = TriggerEventData->OptionalObject.Get();
+	if (RawOptional && RawOptional->IsValidLowLevelFast())
+	{
+		CachedOptionalObject = RawOptional;
 	}
 	
 	CommitAbilityCooldown(Handle, ActorInfo, ActivationInfo, false);
@@ -83,7 +97,7 @@ void ULRGameplayAbilityBase::ApplyCooldown(const FGameplayAbilitySpecHandle Hand
 void ULRGameplayAbilityBase::SpawnProjectiles(TSubclassOf<ALRProjectile> ProjectileClass,
                                               const FSkillObjectInitData& InitData)
 {
-	if (!CachedInstigator || !ProjectileClass)
+	if (!CachedInstigator.IsValid() || !ProjectileClass)
     {
         LR_WARN(TEXT("[SpawnProjectiles] 유효하지 않은 Instigator 또는 ProjectileClass"));
         return;
@@ -164,7 +178,7 @@ void ULRGameplayAbilityBase::SpawnProjectiles(TSubclassOf<ALRProjectile> Project
 void ULRGameplayAbilityBase::SpawnProjectiles(TSubclassOf<ALRProjectile> ProjectileClass,
 	const FSkillObjectInitData& InitData, FRotator BaseRotation)
 {
-	if (!CachedInstigator || !ProjectileClass)
+	if (!CachedInstigator.IsValid() || !ProjectileClass)
     {
         LR_WARN(TEXT("[SpawnProjectiles] 유효하지 않은 Instigator 또는 ProjectileClass"));
         return;
@@ -263,7 +277,7 @@ UAbilitySystemComponent* ULRGameplayAbilityBase::GetOwnerASC() const
 
 FGameplayTag ULRGameplayAbilityBase::GetHostileTeamTag() const
 {
-	if (!CachedInstigator)
+	if (!CachedInstigator.IsValid())
 	{
 		LR_WARN(TEXT("유효하지 않은 Instigator"));
 		return FGameplayTag::EmptyTag;
@@ -293,7 +307,7 @@ FGameplayTag ULRGameplayAbilityBase::GetHostileTeamTag() const
 
 AActor* ULRGameplayAbilityBase::FindNearestHostile(FGameplayTag HostileTag, float SearchRadius) const
 {
-	if (!CachedInstigator)
+	if (!CachedInstigator.IsValid())
 	{
 		LR_WARN(TEXT("CachedInstigator 없음"));
 		return nullptr;

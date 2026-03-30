@@ -6,6 +6,7 @@
 #include "GAS/Tags/LRGameplayTags.h"
 #include "Projectiles/LRProjectile.h"
 #include "Subsystems/GameDataSubsystem.h"
+#include "Units/LRCharacter.h"  // TWeakObjectPtr->연산자가 완전한 타입 정의를 요구
 
 ULRGA_HomingArrow::ULRGA_HomingArrow()
 {
@@ -25,7 +26,7 @@ void ULRGA_HomingArrow::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
 {
 	LR_INFO(TEXT("[ULRGA_HomingArrow] OnAbilityActivated 진입!"));
 
-	if (!CachedInstigator || !ProjectileClass || !DamageEffectClass)
+	if (!CachedInstigator.IsValid() || !ProjectileClass || !DamageEffectClass)
 	{
 		LR_WARN(TEXT("필수 데이터 누락"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
