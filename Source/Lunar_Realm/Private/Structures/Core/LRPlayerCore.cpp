@@ -10,6 +10,8 @@
 #include "GAS/Attributes/LRCoreAttributeSet.h"
 #include "GAS/Tags/LRGameplayTags.h"
 #include "Units/Player/LRPlayerCharacter.h"
+#include "Units/Player/LRPlayerController.h"
+#include "UI/InGame/LRInGamePersistentWidget.h"
 
 ALRPlayerCore::ALRPlayerCore()
 {
@@ -22,17 +24,14 @@ ALRPlayerCore::ALRPlayerCore()
 
 	SpawnArea->SetCollisionProfileName(TEXT("NoCollision"));
 	SpawnArea->SetHiddenInGame(true);
+
+	MaxCoreHealth = 500.0f;
 }
 
 void ALRPlayerCore::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (AttributeSet)
-	{
-		AttributeSet->InitHealth(500.0f);
-		AttributeSet->InitMaxHealth(500.0f);
-	}
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->AddLooseGameplayTag(LRTags::Team_Player_Structure_Core);
@@ -52,8 +51,20 @@ FVector ALRPlayerCore::GetRandomSpawnLocation() const
 
 void ALRPlayerCore::OnCoreDestroyed()
 {
-	Super::OnCoreDestroyed();
 
+	if (bIsDestroyed) return;
+
+	if (ALRPlayerController* PC = Cast<ALRPlayerController>(UGameplayStatics::GetPlayerController(this, 0)))
+	{
+		PC->CurrentGameSpeed = 1.0f;
+		if (ULRInGamePersistentWidget* MyWidget = PC->GetPlayerWidget())
+		{
+			MyWidget->UpdateSpeedVisual(1.0f);
+		}
+	}
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
+
+	Super::OnCoreDestroyed();
 	// TODO: GameMode에서 플레이어 패배 알림 호출
 	LR_WARN(TEXT("플레이어 코어가 파괴되었습니다! 게임 오버(패배)!"));
 	

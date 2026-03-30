@@ -49,4 +49,16 @@ protected:
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 	class UWidgetAnimation* Fail;
 
+protected:
+	virtual void OnAnimationFinished_Implementation(const UWidgetAnimation* Animation) override;
+
+	UFUNCTION()
+	void ShowExpPanel2();
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	class ULRExpPanelWidget* LeaderExpPanel;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	class ULRExpPanelWidget* MemberExpPanel;
+
 };

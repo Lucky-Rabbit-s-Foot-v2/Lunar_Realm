@@ -9,21 +9,20 @@
 #include "GAS/Attributes/LRCoreAttributeSet.h"
 #include "GAS/Tags/LRGameplayTags.h"
 #include "Units/Player/LRPlayerCharacter.h"
+#include "Units/Player/LRPlayerController.h"
+#include "UI/InGame/LRInGamePersistentWidget.h"
+
 
 ALREnemyCore::ALREnemyCore()
 {
 	OwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Enemy.Structure.Core")));
+
+	MaxCoreHealth = 5000.0f;
 }
 
 void ALREnemyCore::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (AttributeSet)
-	{
-		AttributeSet->InitHealth(5000.0f);
-		AttributeSet->InitMaxHealth(5000.0f);
-	}
 
 	if (AbilitySystemComponent)
 	{
@@ -38,6 +37,19 @@ void ALREnemyCore::BeginPlay()
 
 void ALREnemyCore::OnCoreDestroyed()
 {
+
+	if (bIsDestroyed) return;
+
+	if (ALRPlayerController* PC = Cast<ALRPlayerController>(UGameplayStatics::GetPlayerController(this, 0)))
+	{
+		PC->CurrentGameSpeed = 1.0f;
+		if (ULRInGamePersistentWidget* MyWidget = PC->GetPlayerWidget())
+		{
+			MyWidget->UpdateSpeedVisual(1.0f);
+		}
+	}
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
+
 	Super::OnCoreDestroyed();
 
 	if (ALRPlayerCharacter* PlayerChar = Cast<ALRPlayerCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0)))

@@ -27,6 +27,7 @@
 #include "UI/InGame/LRGameClearPopupWidget.h"
 #include "UI/InGame/LRReadyStartWidget.h"
 #include "Subsystems/PoolingSubsystem.h"
+#include "Subsystems/CollectionSubsystem.h"
 
 #include "Units/Player/LRPlayerStart.h"
 #include "Units/Player/LRPlayerController.h"
@@ -37,6 +38,8 @@ void ALRStageGameMode::OnGameOver()
 	// 주의사항: UI 애니메이션도 멈춤
 	// TODO : 방법 고민 필요. 일단은 일시정지 로직 재활용
 	OnPauseGame();
+
+
 
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	UIManager->OpenUIByID(EUIID::GAMEOVER);
