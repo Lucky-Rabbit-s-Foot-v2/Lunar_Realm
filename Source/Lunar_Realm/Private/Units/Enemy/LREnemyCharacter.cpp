@@ -303,7 +303,7 @@ void ALREnemyCharacter::ApplyVisualData(const FEnemyStaticData& EnemyData)
 		}
 		else
 		{
-			// LR_WARN(TEXT("Failed to load AnimBlueprintClass for [%s]"), *CurrentEnemyID.ToString());
+			LR_WARN(TEXT("Failed to load AnimBlueprintClass for [%s]"), *CurrentEnemyID.ToString());
 		}
 	}
 

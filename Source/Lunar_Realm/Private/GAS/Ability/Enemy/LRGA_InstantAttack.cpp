@@ -60,25 +60,35 @@ void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 
 	// EventData에서 전달된 몽타주 꺼내기
 	UAnimMontage* MontageToPlay = Cast<UAnimMontage>(const_cast<UObject*>(CachedOptionalObject.Get()));
+
 	if (!MontageToPlay)
 	{
-		LR_WARN(TEXT("[InstantAttack] 몽타주 없음 — 즉시 데미지 적용"));
-		UAbilitySystemComponent* SourceASC = ActorInfo->AbilitySystemComponent.Get();
-		if (SourceASC)
-		{
-			FGameplayEffectContextHandle Ctx = SourceASC->MakeEffectContext();
-			Ctx.AddSourceObject(ActorInfo->AvatarActor.Get());
-			Ctx.AddInstigator(ActorInfo->AvatarActor.Get(), ActorInfo->AvatarActor.Get());
-			FGameplayEffectSpecHandle Spec =
-				SourceASC->MakeOutgoingSpec(DamageEffectClass, 1.f, Ctx);
-			if (Spec.IsValid())
-			{
-				SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
-			}
-		}
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		LR_WARN(TEXT("[EnemyAreaAttack] 몽타주 없음"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
+
+	//if (!MontageToPlay)
+	//{
+	//	LR_WARN(TEXT("[InstantAttack] 몽타주 없음 — 즉시 데미지 적용 | Owner: %s | OptionalObject Valid: %d"),
+	//		ActorInfo->AvatarActor.IsValid() ? *ActorInfo->AvatarActor->GetName() : TEXT("NULL"),
+	//		CachedOptionalObject.IsValid());
+	//	UAbilitySystemComponent* SourceASC = ActorInfo->AbilitySystemComponent.Get();
+	//	if (SourceASC)
+	//	{
+	//		FGameplayEffectContextHandle Ctx = SourceASC->MakeEffectContext();
+	//		Ctx.AddSourceObject(ActorInfo->AvatarActor.Get());
+	//		Ctx.AddInstigator(ActorInfo->AvatarActor.Get(), ActorInfo->AvatarActor.Get());
+	//		FGameplayEffectSpecHandle Spec =
+	//			SourceASC->MakeOutgoingSpec(DamageEffectClass, 1.f, Ctx);
+	//		if (Spec.IsValid())
+	//		{
+	//			SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
+	//		}
+	//	}
+	//	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+	//	return;
+	//}
 
 	ALRCharacter* OwnerChar = GetCharacterFromActorInfo(*ActorInfo);
 	UAnimInstance* AnimInstance =
@@ -123,11 +133,24 @@ void ULRGA_InstantAttack::OnMontageNotifyBegin(FName NotifyName, const FBranchin
 
 	// 우리가 재생한 몽타주의 "BasicHit" 노티파이인지 확인
 	FAnimMontageInstance* MontageInstance = AnimInstance->GetMontageInstanceForID(Payload.MontageInstanceID);
-	if (!MontageInstance || MontageInstance->Montage != ActiveMontage || NotifyName != HitNotifyName)
+	if (!MontageInstance)
 	{
-		LR_WARN(TEXT("[%s] : MontageInstance Or ActiveMontage MisMatch Or Not HitNotifyName"), *GetName());
+		LR_WARN(TEXT("[%s] : MontageInstance NULL — AnimInstance 교체됐을 가능성"), *GetName());
 		return;
 	}
+	if (MontageInstance->Montage != ActiveMontage)
+	{
+		LR_WARN(TEXT("[%s] : Montage 불일치 — Active:%s / Notify:%s"),
+			*GetName(), *ActiveMontage->GetName(), *MontageInstance->Montage->GetName());
+		return;
+	}
+	if (NotifyName != HitNotifyName)
+	{
+		LR_WARN(TEXT("[%s] : Notify 이름 불일치 — 수신:%s / 기대:%s"),
+			*GetName(), *NotifyName.ToString(), *HitNotifyName.ToString());
+		return;
+	}
+
 	if (bDamageApplied)
 	{
 		return; // 중복 발동 방지
@@ -176,6 +199,12 @@ void ULRGA_InstantAttack::OnMontageNotifyBegin(FName NotifyName, const FBranchin
 			}
 		}
 	}
+
+	LR_WARN(TEXT("[%s] : Montage 정보 — Active:%s / Notify:%s"),
+		*GetName(), *ActiveMontage->GetName(), *MontageInstance->Montage->GetName());
+
+	LR_WARN(TEXT("[%s] : Notify 이름 확인 — 수신:%s / 기대:%s"),
+		*GetName(), *NotifyName.ToString(), *HitNotifyName.ToString());
 }
 
 void ULRGA_InstantAttack::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
