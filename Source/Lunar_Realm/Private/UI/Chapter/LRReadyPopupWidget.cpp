@@ -12,9 +12,11 @@
 #include "Core/LRGameInstance.h"
 
 #include "Components/Button.h"
+#include "Components/Border.h"
 
 #include "Subsystems/Settings/UIManagerSettings.h"
 #include "Subsystems/UIManagerSubsystem.h"
+#include "Subsystems/SaveGameSubsystem.h"
 
 void ULRReadyPopupWidget::NativeConstruct()
 {
@@ -73,11 +75,13 @@ void ULRReadyPopupWidget::OpenUI()
 {
 	Super::OpenUI();
 
+	Border->SetVisibility(ESlateVisibility::Hidden);
+
 	if (Anim_Falling)
 	{
 		PlayAnimation(Anim_Falling);
 	}
-}
+}	
 
 void ULRReadyPopupWidget::SetStageID(FName InStageID)
 {
@@ -96,6 +100,16 @@ void ULRReadyPopupWidget::OnPartyButtonClicked()
 
 void ULRReadyPopupWidget::OnEntranceButtonClicked()
 {
+	if (USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>())
+	{
+		FName LeaderID = SaveGameSubsystem->GetLeaderCharacterID();
+		if (LeaderID.IsNone())
+		{
+			PlayAnimation(Anim_Warning);
+			return;
+		}
+	}
+
 	if (ULRGameInstance* GI = Cast<ULRGameInstance>(GetWorld()->GetGameInstance()))
 	{
 		GI->OpenNextStage(StageID);
