@@ -16,17 +16,13 @@
 ALREnemyCore::ALREnemyCore()
 {
 	OwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Enemy.Structure.Core")));
+
+	MaxCoreHealth = 5000.0f;
 }
 
 void ALREnemyCore::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (AttributeSet)
-	{
-		AttributeSet->InitHealth(5000.0f);
-		AttributeSet->InitMaxHealth(5000.0f);
-	}
 
 	if (AbilitySystemComponent)
 	{

@@ -69,12 +69,11 @@ void ALRCore::BeginPlay()
 	}
 	if (AbilitySystemComponent && AttributeSet)
 	{
-		AttributeSet->InitHealth(1000.0f);
-		AttributeSet->InitMaxHealth(10000.0f);
+		AttributeSet->InitMaxHealth(MaxCoreHealth);
+		AttributeSet->InitHealth(MaxCoreHealth);
 
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
 			ULRAttributeSet::GetHealthAttribute()).AddUObject(this, &ALRCore::OnHealthChanged);
-
 
 		LR_INFO(TEXT("[%s] GAS 초기화 완료. 현재 체력: %.f"), *GetName(), AttributeSet->GetHealth());
 	}
@@ -103,7 +102,7 @@ void ALRCore::UpdateCollapseSequence()
 
 	CollapseElapsedTime += 0.02f; 
 
-	if (CollapseElapsedTime >= 3.0f)
+	if (CollapseElapsedTime >= 5.0f)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(CollapseUpdateTimerHandle);
 		VisualMesh->SetVisibility(false);

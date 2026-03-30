@@ -24,17 +24,14 @@ ALRPlayerCore::ALRPlayerCore()
 
 	SpawnArea->SetCollisionProfileName(TEXT("NoCollision"));
 	SpawnArea->SetHiddenInGame(true);
+
+	MaxCoreHealth = 500.0f;
 }
 
 void ALRPlayerCore::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (AttributeSet)
-	{
-		AttributeSet->InitHealth(500.0f);
-		AttributeSet->InitMaxHealth(500.0f);
-	}
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->AddLooseGameplayTag(LRTags::Team_Player_Structure_Core);
