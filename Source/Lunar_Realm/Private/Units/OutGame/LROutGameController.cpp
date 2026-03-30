@@ -203,6 +203,8 @@ void ALROutGameController::ReleasePartySlot()
 		SelectedSlot->SetID(NAME_None);
 		SelectedSlot->SetSelected(false);
 		SelectedSlot->RefreshUI();
+	
+		ResetSelectedWidget();
 	}
 }
 

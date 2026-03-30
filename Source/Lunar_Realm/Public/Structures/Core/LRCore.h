@@ -125,4 +125,8 @@ protected:
 
 	void UpdateCollapseSequence();
 
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|CoreStat")
+	float MaxCoreHealth = 1000.0f;
 };

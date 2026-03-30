@@ -69,12 +69,11 @@ void ALRCore::BeginPlay()
 	}
 	if (AbilitySystemComponent && AttributeSet)
 	{
-		AttributeSet->InitHealth(1000.0f);
-		AttributeSet->InitMaxHealth(10000.0f);
+		AttributeSet->InitMaxHealth(MaxCoreHealth);
+		AttributeSet->InitHealth(MaxCoreHealth);
 
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
 			ULRAttributeSet::GetHealthAttribute()).AddUObject(this, &ALRCore::OnHealthChanged);
-
 
 		LR_INFO(TEXT("[%s] GAS 초기화 완료. 현재 체력: %.f"), *GetName(), AttributeSet->GetHealth());
 	}
@@ -103,21 +102,21 @@ void ALRCore::UpdateCollapseSequence()
 
 	CollapseElapsedTime += 0.02f; 
 
-	if (CollapseElapsedTime >= 3.0f)
+	if (CollapseElapsedTime >= 5.0f)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(CollapseUpdateTimerHandle);
 		VisualMesh->SetVisibility(false);
 		return;
 	}
 
-	float ShakeIntensity = FMath::Lerp(5.0f, 1.0f, CollapseElapsedTime / 3.0f);
+	float ShakeIntensity = FMath::Lerp(5.0f, 1.0f, CollapseElapsedTime / 5.0f);
 	FVector ShakeOffset(
 		FMath::RandRange(-ShakeIntensity, ShakeIntensity),
 		FMath::RandRange(-ShakeIntensity, ShakeIntensity),
 		FMath::RandRange(-ShakeIntensity, ShakeIntensity)
 	);
 
-	float SinkAmount = FMath::Lerp(0.0f, -300.0f, CollapseElapsedTime / 3.0f);
+	float SinkAmount = FMath::Lerp(0.0f, -500.0f, CollapseElapsedTime / 5.0f);
 	FVector SinkOffset(0.0f, 0.0f, SinkAmount);
 
 	VisualMesh->SetRelativeLocation(InitialMeshLocation + SinkOffset + ShakeOffset);
