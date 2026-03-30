@@ -23,18 +23,6 @@ void ULRPartyCharacterSlot::NativeConstruct()
 	}
 }
 
-void ULRPartyCharacterSlot::RefreshUI()
-{
-	Super::RefreshUI();
-
-	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
-	FName CharacterID = SaveGameSubsystem->GetPartyCharacterID(SlotIndex);
-	ID = CharacterID;
-
-	SetGradeImage();
-	SetIconImage();
-}
-
 void ULRPartyCharacterSlot::SetSlotIndex(int32 InIndex)
 {
 	Super::SetSlotIndex(InIndex);

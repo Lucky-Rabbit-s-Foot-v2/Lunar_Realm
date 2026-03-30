@@ -20,8 +20,6 @@ class LUNAR_REALM_API ULRPartyEquipmentSlot : public ULRSlotWidget
 public:
 	virtual void NativeConstruct() override;
 
-	virtual void RefreshUI() override;
-
 	UFUNCTION()
 	void RefreshUICaller();
 

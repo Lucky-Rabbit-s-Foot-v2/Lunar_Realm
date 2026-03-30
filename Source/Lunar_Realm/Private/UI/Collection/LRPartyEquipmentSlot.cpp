@@ -24,22 +24,6 @@ void ULRPartyEquipmentSlot::NativeConstruct()
 	}
 }
 
-void ULRPartyEquipmentSlot::RefreshUI()
-{
-	Super::RefreshUI();
-
-	USaveGameSubsystem* SaveGameSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
-	FGuid EquipmentGuid = SaveGameSubsystem->GetLeaderEquipmentID(SlotIndex);
-
-	UCollectionSubsystem* CollectionSubsystem = GetGameInstance()->GetSubsystem<UCollectionSubsystem>();
-	const FEquipmentInstance& Instances = CollectionSubsystem->GetEquipmentInstance(EquipmentGuid);
-	FName EquipmentID = Instances.EquipmentID;
-
-	ID = EquipmentID;
-	SetGradeImage();
-	SetIconImage();
-}
-
 void ULRPartyEquipmentSlot::SetSlotIndex(int32 InIndex)
 {
 	Super::SetSlotIndex(InIndex);
@@ -82,6 +66,10 @@ void ULRPartyEquipmentSlot::SetID(FName InID)
 	if (EquipmentInstances.Num() > 0)
 	{
 		SaveGameSubsystem->SetLeaderEquipmentSlot(SlotIndex, EquipmentInstances[0].InstanceID);
+	}
+	else
+	{
+		SaveGameSubsystem->SetLeaderEquipmentSlot(SlotIndex, FGuid());
 	}
 
 	RefreshUI();

@@ -39,7 +39,7 @@ void ULRSlotWidget::InitializeUI()
 void ULRSlotWidget::RefreshUI()
 {
 	Super::RefreshUI();
-
+	
 	SetGradeImage();
 	SetIconImage();
 }
