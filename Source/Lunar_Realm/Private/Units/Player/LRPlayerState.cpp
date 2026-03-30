@@ -102,9 +102,33 @@ void ALRPlayerState::InitializePlayerData()
 		CharacterLevel = FName("1");
 	}
 
-	//EquippedItems.Add(EEquipmentSlotType::WEAPON, FName(TEXT("EQUIP_MELEE_01")));
-	EquippedItemLevels.Add(EEquipmentSlotType::WEAPON, 1);
-	
+	// 장비 착용
+	if (SaveSys)
+	{
+		UCollectionSubsystem* CollectionSys = GI ? GI->GetSubsystem<UCollectionSubsystem>() : nullptr;
+		TArray<FGuid> LeaderEquipGuids = SaveSys->GetAllLeaderEquipmentIDs();
+
+		for (int32 i = 0; i < LeaderEquipGuids.Num(); ++i)
+		{
+			FGuid EquipGuid = LeaderEquipGuids[i];
+			if (EquipGuid.IsValid() && CollectionSys)
+			{
+				FEquipmentInstance EquipInst = CollectionSys->GetEquipmentInstance(EquipGuid);
+
+				if (EquipInst.EquipmentID != NAME_None)
+				{
+					EEquipmentSlotType SlotType = static_cast<EEquipmentSlotType>(i);
+
+					EquippedItems.Add(SlotType, EquipInst.EquipmentID);
+					EquippedItemLevels.Add(SlotType, EquipInst.CurrentLevel);
+
+					LR_INFO(TEXT("[PlayerState] 리더 장비 로드 완료 - Slot: %d, ID: %s, Lv: %d"),
+						i, *EquipInst.EquipmentID.ToString(), EquipInst.CurrentLevel);
+				}
+			}
+		}
+	}
+
 	// 스텟 계산
 	InitializeAttributes();
 

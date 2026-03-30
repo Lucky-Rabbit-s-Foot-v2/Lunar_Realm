@@ -133,12 +133,6 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 					}
 				}
 
-				// 안전장치: 에디터에서 바로 켜서 세이브 데이터가 비어있을 경우
-				if (RealDeck.IsEmpty())
-				{
-					RealDeck = { FName("Anubis"), FName("Maid"), FName("Merry"), FName("Army") };
-				}
-
 				SummonComponent->LoadDeckData(RealDeck);
 			}
 		}
