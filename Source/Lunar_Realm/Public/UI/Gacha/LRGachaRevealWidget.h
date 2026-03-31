@@ -239,6 +239,9 @@ protected:
 	float RevealSFXDelay = 0.0f;
 
 private:
+	UPROPERTY(Transient)
+	TObjectPtr<USoundBase> PendingDelayedRevealSound = nullptr;
+
 	/** 현재 재생 중인 리빌 사운드 컴포넌트 */
 	UPROPERTY(Transient)
 	TObjectPtr<UAudioComponent> ActiveRevealSFXComponent = nullptr;
@@ -254,6 +257,8 @@ private:
 
 	UTexture2D* GetRarityTextureByRarity(ELRGachaRarity Rarity) const;
 	UTexture2D* GetTransitionMagicTextureByRarity(ELRGachaRarity Rarity) const;
+
+	void PlayDelayedRevealSFX();
 
 	void StartRevealStageBGM();
 	void StopRevealStageBGM();
