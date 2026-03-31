@@ -122,7 +122,7 @@ void ALROutGameController::OnSelectedSlotWidget(ULRSlotWidget* InWidget)
 			HandleSwapAction(
 				CurrentSlotWidget->GetSlotIndex(), 
 				InWidget->GetSlotIndex(), 
-				InWidget->GetType()
+				SelectedType
 			);
 		}
 		else if (ULREntryWidget* CurrentEntryWidget = Cast<ULREntryWidget>(SelectedWidget.Get()))
