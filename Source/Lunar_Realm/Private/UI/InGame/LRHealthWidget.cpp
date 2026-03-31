@@ -9,6 +9,7 @@
 #include "GAS/Attributes/LRPlayerAttributeSet.h"
 #include "GAS/Attributes/LRAttributeSet.h"
 #include "Subsystems/GameDataSubsystem.h"
+#include "Subsystems/CollectionSubsystem.h"
 #include "Engine/GameInstance.h"
 #include "TimerManager.h"
 
@@ -136,6 +137,7 @@ void ULRHealthWidget::UpdatePlayerIcon(FName InCharacterID)
 	if (!GI) return;
 
 	UGameDataSubsystem* DataSubsystem = GI->GetSubsystem<UGameDataSubsystem>();
+	UCollectionSubsystem* CollectionSys = GI->GetSubsystem<UCollectionSubsystem>();
 	if (!DataSubsystem) return;
 
 	const FCharacterStaticData& CharData = DataSubsystem->GetCharacterStaticData(InCharacterID);
@@ -167,6 +169,14 @@ void ULRHealthWidget::UpdatePlayerIcon(FName InCharacterID)
 	else if (Img_PortraitFrame)
 	{
 		Img_PortraitFrame->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	if (CollectionSys && Text_Exp)
+	{
+		FCharacterInstance CharInst = CollectionSys->GetCharacterInstance(InCharacterID);
+		int32 CurrentLevel = CharInst.CurrentLevel;
+
+		FString LevelString = FString::Printf(TEXT("%d"), CurrentLevel);
+		Text_Exp->SetText(FText::FromString(LevelString));
 	}
 }
 

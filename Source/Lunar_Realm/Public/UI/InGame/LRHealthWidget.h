@@ -119,4 +119,7 @@ protected:
 	UPROPERTY(meta = (BindWidgetOptional))
 	class UImage* Img_PortraitFrame;
 
+	UPROPERTY(meta = (BindWidgetOptional))
+	class UTextBlock* Text_Exp;
+
 };
