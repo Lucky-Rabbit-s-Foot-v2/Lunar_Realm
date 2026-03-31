@@ -366,6 +366,11 @@ void ULRCombatComponent::MoveToTarget(float InDeltaTime)
 	FVector TargetLoc = CurrentTarget->GetActorLocation();
 	FVector MyLoc = OwnerCharacter->GetActorLocation();
 
+	if (UPrimitiveComponent* TargetCollision = Cast<UPrimitiveComponent>(CurrentTarget->GetRootComponent()))
+	{
+		TargetCollision->GetClosestPointOnCollision(MyLoc, TargetLoc);
+	}
+
 	TargetLoc.Z = MyLoc.Z;
 
 	FVector Direction = (TargetLoc - MyLoc).GetSafeNormal();
