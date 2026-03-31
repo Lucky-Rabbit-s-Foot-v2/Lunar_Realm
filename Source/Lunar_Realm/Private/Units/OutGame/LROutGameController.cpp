@@ -73,6 +73,13 @@ void ALROutGameController::OnSelectedEntryWidget(ULREntryWidget* InWidget)
 		}
 		else if (ULREntryWidget* CurrentEntryWidget = Cast<ULREntryWidget>(SelectedWidget.Get()))
 		{
+			if (CurrentEntryWidget->GetTileData()->ID == InWidget->GetTileData()->ID)
+			{
+				SetSelectedEntry(nullptr);
+				OnSelectedChangedDel.Broadcast(SelectedID, SelectedType);
+				return;
+			}
+
 			// 기존_엔트리 , 새_엔트리
 			if (SelectedTileData.IsValid())
 			{
