@@ -8,10 +8,14 @@
 
 #include "Subsystems/Settings/UIManagerSettings.h"
 #include "Subsystems/UIManagerSubsystem.h"
+#include "Subsystems/StageManagerSubsystem.h"
+#include "Subsystems/GameDataSubsystem.h"
 
 #include "UI/Core/LRButtonWidget.h"
 #include "UI/InGame/LRStarBoxWidget.h"
 #include "UI/InGame/LRExpPanelWidget.h"
+
+#include "Components/TextBlock.h"
 
 void ULRGameClearPopupWidget::NativeConstruct()
 {
@@ -66,6 +70,29 @@ void ULRGameClearPopupWidget::InitializeUI()
 	if (victory)
 	{
 		PlayAnimation(victory);
+	}
+
+	UGameInstance* GI = GetGameInstance();
+	if (!GI) return;
+
+	UStageManagerSubsystem* StageSys = GI->GetSubsystem<UStageManagerSubsystem>();
+	if (!StageSys) return;
+
+	const FStageRewardData& RewardData = StageSys->GetCurrentStageRewardData();
+
+	if (Txt_RewardGold)
+	{
+		Txt_RewardGold->SetText(FText::AsNumber(RewardData.Gold));
+	}
+
+	if (Txt_RewardNormalTicket)
+	{
+		Txt_RewardNormalTicket->SetText(FText::AsNumber(RewardData.NormalTicket));
+	}
+
+	if (Txt_RewardEnhanceTicket)
+	{
+		Txt_RewardEnhanceTicket->SetText(FText::AsNumber(RewardData.EnhanceTicket));
 	}
 
 }

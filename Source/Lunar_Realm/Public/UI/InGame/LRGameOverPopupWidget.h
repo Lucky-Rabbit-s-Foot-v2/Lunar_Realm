@@ -15,6 +15,10 @@
  // (260226) PJB 제작. 제반 사항 구현
  //============================================================================
 
+
+class UImage;
+class UTextBlock;
+
 UCLASS()
 class LUNAR_REALM_API ULRGameOverPopupWidget : public ULRPopupWidget
 {
