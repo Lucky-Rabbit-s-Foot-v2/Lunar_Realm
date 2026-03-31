@@ -55,6 +55,7 @@ void ALREnemySpawner::BeginPlay()
 	if (ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode()))
 	{
 		StageGM->OnGameStarted.AddDynamic(this, &ALREnemySpawner::OnGameStarted);
+		StageGM->OnGameEnding.AddDynamic(this, &ALREnemySpawner::OnGameEnding);
 	}
 	else
 	{
@@ -66,6 +67,13 @@ void ALREnemySpawner::OnGameStarted()
 {
 	bIsGameStarted = true;
 	TryStartSpawning();
+}
+
+void ALREnemySpawner::OnGameEnding()
+{
+	// TEST
+	LR_INFO(TEXT("EnemySpawner(%s): 코어 파괴 감지 — 스폰 즉시 정지"), *GetName());
+	DeactivateSpawner();
 }
 
 void ALREnemySpawner::TryStartSpawning()
@@ -244,6 +252,10 @@ void ALREnemySpawner::DeactivateSpawner()
 	GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
 
 	// TODO: 이 스포너가 스폰한 잔여 에너미 풀 회수 로직, StageManager 또는 GameMode에서 일괄 처리할 수도 있음
+	if (ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		StageGM->OnGameEnding.RemoveDynamic(this, &ALREnemySpawner::OnGameEnding);
+	}
 }
 
 void ALREnemySpawner::SpawnBoss()

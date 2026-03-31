@@ -17,7 +17,8 @@
 // (260226) PJB 일시정지, 승패판정 UI 연동 추가
 // (260322) KWB 게임 시작 알리는 델리게이트, 스테이지 초기화, 게임 시작 추가
 // (260327) KWB 타이머 기반 시작 로직 삭제, LRReadyStartWidget 기반 시작 로직으로 변경
-//			    LRReadyStartWidget 위젯 애니메이션 재생 중 터치, 키보드, 마우스 입력 방지 
+//			    LRReadyStartWidget 위젯 애니메이션 재생 중 터치, 키보드, 마우스 입력 방지
+// (260331) KWB 코어 파괴 시 스포너 정지 신호를 전달하기 위한 델리게이트(FOnGameEnding), 콜백 함수 추가
 //=============================================================================
 
 class USoundBase;
@@ -25,6 +26,7 @@ class UAudioComponent;
 class ULRReadyStartWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameStarted);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameEnding);
 
 UCLASS()
 class LUNAR_REALM_API ALRStageGameMode : public ALRGameModeBase
@@ -80,6 +82,9 @@ private:
 	int32 CalculateStarMasking();
 	void OpenGameClearPopupWidget(int32 InStarMasking);
 
+	UFUNCTION()
+	void OnAnyCoreDestroyed(AActor* DestroyedCore);
+
 private:
 	bool bIsGamePause = false;
 
@@ -92,6 +97,9 @@ protected:
 public:
 	UPROPERTY(BlueprintAssignable, Category = "GameLogic")
 	FOnGameStarted OnGameStarted;
+
+	UPROPERTY(BlueprintAssignable, Category = "GameLogic")
+	FOnGameEnding OnGameEnding;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Stage")
