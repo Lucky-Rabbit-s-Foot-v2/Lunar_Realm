@@ -13,7 +13,7 @@
 #include "Engine/GameInstance.h"
 #include "Components/VerticalBoxSlot.h"
 
-void ULRExpPanelWidget::SetupExpPanel()
+void ULRExpPanelWidget::SetupExpPanel(bool bInIsClear, int32 InTargetGroup)
 {
 	UGameInstance* GI = GetGameInstance();
 	if (!GI) return;
@@ -32,16 +32,46 @@ void ULRExpPanelWidget::SetupExpPanel()
 		LR_WARN(TEXT("현재 스테이지 데이터를 찾을 수 없습니다!"));
 		return;
 	}
-
 	FName CurrentStageID = StageData->DataID;
 	int32 BaseExp = StageData->RewardExp;
 
 	// 클리어 여부 확인
 	FStageClearedData ClearData = SaveSys->GetStageClearedData(CurrentStageID);
 	bool bAlreadyCleared = (ClearData.StarMasking > 0);
+	
+	float FinalMultiplier = 1.0f;
 
-	// 패널티 및 경험치 분배 로직
-	float FinalMultiplier = bAlreadyCleared ? 0.75f : 1.0f;
+	if (bInIsClear)
+	{
+		// 승리 시
+		FinalMultiplier = bAlreadyCleared ? 0.75f : 1.0f;
+
+		if (NoticeText)
+		{
+			if (bAlreadyCleared)
+			{
+				NoticeText->SetText(FText::FromString(TEXT("완료된 스테이지는\n75 % 경험치만 제공합니다.")));
+				NoticeText->SetVisibility(ESlateVisibility::Visible);
+			}
+			else
+			{
+				NoticeText->SetVisibility(ESlateVisibility::Collapsed);
+			}
+		}
+	}
+	else
+	{
+		// 패배 시 (20% 지급)
+		FinalMultiplier = 0.2f;
+
+		if (NoticeText)
+		{
+			NoticeText->SetText(FText::FromString(TEXT("전투 패배 보상으로\n20 % 경험치를 획득합니다.")));
+			NoticeText->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+
+	// 경험치 분배
 	int32 PlayerExp = FMath::RoundToInt(BaseExp * FinalMultiplier);
 	int32 MemberExp = FMath::RoundToInt(PlayerExp * 0.7f);
 
@@ -75,6 +105,10 @@ void ULRExpPanelWidget::SetupExpPanel()
 	TArray<FName> PartyIDs = SaveSys->GetAllPartyCharactersIDs();
 	for (int32 i = 0; i < PartyIDs.Num(); ++i)
 	{
+
+		if (InTargetGroup == 1 && i != 0) continue;
+		if (InTargetGroup == 2 && i == 0) continue;
+
 		FName CharID = PartyIDs[i];
 		if (CharID == NAME_None) continue;
 
@@ -119,10 +153,7 @@ void ULRExpPanelWidget::SetupExpPanel()
 
 			SubWidgets.Add(SlotWidget);
 		}
-
-		if (bSaveExpToDB)
-		{
-			CollectionSys->AddCharacterExp(CharID, GainedExp);
-		}
+		CollectionSys->AddCharacterExp(CharID, GainedExp);
 	}
 }
+

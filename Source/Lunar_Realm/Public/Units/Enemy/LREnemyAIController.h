@@ -55,6 +55,7 @@ private:
 private:
 	static constexpr float DetectionRadiusOffset = 500.0f;
 
+	UPROPERTY()
 	TArray<TObjectPtr<UAnimMontage>> CachedAttackMontages;
 	TArray<FGameplayTag> CachedSkillTags;
 

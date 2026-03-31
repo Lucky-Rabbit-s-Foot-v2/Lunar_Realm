@@ -6,6 +6,8 @@
 #include "Engine/GameInstance.h"
 #include "Subsystems/GameDataSubsystem.h"
 #include "Subsystems/PoolingSubsystem.h"
+#include "Subsystems/CollectionSubsystem.h"
+#include "Subsystems/SaveGameSubsystem.h"
 #include "AbilitySystemComponent.h"
 #include "GAS/Attributes/LRPlayerAttributeSet.h"
 #include "AIController.h" 
@@ -25,6 +27,7 @@
 #include "Units/Member/LRMemberAIController.h"
 #include "GAS/Ability/LRGameplayAbilityBase.h"
 
+
 #include "Actors/Equipment/LREquipmentBase.h"
 
 ALRMemberCharacter::ALRMemberCharacter()
@@ -36,6 +39,17 @@ ALRMemberCharacter::ALRMemberCharacter()
 	MemberAttributeSet = CreateDefaultSubobject<ULRPlayerAttributeSet>(TEXT("AttributeSet"));
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	// RVO 활성화
+	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+	{
+		MoveComp->bUseRVOAvoidance = true;
+
+		MoveComp->AvoidanceConsiderationRadius = 250.0f;
+
+		MoveComp->AvoidanceWeight = 0.5f;
+	}
+
 }
 
 UAbilitySystemComponent* ALRMemberCharacter::GetAbilitySystemComponent() const
@@ -300,20 +314,20 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 
 	// 맴버 매쉬 스케일 적용
 	GetMesh()->SetRelativeScale3D(CharData.MemberScale);
-	
-	// 무기 장착
-	if (CharData.MemberWeaponID != NAME_None)
-	{
-	    UpdateWeaponMesh(CharData.MemberWeaponID);
-	}
-	else
-	{
-		if (CurrentWeaponActor)
-		{
-			CurrentWeaponActor->SetActorHiddenInGame(true);
-			CurrentWeaponActor->SetActorTickEnabled(false);
-		}
-	}
+	//
+	//// 무기 장착
+	//if (CharData.MemberWeaponID != NAME_None)
+	//{
+	//    UpdateWeaponMesh(CharData.MemberWeaponID);
+	//}
+	//else
+	//{
+	//	if (CurrentWeaponActor)
+	//	{
+	//		CurrentWeaponActor->SetActorHiddenInGame(true);
+	//		CurrentWeaponActor->SetActorTickEnabled(false);
+	//	}
+	//}
 
 	// 히트 몽타주 로드 및 캐싱
 	if (!CharData.HitMontage.IsNull())
@@ -328,8 +342,67 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 	// 스탯 가져와서 적용하기
 	if (DataSys && MemberAttributeSet)
 	{
-		//TODO_BJM : 레벨 시스템이 구현되면 MemberLevel을 캐릭터의 실제 레벨로 바꿔야 함
+		//int32 MemberLevel = 1;
+		//if (GI)
+		//{
+		//	if (UCollectionSubsystem* CollectionSys = GI->GetSubsystem<UCollectionSubsystem>())
+		//	{
+		//		FCharacterInstance CharInst = CollectionSys->GetCharacterInstance(InCharacterID);
+		//		if (CharInst.bIsUnlocked)
+		//		{
+		//			MemberLevel = CharInst.CurrentLevel;
+		//		}
+		//	}
+		//}
+
 		int32 MemberLevel = 1;
+		FName MemberWeaponID = NAME_None;
+		int32 MemberWeaponLevel = 1;
+
+		if (GI)
+		{
+			USaveGameSubsystem* SaveSys = GI->GetSubsystem<USaveGameSubsystem>();
+			UCollectionSubsystem* CollectionSys = GI->GetSubsystem<UCollectionSubsystem>();
+
+			if (SaveSys && CollectionSys)
+			{
+				// 레벨 가져오기
+				FCharacterInstance CharInst = CollectionSys->GetCharacterInstance(InCharacterID);
+				if (CharInst.bIsUnlocked)
+				{
+					MemberLevel = CharInst.CurrentLevel;
+				}
+
+				TArray<FName> PartyList = SaveSys->GetAllPartyCharactersIDs();
+				int32 MyPartyIndex = PartyList.Find(InCharacterID);
+
+				if (MyPartyIndex != INDEX_NONE)
+				{
+					FGuid WeaponGuid = SaveSys->GetLeaderEquipmentID(MyPartyIndex);
+
+					if (WeaponGuid.IsValid())
+					{
+						FEquipmentInstance EquipInst = CollectionSys->GetEquipmentInstance(WeaponGuid);
+						MemberWeaponID = EquipInst.EquipmentID;
+						MemberWeaponLevel = EquipInst.CurrentLevel;
+					}
+				}
+			}
+		}
+
+		if (MemberWeaponID != NAME_None)
+		{
+			UpdateWeaponMesh(MemberWeaponID);
+		}
+		else
+		{
+			if (CurrentWeaponActor)
+			{
+				CurrentWeaponActor->SetActorHiddenInGame(true);
+				CurrentWeaponActor->SetActorTickEnabled(false);
+			}
+		}
+
 
 		float CharHP = DataSys->GetCharacterFinalStat(InCharacterID, ELRStatusType::HP, MemberLevel);
 		float CharAtk = DataSys->GetCharacterFinalStat(InCharacterID, ELRStatusType::ATK, MemberLevel);

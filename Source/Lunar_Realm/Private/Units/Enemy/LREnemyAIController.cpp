@@ -37,11 +37,6 @@ FGameplayTag ALREnemyAIController::TryAttackTargetByPhase(AActor* Target, int32 
 		return FGameplayTag();
 	}
 
-	if (!Target)
-	{
-		return FGameplayTag();
-	}
-
 	APawn* MyPawn = GetPawn();
 	if (!MyPawn)
 	{
@@ -148,15 +143,26 @@ void ALREnemyAIController::InitializeFromEnemyData(FName EnemyID)
 		UAnimMontage* LoadedMontage = nullptr;
 		if (EnemyData.AttackMontages.IsValidIndex(i) && !EnemyData.AttackMontages[i].IsNull())
 		{
+			LR_INFO(TEXT("[%s] AttackMontages[%d] 경로: %s"),
+				*GetName(), i, *EnemyData.AttackMontages[i].ToString());
+
 			LoadedMontage = EnemyData.AttackMontages[i].LoadSynchronous();
+
 			if (!LoadedMontage)
 			{
-				LR_WARN(TEXT("[%s] AttackMontages[%d] 로드 실패"), *GetName(), i);
+				LR_ERROR(TEXT("[%s] AttackMontages[%d] 로드 실패! 경로: %s"),
+					*GetName(), i, *EnemyData.AttackMontages[i].ToString());
+			}
+			else
+			{
+				LR_INFO(TEXT("[%s] AttackMontages[%d] 로드 성공: %s"),
+					*GetName(), i, *LoadedMontage->GetName());
 			}
 		}
 		else
 		{
-			LR_WARN(TEXT("[%s] AttackMontages[%d]가 DT에 없거나 유효하지 않습니다."), *GetName(), i);
+			LR_WARN(TEXT("[%s] AttackMontages[%d] DT에 없거나 경로가 비어있음 (IsValidIndex: %d)"),
+				*GetName(), i, EnemyData.AttackMontages.IsValidIndex(i));
 		}
 
 		CachedAttackMontages.Add(LoadedMontage);

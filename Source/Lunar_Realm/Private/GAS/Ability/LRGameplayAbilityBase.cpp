@@ -33,28 +33,42 @@ void ULRGameplayAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
-	// (260329) 파괴된 오브젝트의 InternalIndex(-1)로 인한 어서션 방지
-	// raw pointer → TWeakObjectPtr 대입 전에 IsValidLowLevelFast()로 검증
-	// IsValidLowLevelFast()는 오브젝트의 InternalIndex >= 0 여부를 assert 없이 체크
-	const AActor* RawInstigator = TriggerEventData->Instigator.Get();
-	if (RawInstigator && RawInstigator->IsValidLowLevelFast())
+
+	// (260330) InstancedPerActor GA는 인스턴스가 재사용되므로,
+	// 이전 호출의 stale 캐시를 먼저 비운 뒤 새 값을 대입
+	CachedInstigator.Reset();
+	CachedTarget.Reset();
+	CachedOptionalObject.Reset();
+
+	if (TriggerEventData)
 	{
-		CachedInstigator = Cast<ALRCharacter>(RawInstigator);
+		const AActor* RawInstigator = TriggerEventData->Instigator.Get();
+		if (RawInstigator && IsValid(RawInstigator))
+		{
+			CachedInstigator = Cast<ALRCharacter>(RawInstigator);
+		}
+
+		const AActor* RawTarget = TriggerEventData->Target.Get();
+		if (RawTarget && IsValid(RawTarget))
+		{
+			CachedTarget = RawTarget;
+		}
+
+		// OptionalObject 대입에 가드 추가 (크래시 방지)
+		const UObject* RawOptional = TriggerEventData->OptionalObject.Get();
+		if (RawOptional && RawOptional->IsValidLowLevelFast())
+		{
+			CachedOptionalObject = RawOptional;
+		}
 	}
 
-	const AActor* RawTarget = TriggerEventData->Target.Get();
-	if (RawTarget && RawTarget->IsValidLowLevelFast())
-	{
-		CachedTarget = RawTarget;
-	}
+	LR_INFO(TEXT("[ActivateAbility] %s | Owner: %s | Target: %s | OptionalObject(몽타주): %s"),
+		*GetClass()->GetName(),
+		CachedInstigator.IsValid() ? *CachedInstigator->GetName() : TEXT("NULL"),
+		CachedTarget.IsValid() ? *CachedTarget->GetName() : TEXT("NULL"),
+		CachedOptionalObject.IsValid() ? *CachedOptionalObject->GetName() : TEXT("NULL"));
 
-	const UObject* RawOptional = TriggerEventData->OptionalObject.Get();
-	if (RawOptional && RawOptional->IsValidLowLevelFast())
-	{
-		CachedOptionalObject = RawOptional;
-	}
-	
+
 	CommitAbilityCooldown(Handle, ActorInfo, ActivationInfo, false);
 	OnAbilityActivated(Handle, ActorInfo, ActivationInfo);
 }

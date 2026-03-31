@@ -22,7 +22,7 @@ class LUNAR_REALM_API ULRExpPanelWidget : public ULRBaseWidget
 	
 public:
 	UFUNCTION(BlueprintCallable, Category = "LR|UI")
-	void SetupExpPanel();
+	void SetupExpPanel(bool bInIsClear = true, int32 InTargetGroup = 0);
 
 protected:
 
@@ -40,7 +40,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|UI")
 	bool bSaveExpToDB = false;
-
 
 
 };

@@ -93,7 +93,6 @@ public:
 	UFUNCTION()
 	void ToggleGameSpeed();
 
-protected:
 	float CurrentGameSpeed = 1.0f;
 
 };

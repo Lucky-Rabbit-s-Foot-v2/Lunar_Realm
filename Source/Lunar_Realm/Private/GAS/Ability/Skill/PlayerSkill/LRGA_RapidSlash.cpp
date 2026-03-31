@@ -119,6 +119,7 @@ void ULRGA_RapidSlash::PerformStrikeLogic()
 
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn));
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldDynamic));
 
 	TArray<AActor*> IgnoreActors;
 	IgnoreActors.Add(OwnerChar);
@@ -191,3 +192,5 @@ void ULRGA_RapidSlash::OnStrikeMontageFinished()
 	CurrentStrikeCount++;
 	StartNextStrike();
 }
+
+

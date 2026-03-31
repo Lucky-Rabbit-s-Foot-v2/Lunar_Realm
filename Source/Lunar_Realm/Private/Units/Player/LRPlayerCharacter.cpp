@@ -133,12 +133,6 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 					}
 				}
 
-				// 안전장치: 에디터에서 바로 켜서 세이브 데이터가 비어있을 경우
-				if (RealDeck.IsEmpty())
-				{
-					RealDeck = { FName("Anubis"), FName("Maid"), FName("Merry"), FName("Army") };
-				}
-
 				SummonComponent->LoadDeckData(RealDeck);
 			}
 		}
@@ -261,64 +255,6 @@ void ALRPlayerCharacter::UsePotion()
 		}
 	}
 
-
-
-
-	//FGameplayTag HealSkillTag = FGameplayTag::RequestGameplayTag(FName("Ability.Skill.Heal"));
-
-	//bool bSuccess = ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(HealSkillTag));
-
-	//if (bSuccess)
-	//{
-	//	// 회복 사운드 재생
-	//	ALRPlayerState* PS = GetPlayerState<ALRPlayerState>();
-	//	UGameDataSubsystem* DataSys = GetWorld()->GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
-
-	//	if (PS && DataSys)
-	//	{
-	//		const FCharacterStaticData& CharData = DataSys->GetCharacterStaticData(PS->GetCharacterID());
-	//		FName CharName = FName(*CharData.CharacterName);
-	//		const FCharacterSoundData& SoundData = DataSys->GetCharacterSoundData(CharName);
-
-	//		if (USoundBase* HealVoice = SoundData.HealVoice.LoadSynchronous())
-	//		{
-	//			UGameplayStatics::PlaySoundAtLocation(this, HealVoice, GetActorLocation());
-	//		}
-	//	}
-
-	//	if (ALRPlayerController* PC = Cast<ALRPlayerController>(GetController()))
-	//	{
-	//		if (ULRInGamePersistentWidget* MainWidget = PC->GetPlayerWidget())
-	//		{
-	//			if (MainWidget->WBP_SkillPanel)
-	//			{
-	//				FGameplayTag CooldownTag = FGameplayTag::RequestGameplayTag(FName("Cooldown.Skill.Heal"));
-	//				FGameplayEffectQuery Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(FGameplayTagContainer(CooldownTag));
-
-	//				TArray<float> Durations = ASC->GetActiveEffectsTimeRemaining(Query);
-
-	//				if (Durations.Num() > 0)
-	//				{
-	//					MainWidget->WBP_SkillPanel->StartPotionCooldown(Durations[0]);
-	//				}
-	//			}
-	//		}
-	//	}
-
-
-
-
-		//if (ALRPlayerController* PC = Cast<ALRPlayerController>(GetController()))
-		//{
-		//	if (ULRInGamePersistentWidget* MainWidget = PC->GetPlayerWidget())
-		//	{
-		//		if (MainWidget->WBP_SkillPanel)
-		//		{
-		//			MainWidget->WBP_SkillPanel->StartPotionCooldown(5.0f);
-		//		}
-		//	}
-		//}
-	
 }
 
 void ALRPlayerCharacter::Move(const FInputActionValue& Value)
