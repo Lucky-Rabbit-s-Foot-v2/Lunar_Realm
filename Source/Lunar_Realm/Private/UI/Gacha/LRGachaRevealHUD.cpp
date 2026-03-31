@@ -5,8 +5,11 @@
 
 #include "Subsystems/Gacha/LRGachaSubsystem.h"
 #include "Subsystems/UIManagerSubsystem.h"
+#include "Subsystems/Settings/MapSettings.h"
 
 #include "Engine/GameInstance.h"
+
+#include "Core/LRGameInstance.h"
 
 #include "Kismet/GameplayStatics.h"
 
@@ -23,7 +26,13 @@ void ALRGachaRevealHUD::BeginPlay()
 	if (!GI)
 	{
 		LR_LOG(Warning, TEXT("GameInstance is null. Opening Lobby level."));
-		UGameplayStatics::OpenLevel(this, FName(TEXT("Map_Lobby")));
+		
+		ULRGameInstance* LRGI = Cast<ULRGameInstance>(GetGameInstance());
+		if (LRGI)
+		{
+			LRGI->OpenNextLevelImmediately(ELevelName::LOBBY);
+		}
+		//UGameplayStatics::OpenLevel(this, FName(TEXT("Map_Lobby")));
 		return;
 	}
 
@@ -41,7 +50,13 @@ void ALRGachaRevealHUD::BeginPlay()
 		);
 
 		// 잘못된 상태면 로비로 복귀
-		UGameplayStatics::OpenLevel(this, FName(TEXT("Map_Lobby")));
+		ULRGameInstance* LRGI = Cast<ULRGameInstance>(GetGameInstance());
+		if (LRGI)
+		{
+			LRGI->OpenNextLevelImmediately(ELevelName::LOBBY);
+		}
+		
+		//UGameplayStatics::OpenLevel(this, FName(TEXT("Map_Lobby")));
 		return;
 	}
 
@@ -68,7 +83,13 @@ void ALRGachaRevealHUD::BeginPlay()
 			*GetName()
 		);
 
-		UGameplayStatics::OpenLevel(this, FName(TEXT("Map_Lobby")));
+		ULRGameInstance* LRGI = Cast<ULRGameInstance>(GetGameInstance());
+		if (LRGI)
+		{
+			LRGI->OpenNextLevelImmediately(ELevelName::LOBBY);
+		}
+
+		//UGameplayStatics::OpenLevel(this, FName(TEXT("Map_Lobby")));
 		return;
 	}
 
@@ -77,7 +98,13 @@ void ALRGachaRevealHUD::BeginPlay()
 	if (!RevealWidget)
 	{
 		LR_LOG(Error, TEXT("Failed to open RevealWidget from UIManagerSubsystem."));
-		UGameplayStatics::OpenLevel(this, FName(TEXT("Map_Lobby")));
+		
+		ULRGameInstance* LRGI = Cast<ULRGameInstance>(GetGameInstance());
+		if (LRGI)
+		{
+			LRGI->OpenNextLevelImmediately(ELevelName::LOBBY);
+		}
+		//UGameplayStatics::OpenLevel(this, FName(TEXT("Map_Lobby")));
 		return;
 	}
 
