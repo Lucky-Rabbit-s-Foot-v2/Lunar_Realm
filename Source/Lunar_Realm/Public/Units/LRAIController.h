@@ -119,4 +119,8 @@ protected:
 	FGameplayTag TargetCoreTag;
 
 	float LastAttackTime = 0.0f;
+
+public:
+	UFUNCTION()
+	void HandleCoreDestroyed(AActor* InDestroyedCore);
 };
