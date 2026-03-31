@@ -129,6 +129,19 @@ void ALRStageGameMode::OpenGameClearPopupWidget(int32 InStarMasking)
 	}
 }
 
+void ALRStageGameMode::OnAnyCoreDestroyed(AActor* DestroyedCore)
+{
+	// TEST
+	LR_INFO(TEXT("[GameMode] 코어 파괴 감지: %s — OnGameEnding Broadcast"), DestroyedCore ? *DestroyedCore->GetName() : TEXT("Unknown"));
+
+	for (TActorIterator<ALRCore> It(GetWorld()); It; ++It)
+	{
+		It->OnCoreDestroyedEvent.RemoveDynamic(this, &ALRStageGameMode::OnAnyCoreDestroyed);
+	}
+
+	OnGameEnding.Broadcast();
+}
+
 
 void ALRStageGameMode::OnRestartGame()
 {
@@ -232,6 +245,11 @@ void ALRStageGameMode::OnInitializeStage()
 	PlayBGM();
 
 	PlayerDeathCount = 0;
+
+	for (TActorIterator<ALRCore> It(GetWorld()); It; ++It)
+	{
+		It->OnCoreDestroyedEvent.AddDynamic(this, &ALRStageGameMode::OnAnyCoreDestroyed);
+	}
 
 	// Ready/Start UI 열기
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
