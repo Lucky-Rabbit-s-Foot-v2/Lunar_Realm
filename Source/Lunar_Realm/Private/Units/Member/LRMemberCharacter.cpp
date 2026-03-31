@@ -277,6 +277,18 @@ void ALRMemberCharacter::InitCharacterData(FName InCharacterID)
 		// ALRAIController로 캐스팅해서 BT 실행
 		if (ALRMemberAIController* AIC = Cast<ALRMemberAIController>(GetController()))
 		{
+
+			if (CharData.AttackType == ELRAttackType::RANGED)
+			{
+				AIC->DetectionRadius = 1000.0f; // 원거리 딜러의 시야
+				AIC->AttackRange = 500.0f;
+			}
+			else
+			{
+				AIC->DetectionRadius = 500.0f;  // 근거리 딜러의 시야
+				AIC->AttackRange = 200.0f;
+			}
+
 			AIC->InitializeBehaviorTree(CharData.BehaviorTree);
 
 			AIC->RestartAI(); 
