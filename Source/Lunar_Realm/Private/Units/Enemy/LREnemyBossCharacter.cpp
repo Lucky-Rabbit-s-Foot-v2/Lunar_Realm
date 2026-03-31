@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Core/Stage/LRStageGameMode.h"
+#include "Data/LRDataStructs.h"
 #include "GAS/Attributes/LREnemyAttributeSet.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -104,6 +105,17 @@ void ALREnemyBossCharacter::FinishDeathSequence()
 	else
 	{
 		LR_ERROR(TEXT("[Boss] StageGameMode를 찾을 수 없음 - GameClear 호출 실패"));
+	}
+}
+
+void ALREnemyBossCharacter::ApplyVisualData(const FEnemyStaticData& EnemyData)
+{
+	Super::ApplyVisualData(EnemyData);
+
+	// 보스 전용: DT 기반 캡슐 사이즈 적용
+	if (EnemyData.CapsuleRadius > KINDA_SMALL_NUMBER && EnemyData.CapsuleHalfHeight > KINDA_SMALL_NUMBER)
+	{
+		GetCapsuleComponent()->SetCapsuleSize(EnemyData.CapsuleRadius, EnemyData.CapsuleHalfHeight);
 	}
 }
 

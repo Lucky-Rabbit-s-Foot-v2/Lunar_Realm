@@ -44,6 +44,8 @@ protected:
 
 	virtual void FinishDeathSequence() override;
 
+	virtual void ApplyVisualData(const struct FEnemyStaticData& EnemyData) override;
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = "LR|Boss|Detection")
 	TObjectPtr<USphereComponent> CoreAttackOverlap;
@@ -68,7 +70,7 @@ private:
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LR|Boss|Phase")
-	TArray<float> PhaseThresholds = { 0.50f, 0.20f };
+	TArray<float> PhaseThresholds = { 0.50f, 0.25f };
 
 private:
 	int32 CurrentPhase = 0;
