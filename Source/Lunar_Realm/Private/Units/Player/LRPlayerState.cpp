@@ -223,9 +223,14 @@ void ALRPlayerState::InitializeAttributes()
 	// 참조로 값 받아옴
 	DataSubsystem->GetSetEffectStatBonus(ItemIDs, SetHP_Mul, SetAtk_Mul, SetDef_Mul);
 
-	float FinalHP = (CharHP + EquipHP) * SetHP_Mul;
-	float FinalAtk = (CharAtk + EquipAtk) * SetAtk_Mul;
-	float FinalDef = (CharDef + EquipDef) * SetDef_Mul;
+	// 레벨업 효율계수
+	float LevelBalanceRate = 0.7f;
+	// 장비 효율계수
+	float EquipBalanceRate = 0.4f;
+
+	float FinalHP = ((CharHP * LevelBalanceRate) + (EquipHP * EquipBalanceRate)) * SetHP_Mul;
+	float FinalAtk = ((CharAtk * LevelBalanceRate) + (EquipAtk * EquipBalanceRate)) * SetAtk_Mul;
+	float FinalDef = ((CharDef * LevelBalanceRate) + (EquipDef * EquipBalanceRate)) * SetDef_Mul;
 
 	AttributeSet->InitMaxHealth(FinalHP);
 	AttributeSet->InitHealth(FinalHP);
