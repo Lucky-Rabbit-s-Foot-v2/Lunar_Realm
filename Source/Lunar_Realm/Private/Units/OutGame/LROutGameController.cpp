@@ -54,9 +54,6 @@ void ALROutGameController::OpenFirstWidget()
 
 void ALROutGameController::OnSelectedEntryWidget(ULREntryWidget* InWidget)
 {
-	// 만약 이미지가 뜨지 않길 원한다면 여기서 SelectedID와 SelectedType을 초기화
-	SelectedID = InWidget->GetTileData()->ID;
-	SelectedType = InWidget->GetTileData()->Type;
 
 	if (ULRSlotWidget* CurrentSlotWidget = Cast<ULRSlotWidget>(SelectedWidget.Get()))
 	{
@@ -78,15 +75,15 @@ void ALROutGameController::OnSelectedEntryWidget(ULREntryWidget* InWidget)
 		SelectedWidget = InWidget;
 	}	
 
+	// 만약 이미지가 뜨지 않길 원한다면 여기서 SelectedID와 SelectedType을 초기화
+	SelectedID = InWidget->GetTileData()->ID;
+	SelectedType = InWidget->GetTileData()->Type;
+
 	OnSelectedChangedDel.Broadcast(SelectedID, SelectedType);
 }
 
 void ALROutGameController::OnSelectedSlotWidget(ULRSlotWidget* InWidget)
 {
-	// 만약 이미지가 뜨지 않길 원한다면 여기서 SelectedID와 SelectedType을 초기화
-	SelectedID = InWidget->GetID();
-	SelectedType = InWidget->GetType();
-
 	if (ULRSlotWidget* CurrentSlotWidget = Cast<ULRSlotWidget>(SelectedWidget.Get()))
 	{
 		ResetWidgetEffect(SelectedWidget.Get());
@@ -103,8 +100,8 @@ void ALROutGameController::OnSelectedSlotWidget(ULRSlotWidget* InWidget)
 
 		HandleMountAction(
 			InWidget->GetSlotIndex(), 
-			CurrentEntryWidget->GetTileData()->Type,
-			CurrentEntryWidget->GetTileData()->ID
+			SelectedType,
+			SelectedID
 		);
 
 		SelectedWidget = nullptr;
@@ -116,6 +113,10 @@ void ALROutGameController::OnSelectedSlotWidget(ULRSlotWidget* InWidget)
 		SelectedWidget = InWidget;
 	}
 	
+	// 만약 이미지가 뜨지 않길 원한다면 여기서 SelectedID와 SelectedType을 초기화
+	SelectedID = InWidget->GetID();
+	SelectedType = InWidget->GetType();
+
 	OnSelectedChangedDel.Broadcast(SelectedID, SelectedType);
 }
 

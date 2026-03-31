@@ -21,8 +21,6 @@ void ULREntryWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	SetSelected(false);
-
 	if (ALROutGameController* PC = Cast<ALROutGameController>(GetOwningPlayer()))
 	{
 		OnTileClickedDel.AddUniqueDynamic(PC, &ALROutGameController::OnSelectedEntryWidget);
@@ -45,36 +43,41 @@ void ULREntryWidget::UnbindProperties()
 
 void ULREntryWidget::RefreshData()
 {
-	if (TileData && Img_Icon)
+	if (!TileData)
 	{
-		Img_Icon->SetBrushFromTexture(TileData->Icon);
-
-		if (TileData->bIsLocked)
-		{
-			Img_Locked->SetVisibility(ESlateVisibility::Visible);
-			Img_Black->SetVisibility(ESlateVisibility::Visible);
-		}
-		else
-		{
-			Img_Locked->SetVisibility(ESlateVisibility::Hidden);
-			Img_Black->SetVisibility(ESlateVisibility::Hidden);
-		}
+		return;
 	}
 
-	Btn_Selected->SetIsEnabled(!TileData->bIsLocked);
+	if (Img_Icon)
+	{
+		Img_Icon->SetBrushFromTexture(TileData->Icon);
+	}
+	
+	if (Img_Locked && Img_Black)
+	{
+		ESlateVisibility LockedVisibility = TileData->bIsLocked ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
+		Img_Locked->SetVisibility(LockedVisibility);
+		Img_Black->SetVisibility(LockedVisibility);
+		Btn_Selected->SetIsEnabled(!TileData->bIsLocked);
+	}
+
+	if (Img_Selected)
+	{
+		Img_Selected->SetVisibility(TileData->bIsSelected ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+	}
 }
 
 void ULREntryWidget::SetSelected(bool bSelected)
 {
-	bIsSelected = bSelected;
+	if (TileData)
+	{
+		if (TileData->bIsSelected == bSelected)
+		{
+			return;
+		}
 
-	if (bIsSelected)
-	{
-		Img_Selected->SetVisibility(ESlateVisibility::Visible);
-	}
-	else
-	{
-		Img_Selected->SetVisibility(ESlateVisibility::Hidden);
+		TileData->bIsSelected = bSelected;
+		RefreshData();
 	}
 }
 
