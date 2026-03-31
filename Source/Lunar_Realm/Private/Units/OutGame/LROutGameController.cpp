@@ -11,6 +11,8 @@
 #include "Subsystems/GameDataSubsystem.h"
 #include "Subsystems/CollectionSubsystem.h"
 
+#include "Core/LRGameInstance.h"
+
 #include "Subsystems/UIManagerSubsystem.h"
 
 #include "Kismet/GameplayStatics.h"
@@ -36,8 +38,13 @@ void ALROutGameController::OpenFirstWidget()
 	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
 	UIManager->OpenUIByID(EUIID::OUTGAME);
 	UIManager->ClearUIHistory();
-
-	UIManager->OpenUIByID(EUIID::LOBBY);
+	
+	if (ULRGameInstance* GI = GetGameInstance<ULRGameInstance>())
+	{
+		EUIID NextUIID = GI->GetNextUIID();
+		UIManager->OpenUIByID(NextUIID);
+		GI->SetNextUIID(EUIID::LOBBY);
+	}
 
 	if (LobbyGachaBGMSound)
 	{

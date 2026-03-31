@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "Subsystems/Settings/MapSettings.h"
+#include "Subsystems/Settings/UIManagerSettings.h"
 #include "LRGameInstance.generated.h"
 
 // =============================================================================
@@ -46,12 +47,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Level Streaming")
 	void SetNextStageID(FName StageID) { NextStageID = StageID; }
 
+	UFUNCTION()
+	void SetNextUIID(EUIID InUIID) { NextUIID = InUIID; };
+
+	UFUNCTION()
+	EUIID GetNextUIID() { return NextUIID; };
+
 private:
 	void OpenNextLevelLatent();
 
 protected:
 	FName NextLevelName = NAME_None;
 	FName NextStageID = NAME_None;
+	EUIID NextUIID = EUIID::LOBBY;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "LR|UI")
 	TSubclassOf<class ULRLoadingPageWidget> LoadingWidgetClass;
