@@ -78,31 +78,6 @@ void ULRGA_BasicAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Hand
 		return;
 	}
 
-	// 디버그 로그
-	//LR_WARN(TEXT("======================================"));
-	//LR_WARN(TEXT("[디버그] 1. 현재 실행 중인 스킬 클래스: %s"), *GetClass()->GetName());
-
-	//if (GetCooldownGameplayEffect())
-	//{
-	//	LR_WARN(TEXT("[디버그] 2. 쿨타임 GE: 정상적으로 들어있음"));
-	//}
-	//else
-	//{
-	//	LR_ERROR(TEXT("[디버그] 2. 쿨타임 GE: 텅 비어있음"));
-	//}
-
-	//LR_WARN(TEXT("[디버그] 3. Commit 전 쿨타임 태그 보유 여부: %d"), ASC->HasMatchingGameplayTag(CooldownTag));
-
-	//if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
-	//{
-	//	LR_ERROR(TEXT("[GA_Attack] 평타 GA 실행 실패 (CommitAbility 실패)"));
-	//	EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-	//	return;
-	//}
-
-	//LR_WARN(TEXT("[디버그] 4. Commit 후 쿨타임 태그 보유 여부: %d"), ASC->HasMatchingGameplayTag(CooldownTag));
-	//LR_WARN(TEXT("======================================"));
-
 	// 공격자 정보
 	ALRCharacter* OwnerChar = GetCharacterFromActorInfo(*ActorInfo);
 	if (!OwnerChar)
