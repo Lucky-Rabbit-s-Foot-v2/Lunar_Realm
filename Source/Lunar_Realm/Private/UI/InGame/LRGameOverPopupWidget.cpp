@@ -87,6 +87,6 @@ void ULRGameOverPopupWidget::ShowExpPanel2()
 	if (MemberExpPanel)
 	{
 		MemberExpPanel->SetVisibility(ESlateVisibility::Visible);
-		MemberExpPanel->SetupExpPanel(false, 1);
+		MemberExpPanel->SetupExpPanel(false, 2);
 	}
 }

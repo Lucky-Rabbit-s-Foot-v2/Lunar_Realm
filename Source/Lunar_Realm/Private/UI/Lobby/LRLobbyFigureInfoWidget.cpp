@@ -34,10 +34,10 @@ void ULRLobbyFigureInfoWidget::RefreshUI()
 	UGameDataSubsystem* GameDataSubsystem = GetGameInstance()->GetSubsystem<UGameDataSubsystem>();
 	const FEquipmentStaticData& StaticData = GameDataSubsystem->GetEquipmentStaticData(EquipmentID);
 	
-	UTexture2D* EquipmentIcon = StaticData.EquipmentTexture.LoadSynchronous();
+	UTexture2D* EquipmentIcon = StaticData.EquipmentTexture.LoadSynchronous();	
 	if (EquipmentIcon)
 	{
-		SetVisibility(ESlateVisibility::Visible);
+		Img_Equipment->SetVisibility(ESlateVisibility::Visible);
 		Img_Equipment->SetBrushFromTexture(EquipmentIcon);
 		Txt_Name->SetText(FText::FromString(StaticData.EquipmentName));
 	}

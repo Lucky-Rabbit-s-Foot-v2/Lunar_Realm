@@ -16,6 +16,9 @@
  //============================================================================
 
 class ULRExpPanelWidget;
+class UImage;
+class UTextBlock;
+
 
 UCLASS()
 class LUNAR_REALM_API ULRGameClearPopupWidget : public ULRPopupWidget
@@ -68,5 +71,15 @@ protected:
 
 	UFUNCTION()
 	void ShowExpPanel();
+
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> Txt_RewardGold;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> Txt_RewardNormalTicket;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> Txt_RewardEnhanceTicket;
 
 };

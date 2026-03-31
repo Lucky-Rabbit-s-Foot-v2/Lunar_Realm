@@ -75,20 +75,6 @@ void ULRExpPanelWidget::SetupExpPanel(bool bInIsClear, int32 InTargetGroup)
 	int32 PlayerExp = FMath::RoundToInt(BaseExp * FinalMultiplier);
 	int32 MemberExp = FMath::RoundToInt(PlayerExp * 0.7f);
 
-	// 안내 문구 텍스트 세팅
-	if (NoticeText)
-	{
-		if (bAlreadyCleared)
-		{
-			NoticeText->SetText(FText::FromString(TEXT("완료된 스테이지는\n75 % 경험치만 제공합니다.")));
-			NoticeText->SetVisibility(ESlateVisibility::Visible);
-		}
-		else
-		{
-			NoticeText->SetVisibility(ESlateVisibility::Collapsed);
-		}
-	}
-
 
 	// 컨테이너 초기화
 	if (LeaderSlotContainer) LeaderSlotContainer->ClearChildren();
