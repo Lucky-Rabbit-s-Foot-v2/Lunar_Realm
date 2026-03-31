@@ -71,12 +71,17 @@ void ALRTransitionGameMode::OnLevelPreloadCompleted()
 	}
 
 	FTimerHandle TimerHandle;
+
+	TWeakObjectPtr<ALRTransitionGameMode> WeakThis(this);
+
 	GetWorld()->GetTimerManager().SetTimer(
 		TimerHandle,
-		[this]()
+		[WeakThis]()
 		{
-			// 최종적으로 맵으로 진입
-			UGameplayStatics::OpenLevel(this, TargetLevelName);
+			if (WeakThis.IsValid())
+			{
+				UGameplayStatics::OpenLevel(WeakThis.Get(), WeakThis->TargetLevelName);
+			};
 		},
 		LoadTime, // 1초 대기
 		false
