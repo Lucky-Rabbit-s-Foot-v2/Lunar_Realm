@@ -257,6 +257,27 @@ AActor* ALRAIController::FindActorWithGameplayTag(
 	return nullptr;
 }
 
+void ALRAIController::HandleCoreDestroyed(AActor* InDestroyedCore)
+{
+	LR_INFO(TEXT("[%s] 코어 파괴 수신 완료. 타겟 초기화"), *GetName());
+
+	if (UBlackboardComponent* BB = GetBlackboardComponent())
+	{
+		if (BB->GetValueAsObject(LRBBKeys::TargetCore) == InDestroyedCore)
+		{
+			BB->ClearValue(LRBBKeys::TargetCore);
+		}
+		if (BB->GetValueAsObject(LRBBKeys::TargetActor) == InDestroyedCore)
+		{
+			BB->ClearValue(LRBBKeys::TargetActor);
+		}
+	}
+
+	StopMovement();
+	ClearFocus(EAIFocusPriority::Gameplay);
+	ClearFocus(EAIFocusPriority::Default);
+}
+
 
 FGameplayTag ALRAIController::TryAttackTarget(AActor* Target)
 {
@@ -318,11 +339,25 @@ void ALRAIController::InitializeBehaviorTree(UBehaviorTree* NewBT)
 		AActor* CoreActor = FindTargetCore();
 		BB->SetValueAsObject(LRBBKeys::TargetCore, CoreActor);
 
-		if (!CoreActor)
+		if (CoreActor)
+		{
+			if (ALRCore* LRCore = Cast<ALRCore>(CoreActor))
+			{
+				LRCore->OnCoreDestroyedEvent.RemoveDynamic(this, &ALRAIController::HandleCoreDestroyed);
+				LRCore->OnCoreDestroyedEvent.AddDynamic(this, &ALRAIController::HandleCoreDestroyed);
+			}
+		}
+		else
 		{
 			LR_WARN(TEXT("[%s] Target Core not found. 레벨에 [%s] 태그를 가진 코어가 필요합니다."),
 				*GetName(), *TargetCoreTag.ToString());
 		}
+
+		//if (!CoreActor)
+		//{
+		//	LR_WARN(TEXT("[%s] Target Core not found. 레벨에 [%s] 태그를 가진 코어가 필요합니다."),
+		//		*GetName(), *TargetCoreTag.ToString());
+		//}
 	}
 }
 

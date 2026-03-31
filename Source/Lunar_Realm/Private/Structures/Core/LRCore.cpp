@@ -10,8 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraShakeBase.h"
 #include "NiagaraComponent.h"
-#include "NiagaraFunctionLibrary.h"
-
+#include "GAS/Tags/LRGameplayTags.h"
 
 // Sets default values
 ALRCore::ALRCore()
@@ -139,6 +138,18 @@ void ALRCore::OnCoreDestroyed()
 	bIsDestroyed = true;
 
 	LR_WARN(TEXT("[%s] 코어 파괴"), *GetName());
+
+	OwnedTags.Reset();
+	Tags.Empty();
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->RemoveLooseGameplayTag(LRTags::Team_Enemy_Structure_Core);
+		AbilitySystemComponent->RemoveLooseGameplayTag(LRTags::Team_Player_Structure_Core);
+		AbilitySystemComponent->AddLooseGameplayTag(LRTags::State_Dead);
+	}
+
+	OnCoreDestroyedEvent.Broadcast(this);
+
 
 	if (HitCollision)
 	{
