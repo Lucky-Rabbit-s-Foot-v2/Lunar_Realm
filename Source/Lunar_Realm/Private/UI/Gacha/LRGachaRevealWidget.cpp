@@ -65,6 +65,7 @@ void ULRGachaRevealWidget::NativeDestruct()
 		GetWorld()->GetTimerManager().ClearTimer(TimerRevealSFXDelay);
 	}
 
+	PendingDelayedRevealSound = nullptr;
 	StopAllPreviousStageSounds();
 	StopRevealStageBGM();
 
@@ -710,36 +711,30 @@ void ULRGachaRevealWidget::ShowPresentation(int32 OrbIndex, const FLRGachaResult
 
 		if (Delay <= 0.0f)
 		{
-			ActiveRevealSFXComponent = UGameplayStatics::SpawnSound2D(
-				this,
-				CurrentPresentationData.RevealSound
-			);
+			if (GetWorld())
+			{
+				ActiveRevealSFXComponent = UGameplayStatics::SpawnSound2D(
+					this,
+					CurrentPresentationData.RevealSound
+				);
+			}
 		}
 		else if (GetWorld())
 		{
-			TWeakObjectPtr<ULRGachaRevealWidget> WeakThis(this);
-			USoundBase* RevealSound = CurrentPresentationData.RevealSound;
+			PendingDelayedRevealSound = CurrentPresentationData.RevealSound;
 
 			GetWorld()->GetTimerManager().SetTimer(
 				TimerRevealSFXDelay,
-				[WeakThis, RevealSound]()
-				{
-					if (!WeakThis.IsValid() || !RevealSound)
-					{
-						return;
-					}
-
-					WeakThis->StopActiveRevealSFX();
-
-					WeakThis->ActiveRevealSFXComponent = UGameplayStatics::SpawnSound2D(
-						WeakThis.Get(),
-						RevealSound
-					);
-				},
+				this,
+				&ULRGachaRevealWidget::PlayDelayedRevealSFX,
 				Delay,
 				false
 			);
 		}
+	}
+	else
+	{
+		PendingDelayedRevealSound = nullptr;
 	}
 
 	// 영상이면 반복 재생 시작
@@ -779,6 +774,7 @@ void ULRGachaRevealWidget::ShowPresentation(int32 OrbIndex, const FLRGachaResult
 void ULRGachaRevealWidget::HidePresentation()
 {
 	StopAllPreviousStageSounds();
+	PendingDelayedRevealSound = nullptr;
 
 	if (!bPresentationVisible)
 	{
@@ -1223,6 +1219,8 @@ void ULRGachaRevealWidget::StopAllPreviousStageSounds()
 		GetWorld()->GetTimerManager().ClearTimer(TimerRevealSFXDelay);
 	}
 
+	PendingDelayedRevealSound = nullptr;
+
 	StopActiveRevealSFX();
 	StopAllResultSlotSounds();
 
@@ -1302,4 +1300,32 @@ void ULRGachaRevealWidget::RefreshDuplicateGoldTotalUI()
 			DuplicateGoldPanel->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
+}
+
+void ULRGachaRevealWidget::PlayDelayedRevealSFX()
+{
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	if (!PendingDelayedRevealSound)
+	{
+		return;
+	}
+
+	// 개별 리빌 화면이 이미 닫힌 상태면 재생하지 않음
+	if (!bPresentationVisible)
+	{
+		return;
+	}
+
+	StopActiveRevealSFX();
+
+	ActiveRevealSFXComponent = UGameplayStatics::SpawnSound2D(
+		this,
+		PendingDelayedRevealSound
+	);
+
+	PendingDelayedRevealSound = nullptr;
 }
