@@ -69,7 +69,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void InitializeAttributes(FName EnemyID);
 
-	void ApplyVisualData(const struct FEnemyStaticData& EnemyData);
+	virtual void ApplyVisualData(const struct FEnemyStaticData& EnemyData);
 
 	// 엘리트, 보스 용 아우라 VFX
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|VFX")
@@ -120,6 +120,10 @@ private:
 	bool IsDead = false;
 
 	bool IsBoss = false;
+
+	FVector CachedAuraVFXOffset = FVector::ZeroVector;
+
+	FVector CachedAuraVFXScale = FVector::OneVector;
 
 	// (260316) BJM: 타겟팅 마커(머리 위 화살표) UI 연동을 위한 함수 및 변수 추가
 public:
