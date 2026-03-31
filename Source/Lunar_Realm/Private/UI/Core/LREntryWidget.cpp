@@ -14,6 +14,7 @@
 void ULREntryWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	TileData = Cast<ULRTileData>(ListItemObject);
+
 	RefreshData();
 }
 
@@ -71,13 +72,11 @@ void ULREntryWidget::SetSelected(bool bSelected)
 {
 	if (TileData)
 	{
-		if (TileData->bIsSelected == bSelected)
-		{
-			return;
-		}
-
 		TileData->bIsSelected = bSelected;
-		RefreshData();
+		if (Img_Selected)
+		{
+			Img_Selected->SetVisibility(TileData->bIsSelected ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+		}
 	}
 }
 

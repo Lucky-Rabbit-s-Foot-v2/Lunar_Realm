@@ -54,70 +54,116 @@ void ALROutGameController::OpenFirstWidget()
 
 void ALROutGameController::OnSelectedEntryWidget(ULREntryWidget* InWidget)
 {
-
-	if (ULRSlotWidget* CurrentSlotWidget = Cast<ULRSlotWidget>(SelectedWidget.Get()))
+	if (SelectedWidget.IsValid())
 	{
 		ResetWidgetEffect(SelectedWidget.Get());
-		ResetWidgetEffect(InWidget);
 
-		HandleMountAction(
-			CurrentSlotWidget->GetSlotIndex(), 
-			InWidget->GetTileData()->Type,
-			InWidget->GetTileData()->ID
-		);
+		if (ULRSlotWidget* CurrentSlotWidget = Cast<ULRSlotWidget>(SelectedWidget.Get()))
+		{
+			// 기존_슬롯 , 새_엔트리
+			ResetWidgetEffect(InWidget);
 
-		SelectedWidget = nullptr;
+			HandleMountAction(
+				CurrentSlotWidget->GetSlotIndex(),
+				InWidget->GetTileData()->Type,
+				InWidget->GetTileData()->ID
+			);
+
+			SetSelectedEntry(nullptr);
+		}
+		else if (ULREntryWidget* CurrentEntryWidget = Cast<ULREntryWidget>(SelectedWidget.Get()))
+		{
+			// 기존_엔트리 , 새_엔트리
+			if (SelectedTileData.IsValid())
+			{
+				SelectedTileData->bIsSelected = false;
+				SelectedTileData = nullptr;
+			}
+
+			SetSelectedEntry(InWidget);
+		}
 	}
 	else
 	{
-		ResetWidgetEffect(SelectedWidget.Get());
-		
-		SelectedWidget = InWidget;
-	}	
-
-	// 만약 이미지가 뜨지 않길 원한다면 여기서 SelectedID와 SelectedType을 초기화
-	SelectedID = InWidget->GetTileData()->ID;
-	SelectedType = InWidget->GetTileData()->Type;
-
+		// 기존_없음 , 새_엔트리
+		SetSelectedEntry(InWidget);
+	}
 	OnSelectedChangedDel.Broadcast(SelectedID, SelectedType);
+}
+
+void ALROutGameController::SetSelectedEntry(ULREntryWidget* InWidget)
+{
+	if (InWidget)
+	{
+		SelectedWidget = InWidget;
+		SelectedTileData = InWidget->GetTileData();
+		SelectedID = InWidget->GetTileData()->ID;
+		SelectedType = InWidget->GetTileData()->Type;
+	}
+	else
+	{
+		SelectedWidget = nullptr;
+		SelectedTileData = nullptr;
+		SelectedID = NAME_None;
+		SelectedType = ECollectionType::NONE;
+	}
 }
 
 void ALROutGameController::OnSelectedSlotWidget(ULRSlotWidget* InWidget)
 {
-	if (ULRSlotWidget* CurrentSlotWidget = Cast<ULRSlotWidget>(SelectedWidget.Get()))
+	if (SelectedWidget.IsValid())
 	{
 		ResetWidgetEffect(SelectedWidget.Get());
 		ResetWidgetEffect(InWidget);
 
-		HandleSwapAction(CurrentSlotWidget->GetSlotIndex(), InWidget->GetSlotIndex(), InWidget->GetType());
-		
-		SelectedWidget = nullptr;
-	}
-	else if (ULREntryWidget* CurrentEntryWidget = Cast<ULREntryWidget>(SelectedWidget.Get()))
-	{
-		ResetWidgetEffect(SelectedWidget.Get());
-		ResetWidgetEffect(InWidget);
+		if (ULRSlotWidget* CurrentSlotWidget = Cast<ULRSlotWidget>(SelectedWidget.Get()))
+		{
+			// 기존_슬롯 , 새_슬롯
+			HandleSwapAction(
+				CurrentSlotWidget->GetSlotIndex(), 
+				InWidget->GetSlotIndex(), 
+				InWidget->GetType()
+			);
+		}
+		else if (ULREntryWidget* CurrentEntryWidget = Cast<ULREntryWidget>(SelectedWidget.Get()))
+		{
+			// 기존_엔트리 , 새_슬롯
+			if (SelectedTileData.IsValid())
+			{
+				SelectedTileData->bIsSelected = false;
+				SelectedTileData = nullptr;
+			}
 
-		HandleMountAction(
-			InWidget->GetSlotIndex(), 
-			SelectedType,
-			SelectedID
-		);
-
-		SelectedWidget = nullptr;
+			HandleMountAction(
+				InWidget->GetSlotIndex(),
+				SelectedType,
+				SelectedID
+			);
+		}
+		SetSelectedSlot(nullptr);
 	}
 	else
 	{
-		ResetWidgetEffect(SelectedWidget.Get());
-
-		SelectedWidget = InWidget;
+		// 기존_없음 , 새_슬롯
+		SetSelectedSlot(InWidget);
 	}
-	
-	// 만약 이미지가 뜨지 않길 원한다면 여기서 SelectedID와 SelectedType을 초기화
-	SelectedID = InWidget->GetID();
-	SelectedType = InWidget->GetType();
-
 	OnSelectedChangedDel.Broadcast(SelectedID, SelectedType);
+}
+
+void ALROutGameController::SetSelectedSlot(ULRSlotWidget* InWidget)
+{
+	if (InWidget)
+	{
+		SelectedWidget = InWidget;
+		SelectedID = InWidget->GetID();
+		SelectedType = InWidget->GetType();
+	}
+	else
+	{
+		SelectedWidget = nullptr;
+		SelectedID = NAME_None;
+		SelectedType = ECollectionType::NONE;
+	}
 }
 
 void ALROutGameController::OnSelectedSlotToggled(bool bIsSelected)
