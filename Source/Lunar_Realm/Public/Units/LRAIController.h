@@ -100,12 +100,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|AI|BehaviorTree")
 	UBehaviorTree* BehaviorTreeAsset = nullptr;
 
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|AI|Detection")
 	float DetectionRadius = 800.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|AI|Combat")
 	float AttackRange = 300.0f;
 
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|AI|Combat")
 	float AttackCooldown = 1.5f;
 

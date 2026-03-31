@@ -139,7 +139,7 @@ void ULRGameplayAbilityBase::SpawnProjectiles(TSubclassOf<ALRProjectile> Project
     	else
     	{
     		LR_WARN(TEXT("[SpawnProjectiles] SocketName '%s' 없거나, 본에 소켓이 없음. → 전방 200cm 폴백"),  *SpawnData.SocketName.ToString());
-    		SpawnLocation = CachedInstigator->GetActorLocation() + CachedInstigator->GetActorForwardVector() * 200.f;
+    		SpawnLocation = CachedInstigator->GetActorLocation() + CachedInstigator->GetActorForwardVector() * 1.f;
     	}
     	
         FRotator SpawnRotation = CachedInstigator->GetActorRotation();
@@ -223,7 +223,7 @@ void ULRGameplayAbilityBase::SpawnProjectiles(TSubclassOf<ALRProjectile> Project
                 LR_WARN(TEXT("[SpawnProjectiles] SocketName '%s' 없음 → 전방 200cm 폴백"),
                     *SpawnData.SocketName.ToString());
                 SpawnLocation = CachedInstigator->GetActorLocation()
-                    + CachedInstigator->GetActorForwardVector() * 200.f;
+                    + CachedInstigator->GetActorForwardVector() * 1.f;
             }
         }
         else
