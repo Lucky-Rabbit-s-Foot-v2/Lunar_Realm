@@ -66,6 +66,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ReturnAllActiveActors();
 
+	UFUNCTION(BlueprintCallable)
+	void ClearAllPools();
+
 private:
 	TMap<UClass*, TArray<AActor*>> ActorPool;
 	

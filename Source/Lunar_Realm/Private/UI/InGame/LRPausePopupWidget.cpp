@@ -98,7 +98,7 @@ void ULRPausePopupWidget::UpdatePauseUI()
 	if (!SaveSys || !StageSys || !DataSys) return;
 
 	// 스테이지 및 챕터 세팅
-	const FStageStaticData* StageData = StageSys->GetCurrentStateData();
+	const FStageStaticData* StageData = StageSys->GetCurrentStageData();
 	if (StageData)
 	{
 		if (Txt_StageName)Txt_StageName->SetText(StageData->StageName);

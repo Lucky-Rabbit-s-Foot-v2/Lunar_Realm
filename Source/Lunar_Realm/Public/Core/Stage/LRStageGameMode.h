@@ -70,6 +70,12 @@ public:
 	void OnExitStage();
 	UFUNCTION(BlueprintCallable, Category = "GameLogic")
 	void OnStartNextStage();
+	UFUNCTION(BlueprintCallable, Category = "GameLogic")
+	void OnBossAppearance();
+	UFUNCTION(BlueprintCallable, Category = "GameLogic")
+	void OnPlayReadyStartAnimation();
+
+
 	void PlayBGM();
 
 	void CleanupUnusedCores();
@@ -104,6 +110,11 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LR|Stage")
 	int32 PlayerDeathCount = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|Stage")
+	float GameStartDelay = 0.5f;
+
+	FTimerHandle GameStartDelayTimer;
 
 public:
 	void AddPlayerDeathCount();

@@ -11,6 +11,7 @@
 #include "Subsystems/GameDataSubsystem.h"
 #include "Subsystems/SaveGameSubsystem.h"
 #include "Subsystems/StageManagerSubsystem.h"
+#include "Subsystems/PoolingSubsystem.h"
 #include "Units/OutGame/LRTransitionController.h"
 #include "Engine/LevelStreaming.h"
 #include "Engine/AssetManager.h"
@@ -36,6 +37,13 @@ void ALRTransitionGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (UPoolingSubsystem* PoolSys = GetWorld()->GetSubsystem<UPoolingSubsystem>())
+	{
+		PoolSys->ClearAllPools(); 
+	}
+
+
+
 	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
 	{
 		LoadingWidget = Cast<ULRLoadingPageWidget>(UIManager->GetOrCreateWidgetByID(EUIID::LOADING));
@@ -129,7 +137,8 @@ void ALRTransitionGameMode::PreloadAssetsAsync()
 		bIsLoadingLevel = true;
 
 		FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
-		Streamable.RequestAsyncLoad(AssetsToLoad, FStreamableDelegate::CreateUObject(this, &ALRTransitionGameMode::StartLevelStreaming));
+		//Streamable.RequestAsyncLoad(AssetsToLoad, FStreamableDelegate::CreateUObject(this, &ALRTransitionGameMode::StartLevelStreaming));
+		PreloadHandle = Streamable.RequestAsyncLoad(AssetsToLoad, FStreamableDelegate::CreateUObject(this, &ALRTransitionGameMode::StartLevelStreaming));
 	}
 	else
 	{
@@ -142,13 +151,15 @@ void ALRTransitionGameMode::StartLevelStreaming()
 {
 	bIsLoadingLevel = true;
 
-	FLatentActionInfo LatentInfo;
-	LatentInfo.CallbackTarget = this;
-	LatentInfo.ExecutionFunction = FName("OnLevelPreloadCompleted");
-	LatentInfo.Linkage = 0;
-	LatentInfo.UUID = FMath::Rand();
+	//FLatentActionInfo LatentInfo;
+	//LatentInfo.CallbackTarget = this;
+	//LatentInfo.ExecutionFunction = FName("OnLevelPreloadCompleted");
+	//LatentInfo.Linkage = 0;
+	//LatentInfo.UUID = FMath::Rand();
 
-	UGameplayStatics::LoadStreamLevel(this, TargetLevelName, false, false, LatentInfo);
+	//UGameplayStatics::LoadStreamLevel(this, TargetLevelName, false, false, LatentInfo);
+
+	OnLevelPreloadCompleted();
 }
 
 void ALRTransitionGameMode::GatherCharacterAssets(USaveGameSubsystem* InSaveSys, UGameDataSubsystem* InDataSys, TArray<FSoftObjectPath>& OutAssetsToLoad)
@@ -193,7 +204,7 @@ void ALRTransitionGameMode::GatherEnemyAssets(UGameInstance* InGI, UGameDataSubs
 	if (!StageMgr) return;
 
 	TArray<FName> EnemyIDsToLoad;
-	const FStageStaticData* StageData = StageMgr->GetCurrentStateData();
+	const FStageStaticData* StageData = StageMgr->GetCurrentStageData();
 
 	if (StageData)
 	{

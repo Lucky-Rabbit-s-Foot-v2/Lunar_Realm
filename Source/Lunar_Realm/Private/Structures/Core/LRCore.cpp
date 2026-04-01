@@ -150,6 +150,10 @@ void ALRCore::OnCoreDestroyed()
 
 	OnCoreDestroyedEvent.Broadcast(this);
 
+	if (APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0))
+	{
+		PC->SetViewTargetWithBlend(this, 1.5f, EViewTargetBlendFunction::VTBlend_EaseInOut, 2.0f);
+	}
 
 	if (HitCollision)
 	{

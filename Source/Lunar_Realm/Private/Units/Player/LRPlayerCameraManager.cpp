@@ -35,9 +35,14 @@ void ALRPlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTi
 	FVector TargetLoc = OutVT.Target->GetActorLocation();
 	float CurrentCameraOffset = 0.0f;
 
+	bool bIsPlayer = false;
+
+
+
 	if (ALRPlayerCharacter* PlayerChar = Cast<ALRPlayerCharacter>(OutVT.Target))
 	{
 		CurrentCameraOffset = PlayerChar->GetCameraOffsetY();
+		bIsPlayer = true;
 	}
 
 	if (!bIsInitialized)
@@ -57,9 +62,10 @@ void ALRPlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTi
 	FRotator DesiredRot = FRotator(CameraPitch, CameraYaw, 0.0f);
 	//FRotator DesiredRot = FixedRotation;
 
-	if (CameraLagSpeed > 0.0f)
+	if (CameraLagSpeed > 0.0f && bIsPlayer)
 	{
 		OutVT.POV.Location = FMath::VInterpTo(OutVT.POV.Location, DesiredLoc, DeltaTime, CameraLagSpeed);
+	
 	}
 	else
 	{
