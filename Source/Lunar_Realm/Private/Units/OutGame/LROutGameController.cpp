@@ -125,6 +125,13 @@ void ALROutGameController::OnSelectedSlotWidget(ULRSlotWidget* InWidget)
 
 		if (ULRSlotWidget* CurrentSlotWidget = Cast<ULRSlotWidget>(SelectedWidget.Get()))
 		{
+			if (CurrentSlotWidget->GetSlotIndex() == InWidget->GetSlotIndex())
+			{
+				SetSelectedSlot(nullptr);
+				OnSelectedChangedDel.Broadcast(SelectedID, SelectedType);
+				return;
+			}
+
 			// 기존_슬롯 , 새_슬롯
 			HandleSwapAction(
 				CurrentSlotWidget->GetSlotIndex(), 
