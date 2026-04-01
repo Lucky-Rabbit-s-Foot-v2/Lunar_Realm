@@ -229,7 +229,13 @@ void ALRStageGameMode::OnStartNextStage()
 	OnResumeGame();
 }
 
-
+void ALRStageGameMode::OnBossAppearance()
+{
+	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
+	{
+		UIManager->OpenUIByID(EUIID::BOSSALERT);
+	}
+}
 
 void ALRStageGameMode::BeginPlay()
 {

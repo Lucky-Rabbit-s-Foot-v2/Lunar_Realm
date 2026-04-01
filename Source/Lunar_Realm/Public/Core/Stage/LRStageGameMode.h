@@ -70,6 +70,9 @@ public:
 	void OnExitStage();
 	UFUNCTION(BlueprintCallable, Category = "GameLogic")
 	void OnStartNextStage();
+	UFUNCTION(BlueprintCallable, Category = "GameLogic")
+	void OnBossAppearance();
+
 	void PlayBGM();
 
 	void CleanupUnusedCores();

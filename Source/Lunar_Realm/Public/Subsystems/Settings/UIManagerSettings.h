@@ -42,6 +42,7 @@ enum class EUIID : uint8
 	ENHANCE,
 	READYSTART,
 	EXIT,
+	BOSSALERT,
 };
 
 UCLASS(Config = Game, defaultconfig, meta = (DisplayName = "UI Manager Settings"))
