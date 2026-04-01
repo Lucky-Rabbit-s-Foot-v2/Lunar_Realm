@@ -105,3 +105,23 @@ void UPoolingSubsystem::ReturnAllActiveActors()
 		}
 	}
 }
+
+void UPoolingSubsystem::ClearAllPools()
+{
+	ReturnAllActiveActors();
+
+	for (auto& PoolPair : ActorPool)
+	{
+		TArray<AActor*>& PoolStack = PoolPair.Value;
+		for (AActor* PooledActor : PoolStack)
+		{
+			if (IsValid(PooledActor))
+			{
+				PooledActor->Destroy();
+			}
+		}
+	}
+
+	ActorPool.Empty();
+	ActiveActors.Empty();
+}

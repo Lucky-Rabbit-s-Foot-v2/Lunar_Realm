@@ -45,7 +45,7 @@ void ALRAoEActor::InitAoE(UAbilitySystemComponent* InInstigatorASC, TSubclassOf<
 	CollisionSphere->SetSphereRadius(InRadius);
 	SetLifeSpan(InDuration); 
 
-	CollisionSphere->SetHiddenInGame(false);
+	CollisionSphere->SetHiddenInGame(true);
 
 	UGameInstance* GI = GetWorld()->GetGameInstance();
 	UGameDataSubsystem* DataSys = GI ? GI->GetSubsystem<UGameDataSubsystem>() : nullptr;
