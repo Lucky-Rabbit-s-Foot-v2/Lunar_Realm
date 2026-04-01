@@ -75,8 +75,7 @@ protected:
 private:
 	int32 CurrentPhase = 0;
 
-	// TEST : 추후 DT에서 관리 예정
-	static constexpr float SpeedPhase0 = 200.f;
-	static constexpr float SpeedPhase1 = 400.f;
-	static constexpr float SpeedPhase2 = 800.f;
+	static constexpr float SpeedPhase0 = 150.f;
+	static constexpr float SpeedPhase1 = 250.f;
+	static constexpr float SpeedPhase2 = 500.f;
 };
