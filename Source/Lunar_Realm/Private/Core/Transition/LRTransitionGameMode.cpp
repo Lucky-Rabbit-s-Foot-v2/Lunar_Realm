@@ -120,6 +120,8 @@ void ALRTransitionGameMode::PreloadAssetsAsync()
 				if (const TSoftObjectPtr<UWorld>* StageMapPtr = MapSettings->LevelMap.Find(ELevelName::STAGE))
 				{
 					StageMapName = FName(StageMapPtr->GetLongPackageFName());
+
+					AssetsToLoad.AddUnique(StageMapPtr->ToSoftObjectPath());
 				}
 			}
 
