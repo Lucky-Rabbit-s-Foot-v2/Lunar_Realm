@@ -138,7 +138,10 @@ void ALRTransitionGameMode::PreloadAssetsAsync()
 
 		FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
 		//Streamable.RequestAsyncLoad(AssetsToLoad, FStreamableDelegate::CreateUObject(this, &ALRTransitionGameMode::StartLevelStreaming));
-		PreloadHandle = Streamable.RequestAsyncLoad(AssetsToLoad, FStreamableDelegate::CreateUObject(this, &ALRTransitionGameMode::StartLevelStreaming));
+		if (ULRGameInstance* LRGI = Cast<ULRGameInstance>(GI))
+		{
+			LRGI->PreloadHandle = Streamable.RequestAsyncLoad(AssetsToLoad, FStreamableDelegate::CreateUObject(this, &ALRTransitionGameMode::StartLevelStreaming));
+		}
 	}
 	else
 	{
@@ -204,7 +207,7 @@ void ALRTransitionGameMode::GatherEnemyAssets(UGameInstance* InGI, UGameDataSubs
 	if (!StageMgr) return;
 
 	TArray<FName> EnemyIDsToLoad;
-	const FStageStaticData* StageData = StageMgr->GetCurrentStateData();
+	const FStageStaticData* StageData = StageMgr->GetCurrentStageData();
 
 	if (StageData)
 	{

@@ -26,7 +26,7 @@ void ULRExpPanelWidget::SetupExpPanel(bool bInIsClear, int32 InTargetGroup)
 	if (!SaveSys || !DataSys || !CollectionSys || !StageSys) return;
 
 	// 스테이지 기본 보상 경험치 획득
-	const FStageStaticData* StageData = StageSys->GetCurrentStateData();
+	const FStageStaticData* StageData = StageSys->GetCurrentStageData();
 	if (!StageData)
 	{
 		LR_WARN(TEXT("현재 스테이지 데이터를 찾을 수 없습니다!"));

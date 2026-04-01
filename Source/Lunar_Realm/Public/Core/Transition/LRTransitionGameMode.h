@@ -61,6 +61,6 @@ private:
 	float LoadTime = 1.0f;
 
 protected:
-	TSharedPtr<struct FStreamableHandle> PreloadHandle;
+	//TSharedPtr<struct FStreamableHandle> PreloadHandle;
 
 };
