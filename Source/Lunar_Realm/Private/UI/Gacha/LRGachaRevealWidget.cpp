@@ -1163,6 +1163,11 @@ void ULRGachaRevealWidget::ShowFinalResultOverlay()
 		return;
 	}
 
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimerSequentialResultSlots);
+	}
+
 	BuildResultSlotsSequential();
 	RefreshDuplicateGoldTotalUI();
 	BP_OnAllRevealed(CachedResults);
