@@ -17,6 +17,8 @@
 void ULREquipEntryWidget::RefreshData()
 {
 	Super::RefreshData();
+
+	Img_Frame->SetBrushFromTexture(TileData->Frame);
 }
 
 void ULREquipEntryWidget::OnTileClicked()

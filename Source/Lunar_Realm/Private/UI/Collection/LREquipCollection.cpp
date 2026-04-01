@@ -46,10 +46,13 @@ void ULREquipCollection::RefreshUI()
 void ULREquipCollection::AddItemToTileView(UGameDataSubsystem* GameDataSubsystem, const FName& LockedEquipID, bool bIsLocked)
 {
 	const FEquipmentStaticData& EquipmentData = GameDataSubsystem->GetEquipmentStaticData(LockedEquipID);
-	
+	const FGradeResourceData& GradeResourceData = GameDataSubsystem->GetGradeResourceData(EquipmentData.Grade);
+
 	ULRTileData* TileDataObject = NewObject<ULRTileData>(this);
 	TileDataObject->ID = EquipmentData.DataID;
 	TileDataObject->Icon = EquipmentData.EquipmentTexture.LoadSynchronous();
 	TileDataObject->bIsLocked = bIsLocked;
+	TileDataObject->Frame = GradeResourceData.PortraitFrame.LoadSynchronous();
+
 	EquipTileView->AddItem(TileDataObject);
 }
