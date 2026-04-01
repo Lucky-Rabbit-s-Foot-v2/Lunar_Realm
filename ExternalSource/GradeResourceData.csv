@@ -1,0 +1,6 @@
+---,DataID,Grade,GradeImage,PortraitFrame
+1,"N","N","/Game/Assets/BlackStromAsset/UI/CommonUI/CharacterInfo/Icon_Grade_N.Icon_Grade_N","/Game/Assets/BlackStromAsset/UI/Icon/Icon_ProfileFrame/Icon_10Lv_Frame.Icon_10Lv_Frame"
+2,"R","R","/Game/Assets/BlackStromAsset/UI/CommonUI/CharacterInfo/Icon_Grade_R.Icon_Grade_R","/Game/Assets/BlackStromAsset/UI/Icon/Icon_ProfileFrame/Icon_20Lv_Frame.Icon_20Lv_Frame"
+3,"SR","SR","/Game/Assets/BlackStromAsset/UI/CommonUI/CharacterInfo/Icon_Grade_SR.Icon_Grade_SR","/Game/Assets/BlackStromAsset/UI/Icon/Icon_ProfileFrame/Icon_30Lv_Frame.Icon_30Lv_Frame"
+4,"SSR","SSR","/Game/Assets/BlackStromAsset/UI/CommonUI/CharacterInfo/Icon_Grade_SSR.Icon_Grade_SSR","/Game/Assets/BlackStromAsset/UI/Icon/Icon_ProfileFrame/Icon_50Lv_Frame.Icon_50Lv_Frame"
+5,"UR","UR","/Game/Assets/BlackStromAsset/UI/CommonUI/CharacterInfo/Icon_Grade_UR.Icon_Grade_UR","/Game/Assets/BlackStromAsset/UI/Icon/Icon_ProfileFrame/Icon_70Lv_Frame.Icon_70Lv_Frame"

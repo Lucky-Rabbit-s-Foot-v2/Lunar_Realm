@@ -1328,3 +1328,25 @@ struct FEnemySoundData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Voice")
 	TSoftObjectPtr<USoundBase> IntroVoice;
 };
+
+
+//=============================================================================
+// (260401) PJB 제작.
+// =============================================================================
+USTRUCT(BlueprintType)
+struct FGradeResourceData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Classification")
+	FName DataID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Classification")
+	ELRGrade Grade; //UR, SSR, SR, R, N
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Classification")
+	TSoftObjectPtr<UTexture2D> GradeImage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Classification")
+	TSoftObjectPtr<UTexture2D> PortraitFrame;
+};

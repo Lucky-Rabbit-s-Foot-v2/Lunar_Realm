@@ -53,6 +53,19 @@ void ULREquipEnhance::SetEquipID(const FName& InID)
 {
 	ID = InID;
 
+	if (ID.IsNone())
+	{
+		Enhance1->SetIsEnabled(false);
+		Enhance5->SetIsEnabled(false);
+		Enhance10->SetIsEnabled(false);
+	}
+	else
+	{
+		Enhance1->SetIsEnabled(true);
+		Enhance5->SetIsEnabled(true);
+		Enhance10->SetIsEnabled(true);
+	}
+
 	EquipCard->SetEquipID(ID);
 	EquipStatus->SetEquipID(ID);
 	Enhance1->SetEquipID(ID);

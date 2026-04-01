@@ -17,6 +17,19 @@
 #include "Engine/World.h"
 #include "Engine/Texture2D.h"
 
+namespace LRGachaCache
+{
+	static FString MakeRateKey(FName BannerID, ELRGachaItemType ItemType)
+	{
+		return FString::Printf(TEXT("%s|%d"), *BannerID.ToString(), static_cast<int32>(ItemType));
+	}
+
+	static FString MakeRevealKey(FName ItemID, ELRGachaItemType ItemType)
+	{
+		return FString::Printf(TEXT("%s|%d"), *ItemID.ToString(), static_cast<int32>(ItemType));
+	}
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  Subsystem 생명주기
 // ─────────────────────────────────────────────────────────────────────────────
@@ -163,13 +176,88 @@ void ULRGachaSubsystem::LoadDataTables()
 	LoadedRarityRateDT = RarityRateDataTable.IsNull() ? nullptr : Cast<UDataTable>(RarityRateDataTable.LoadSynchronous());
 	LoadedRevealVisualDT = RevealVisualDataTable.IsNull() ? nullptr : Cast<UDataTable>(RevealVisualDataTable.LoadSynchronous());
 
+	// ── 캐시 초기화 ─────────────────────────────────────────────
+	BannerRowCache.Empty();
+	PoolRowsByBannerCache.Empty();
+	RarityRateRowsCache.Empty();
+	RevealVisualRowCache.Empty();
+	DuplicateGoldCache.Empty();
+	ResultSlotTextureCache.Empty();
+
+	// ── Banner 캐시 ────────────────────────────────────────────
+	if (LoadedBannerDT)
+	{
+		for (const FName& RowName : LoadedBannerDT->GetRowNames())
+		{
+			if (const FLRGachaBannerRow* Row = LoadedBannerDT->FindRow<FLRGachaBannerRow>(RowName, TEXT("LoadDataTables_BannerCache")))
+			{
+				BannerRowCache.Add(Row->BannerID, *Row);
+			}
+		}
+	}
+
+	// ── Pool 캐시 ──────────────────────────────────────────────
+	if (LoadedPoolDT)
+	{
+		for (const FName& RowName : LoadedPoolDT->GetRowNames())
+		{
+			if (const FLRGachaPoolRow* Row = LoadedPoolDT->FindRow<FLRGachaPoolRow>(RowName, TEXT("LoadDataTables_PoolCache")))
+			{
+				PoolRowsByBannerCache.FindOrAdd(Row->BannerID).Add(*Row);
+			}
+		}
+	}
+
+	// ── 확률 캐시 ──────────────────────────────────────────────
+	if (LoadedRarityRateDT)
+	{
+		for (const FName& RowName : LoadedRarityRateDT->GetRowNames())
+		{
+			if (const FLRGachaRarityRateRow* Row = LoadedRarityRateDT->FindRow<FLRGachaRarityRateRow>(RowName, TEXT("LoadDataTables_RateCache")))
+			{
+				const FString Key = LRGachaCache::MakeRateKey(Row->BannerID, Row->ItemType);
+				RarityRateRowsCache.FindOrAdd(Key).Add(*Row);
+			}
+		}
+	}
+
+	// ── 리빌 비주얼 캐시 ───────────────────────────────────────
+	if (LoadedRevealVisualDT)
+	{
+		for (const FName& RowName : LoadedRevealVisualDT->GetRowNames())
+		{
+			if (const FLRGachaRevealVisualRow* Row = LoadedRevealVisualDT->FindRow<FLRGachaRevealVisualRow>(RowName, TEXT("LoadDataTables_RevealCache")))
+			{
+				const FString Key = LRGachaCache::MakeRevealKey(Row->ItemID, Row->ItemType);
+				RevealVisualRowCache.Add(Key, *Row);
+			}
+		}
+	}
+
+	// ── 중복 보상 캐시 ─────────────────────────────────────────
+	if (LoadedDupRewardDT)
+	{
+		for (const FName& RowName : LoadedDupRewardDT->GetRowNames())
+		{
+			if (const FLRGachaDuplicateRewardRow* Row = LoadedDupRewardDT->FindRow<FLRGachaDuplicateRewardRow>(RowName, TEXT("LoadDataTables_DupCache")))
+			{
+				DuplicateGoldCache.Add(static_cast<uint8>(Row->Rarity), Row->GoldAmount);
+			}
+		}
+	}
+
 	LR_INFO(
-		TEXT("Gacha DT Loaded: Banner=%s Pool=%s Dup=%s Rate=%s Reveal=%s"),
+		TEXT("Gacha DT Loaded: Banner=%s Pool=%s Dup=%s Rate=%s Reveal=%s | Cache Banner=%d Pool=%d Rate=%d Reveal=%d Dup=%d"),
 		LoadedBannerDT ? TEXT("OK") : TEXT("NULL"),
 		LoadedPoolDT ? TEXT("OK") : TEXT("NULL"),
 		LoadedDupRewardDT ? TEXT("OK") : TEXT("NULL"),
 		LoadedRarityRateDT ? TEXT("OK") : TEXT("NULL"),
-		LoadedRevealVisualDT ? TEXT("OK") : TEXT("NULL")
+		LoadedRevealVisualDT ? TEXT("OK") : TEXT("NULL"),
+		BannerRowCache.Num(),
+		PoolRowsByBannerCache.Num(),
+		RarityRateRowsCache.Num(),
+		RevealVisualRowCache.Num(),
+		DuplicateGoldCache.Num()
 	);
 }
 
@@ -276,37 +364,22 @@ void ULRGachaSubsystem::ResetPity(FName BannerID)
 
 bool ULRGachaSubsystem::GetBannerRow(FName BannerID, FLRGachaBannerRow& OutRow) const
 {
-	if (!LoadedBannerDT)
+	if (const FLRGachaBannerRow* Found = BannerRowCache.Find(BannerID))
 	{
-		return false;
-	}
-
-	if (FLRGachaBannerRow* Row = LoadedBannerDT->FindRow<FLRGachaBannerRow>(BannerID, TEXT("GachaBannerLookup")))
-	{
-		OutRow = *Row;
+		OutRow = *Found;
 		return true;
 	}
+
 	return false;
 }
 
 void ULRGachaSubsystem::GetPoolRowsForBanner(FName BannerID, TArray<FLRGachaPoolRow>& OutRows) const
 {
 	OutRows.Empty();
-	if (!LoadedPoolDT)
-	{
-		return;
-	}
 
-	const TArray<FName> RowNames = LoadedPoolDT->GetRowNames();
-	for (const FName& RowName : RowNames)
+	if (const TArray<FLRGachaPoolRow>* Found = PoolRowsByBannerCache.Find(BannerID))
 	{
-		if (FLRGachaPoolRow* Row = LoadedPoolDT->FindRow<FLRGachaPoolRow>(RowName, TEXT("GachaPoolLookup")))
-		{
-			if (Row->BannerID == BannerID)
-			{
-				OutRows.Add(*Row);
-			}
-		}
+		OutRows = *Found;
 	}
 }
 
@@ -316,24 +389,11 @@ void ULRGachaSubsystem::GetRarityRateRowsForBanner(
 	TArray<FLRGachaRarityRateRow>& OutRows) const
 {
 	OutRows.Empty();
-	if (!LoadedRarityRateDT)
-	{
-		return;
-	}
 
-	const TArray<FName> RowNames = LoadedRarityRateDT->GetRowNames();
-	for (const FName& RowName : RowNames)
+	const FString Key = LRGachaCache::MakeRateKey(BannerID, ItemType);
+	if (const TArray<FLRGachaRarityRateRow>* Found = RarityRateRowsCache.Find(Key))
 	{
-		FLRGachaRarityRateRow* Row = LoadedRarityRateDT->FindRow<FLRGachaRarityRateRow>(RowName, TEXT("RarityRateLookup"));
-		if (!Row)
-		{
-			continue;
-		}
-
-		if (Row->BannerID == BannerID && Row->ItemType == ItemType)
-		{
-			OutRows.Add(*Row);
-		}
+		OutRows = *Found;
 	}
 }
 
@@ -344,27 +404,11 @@ bool ULRGachaSubsystem::GetRevealVisualRow(
 {
 	OutRow = FLRGachaRevealVisualRow();
 
-	if (!LoadedRevealVisualDT)
+	const FString Key = LRGachaCache::MakeRevealKey(ItemID, ItemType);
+	if (const FLRGachaRevealVisualRow* Found = RevealVisualRowCache.Find(Key))
 	{
-		return false;
-	}
-
-	const TArray<FName> RowNames = LoadedRevealVisualDT->GetRowNames();
-	for (const FName& RowName : RowNames)
-	{
-		const FLRGachaRevealVisualRow* Row =
-			LoadedRevealVisualDT->FindRow<FLRGachaRevealVisualRow>(RowName, TEXT("RevealVisualLookup"));
-
-		if (!Row)
-		{
-			continue;
-		}
-
-		if (Row->ItemID == ItemID && Row->ItemType == ItemType)
-		{
-			OutRow = *Row;
-			return true;
-		}
+		OutRow = *Found;
+		return true;
 	}
 
 	return false;
@@ -372,15 +416,28 @@ bool ULRGachaSubsystem::GetRevealVisualRow(
 
 UTexture2D* ULRGachaSubsystem::GetResultSlotTexture(FName ItemID, ELRGachaItemType ItemType) const
 {
+	const FString Key = LRGachaCache::MakeRevealKey(ItemID, ItemType);
+
+	if (const TObjectPtr<UTexture2D>* CachedTexture = ResultSlotTextureCache.Find(Key))
+	{
+		return *CachedTexture;
+	}
+
 	FLRGachaRevealVisualRow RevealRow;
 	if (GetRevealVisualRow(ItemID, ItemType, RevealRow))
 	{
+		UTexture2D* LoadedTexture = nullptr;
+
 		if (!RevealRow.ResultSlotTexture.IsNull())
 		{
-			return RevealRow.ResultSlotTexture.LoadSynchronous();
+			LoadedTexture = RevealRow.ResultSlotTexture.LoadSynchronous();
 		}
+
+		ResultSlotTextureCache.Add(Key, LoadedTexture);
+		return LoadedTexture;
 	}
 
+	ResultSlotTextureCache.Add(Key, nullptr);
 	return nullptr;
 }
 
@@ -536,22 +593,11 @@ bool ULRGachaSubsystem::PickOneFromPoolByRarity(
 
 int32 ULRGachaSubsystem::GetDuplicateGold(ELRGachaRarity Rarity) const
 {
-	if (!LoadedDupRewardDT)
+	if (const int32* Found = DuplicateGoldCache.Find(static_cast<uint8>(Rarity)))
 	{
-		return 0;
+		return *Found;
 	}
 
-	for (const FName& RowName : LoadedDupRewardDT->GetRowNames())
-	{
-		if (const FLRGachaDuplicateRewardRow* Row =
-			LoadedDupRewardDT->FindRow<FLRGachaDuplicateRewardRow>(RowName, TEXT("DupRewardLookup")))
-		{
-			if (Row->Rarity == Rarity)
-			{
-				return Row->GoldAmount;
-			}
-		}
-	}
 	return 0;
 }
 

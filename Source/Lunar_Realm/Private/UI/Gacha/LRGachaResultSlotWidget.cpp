@@ -14,6 +14,25 @@
 #include "Engine/GameInstance.h"
 #include "Engine/Texture2D.h"
 
+namespace LRGachaResultSlotLocal
+{
+	static void SetFallbackName(UTextBlock* InTextBlock, FName InItemID)
+	{
+		if (InTextBlock)
+		{
+			InTextBlock->SetText(FText::FromName(InItemID));
+		}
+	}
+
+	static void ClearIconBrush(UImage* InImage)
+	{
+		if (InImage)
+		{
+			InImage->SetBrushFromTexture(nullptr);
+		}
+	}
+}
+
 void ULRGachaResultSlotWidget::SetupWithResult(const FLRGachaResult& InResult)
 {
 	CachedResult = InResult;
@@ -32,7 +51,16 @@ void ULRGachaResultSlotWidget::SetupWithResult(const FLRGachaResult& InResult)
 	if (Border_Background)
 	{
 		const FLinearColor BaseDark(0.1f, 0.1f, 0.1f, 1.f);
-		Border_Background->SetBrushColor(RarityColor * 0.4f + BaseDark);
+		const FLinearColor MixedColor = (RarityColor * 0.4f) + BaseDark;
+
+		Border_Background->SetBrushColor(
+			FLinearColor(
+				FMath::Clamp(MixedColor.R, 0.0f, 1.0f),
+				FMath::Clamp(MixedColor.G, 0.0f, 1.0f),
+				FMath::Clamp(MixedColor.B, 0.0f, 1.0f),
+				FMath::Clamp(MixedColor.A, 0.0f, 1.0f)
+			)
+		);
 	}
 
 	if (Image_NewBadge)
@@ -113,10 +141,8 @@ void ULRGachaResultSlotWidget::SetupNameAndIcon()
 	UGameInstance* GI = GetGameInstance();
 	if (!GI)
 	{
-		if (Text_Name)
-		{
-			Text_Name->SetText(FText::FromName(CachedResult.ItemID));
-		}
+		LRGachaResultSlotLocal::SetFallbackName(Text_Name, CachedResult.ItemID);
+		LRGachaResultSlotLocal::ClearIconBrush(Image_Icon);
 		return;
 	}
 
@@ -125,16 +151,14 @@ void ULRGachaResultSlotWidget::SetupNameAndIcon()
 
 	if (!GameDataSys)
 	{
-		if (Text_Name)
-		{
-			Text_Name->SetText(FText::FromName(CachedResult.ItemID));
-		}
+		LRGachaResultSlotLocal::SetFallbackName(Text_Name, CachedResult.ItemID);
+		LRGachaResultSlotLocal::ClearIconBrush(Image_Icon);
 		return;
 	}
 
 	UTexture2D* SlotTexture = nullptr;
 
-	// 1) 가챠 전용 DT 결과 슬롯 이미지 우선 사용
+	// 1) 가챠 전용 결과 슬롯 이미지 우선
 	if (GachaSys)
 	{
 		SlotTexture = GachaSys->GetResultSlotTexture(CachedResult.ItemID, CachedResult.ItemType);
@@ -146,34 +170,22 @@ void ULRGachaResultSlotWidget::SetupNameAndIcon()
 
 		if (Text_Name)
 		{
-			if (!CharData.CharacterName.IsEmpty())
-			{
-				Text_Name->SetText(FText::FromString(CharData.CharacterName));
-			}
-			else
-			{
-				Text_Name->SetText(FText::FromName(CachedResult.ItemID));
-			}
+			Text_Name->SetText(
+				!CharData.CharacterName.IsEmpty()
+				? FText::FromString(CharData.CharacterName)
+				: FText::FromName(CachedResult.ItemID)
+			);
 		}
 
-		if (Image_Icon)
+		if (!SlotTexture)
 		{
-			// 2) fallback: PortraitIcon -> CharacterTexture
-			if (!SlotTexture)
+			if (!CharData.PortraitIcon.IsNull())
 			{
-				if (!CharData.PortraitIcon.IsNull())
-				{
-					SlotTexture = CharData.PortraitIcon.LoadSynchronous();
-				}
-				else if (!CharData.CharacterTexture.IsNull())
-				{
-					SlotTexture = CharData.CharacterTexture.LoadSynchronous();
-				}
+				SlotTexture = CharData.PortraitIcon.LoadSynchronous();
 			}
-
-			if (SlotTexture)
+			else if (!CharData.CharacterTexture.IsNull())
 			{
-				Image_Icon->SetBrushFromTexture(SlotTexture);
+				SlotTexture = CharData.CharacterTexture.LoadSynchronous();
 			}
 		}
 	}
@@ -183,31 +195,29 @@ void ULRGachaResultSlotWidget::SetupNameAndIcon()
 
 		if (Text_Name)
 		{
-			if (!EquipData.EquipmentName.IsEmpty())
-			{
-				Text_Name->SetText(FText::FromString(EquipData.EquipmentName));
-			}
-			else
-			{
-				Text_Name->SetText(FText::FromName(CachedResult.ItemID));
-			}
+			Text_Name->SetText(
+				!EquipData.EquipmentName.IsEmpty()
+				? FText::FromString(EquipData.EquipmentName)
+				: FText::FromName(CachedResult.ItemID)
+			);
 		}
 
-		if (Image_Icon)
+		if (!SlotTexture && !EquipData.EquipmentTexture.IsNull())
 		{
-			// 2) fallback: EquipmentTexture
-			if (!SlotTexture)
-			{
-				if (!EquipData.EquipmentTexture.IsNull())
-				{
-					SlotTexture = EquipData.EquipmentTexture.LoadSynchronous();
-				}
-			}
+			SlotTexture = EquipData.EquipmentTexture.LoadSynchronous();
+		}
+	}
 
-			if (SlotTexture)
-			{
-				Image_Icon->SetBrushFromTexture(SlotTexture);
-			}
+	if (Image_Icon)
+	{
+		if (SlotTexture)
+		{
+			Image_Icon->SetBrushFromTexture(SlotTexture);
+		}
+		else
+		{
+			// 이전 슬롯 브러시가 남지 않도록 명시적으로 초기화
+			Image_Icon->SetBrushFromTexture(nullptr);
 		}
 	}
 }

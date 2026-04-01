@@ -33,7 +33,13 @@ void ULRGameOverPopupWidget::UnbindProperties()
 
 void ULRGameOverPopupWidget::OnRegroupButtonClicked()
 {
-	LR_SCREEN_INFO(TEXT("Regroup Button Clicked : Not implemented yet"));
+	ULRGameInstance* GI = GetGameInstance<ULRGameInstance>();
+	ALRStageGameMode* StageGM = Cast<ALRStageGameMode>(GetWorld()->GetAuthGameMode());
+	if (GI && StageGM)
+	{
+		GI->SetNextUIID(EUIID::PARTY);
+		StageGM->OnExitStage();
+	}
 }
 
 void ULRGameOverPopupWidget::OnRestartButtonClicked()

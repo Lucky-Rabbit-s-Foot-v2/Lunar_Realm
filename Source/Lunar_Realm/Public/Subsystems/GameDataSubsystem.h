@@ -170,6 +170,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Currecny")
 	const FCurrencyStaticData& GetCurrencyStaticData(FName CurrencyID) const;
 
+	// ========================================
+	// 등급별 리소스 데이터 조회
+	// ========================================
+	UFUNCTION(BlueprintCallable, Category = "LR|GameData|Grade")
+	const FGradeResourceData& GetGradeResourceData(ELRGrade InGrade) const;
+
 private:
 	// ========================================
 	// 내부 헬퍼 함수
@@ -268,7 +274,8 @@ private:
 	UDataTable* LoadedChapterStaticData;
 	UPROPERTY()
 	UDataTable* LoadedCurrencyStaticData;
-
+	UPROPERTY()
+	UDataTable* LoadedGradeResourceData;
 
 	// ========================================
 	// 데이터 캐싱 (성능 최적화)
@@ -326,6 +333,8 @@ private:
 	TMap<FName, FChapterStaticData> CachedChapterStaticData;
 	UPROPERTY()
 	TMap<FName, FCurrencyStaticData> CachedCurrencyStaticData;
+	UPROPERTY()
+	TMap<FName, FGradeResourceData> CachedGradeResourceData;
 
 	//캐싱 실패시 사용할 기본값
 	static FCharacterStaticData EmptyCharacterStaticData;
@@ -348,6 +357,7 @@ private:
 	static FStageStaticData EmptyStageStaticData;
 	static FChapterStaticData EmptyChapterStaticData;
 	static FCurrencyStaticData EmptyCurrencyStaticData;
+	static FGradeResourceData EmptyGradeResourceData;
 
 };
 

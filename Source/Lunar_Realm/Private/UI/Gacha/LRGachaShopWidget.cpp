@@ -9,6 +9,9 @@
 
 #include "Subsystems/Gacha/LRGachaSubsystem.h"
 #include "Subsystems/UIManagerSubsystem.h"
+#include "Subsystems/Settings/MapSettings.h"
+
+#include "Core/LRGameInstance.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "Engine/GameInstance.h"
@@ -136,7 +139,14 @@ void ULRGachaShopWidget::NativeConstruct()
 			}
 
 			GachaSys->SetPendingReveal(Pending.BannerID, Pending.TxnId, Pending.Results);
-			UGameplayStatics::OpenLevel(this, FName(TEXT("GachaRevealMap")));
+			
+			ULRGameInstance* LRGI = Cast<ULRGameInstance>(GetGameInstance());
+			if (LRGI)
+			{
+				LRGI->OpenNextLevelImmediately(ELevelName::GACHA);
+			}
+
+			//UGameplayStatics::OpenLevel(this, FName(TEXT("GachaRevealMap")));
 			return;
 		}
 	}
@@ -252,7 +262,12 @@ void ULRGachaShopWidget::TryBeginDrawAndOpenReveal(FName BannerID, int32 Count)
 	}
 
 	// 5) 리빌 맵으로 이동
-	UGameplayStatics::OpenLevel(this, FName(TEXT("GachaRevealMap")));
+	ULRGameInstance* LRGI = Cast<ULRGameInstance>(GetGameInstance());
+	if (LRGI)
+	{
+		LRGI->OpenNextLevelImmediately(ELevelName::GACHA);
+	}
+	//UGameplayStatics::OpenLevel(this, FName(TEXT("GachaRevealMap")));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -443,7 +458,12 @@ void ULRGachaShopWidget::OnClickHome()
 	}
 
 	// 3) 로비 맵이 아니면 로비로 이동
-	UGameplayStatics::OpenLevel(this, FName(TEXT("Map_Lobby")));
+	ULRGameInstance* LRGI = Cast<ULRGameInstance>(GetGameInstance());
+	if (LRGI)
+	{
+		LRGI->OpenNextLevelImmediately(ELevelName::LOBBY);
+	}
+	//UGameplayStatics::OpenLevel(this, FName(TEXT("Map_Lobby")));
 }
 
 void ULRGachaShopWidget::SetTab(ELRGachaShopTab NewTab)

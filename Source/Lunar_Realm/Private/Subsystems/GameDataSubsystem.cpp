@@ -25,7 +25,7 @@ FEnemySoundData			UGameDataSubsystem::EmptyEnemySoundData;
 FStageStaticData		UGameDataSubsystem::EmptyStageStaticData;
 FChapterStaticData		UGameDataSubsystem::EmptyChapterStaticData;
 FCurrencyStaticData		UGameDataSubsystem::EmptyCurrencyStaticData;
-
+FGradeResourceData		UGameDataSubsystem::EmptyGradeResourceData;
 
 void UGameDataSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -61,6 +61,7 @@ void UGameDataSubsystem::Deinitialize()
 	CachedStageStaticData.Empty();
 	CachedChapterStaticData.Empty();
 	CachedCurrencyStaticData.Empty();
+	CachedGradeResourceData.Empty();
 
 	LR_INFO(TEXT("GameDataSubsystem Deinitialize - Cleaned up caches"));
 	
@@ -126,7 +127,7 @@ void UGameDataSubsystem::LoadDataTables()
 	LoadedCharacterStaticData	 = Config->CharacterStaticDataTable.LoadSynchronous();	//캐릭터 데이터
 	LoadedCharacterSoundData	 = Config->CharacterSoundDataTable.LoadSynchronous();	//캐릭터 사운드 데이터
 	LoadedEnemyStaticData		 = Config->EnemyStaticDataTable.LoadSynchronous();		//적 데이터
-	LoadedEnemySoundData = Config->EnemySoundDataTable.LoadSynchronous();				//적 사운드 데이터
+	LoadedEnemySoundData		 = Config->EnemySoundDataTable.LoadSynchronous();		//적 사운드 데이터
 	LoadedEquipmentStaticData	 = Config->EquipmentStaticDataTable.LoadSynchronous();	//장비 데이터
 	LoadedEquipmentStatBonus	 = Config->EquipmentStatBonusTable.LoadSynchronous();	//장비 보너스
 	LoadedSetEffectBonus		 = Config->EquipmentSetEffectTable.LoadSynchronous();	//세트장비 효과
@@ -143,7 +144,8 @@ void UGameDataSubsystem::LoadDataTables()
 	LoadedStageStaticData		 = Config->StageStaticDataTable.LoadSynchronous();		//스테이지 데이터
 	LoadedChapterStaticData		 = Config->ChapterStaticDataTable.LoadSynchronous();	//챕터 데이터
 	LoadedCurrencyStaticData	 = Config->CurrencyStaticDataTable.LoadSynchronous();	//재화 데이터
-	
+	LoadedGradeResourceData		 = Config->GradeResourceDataTable.LoadSynchronous();	//등급별 리소스 데이터
+
 	if (LoadedCharacterStaticData)
 	{
 		LR_INFO(TEXT("Character Data loaded with %d rows"), LoadedCharacterStaticData->GetRowNames().Num());
@@ -209,7 +211,8 @@ void UGameDataSubsystem::CacheAllData()
 		LoadedChapterStaticData, CachedChapterStaticData, &FChapterStaticData::DataID, TEXT("ChapterStaticData"));
 	CacheDataTable<FCurrencyStaticData, FName>(
 		LoadedCurrencyStaticData, CachedCurrencyStaticData, &FCurrencyStaticData::DataID, TEXT("CurrencyStaticData"));
-
+	CacheDataTable<FGradeResourceData, FName>(
+		LoadedGradeResourceData, CachedGradeResourceData, &FGradeResourceData::DataID, TEXT("GradeResourceData"));
 }
 
 FName UGameDataSubsystem::StatTypeToName(ELRStatusType StatusType)
@@ -626,4 +629,12 @@ const TArray<FName> UGameDataSubsystem::GetAllStageID() const
 const FCurrencyStaticData& UGameDataSubsystem::GetCurrencyStaticData(FName CurrencyID) const
 {
 	return GetCachedData(CachedCurrencyStaticData, CurrencyID, EmptyCurrencyStaticData, TEXT("CurrencyStaticData"));
+}
+
+const FGradeResourceData& UGameDataSubsystem::GetGradeResourceData(ELRGrade InGrade) const
+{
+	FString GradeNameString = UEnum::GetValueAsString(InGrade);
+	GradeNameString.RemoveAt(0, GradeNameString.Find(TEXT("::")) + 2);
+	FName GradeName = FName(*GradeNameString);
+	return GetCachedData(CachedGradeResourceData, GradeName, EmptyGradeResourceData, TEXT("GradeResourceData"));
 }
