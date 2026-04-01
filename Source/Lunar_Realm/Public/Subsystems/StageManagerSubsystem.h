@@ -89,7 +89,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LR|Test")
 	FStageStaticData GetCurrentStageDataCopy() const;
 
-	const FStageStaticData* GetCurrentStateData();
+	const FStageStaticData* GetCurrentStageData();
 
 	UFUNCTION(BlueprintCallable, Category = "LR|Stage")
 	const FStageSpawnerData& GetCurrentStageSpawnerData();
