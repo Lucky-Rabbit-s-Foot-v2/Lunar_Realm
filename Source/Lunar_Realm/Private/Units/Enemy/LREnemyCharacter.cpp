@@ -123,6 +123,13 @@ void ALREnemyCharacter::InitializeByEnemyID(FName EnemyID)
 	// 비주얼 데이터 적용 (SkeletalMesh, AnimBP, Scale)
 	ApplyVisualData(EnemyData);
 
+	CachedAuraVFXOffset = EnemyData.AuraVFXOffset;
+	CachedAuraVFXScale = FVector(
+		(EnemyData.AuraVFXScale.X > KINDA_SMALL_NUMBER) ? EnemyData.AuraVFXScale.X : 1.f,
+		(EnemyData.AuraVFXScale.Y > KINDA_SMALL_NUMBER) ? EnemyData.AuraVFXScale.Y : 1.f,
+		(EnemyData.AuraVFXScale.Z > KINDA_SMALL_NUMBER) ? EnemyData.AuraVFXScale.Z : 1.f
+	);
+
 	// Aura VFX 캐싱 및 초기 활성화
 	CachedAuraVFXList.Empty();
 	for (const TSoftObjectPtr<UNiagaraSystem>& SoftVFX : EnemyData.AuraVFXList)
@@ -281,7 +288,8 @@ void ALREnemyCharacter::ApplyVisualData(const FEnemyStaticData& EnemyData)
 			float HalfHeight = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 
 			float RelativeZ = -HalfHeight - MeshBottomZ;
-			MeshComp->SetRelativeLocation(FVector(0.0f, 0.0f, RelativeZ));
+			FVector AutoAlignedLocation = FVector(0.0f, 0.0f, RelativeZ);
+			MeshComp->SetRelativeLocation(AutoAlignedLocation + EnemyData.MeshOffset);
 		}
 		else
 		{
@@ -474,6 +482,10 @@ void ALREnemyCharacter::ActivateAuraVFX(int32 Index)
 	}
 
 	AuraVFXComponent->SetAsset(TargetVFX);
+
+	AuraVFXComponent->SetRelativeLocation(CachedAuraVFXOffset);
+	AuraVFXComponent->SetRelativeScale3D(CachedAuraVFXScale);
+
 	AuraVFXComponent->Activate(true);
 }
 

@@ -37,6 +37,7 @@
 // (260225) BJM 플레이어가 직접 조종할 때 쓸 단일 평타 GA
 // (260316) BJM 플레이어 Ingame 아이콘 테두리, GradeImage 추가
 // (260322) KWB FEnemySoundData 추가
+// (260331) KWB Mesh, VFX 관련 Offset 데이터 추가
 // =============================================================================
 
 USTRUCT(BlueprintType)
@@ -789,6 +790,9 @@ struct FEnemyStaticData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
 	TSoftObjectPtr<USkeletalMesh> EnemyMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	FVector MeshOffset = FVector::ZeroVector;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
 	TSoftObjectPtr<UTexture2D> CharacterTexture;
@@ -807,6 +811,18 @@ struct FEnemyStaticData : public FTableRowBase
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
 	TArray<TSoftObjectPtr<UNiagaraSystem>> AuraVFXList;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual")
+	FVector AuraVFXOffset = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual", meta = (ClampMin = "0.01"))
+	FVector AuraVFXScale = FVector::OneVector;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual", meta = (ClampMin = "0.0"))
+	float CapsuleRadius = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Visual", meta = (ClampMin = "0.0"))
+	float CapsuleHalfHeight = 0.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|AI")
 	TObjectPtr<UBehaviorTree> BehaviorTree;

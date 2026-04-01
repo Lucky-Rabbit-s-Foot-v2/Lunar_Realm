@@ -143,8 +143,8 @@ void ALREnemyAIController::InitializeFromEnemyData(FName EnemyID)
 		UAnimMontage* LoadedMontage = nullptr;
 		if (EnemyData.AttackMontages.IsValidIndex(i) && !EnemyData.AttackMontages[i].IsNull())
 		{
-			LR_INFO(TEXT("[%s] AttackMontages[%d] 경로: %s"),
-				*GetName(), i, *EnemyData.AttackMontages[i].ToString());
+			//LR_INFO(TEXT("[%s] AttackMontages[%d] 경로: %s"),
+			//	*GetName(), i, *EnemyData.AttackMontages[i].ToString());
 
 			LoadedMontage = EnemyData.AttackMontages[i].LoadSynchronous();
 
@@ -155,8 +155,8 @@ void ALREnemyAIController::InitializeFromEnemyData(FName EnemyID)
 			}
 			else
 			{
-				LR_INFO(TEXT("[%s] AttackMontages[%d] 로드 성공: %s"),
-					*GetName(), i, *LoadedMontage->GetName());
+				//LR_INFO(TEXT("[%s] AttackMontages[%d] 로드 성공: %s"),
+				//	*GetName(), i, *LoadedMontage->GetName());
 			}
 		}
 		else

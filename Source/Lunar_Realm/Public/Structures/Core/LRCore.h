@@ -14,6 +14,8 @@
 #include "TimerManager.h"
 #include "LRCore.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCoreDestroyedDel, AActor*, InDestroyedCore);
+
 class UBoxComponent;
 class UStaticMeshComponent;
 class ULRCoreAttributeSet;
@@ -52,6 +54,9 @@ public:
 	FORCEINLINE UStaticMeshComponent* GetVisualMesh() const { return VisualMesh; }
 
 	virtual void OnCoreDestroyed();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCoreDestroyedDel OnCoreDestroyedEvent;
 
 protected:
 	virtual void BeginPlay() override;

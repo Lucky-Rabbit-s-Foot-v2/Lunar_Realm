@@ -53,6 +53,10 @@ protected:
 	UFUNCTION()
 	void OnGameStarted();
 
+	// 코어 파괴 시 즉시 스폰 정지
+	UFUNCTION()
+	void OnGameEnding();
+
 	// 데이터 준비 + 게임 시작 신호 둘 다 충족 시 스폰 시작
 	void TryStartSpawning();
 
