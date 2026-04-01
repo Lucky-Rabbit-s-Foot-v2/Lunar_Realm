@@ -58,7 +58,7 @@ FStageStaticData UStageManagerSubsystem::GetCurrentStageDataCopy() const
 	return *CurrentStageData;
 }
 
-const FStageStaticData* UStageManagerSubsystem::GetCurrentStateData()
+const FStageStaticData* UStageManagerSubsystem::GetCurrentStageData()
 {
 	return CurrentStageData;
 }

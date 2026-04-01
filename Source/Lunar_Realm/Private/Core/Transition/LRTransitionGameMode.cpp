@@ -193,7 +193,7 @@ void ALRTransitionGameMode::GatherEnemyAssets(UGameInstance* InGI, UGameDataSubs
 	if (!StageMgr) return;
 
 	TArray<FName> EnemyIDsToLoad;
-	const FStageStaticData* StageData = StageMgr->GetCurrentStateData();
+	const FStageStaticData* StageData = StageMgr->GetCurrentStageData();
 
 	if (StageData)
 	{

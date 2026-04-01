@@ -26,6 +26,7 @@
 
 #include "UI/InGame/LRGameClearPopupWidget.h"
 #include "UI/InGame/LRReadyStartWidget.h"
+#include "UI/InGame/LRBossAlertPopupWidget.h"
 #include "Subsystems/PoolingSubsystem.h"
 #include "Subsystems/CollectionSubsystem.h"
 
@@ -199,7 +200,7 @@ void ALRStageGameMode::OnResetStage()
 	*/
 
 	UStageManagerSubsystem* StageMgr = GetGameInstance()->GetSubsystem<UStageManagerSubsystem>();
-	FText CurrentStageName = StageMgr->GetCurrentStateData()->StageName;
+	FText CurrentStageName = StageMgr->GetCurrentStageData()->StageName;
 	LR_SCREEN_INFO(TEXT("현재 스테이지: %s"), *CurrentStageName.ToString());
 
 	OnResumeGame();
@@ -221,7 +222,7 @@ void ALRStageGameMode::OnStartNextStage()
 {
 
 	UStageManagerSubsystem* StageMgr = GetGameInstance()->GetSubsystem<UStageManagerSubsystem>();
-	FName NextStageID = StageMgr->GetCurrentStateData()->NextStageID;
+	FName NextStageID = StageMgr->GetCurrentStageData()->NextStageID;
 
 	ULRGameInstance* GI = Cast<ULRGameInstance>(GetGameInstance());
 	GI->OpenNextStage(NextStageID);
@@ -231,9 +232,13 @@ void ALRStageGameMode::OnStartNextStage()
 
 void ALRStageGameMode::OnBossAppearance()
 {
+	OnPauseGame();
 	if (UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>())
 	{
-		UIManager->OpenUIByID(EUIID::BOSSALERT);
+		if (ULRBossAlertPopupWidget* Widget = Cast<ULRBossAlertPopupWidget>(UIManager->OpenUIByID(EUIID::BOSSALERT)))
+		{
+			Widget->OnAlertAnimationFinishedDel.AddUniqueDynamic(this, &ALRStageGameMode::OnResumeGame);
+		}
 	}
 }
 
@@ -242,6 +247,18 @@ void ALRStageGameMode::BeginPlay()
 	Super::BeginPlay();
 
 	OnInitializeStage();
+
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->GetTimerManager().ClearTimer(GameStartDelayTimer);
+		World->GetTimerManager().SetTimer(GameStartDelayTimer, 
+			this, 
+			&ALRStageGameMode::StartGame, 
+			GameStartDelay, 
+			false
+		);
+	}
 }
 
 void ALRStageGameMode::OnInitializeStage()
@@ -262,23 +279,8 @@ void ALRStageGameMode::OnInitializeStage()
 	if (!UIManager)
 	{
 		LR_ERROR(TEXT("[GameMode] UIManagerSubsystem not found"));
-		StartGame();
 		return;
 	}
-
-	ULRReadyStartWidget* ReadyStartWidget = Cast<ULRReadyStartWidget>(UIManager->OpenUIByID(EUIID::READYSTART));
-	if (ReadyStartWidget)
-	{
-		ReadyStartWidget->OnReadySequenceFinished.AddDynamic(this, &ALRStageGameMode::OnReadySequenceFinished);
-	}
-	else
-	{
-		LR_WARN(TEXT("[GameMode] ReadyStartWidget not found — starting game immediately"));
-		StartGame();
-		return;
-	}
-
-	StartGame();
 
 	// 입력 모드 금지
 	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
@@ -290,12 +292,37 @@ void ALRStageGameMode::OnInitializeStage()
 	}
 }
 
+void ALRStageGameMode::OnPlayReadyStartAnimation()
+{
+	OnPauseGame();
+
+	UUIManagerSubsystem* UIManager = GetGameInstance()->GetSubsystem<UUIManagerSubsystem>();
+	ULRReadyStartWidget* ReadyStartWidget = Cast<ULRReadyStartWidget>(UIManager->OpenUIByID(EUIID::READYSTART));
+	if (ReadyStartWidget)
+	{
+		ReadyStartWidget->OnReadySequenceFinished.AddDynamic(this, &ALRStageGameMode::OnReadySequenceFinished);
+	}
+}
+
 void ALRStageGameMode::StartGame()
 {
 	// TEST
 	LR_INFO(TEXT("[GameMode] Game Start! Broadcasting OnGameStarted delegate."));
 
 	OnGameStarted.Broadcast();
+
+	if (UStageManagerSubsystem* StageMgr = GetGameInstance()->GetSubsystem<UStageManagerSubsystem>())
+	{
+		const FStageStaticData* StageData = StageMgr->GetCurrentStageData();
+		if (StageData && StageData->bIsBossStage)
+		{
+			OnBossAppearance();
+		}
+		else
+		{
+			OnPlayReadyStartAnimation();
+		}
+	}
 }
 
 void ALRStageGameMode::PlayBGM()
@@ -332,6 +359,8 @@ void ALRStageGameMode::OnBGMFinished()
 
 void ALRStageGameMode::OnReadySequenceFinished()
 {
+	OnResumeGame();
+
 	// 입력 복원
 	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
 	{
@@ -352,7 +381,7 @@ void ALRStageGameMode::CleanupUnusedCores()
 	UStageManagerSubsystem* StageSys = GI ? GI->GetSubsystem<UStageManagerSubsystem>() : nullptr;
 	if (!StageSys) return;
 
-	const FStageStaticData* StageData = StageSys->GetCurrentStateData();
+	const FStageStaticData* StageData = StageSys->GetCurrentStageData();
 	if (!StageData || StageData->PlayerStartTag.IsNone()) return;
 
 	FName CurrentStageTag = StageData->PlayerStartTag;
@@ -415,7 +444,7 @@ AActor* ALRStageGameMode::ChoosePlayerStart_Implementation(AController* InPlayer
 
 	if (StageSys)
 	{
-		const FStageStaticData* StageData = StageSys->GetCurrentStateData();
+		const FStageStaticData* StageData = StageSys->GetCurrentStageData();
 
 		if (StageData && !StageData->PlayerStartTag.IsNone())
 		{

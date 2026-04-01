@@ -9,6 +9,9 @@
 /**
  * 
  */
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAlertAnimationFinished);
+
 UCLASS()
 class LUNAR_REALM_API ULRBossAlertPopupWidget : public ULRPopupWidget
 {
@@ -23,6 +26,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnPlayAlertAnimation();
 	
+	FOnAlertAnimationFinished OnAlertAnimationFinishedDel;
+
 	virtual void OnAnimationFinished_Implementation(const UWidgetAnimation* Animation) override;
 
 protected:

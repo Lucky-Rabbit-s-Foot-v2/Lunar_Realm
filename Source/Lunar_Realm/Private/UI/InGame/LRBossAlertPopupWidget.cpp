@@ -22,6 +22,7 @@ void ULRBossAlertPopupWidget::NativeConstruct()
 void ULRBossAlertPopupWidget::NativeDestruct()
 {
 	OnCloseUIRequestedDel.Clear();
+	OnAlertAnimationFinishedDel.Clear();
 
 	Super::NativeDestruct();
 }
@@ -51,6 +52,7 @@ void ULRBossAlertPopupWidget::OnAnimationFinished_Implementation(const UWidgetAn
 
 	if (Animation == AlertAnim)
 	{
+		OnAlertAnimationFinishedDel.Broadcast();
 		OnCloseUIRequestedDel.Broadcast(this);
 	}
 }
