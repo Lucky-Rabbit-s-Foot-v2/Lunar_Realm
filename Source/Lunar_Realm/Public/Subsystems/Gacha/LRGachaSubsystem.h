@@ -232,6 +232,26 @@ private:
 	UPROPERTY() UDataTable* LoadedRarityRateDT = nullptr;
 	UPROPERTY() UDataTable* LoadedRevealVisualDT = nullptr;
 
+	// ───────────────── 런타임 조회 캐시(최적화) ─────────────────
+
+	/** BannerID -> 배너 Row */
+	TMap<FName, FLRGachaBannerRow> BannerRowCache;
+
+	/** BannerID -> Pool Row 배열 */
+	TMap<FName, TArray<FLRGachaPoolRow>> PoolRowsByBannerCache;
+
+	/** "BannerID|ItemType" -> 확률 Row 배열 */
+	TMap<FString, TArray<FLRGachaRarityRateRow>> RarityRateRowsCache;
+
+	/** "ItemID|ItemType" -> 리빌 비주얼 Row */
+	TMap<FString, FLRGachaRevealVisualRow> RevealVisualRowCache;
+
+	/** Rarity -> 중복 골드 */
+	TMap<uint8, int32> DuplicateGoldCache;
+
+	/** "ItemID|ItemType" -> 결과 슬롯 텍스처 캐시 */
+	mutable TMap<FString, TObjectPtr<UTexture2D>> ResultSlotTextureCache;
+
 	// SaveGame slot index(단일 사용자 가정)
 	const uint32 UserIndex = 0;
 

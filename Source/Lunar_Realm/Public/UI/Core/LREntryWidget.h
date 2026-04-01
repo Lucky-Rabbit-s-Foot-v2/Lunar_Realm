@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UI/Core/LRBaseWidget.h"
 #include "Data/LREnumType.h"
+#include "Data/LRDataStructs.h"
 #include "Blueprint/IUserObjectListEntry.h"
 #include "LREntryWidget.generated.h"
 
@@ -45,6 +46,9 @@ public:
 
 	UPROPERTY()
 	bool bIsLocked = true;
+
+	UPROPERTY()
+	bool bIsSelected = false;
 };
 
 UCLASS()
@@ -94,6 +98,4 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<ULRTileData> TileData;
-
-	bool bIsSelected = false;
 };

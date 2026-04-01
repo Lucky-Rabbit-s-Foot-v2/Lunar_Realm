@@ -108,4 +108,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Stage")
 	TSoftObjectPtr<UDataTable> CurrencyStaticDataTable;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LR|GameData|Grade")
+	TSoftObjectPtr<UDataTable> GradeResourceDataTable;
+
 };

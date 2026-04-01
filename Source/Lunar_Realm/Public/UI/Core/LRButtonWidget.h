@@ -38,4 +38,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LR|Button")
 	FText ButtonText;
+
+	FTimerHandle ClickTimer;
+	bool bCanClicked = true;
 };

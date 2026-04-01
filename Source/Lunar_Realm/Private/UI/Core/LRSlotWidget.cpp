@@ -112,5 +112,12 @@ void ULRSlotWidget::SetSelected(bool bSelected)
 		Img_Selected->SetVisibility(ESlateVisibility::Hidden);
 	}
 
-	OnSlotToggledDel.Broadcast(bIsSelected);
+	if (ID.IsNone())
+	{
+		OnSlotToggledDel.Broadcast(false);
+	}
+	else
+	{
+		OnSlotToggledDel.Broadcast(bIsSelected);
+	}
 }

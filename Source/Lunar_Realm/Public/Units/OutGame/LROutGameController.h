@@ -37,8 +37,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnSelectedEntryWidget(class ULREntryWidget* InWidget);
 
+	void SetSelectedEntry(ULREntryWidget* InWidget);
+
 	UFUNCTION(BlueprintCallable)
 	void OnSelectedSlotWidget(class ULRSlotWidget* InWidget);
+
+	void SetSelectedSlot(ULRSlotWidget* InWidget);
 
 	UFUNCTION(BlueprintCallable)
 	void OnSelectedSlotToggled(bool bIsSelected);
@@ -73,16 +77,14 @@ public:
 	FName GetSelectedID() { return SelectedID; }
 	ECollectionType GetSelectedType() { return SelectedType; }
 	ULRBaseWidget* GetSelectedWidget() { return SelectedWidget.Get(); }
-	int32 GetSelectedSlotIndex() { return SelectedSlotIndex; }
-
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LR|Sound")
 	TObjectPtr<USoundBase> LobbyGachaBGMSound;
 
 	TWeakObjectPtr<class ULRBaseWidget> SelectedWidget;
-	
+	TWeakObjectPtr<class ULRTileData> SelectedTileData;
+
 	FName SelectedID = NAME_None;
 	ECollectionType SelectedType = ECollectionType::NONE;
-	int32 SelectedSlotIndex = -1;
 };
