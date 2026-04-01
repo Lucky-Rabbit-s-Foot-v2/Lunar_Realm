@@ -75,7 +75,7 @@ protected:
 private:
 	int32 CurrentPhase = 0;
 
-	static constexpr float SpeedPhase0 = 150.f;
-	static constexpr float SpeedPhase1 = 250.f;
-	static constexpr float SpeedPhase2 = 500.f;
+	static constexpr float SpeedPhase0 = 50.f;
+	static constexpr float SpeedPhase1 = 170.f;
+	static constexpr float SpeedPhase2 = 450.f;
 };
