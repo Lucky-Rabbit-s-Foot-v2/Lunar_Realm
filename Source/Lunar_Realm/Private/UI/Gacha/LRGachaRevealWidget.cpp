@@ -1329,3 +1329,121 @@ void ULRGachaRevealWidget::PlayDelayedRevealSFX()
 
 	PendingDelayedRevealSound = nullptr;
 }
+
+FReply ULRGachaRevealWidget::NativeOnTouchStarted(
+	const FGeometry& InGeometry,
+	const FPointerEvent& InGestureEvent)
+{
+	if (bTransitionPlaying)
+	{
+		return FReply::Handled();
+	}
+
+	bIsPointerDown = true;
+	bHasTriggeredSwipeDuringDrag = false;
+	PointerDownPosition = InGestureEvent.GetScreenSpacePosition();
+
+	return FReply::Handled();
+}
+
+FReply ULRGachaRevealWidget::NativeOnTouchMoved(
+	const FGeometry& InGeometry,
+	const FPointerEvent& InGestureEvent)
+{
+	if (bTransitionPlaying)
+	{
+		return FReply::Handled();
+	}
+
+	if (!bIsPointerDown)
+	{
+		return FReply::Handled();
+	}
+
+	if (bPresentationVisible || (bAllRevealed && bResultOverlayShown))
+	{
+		return FReply::Handled();
+	}
+
+	if (!OrbSceneActor)
+	{
+		return FReply::Handled();
+	}
+
+	if (bHasTriggeredSwipeDuringDrag)
+	{
+		return FReply::Handled();
+	}
+
+	const FVector2D CurrentPos = InGestureEvent.GetScreenSpacePosition();
+	const FVector2D Delta = CurrentPos - PointerDownPosition;
+
+	const float AbsX = FMath::Abs(Delta.X);
+	const float AbsY = FMath::Abs(Delta.Y);
+
+	if (AbsX > SwipeMinDistance && AbsX > AbsY)
+	{
+		OrbSceneActor->OnSwipeInput(-Delta.X);
+		bHasTriggeredSwipeDuringDrag = true;
+	}
+
+	return FReply::Handled();
+}
+
+FReply ULRGachaRevealWidget::NativeOnTouchEnded(
+	const FGeometry& InGeometry,
+	const FPointerEvent& InGestureEvent)
+{
+	if (bTransitionPlaying)
+	{
+		return FReply::Handled();
+	}
+
+	if (!bIsPointerDown)
+	{
+		return FReply::Handled();
+	}
+
+	bIsPointerDown = false;
+
+	const FVector2D UpPos = InGestureEvent.GetScreenSpacePosition();
+	const FVector2D Delta = UpPos - PointerDownPosition;
+
+	if (bPresentationVisible)
+	{
+		HidePresentation();
+
+		if (bAllRevealed)
+		{
+			ShowFinalResultOverlay();
+		}
+
+		return FReply::Handled();
+	}
+
+	if (bAllRevealed && bResultOverlayShown)
+	{
+		FinishAndClose();
+		return FReply::Handled();
+	}
+
+	if (bHasTriggeredSwipeDuringDrag)
+	{
+		bHasTriggeredSwipeDuringDrag = false;
+		return FReply::Handled();
+	}
+
+	if (OrbSceneActor)
+	{
+		const float AbsX = FMath::Abs(Delta.X);
+		const float AbsY = FMath::Abs(Delta.Y);
+
+		if (AbsX <= SwipeMinDistance && AbsY <= SwipeMinDistance)
+		{
+			OrbSceneActor->OnTapCenterOrb();
+		}
+	}
+
+	return FReply::Handled();
+}
+
