@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Core/LRGameModeBase.h"
+#include "Engine/StreamableManager.h"
 #include "LRTransitionGameMode.generated.h"
 
 // =============================================================================
@@ -58,5 +59,8 @@ private:
 
 	float CurrentFakeProgress = 0.0f;
 	float LoadTime = 1.0f;
+
+protected:
+	TSharedPtr<struct FStreamableHandle> PreloadHandle;
 
 };
