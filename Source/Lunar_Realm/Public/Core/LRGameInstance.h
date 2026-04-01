@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "Engine/StreamableManager.h"
 #include "Subsystems/Settings/MapSettings.h"
 #include "Subsystems/Settings/UIManagerSettings.h"
 #include "LRGameInstance.generated.h"
@@ -73,6 +74,8 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "LR|Stage")
 	FName GetCurrentStageID() const { return CurrentStageID; }
+
+	TSharedPtr<struct FStreamableHandle> PreloadHandle;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "LR|Stage")
