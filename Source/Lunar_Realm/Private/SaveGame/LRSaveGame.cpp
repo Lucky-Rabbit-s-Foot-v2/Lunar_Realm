@@ -127,9 +127,9 @@ void ULRSaveGame::SetOwnedEquipmentsList(TArray<FEquipmentInstance> InEquipmentL
 
 void ULRSaveGame::InitializeNewPlayerDefaults()
 {
-	Gold = 1000;
-	CrescentTicket = 1000;
-	FullMoonTicket = 1000;
+	Gold = 2000;
+	CrescentTicket = 10;
+	FullMoonTicket = 10;
 	LastUpdatedUtc = FDateTime::UtcNow();
 
 	SetCharacterPartySlot(0, FName("Army_N"));
@@ -138,6 +138,13 @@ void ULRSaveGame::InitializeNewPlayerDefaults()
 	FCharacterInstance DefaultCharacterInstance(FName("Army_N"), 1);
 	DefaultCharacters.Add(FName("Army_N"), DefaultCharacterInstance);
 	SetOwnedCharactersList(DefaultCharacters);
+
+	TArray<FEquipmentInstance> DefaultEquipments;
+	FEquipmentInstance DefaultWeapon(FName("EQUIP_SWORD_05"), 1);
+	DefaultEquipments.Add(DefaultWeapon);
+	SetOwnedEquipmentsList(DefaultEquipments);
+
+	SetEquipmentSlot(0, DefaultWeapon.InstanceID);
 
 }
 
