@@ -98,7 +98,7 @@ protected:
 
 	// TEST: 사전 생성 오브젝트 풀 - 추후 개수 변경 필요 (50 ~ 100)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner")
-	int32 PrewarmCount = 60;
+	int32 PrewarmCount = 32;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LR|Spawner", meta = (ClampMin = "0.1"))
 	float WaitTime = 0.0f;

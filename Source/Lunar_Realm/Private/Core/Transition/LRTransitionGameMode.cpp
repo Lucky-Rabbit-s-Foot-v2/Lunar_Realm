@@ -120,6 +120,8 @@ void ALRTransitionGameMode::PreloadAssetsAsync()
 				if (const TSoftObjectPtr<UWorld>* StageMapPtr = MapSettings->LevelMap.Find(ELevelName::STAGE))
 				{
 					StageMapName = FName(StageMapPtr->GetLongPackageFName());
+
+					AssetsToLoad.AddUnique(StageMapPtr->ToSoftObjectPath());
 				}
 			}
 
@@ -138,7 +140,10 @@ void ALRTransitionGameMode::PreloadAssetsAsync()
 
 		FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
 		//Streamable.RequestAsyncLoad(AssetsToLoad, FStreamableDelegate::CreateUObject(this, &ALRTransitionGameMode::StartLevelStreaming));
-		PreloadHandle = Streamable.RequestAsyncLoad(AssetsToLoad, FStreamableDelegate::CreateUObject(this, &ALRTransitionGameMode::StartLevelStreaming));
+		if (ULRGameInstance* LRGI = Cast<ULRGameInstance>(GI))
+		{
+			LRGI->PreloadHandle = Streamable.RequestAsyncLoad(AssetsToLoad, FStreamableDelegate::CreateUObject(this, &ALRTransitionGameMode::StartLevelStreaming));
+		}
 	}
 	else
 	{
