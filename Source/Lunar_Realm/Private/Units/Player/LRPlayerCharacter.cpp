@@ -82,6 +82,11 @@ void ALRPlayerCharacter::BeginPlay()
 		}
 	}
 
+	if(ALRStageGameMode* GM = Cast<ALRStageGameMode>(UGameplayStatics::GetGameMode(GetWorld())))
+	{
+		GM->OnGameStarted.AddUniqueDynamic(this, &ALRPlayerCharacter::PlayIntroAndSummonSound);
+	}
+
 	// TODO_BJM: 테스트용으로 임시 배치.
 	//TestSummonSlot();
 }
@@ -154,7 +159,7 @@ void ALRPlayerCharacter::PossessedBy(AController* NewController)
 
 		UE_LOG(LogTemp, Log, TEXT("GAS Initialized completely in %s"), *GetName());
 	}
-	PlayIntroAndSummonSound();
+	//PlayIntroAndSummonSound();
 }
 
 void ALRPlayerCharacter::Tick(float DeltaTime)
