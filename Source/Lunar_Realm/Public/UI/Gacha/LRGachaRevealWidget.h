@@ -365,6 +365,9 @@ private:
 	FVector2D PointerDownPosition = FVector2D::ZeroVector;
 	float SwipeMinDistance = 30.f;
 
+	/** 현재 추적 중인 터치 포인터 인덱스(첫 손가락) */
+	int32 ActivePointerIndex = INDEX_NONE;
+
 	/** 최종 결과 슬롯 순차 생성을 반복 호출하는 타이머 */
 	FTimerHandle TimerSequentialResultSlots;
 

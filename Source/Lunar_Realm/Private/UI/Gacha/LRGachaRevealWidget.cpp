@@ -54,6 +54,11 @@ void ULRGachaRevealWidget::NativeDestruct()
 	PendingTransitionOrbIndex = INDEX_NONE;
 	PendingTransitionResult = FLRGachaResult();
 
+	bIsPointerDown = false;
+	bHasTriggeredSwipeDuringDrag = false;
+	ActivePointerIndex = INDEX_NONE;
+	PointerDownPosition = FVector2D::ZeroVector;
+
 	if (TransitionOverlay)
 	{
 		TransitionOverlay->SetVisibility(ESlateVisibility::Collapsed);
@@ -121,6 +126,8 @@ void ULRGachaRevealWidget::StartReveal(FName InBannerID, const TArray<FLRGachaRe
 	PendingTransitionResult = FLRGachaResult();
 
 	bIsPointerDown = false;
+	bHasTriggeredSwipeDuringDrag = false;
+	ActivePointerIndex = INDEX_NONE;
 	PointerDownPosition = FVector2D::ZeroVector;
 
 	if (TransitionOverlay)
@@ -502,7 +509,7 @@ FReply ULRGachaRevealWidget::NativeOnMouseMove(
 		return FReply::Handled();
 	}
 
-	const FVector2D CurrentPos = InMouseEvent.GetScreenSpacePosition();
+	const FVector2D CurrentPos = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
 	const FVector2D Delta = CurrentPos - PointerDownPosition;
 
 	const float AbsX = FMath::Abs(Delta.X);
@@ -531,7 +538,7 @@ FReply ULRGachaRevealWidget::NativeOnMouseButtonDown(
 
 	bIsPointerDown = true;
 	bHasTriggeredSwipeDuringDrag = false;
-	PointerDownPosition = InMouseEvent.GetScreenSpacePosition();
+	PointerDownPosition = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
 
 	return FReply::Handled();
 }
@@ -551,7 +558,7 @@ FReply ULRGachaRevealWidget::NativeOnMouseButtonUp(
 	}
 	bIsPointerDown = false;
 
-	const FVector2D UpPos = InMouseEvent.GetScreenSpacePosition();
+	const FVector2D UpPos = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
 	const FVector2D Delta = UpPos - PointerDownPosition;
 
 	// ── [1] 개별 리빌 화면이 떠 있으면 탭으로 닫기 ──────────────────
@@ -1339,9 +1346,15 @@ FReply ULRGachaRevealWidget::NativeOnTouchStarted(
 		return FReply::Handled();
 	}
 
+	if (bIsPointerDown)
+	{
+		return FReply::Handled();
+	}
+
 	bIsPointerDown = true;
 	bHasTriggeredSwipeDuringDrag = false;
-	PointerDownPosition = InGestureEvent.GetScreenSpacePosition();
+	ActivePointerIndex = InGestureEvent.GetPointerIndex();
+	PointerDownPosition = InGeometry.AbsoluteToLocal(InGestureEvent.GetScreenSpacePosition());
 
 	return FReply::Handled();
 }
@@ -1356,6 +1369,11 @@ FReply ULRGachaRevealWidget::NativeOnTouchMoved(
 	}
 
 	if (!bIsPointerDown)
+	{
+		return FReply::Handled();
+	}
+
+	if (InGestureEvent.GetPointerIndex() != ActivePointerIndex)
 	{
 		return FReply::Handled();
 	}
@@ -1375,7 +1393,7 @@ FReply ULRGachaRevealWidget::NativeOnTouchMoved(
 		return FReply::Handled();
 	}
 
-	const FVector2D CurrentPos = InGestureEvent.GetScreenSpacePosition();
+	const FVector2D CurrentPos = InGeometry.AbsoluteToLocal(InGestureEvent.GetScreenSpacePosition());
 	const FVector2D Delta = CurrentPos - PointerDownPosition;
 
 	const float AbsX = FMath::Abs(Delta.X);
@@ -1404,10 +1422,17 @@ FReply ULRGachaRevealWidget::NativeOnTouchEnded(
 		return FReply::Handled();
 	}
 
+	if (InGestureEvent.GetPointerIndex() != ActivePointerIndex)
+	{
+		return FReply::Handled();
+	}
+
 	bIsPointerDown = false;
 
-	const FVector2D UpPos = InGestureEvent.GetScreenSpacePosition();
+	const FVector2D UpPos = InGeometry.AbsoluteToLocal(InGestureEvent.GetScreenSpacePosition());
 	const FVector2D Delta = UpPos - PointerDownPosition;
+
+	ActivePointerIndex = INDEX_NONE;
 
 	if (bPresentationVisible)
 	{
