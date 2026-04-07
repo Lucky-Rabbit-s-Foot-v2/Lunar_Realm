@@ -68,28 +68,6 @@ void ULRGA_InstantAttack::OnAbilityActivated(const FGameplayAbilitySpecHandle Ha
 		return;
 	}
 
-	//if (!MontageToPlay)
-	//{
-	//	LR_WARN(TEXT("[InstantAttack] 몽타주 없음 — 즉시 데미지 적용 | Owner: %s | OptionalObject Valid: %d"),
-	//		ActorInfo->AvatarActor.IsValid() ? *ActorInfo->AvatarActor->GetName() : TEXT("NULL"),
-	//		CachedOptionalObject.IsValid());
-	//	UAbilitySystemComponent* SourceASC = ActorInfo->AbilitySystemComponent.Get();
-	//	if (SourceASC)
-	//	{
-	//		FGameplayEffectContextHandle Ctx = SourceASC->MakeEffectContext();
-	//		Ctx.AddSourceObject(ActorInfo->AvatarActor.Get());
-	//		Ctx.AddInstigator(ActorInfo->AvatarActor.Get(), ActorInfo->AvatarActor.Get());
-	//		FGameplayEffectSpecHandle Spec =
-	//			SourceASC->MakeOutgoingSpec(DamageEffectClass, 1.f, Ctx);
-	//		if (Spec.IsValid())
-	//		{
-	//			SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
-	//		}
-	//	}
-	//	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-	//	return;
-	//}
-
 	ALRCharacter* OwnerChar = GetCharacterFromActorInfo(*ActorInfo);
 	UAnimInstance* AnimInstance =
 		(OwnerChar && OwnerChar->GetMesh()) ? OwnerChar->GetMesh()->GetAnimInstance() : nullptr;
