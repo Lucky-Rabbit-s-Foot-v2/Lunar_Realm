@@ -352,12 +352,6 @@ void ALRAIController::InitializeBehaviorTree(UBehaviorTree* NewBT)
 			LR_WARN(TEXT("[%s] Target Core not found. 레벨에 [%s] 태그를 가진 코어가 필요합니다."),
 				*GetName(), *TargetCoreTag.ToString());
 		}
-
-		//if (!CoreActor)
-		//{
-		//	LR_WARN(TEXT("[%s] Target Core not found. 레벨에 [%s] 태그를 가진 코어가 필요합니다."),
-		//		*GetName(), *TargetCoreTag.ToString());
-		//}
 	}
 }
 
