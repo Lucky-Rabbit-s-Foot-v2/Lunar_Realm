@@ -806,3 +806,4 @@ void ULRCombatComponent::UpdateAttackRange()
 	}
 
 }
+

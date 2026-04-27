@@ -94,6 +94,9 @@ void ALRTransitionGameMode::OnLevelPreloadCompleted()
 		LoadTime, // 1초 대기
 		false
 	);
+
+
+
 }
 
 void ALRTransitionGameMode::PreloadAssetsAsync()

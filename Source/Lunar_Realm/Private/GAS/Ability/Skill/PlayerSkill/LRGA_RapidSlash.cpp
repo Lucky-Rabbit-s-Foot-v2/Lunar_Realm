@@ -127,10 +127,10 @@ void ULRGA_RapidSlash::PerformStrikeLogic()
 	TArray<AActor*> OutActors;
 	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), StrikeCenter, CachedHitRadius, ObjectTypes, AActor::StaticClass(), IgnoreActors, OutActors);
 
-#if WITH_EDITOR
-	// 스킬이 터지는 곳에 빨간 범위 표시
-	DrawDebugSphere(GetWorld(), StrikeCenter, CachedHitRadius, 16, FColor::Red, false, 0.5f);
-#endif
+//#if WITH_EDITOR
+//	// 스킬이 터지는 곳에 빨간 범위 표시
+//	DrawDebugSphere(GetWorld(), StrikeCenter, CachedHitRadius, 16, FColor::Red, false, 0.5f);
+//#endif
 
 	for (AActor* HitActor : OutActors)
 	{

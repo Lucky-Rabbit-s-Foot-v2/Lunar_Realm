@@ -17,3 +17,4 @@ void ULRAnimNotify_Footstep::Notify(USkeletalMeshComponent* InMeshComp, UAnimSeq
 		}
 	}
 }
+

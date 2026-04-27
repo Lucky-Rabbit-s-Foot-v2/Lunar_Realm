@@ -73,3 +73,5 @@ void ULRGA_Fireball::OnAbilityActivated(const FGameplayAbilitySpecHandle Handle,
 	// EndAbility 
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 }
+
+

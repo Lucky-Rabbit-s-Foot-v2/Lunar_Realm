@@ -336,11 +336,11 @@ AActor* ULRGameplayAbilityBase::FindNearestHostile(FGameplayTag HostileTag, floa
 
 	
 	// 감지 범위 디버그 구체 그리기 (에디터 빌드에서만)
-#if WITH_EDITOR
-	DrawDebugSphere(
-		GetWorld(), CachedInstigator->GetActorLocation(), SearchRadius,  
-		16, FColor::Green, false, 2.0f );
-#endif
+//#if WITH_EDITOR
+//	DrawDebugSphere(
+//		GetWorld(), CachedInstigator->GetActorLocation(), SearchRadius,  
+//		16, FColor::Green, false, 2.0f );
+//#endif
 	
 	TArray<AActor*> OutActors;
 	UKismetSystemLibrary::SphereOverlapActors(

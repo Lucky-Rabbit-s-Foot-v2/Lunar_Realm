@@ -74,11 +74,11 @@ void ALRPlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTi
 
 	OutVT.POV.Rotation = DesiredRot;
 
-	OutVT.POV.ProjectionMode = ECameraProjectionMode::Orthographic;
-	//OutVT.POV.OrthoWidth = 1200.0f;
-	OutVT.POV.OrthoWidth = 1200.0f;
-
-	//OutVT.POV.FOV = 90.0f;
+	OutVT.POV.ProjectionMode = ECameraProjectionMode::Orthographic; // 직교 투영
+	//OutVT.POV.ProjectionMode = ECameraProjectionMode::Perspective; // 원거리 투영
+	
+	OutVT.POV.OrthoWidth = 1200.0f; // 직교 투영
+	//OutVT.POV.FOV = 90.0f; // 원거리 투영
 
 }
 
